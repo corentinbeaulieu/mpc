@@ -59,6 +59,13 @@ repos:
           # 2. dataloop and mpitypes contain files from an external library
           #    adapted to MPC. Within those files, there are a number of errors
           #    and warning that would probably require a large refactoring.
+      - id: 'uncrustify'
+        args: ['-c', 'uncrustify.cfg', '-q']
+        exclude: |
+          (?x)
+            ^src/MPC_OpenMP/include/omp_lib\.h$|
+            ^src/MPC_OpenMP/include/omp_lib_kinds\.h$|
+            ^src/MPC_Fortran
   - repo: 'local'
     hooks:
       - id: 'git-blame-ignore-revs'
