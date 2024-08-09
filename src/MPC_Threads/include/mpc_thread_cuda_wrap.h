@@ -18,6 +18,7 @@
 /* # Authors:                                                             # */
 /* #   - PERACHE Marc marc.perache@cea.fr                                 # */
 /* #   - ADAM Julien adamj@paratools.com                                  # */
+/* #   - BOUHROUR Stephane stephane.bouhrour@uvsq.fr                      # */
 /* #                                                                      # */
 /* ######################################################################## */
 
@@ -41,15 +42,19 @@
 typedef int    CUresult;  /** CUDA driver return values*/
 typedef int    CUdevice;  /** CUDA device id (int) */
 typedef void * CUcontext; /** CUDA ctx (opaque pointer) */
+typedef void * CUexecAffinityParam; /** CUDA Affinity Parameters (opaque pointer) */
 
 /* all weak symbols.
  * We should have as many protoptypes as contained in cuda_lib/cuda_lib.c
  */
 CUresult sctk_cuInit(unsigned flag);
 CUresult sctk_cuCtxCreate(CUcontext *c, unsigned int f, CUdevice d);
+CUresult sctk_cuCtxCreate_v3(CUcontext* c, CUexecAffinityParam* paramsArray, int  numParams, unsigned int  f, CUdevice d);
 CUresult sctk_cuCtxPopCurrent(CUcontext *c);
 CUresult sctk_cuCtxPushCurrent(CUcontext c);
 CUresult sctk_cuDeviceGetByPCIBusId(CUdevice *d, const char *b);
+CUresult sctk_cuCtxDestroy(CUcontext c);
+CUresult sctk_cuDevicePrimaryCtxRelease(CUdevice d);
 #endif
 
 #endif

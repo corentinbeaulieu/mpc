@@ -18,6 +18,7 @@
 /* # Authors:                                                             # */
 /* #   - PERACHE Marc marc.perache@cea.fr                                 # */
 /* #   - ADAM Julien adamj@paratools.com                                  # */
+/* #   - BOUHROUR Stephane stephane.bouhrour@uvsq.fr                      # */
 /* #                                                                      # */
 /* ######################################################################## */
 
@@ -33,10 +34,7 @@
  * @param[in] flag not used in this wrapper
  */
 #pragma weak sctk_cuInit
-CUresult sctk_cuInit(__UNUSED__ unsigned flag) {
-  sctk_cuFatal();
-  return -1;
-}
+CUresult sctk_cuInit(unsigned int flag) { return cuInit(flag); }
 
 /**
  * Weak symbol to let MPC know the cuCtxCreate() symbol without linking to it at compile time.
@@ -44,9 +42,13 @@ CUresult sctk_cuInit(__UNUSED__ unsigned flag) {
  * @param[in] flag not used in this wrapper
  */
 #pragma weak sctk_cuCtxCreate
-CUresult sctk_cuCtxCreate(__UNUSED__ CUcontext *c, __UNUSED__ unsigned int f,__UNUSED__  CUdevice d) {
-  sctk_cuFatal();
-  return -1;
+CUresult sctk_cuCtxCreate(CUcontext *c, unsigned int f, CUdevice d) {
+  return cuCtxCreate(c, f, d);
+}
+
+#pragma weak sctk_cuCtxCreate_v3
+CUresult sctk_cuCtxCreate_v3(CUcontext* c, CUexecAffinityParam* paramsArray, int  numParams, unsigned int  f, CUdevice d) {
+  return cuCtxCreate_v3(c, paramsArray, numParams, f, d);
 }
 
 /**
@@ -54,28 +56,29 @@ CUresult sctk_cuCtxCreate(__UNUSED__ CUcontext *c, __UNUSED__ unsigned int f,__U
  * @param[in] flag not used in this wrapper
  */
 #pragma weak sctk_cuCtxPopCurrent
-CUresult sctk_cuCtxPopCurrent(__UNUSED__ CUcontext *c) {
-  sctk_cuFatal();
-  return -1;
-}
+CUresult sctk_cuCtxPopCurrent(CUcontext *c) { return cuCtxPopCurrent(c); }
 /**
  * Weak symbol to let MPC know the ctxPushCurrent() symbol without linking to it at compile time.
  * @param[in] flag not used in this wrapper
  */
 
 #pragma weak sctk_cuCtxPushCurrent
-CUresult sctk_cuCtxPushCurrent(__UNUSED__ CUcontext c) {
-  sctk_cuFatal();
-  return -1;
-}
+CUresult sctk_cuCtxPushCurrent(CUcontext c) { return cuCtxPushCurrent(c); }
 /**
  * Weak symbol to let MPC know the cuDeviceGetByPCIBusId() symbol without linking to it at compile time.
  * @param[in] flag not used in this wrapper
  */
 
 #pragma weak sctk_cuDeviceGetByPCIBusId
-CUresult sctk_cuDeviceGetByPCIBusId(__UNUSED__ CUdevice *d, __UNUSED__ const char *b) {
-  sctk_cuFatal();
-  return -1;
+CUresult sctk_cuDeviceGetByPCIBusId(CUdevice *d, const char *b) {
+  return cuDeviceGetByPCIBusId(d, b);
+}
+#pragma weak sctk_cuCtxDestroy
+CUresult sctk_cuCtxDestroy(CUcontext c) {
+  return cuCtxDestroy(c);
+}
+#pragma weak sctk_cuDevicePrimaryCtxRelease
+CUresult sctk_cuDevicePrimaryCtxRelease(CUdevice d) {
+  return cuDevicePrimaryCtxRelease(d);
 }
 #endif

@@ -18,6 +18,7 @@
 /* # Authors:                                                             # */
 /* #   - PERACHE Marc marc.perache@cea.fr                                 # */
 /* #   - ADAM Julien adamj@paratools.com                                  # */
+/* #   - BOUHROUR Stephane stephane.bouhrour@uvsq.fr                      # */
 /* #                                                                      # */
 /* ######################################################################## */
 #include <mpc_config.h>
@@ -116,9 +117,10 @@ void sctk_accl_cuda_init_context() {
   CUdevice nearest_device =
       (CUdevice)sctk_accl_cuda_get_closest_device(cuda->cpu_id);
 
-  safe_cudadv(
-      sctk_cuCtxCreate(&cuda->context, CU_CTX_SCHED_YIELD, nearest_device));
-
+  //safe_cudadv(
+      //sctk_cuCtxCreate(&cuda->context, CU_CTX_SCHED_YIELD, nearest_device));
+  /* Use v3 for right context API version since cuda 12.0 */
+  sctk_cuCtxCreate_v3(&cuda->context, NULL, 0, CU_CTX_SCHED_YIELD, nearest_device);
   /*sctk_cuCtxCreate() automatically attaches the ctx to the GPU */
   cuda->pushed = 1;
 
@@ -243,6 +245,22 @@ int sctk_accl_cuda_init() {
   return 1;
 }
 
+/**
+ * Release the CUDA contexts with MPC
+ */
+void sctk_accl_cuda_release_context()
+{
+  /* release context created by cuda support */
+  if (mpc_common_get_flags()->enable_accelerators) /* && sctk_cuda_support) */
+  {
+    cuda_ctx_t *cuda = (cuda_ctx_t *)sctk_cuda_ctx;
+    sctk_cuCtxDestroy(cuda->context);
+    sctk_cuda_ctx = NULL;
+  }
+  /* cuda runtime segfault after main if not release explicitly */
+  sctk_cuDevicePrimaryCtxRelease(0);
+}
+
 /*********************************
  * MPC CUDA INIT FUNCTION *
  *********************************/
@@ -254,6 +272,10 @@ void mpc_accelerator_cuda_register_function()
 	MPC_INIT_CALL_ONLY_ONCE
 
 	mpc_common_init_callback_register( "VP Thread Start", "Init per VP Cuda context", sctk_accl_cuda_init_context, 25 );
+
+	mpc_common_init_callback_register("Ending Main",
+	                                  "Per MPI Thread cuda CTX Release",
+	                                  sctk_accl_cuda_release_context, 22);
 }
 
 #endif // MPC_Accelerators && USE_CUDA
