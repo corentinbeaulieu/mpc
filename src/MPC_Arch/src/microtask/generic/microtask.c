@@ -205,9 +205,9 @@ double __kmp_test_then_add_real64(__UNUSED__ kmp_real64 *a, __UNUSED__ kmp_real6
 	assert(0);
 }
 
-extern void __sctk_cpu_relax();
+extern void sctk_cpu_relax();
 
 int __kmp_x86_pause()
 {
-	__sctk_cpu_relax(); return 0;
+	sctk_cpu_relax(); return 0;
 }
