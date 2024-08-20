@@ -68,11 +68,11 @@
 
 enum
 {
-	LCP_CONTEXT_DATATYPE_OPS = MPC_BIT(0),      /**< datatype mask */
-	LCP_CONTEXT_PROCESS_UID  = MPC_BIT(1),      /**< process uid mask */
-	LCP_CONTEXT_NUM_TASKS    = MPC_BIT(2),      /**< task number mask */
-	LCP_CONTEXT_REQUEST_SIZE = MPC_BIT(3),      /**< upper layer request size */
-	LCP_CONTEXT_REQUEST_CB   = MPC_BIT(4),      /**< request init callback */
+	LCP_CONTEXT_DATATYPE_OPS = MPC_BIT(0), /**< datatype mask */
+	LCP_CONTEXT_PROCESS_UID  = MPC_BIT(1), /**< process uid mask */
+	LCP_CONTEXT_NUM_TASKS    = MPC_BIT(2), /**< task number mask */
+	LCP_CONTEXT_REQUEST_SIZE = MPC_BIT(3), /**< upper layer request size */
+	LCP_CONTEXT_REQUEST_CB   = MPC_BIT(4), /**< request init callback */
 };
 
 /**
@@ -209,8 +209,8 @@ enum
  */
 enum
 {
-	LCP_MANAGER_TSC_MODEL = MPC_BIT(0),      /**< Init interface Two-Sided Communication capabilities. */
-	LCP_MANAGER_OSC_MODEL = MPC_BIT(1),      /**< Init interface One-Sided Communication capabilities. */
+	LCP_MANAGER_TSC_MODEL = MPC_BIT(0), /**< Init interface Two-Sided Communication capabilities. */
+	LCP_MANAGER_OSC_MODEL = MPC_BIT(1), /**< Init interface One-Sided Communication capabilities. */
 };
 
 /**
@@ -224,8 +224,8 @@ enum
 typedef struct lcp_manager_param
 {
 	unsigned field_mask;
-	int      estimated_eps;     /**< Estimated number of endpoints. */
-	unsigned flags;             /**< communication model. */
+	int      estimated_eps; /**< Estimated number of endpoints. */
+	unsigned flags;         /**< communication model. */
 } lcp_manager_param_t;
 
 /**
@@ -334,16 +334,16 @@ enum
 	//       just a functionality (eg LCP_REQUEST_TRY_OFFLOAD or
 	//       LCP_REQUEST_TAG_SYNC).
 	// TODO: add a flags field in lcp_request_param_t
-	LCP_REQUEST_TRY_OFFLOAD   = MPC_BIT(0),        /**< Try offload send mask */
-	LCP_REQUEST_USER_DATA     = MPC_BIT(1),        /**< User data mask */
-	LCP_REQUEST_USER_REQUEST  = MPC_BIT(2),        /**< User request mask */
-	LCP_REQUEST_TAG_SYNC      = MPC_BIT(3),        /**< Sync request mask */
-	LCP_REQUEST_AM_SYNC       = MPC_BIT(4),        /**< AM sync request mask */
-	LCP_REQUEST_SEND_CALLBACK = MPC_BIT(5),        /**< Send callback mask */
-	LCP_REQUEST_RECV_CALLBACK = MPC_BIT(6),        /**< Recv callback mask */
-	LCP_REQUEST_REPLY_BUFFER  = MPC_BIT(7),        /**< Result buffer for Atomics */
-	LCP_REQUEST_USER_MEMH     = MPC_BIT(8),        /**< User-provided local Memory handle */
-	LCP_REQUEST_USER_EPH      = MPC_BIT(9),        /**< User-provided Endpoint handle */
+	LCP_REQUEST_TRY_OFFLOAD   = MPC_BIT(0), /**< Try offload send mask */
+	LCP_REQUEST_USER_DATA     = MPC_BIT(1), /**< User data mask */
+	LCP_REQUEST_USER_REQUEST  = MPC_BIT(2), /**< User request mask */
+	LCP_REQUEST_TAG_SYNC      = MPC_BIT(3), /**< Sync request mask */
+	LCP_REQUEST_AM_SYNC       = MPC_BIT(4), /**< AM sync request mask */
+	LCP_REQUEST_SEND_CALLBACK = MPC_BIT(5), /**< Send callback mask */
+	LCP_REQUEST_RECV_CALLBACK = MPC_BIT(6), /**< Recv callback mask */
+	LCP_REQUEST_REPLY_BUFFER  = MPC_BIT(7), /**< Result buffer for Atomics */
+	LCP_REQUEST_USER_MEMH     = MPC_BIT(8), /**< User-provided local Memory handle */
+	LCP_REQUEST_USER_EPH      = MPC_BIT(9), /**< User-provided Endpoint handle */
 };
 
 /**
@@ -476,7 +476,7 @@ int lcp_request_check_status(void *request);
  * @return            Error code returned or pointer to request. Use \ref
  *         lcp_request_check_status to check completion.
  */
-lcp_status_ptr_t lcp_tag_send_nb(lcp_ep_h ep, lcp_task_h task, void *buffer,
+lcp_status_ptr_t lcp_tag_send_nb(lcp_ep_h ep, lcp_task_h task, const void *buffer,
                                  size_t count, lcp_tag_info_t *tag_info,
                                  const lcp_request_param_t *param);
 
@@ -533,8 +533,8 @@ int lcp_tag_probe_nb(lcp_manager_h mngr, lcp_task_h task, const int src,
  */
 enum
 {
-	LCP_AM_EAGER = MPC_BIT(0),     /**< Message received is of type eager. */
-	LCP_AM_RNDV  = MPC_BIT(1),     /**< Message received is of type rendez-vous. */
+	LCP_AM_EAGER = MPC_BIT(0), /**< Message received is of type eager. */
+	LCP_AM_RNDV  = MPC_BIT(1), /**< Message received is of type rendez-vous. */
 };
 
 /**
@@ -590,8 +590,7 @@ int lcp_am_set_handler_callback(lcp_manager_h mngr, lcp_task_h task, uint8_t am_
  * @param[in] buffer   Pointer to buffer.
  * @param[in] count    Size of buffer.
  * @param[in] param    Request parameters \ref lcp_request_param_t.
- * @return             Error code returned or pointer to request. Use \ref
- *         lcp_request_check_status to check completion.
+ * @return             Error code returned or pointer to request. Use @ref lcp_request_check_status to check completion.
  */
 lcp_status_ptr_t lcp_am_send_nb(lcp_ep_h ep, lcp_task_h task, int32_t dest_tid,
                                 uint8_t am_id, void *hdr, size_t hdr_size,
@@ -713,10 +712,10 @@ lcp_status_ptr_t lcp_atomic_op_nb(lcp_ep_h ep, lcp_task_h task, const void *buff
 
 enum
 {
-	LCP_MEM_REGISTER_ALLOCATE = MPC_BIT(0),     /**< Memory allocated and registered. */
-	LCP_MEM_REGISTER_CREATE   = MPC_BIT(1),     /**< Memory only registered. */
-	LCP_MEM_REGISTER_DYNAMIC  = MPC_BIT(2),     /**< Dynamic memory type, see \ref lcp_mem. */
-	LCP_MEM_REGISTER_STATIC   = MPC_BIT(3),     /**< Static memory type, see \ref lcp_mem. */
+	LCP_MEM_REGISTER_ALLOCATE = MPC_BIT(0), /**< Memory allocated and registered. */
+	LCP_MEM_REGISTER_CREATE   = MPC_BIT(1), /**< Memory only registered. */
+	LCP_MEM_REGISTER_DYNAMIC  = MPC_BIT(2), /**< Dynamic memory type, see \ref lcp_mem. */
+	LCP_MEM_REGISTER_STATIC   = MPC_BIT(3), /**< Static memory type, see \ref lcp_mem. */
 };
 
 /**

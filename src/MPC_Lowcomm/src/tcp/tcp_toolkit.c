@@ -90,9 +90,7 @@ static int __connect_to(char *name_init)
 		}
 	}
 
-	char *preferred_network = "";
-
-	preferred_network = "ib";
+	char *preferred_network = "ib";
 	/* Start Name Resolution */
 
 	mpc_common_nodebug("Try connection to |%s| on port %s type %d", name, portno, AF_INET);

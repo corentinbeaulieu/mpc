@@ -41,7 +41,7 @@ As far as this documentation is written, the MPC pipeline contains the following
 
 * Applications: "Real" use-case application, potential hybrid MPI+X
 
-**Reminder**: If such a pipeline allows developers to detect a major failure, an "all-green" pipeline does not necessarily mean code is perfect. That's why the peer code reviewing process applied to each merge-request is as much important as continuous integration. If one day, MPC comes with full unit-test coverage, this sentence could be mitigated but until that time, a regular complete non-regression should be run on a large cluster. 
+**Reminder**: If such a pipeline allows developers to detect a major failure, an "all-green" pipeline does not necessarily mean code is perfect. That's why the peer code reviewing process applied to each merge-request is as much important as continuous integration. If one day, MPC comes with full unit-test coverage, this sentence could be mitigated but until that time, a regular complete non-regression should be run on a large cluster.
 
 HOW-TOs
 =======

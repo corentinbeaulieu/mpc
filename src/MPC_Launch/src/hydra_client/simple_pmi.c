@@ -20,6 +20,7 @@
 /***************************************************************************/
 
 #include "mpc_config.h"
+#include "mpc_keywords.h"
 
 #define PMI_VERSION    1
 #define PMI_SUBVERSION 1
@@ -87,17 +88,17 @@ static int PMI_keylen_max  = 0;
 static int PMI_vallen_max  = 0;
 
 static int PMI_debug      = 0;
-static int PMI_debug_init = 0;    /* Set this to true to debug the init
-                                   * handshakes */
+static int PMI_debug_init = 0;/* Set this to true to debug the init
+                               * handshakes */
 static int PMI_spawned    = 0;
 
 /* Function prototypes for internal routines */
 static int PMII_getmaxes(int *kvsname_max, int *keylen_max, int *vallen_max);
-static int PMII_Set_from_port(int, int);
-static int PMII_Connect_to_pm(char *, int);
+static int PMII_Set_from_port(int /*fd*/, int /*id*/);
+static int PMII_Connect_to_pm(char * /*hostname*/, int /*portnum*/);
 
-static int GetResponse(const char [], const char [], int);
-static int getPMIFD(int *);
+static int GetResponse(const char /*request*/[], const char /*expectedCmd*/[], int /*checkRc*/);
+static int getPMIFD(int *  /*notset*/);
 
 #ifdef USE_PMI_PORT
 	static int PMII_singinit(void);
@@ -105,7 +106,7 @@ static int getPMIFD(int *);
 	static int PMI_totalview = 0;
 #endif
 static int PMIi_InitIfSingleton(void);
-static int accept_one_connection(int);
+static int accept_one_connection(int /*list_sock*/);
 
 static char cached_singinit_key[PMIU_MAXLINE];
 static char cached_singinit_val[PMIU_MAXLINE];
@@ -483,7 +484,7 @@ int PMI_KVS_Put(const char kvsname[], const char key[], const char value[])
 int PMI_KVS_Commit(const char kvsname[])
 {
 	/* no-op in this implementation */
-	kvsname++;
+	UNUSED(kvsname);
 	return 0;
 }
 
@@ -845,7 +846,7 @@ int PMI_Spawn_multiple(int count,
 				*lead = '\0';
 			}
 			errors[num_errcodes_found++] = atoi(lag);
-			lag = lead + 1; /* move past the null char */
+			lag = lead + 1;/* move past the null char */
 			PMIU_Assert(num_errcodes_found <= total_num_processes);
 		} while (lead != NULL);
 		PMIU_Assert(num_errcodes_found == total_num_processes);
@@ -886,7 +887,7 @@ static int PMII_getmaxes(int *kvsname_max, int *keylen_max, int *vallen_max)
 		PMIU_printf(1, "Unable to write to PMI_fd\n");
 		return PMI_FAIL;
 	}
-	buf[0] = 0;   /* Ensure buffer is empty if read fails */
+	buf[0] = 0;/* Ensure buffer is empty if read fails */
 	err    = PMIU_readline(PMI_fd, buf, PMIU_MAXLINE);
 	if (err < 0)
 	{
@@ -1442,7 +1443,7 @@ static int GetResponse(const char request[], const char expectedCmd[],
 	 * a singleton init */
 	static int PMIi_InitIfSingleton(void)
 	{
-		int        rc;
+		int        rc        = 0;
 		static int firstcall = 1;
 
 		if (PMI_initialized != SINGLETON_INIT_BUT_NO_PM || !firstcall)
@@ -1461,7 +1462,7 @@ static int GetResponse(const char request[], const char expectedCmd[],
 		{
 			return -1;
 		}
-		PMI_initialized = SINGLETON_INIT_WITH_PM; /* do this right away */
+		PMI_initialized = SINGLETON_INIT_WITH_PM;/* do this right away */
 		PMI_size        = 1;
 		PMI_rank        = 0;
 		PMI_debug       = 0;
@@ -1478,7 +1479,8 @@ static int GetResponse(const char request[], const char expectedCmd[],
 
 	static int accept_one_connection(int list_sock)
 	{
-		int gotit, new_sock;
+		int gotit    = 0;
+		int new_sock = 0;
 		struct sockaddr_in from;
 		socklen_t          len;
 
@@ -1489,7 +1491,7 @@ static int GetResponse(const char request[], const char expectedCmd[],
 			new_sock = accept(list_sock, (struct sockaddr *)&from, &len);
 			if (new_sock == -1)
 			{
-				if (errno == EINTR) /* interrupted? If so, try again */
+				if (errno == EINTR)/* interrupted? If so, try again */
 				{
 					continue;
 				}

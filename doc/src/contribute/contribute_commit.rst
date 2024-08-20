@@ -37,7 +37,7 @@ Clearly, it is asking for a bit of work to write a good commit. But this is one 
 	__task by force.
 
 	Closes #16
-	
+
 ::
 
 	And remind to stay as far as possible from commit message like these (from MPC

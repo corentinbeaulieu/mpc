@@ -231,13 +231,17 @@ void mpc_common_debug_file(FILE *file, const char *fmt, ...);
 
 	/* Add todo support (as stated in GCC doc
 	 * Supported since GCC 4.4.7 ignored in previous versions*/
-	#define DO_PRAGMA(x) _Pragma( #x)
+	#define DO_PRAGMA(x) _Pragma( #x)// NOLINT (clang-diagnostic-#pragma-messages)
 
 	#define TODO(x) DO_PRAGMA(message("TODO - " #x))
 	#define INFO(x) DO_PRAGMA(message("INFO - " #x))
+	#define WARN(x) DO_PRAGMA(message("WARN - " #x))
+	#define FAIL(x) DO_PRAGMA(message("FAIL - " #x))
 #else
 	#define TODO(x)
 	#define INFO(x)
+	#define WARN(x)
+	#define FAIL(x)
 #endif
 
 /**********************************
@@ -351,6 +355,6 @@ __attribute__((__noreturn__)) void mpc_common_debug_assert_print(FILE *stream, i
 		} while (0)
 
 #ifdef __cplusplus
-	} /* end of extern "C" */
+	}/* end of extern "C" */
 #endif
 #endif

@@ -31,7 +31,6 @@
 
 #ifndef LCP_RNDV_H
 #define LCP_RNDV_H
-#define MPC_MODULE "Lowcomm/LCP/Common"
 
 
 #include "lcp_def.h"

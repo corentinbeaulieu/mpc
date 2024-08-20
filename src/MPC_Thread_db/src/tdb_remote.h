@@ -28,6 +28,7 @@
 #include <assert.h>
 #ifdef MPC_Thread_db
 #include "mpc_config.h"
+
 #endif
 #include <thread_db.h>
 #include <string.h>
@@ -142,7 +143,6 @@ typedef struct tdb_thread_debug_s
 		size_t size;
 	} register_offsets_t;
 
-  #warning "Architecture not supported"
 #endif
 
 
@@ -535,7 +535,7 @@ static inline tdb_err_e rtdb_set_pc_offset(size_t offset)
 }
 
 #else
-  #warning System unsupported by lib_thread_db
+	// WARN("System unsupported by lib_thread_db");
 #endif
 
 static inline tdb_err_e rtdb_set_lock(void *lock,

@@ -23,7 +23,7 @@ Downstream-to-MPC packages fails with to use proper compiler
     :linenos:
     :emphasize-lines: 1
     :caption: Typical Error Message
-    
+
     error: cannot run C compiled programs
 
 
@@ -57,12 +57,12 @@ directory mentioned in MPC wrapper output
     :linenos:
     :emphasize-lines: 1
     :caption: Typical Error Message
-    
+
     Error: "HWLOC_..." undeclared
 
 
 **Quickfix:** please ensure to rely on the same version as embedded
-within MPC source base. 
+within MPC source base.
 
 **Explanation:** Because MPC depends heavily on hwloc types, mismatching hwloc versions in your environment can lead to undefined symbols.
 
@@ -74,7 +74,7 @@ Error with system header not found when compiling GCC
     :linenos:
     :emphasize-lines: 1
     :caption: Typical Error Message
-    
+
     fatal error: sys/ustat.h: No such file or directory
 
 **Quickfix**: disable the thread-based approach by providing `--disable-mpc-gcc`
@@ -100,7 +100,7 @@ Complain about already existing installation
     :linenos:
     :emphasize-lines: 1
     :caption: Typical Error Message
-    
+
     A previous backup exists. Please remove <...> directory first!
 
 
@@ -123,7 +123,7 @@ GCC compiler not found
     :linenos:
     :emphasize-lines: 1
     :caption: Typical Error Message
-    
+
     Compiler "<...>/mpc-gcc_620" not found
 
 
@@ -149,7 +149,7 @@ Unable to load MPC configuration
     :linenos:
     :emphasize-lines: 1
     :caption: Typical Error Message
-    
+
     Error while loading MPC configuration files`
 
 **Quickfix:** Try to run it by yourself and investigate the output. If you

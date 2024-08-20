@@ -68,4 +68,3 @@ else
 	safe_exec "Generating RTD-compliant Sphinx" make -f ${MPC_SOURCE_DIRECTORY}/doc/Makefile.sphinx html
 fi
 echo "Documentation generated under ${MPC_SOURCE_DIRECTORY}/doc/build/{doxygen,sphinx}"
-

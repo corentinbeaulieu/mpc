@@ -3,7 +3,7 @@ mpcrun documentation
 
 This is the plain man page of mpcrun. You can find this exact text using mpcrun -h.
 
-Usage 
+Usage
 
 ::
 

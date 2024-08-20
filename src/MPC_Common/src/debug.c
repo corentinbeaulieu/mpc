@@ -145,6 +145,7 @@ static void __log_to_file(char *filename,
 /* Threads support                                                    */
 /**********************************************************************/
 
+/* NOLINTBEGIN(clang-diagnostic-unused-function) */
 static inline char *__debug_print_info(char *buffer)
 {
 	if (mpc_common_debug_is_stderr_tty() && mpc_common_get_flags()->colors)
@@ -352,10 +353,10 @@ void __mpcprintf(char *messagebuffer,
 	    && mpc_common_get_flags()->colors)
 	{
 		fprintf(stderr,
-			"%s[%sT%4d %sP%4d %sN%4d%s]%s "     // Task, Process & Node rank
-			"%s[%s%5s%s]%s "                    // Verbosity level
-			"%s[%s%s%s]%s "                     // Module
-			"%s%s%s\n",                         // Message
+			"%s[%sT%4d %sP%4d %sN%4d%s]%s " // Task, Process & Node rank
+			"%s[%s%s%s]%s "                 // Verbosity level
+			"%s[%s%s%s]%s "                 // Module
+			"%s%s%s\n",                     // Message
 
 			// Task process & node rank
 			MPC_COLOR_CHAR_BOLD_WHITE,
@@ -533,7 +534,6 @@ static inline void __parse_log_filter_rules(void)
 
 			__log_filter_rules_count++;
 		}
-
 
 		/* Move to next token */
 		token = strtok_r(NULL, "-", &save_ptr);

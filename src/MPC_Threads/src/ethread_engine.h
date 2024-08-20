@@ -257,7 +257,7 @@ void _mpc_thread_ethread_mxn_engine_return_task(_mpc_thread_ethread_per_thread_t
 static inline
 void _mpc_thread_ethread_print_task(_mpc_thread_ethread_per_thread_t *task)
 {
-	char *status = "not defined";
+	char *status = NULL;
 
 	switch (task->status)
 	{

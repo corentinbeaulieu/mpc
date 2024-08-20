@@ -28,7 +28,7 @@ Not further restriction, but a lot of recommended setup, listed below, to ease y
 
 
 .. code-block:: sh
-	
+
 	$ git config --global
 	How to treat with "git push" (no arguments). We strongly recommend using this setup to avoid misuse!
 	git config --global push.default simple
@@ -51,7 +51,7 @@ Gitlab
 To access Gitlab from Git project, two approaches: HTTPS or SSH protocols. For the first one, you may need to set a proxy in your terminal (if your network is proxified before reaching Gitlab servers). Please look at `http[s]_proxy` environment variables. For SSH accesses, you will need to register an SSH key to you Gitlab profile (User profile (top-right) > Settings > SSH Keys) by copy-pasting your public key. A key pair can be generated as follows:
 
 .. code-block:: sh
-	
+
 	# Follow the instruction (path & passphrase twice)
 	ssh-keygen -t rsa
 	# copy the content of this command into the Gitlab textbox

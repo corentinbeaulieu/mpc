@@ -197,7 +197,7 @@ char *___extract_argument_string_value(char *arg, char *passed_arg)
 	{
 		if ((len + 1) < strlen(passed_arg))
 		{
-			return passed_arg + len + 1; /*skip = */
+			return passed_arg + len + 1;/*skip = */
 		}
 	}
 
@@ -299,7 +299,7 @@ static inline void __parse_argument(char *passed_arg)
 	    SET_FLAG_BOOLEAN("checkpoint",        checkpoint_enabled);
 	/* Old syntax could be removed */
 	    SET_FLAG_BOOLEAN("cuda",              enable_cuda);
-#if MPC_HIP_PLATFORM_NVIDIA // hip nvidia compatibility mode (__HIP_PLATFORM_NVIDIA__).
+#if MPC_HIP_PLATFORM_NVIDIA// hip nvidia compatibility mode (__HIP_PLATFORM_NVIDIA__).
 		SET_FLAG_BOOLEAN("rocm",              enable_cuda);
 #else
 		SET_FLAG_BOOLEAN("rocm",              enable_rocm);
@@ -668,9 +668,8 @@ static void __unpack_arguments()
 	{
 		char *str1, *token;
 		char *saveptr;
-		int   j;
 
-		for (j = 1, str1 = sctk_argument;; j++, str1 = NULL)
+		for (str1 = sctk_argument;; str1 = NULL)
 		{
 			token = strtok_r(str1, " ", &saveptr);
 

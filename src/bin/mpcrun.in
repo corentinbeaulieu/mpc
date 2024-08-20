@@ -630,7 +630,7 @@ for arg in "$@" ; do
 					;;
 				--filter=*)
 					MPC_LOG="$(echo "A$arg" | sed -e 's/A--filter=//g')"
-					export MPC_LOG 
+					export MPC_LOG
 					;;
 				-f=*)
 					MPC_LOG="$(echo "A$arg" | sed -e 's/A-f=//g')"

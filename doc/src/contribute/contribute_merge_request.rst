@@ -2,12 +2,12 @@
 Request for merging work into mainline
 ======================================
 
-General description 
+General description
 ===================
 
 In order to publish changes, it is now required to do it through Merge requests (also known as Pull requests, the Github equivalent). Nobody is allowed to push directly into the default branch. Only merge requests can be approved by maintainers to do so. This enforcing will guarantee a minimal amount of regression that could be integrated into the codebase. Merge requests are integrated to the mainline through the following rules:
 
-* The branch to merge has to be up-to-date with the mainline. It means that any commit belonging to the devel branch **has to** be in your merge-request branch. Doing either a merge or a rebase to do so is up to you. **Gitlab does not allow to merge diverging branches**. For more information, see the :ref:`section<prepare>` below. The merge will *fast-forward* the main branch reference to the HEAD of your merge branch. It means there is not merge here (despite the name). No "loop" will be created and a strict linear history is enforced (for now). Maybe this workflow will have to be updated in order to merge multiple complex and diverging work. If unsure about this process, please read :ref:`the dedicated section<prepare>`. 
+* The branch to merge has to be up-to-date with the mainline. It means that any commit belonging to the devel branch **has to** be in your merge-request branch. Doing either a merge or a rebase to do so is up to you. **Gitlab does not allow to merge diverging branches**. For more information, see the :ref:`section<prepare>` below. The merge will *fast-forward* the main branch reference to the HEAD of your merge branch. It means there is not merge here (despite the name). No "loop" will be created and a strict linear history is enforced (for now). Maybe this workflow will have to be updated in order to merge multiple complex and diverging work. If unsure about this process, please read :ref:`the dedicated section<prepare>`.
 
 * A pipeline is run for each submitted merge-request, as soon as a commit is pushed onto the source branch. Please do not abuse it by submitting one commit one hundred times a day. Prefers pushing less regularly multiple commits at once (but you can still push every commit for common branches, to save your work).
 
@@ -44,10 +44,10 @@ keep it up-to-date to avoid later issues). Let consider your branch is labeled `
 	git checkout mr-A
 	git rebase`origin/devel
 
-2. (bis) In some *rare* scenarios, it may not be convenient to rebase the branch. Mainly this can occur after you try to rebase it and it comes with **a lot** of conflicts. The main pattern is because your branch modify a set of lines multiple times (once per commit for instance) and the devel branch modified it in the meantime. When rebasing,**each commit** may create a conflict, leading to a rebasing nightmare. In that type of scenario *only*, and with the approval of the reviewing peers/maintainers, a punctual merge can be done. To do so, instead of the rebase, run the following command. You'll have to resolve conflicts only
-once (only the last versions of devel & mr-A branch will be compared): 
+2. (bis) In some *rare* scenarios, it may not be convenient to rebase the branch. Mainly this can occur after you try to rebase it and it comes with **a lot** of conflicts. The main pattern is because your branch modify a set of lines multiple times (once per commit for instance) and the devel branch modified it in the meantime. When rebasing,**each commit** may create a conflict, leading to a rebasing nightmare. In that type of scenario *only*, and with the approval of the reviewing peers/maintainers, a punctual merge can be done. To do so, instead of the rebase, run the following command. You will have to resolve conflicts only
+once (only the last versions of devel & mr-A branch will be compared):
 
-.. code-block:: sh 
+.. code-block:: sh
 
 	git checkout mr-A
 	git merge origin/devel
@@ -77,11 +77,11 @@ Once these prerequisites accomplished, you may open an MR. To do so: `Merge-Requ
 
 * As for tickets, choose the appropriate milestone and labels
 
-* Two options are shown: 
+* Two options are shown:
 
 	* `Delete source branch when the merge request is accepted`: should be checked by default. This is good practice do delete the branch just merged from the Gitlab repository, to avoid old stalled branches.
 
-	* `Squash commits when the merge request is accepted.`: Up to the submitter to decide if all commits contained is the request should be squashed into a single commit before being merged. The committer ownership will be transferred to the user processing the merge (not necessarily the author, who keep the author ownership) 
+	* `Squash commits when the merge request is accepted.`: Up to the submitter to decide if all commits contained is the request should be squashed into a single commit before being merged. The committer ownership will be transferred to the user processing the merge (not necessarily the author, who keep the author ownership)
 
 * Then, click `submit the merge request`. The bot will then take care of telling you if you made it correctly or not.
 
@@ -112,6 +112,6 @@ Once satisfied with changes/answers, you may approve the merge request by postin
 Merge a new merge-request
 -------------------------
 
-The branch to merge has to be up-to-date with the default branch (through a merge or a rebase) to ensure the absence of conflicts. Otherwise, the request process will complain about it. Then, a pipeline will be run to ensure there wouldn't be any regression once merged. In the meantime, any developer can review the code and potentially addressing comments or concerns. Any comment should be answered before the process to continue (each comment will open a new thread and will ask for its completion before going further). 
+The branch to merge has to be up-to-date with the default branch (through a merge or a rebase) to ensure the absence of conflicts. Otherwise, the request process will complain about it. Then, a pipeline will be run to ensure there wouldn't be any regression once merged. In the meantime, any developer can review the code and potentially addressing comments or concerns. Any comment should be answered before the process to continue (each comment will open a new thread and will ask for its completion before going further).
 
 After all, comment marked as resolved AND an "all-green" pipeline, maintainers can start the merging process. The merge commits message should be edited to remove the `"Merge branch.... into..."` and replace it with something more clear. Note that a good convention is to start the commit message with `MERGE:` for consistency. Then click on the "merge" button.

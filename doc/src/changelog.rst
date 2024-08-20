@@ -11,12 +11,12 @@ Added
 
 - **COMPILER** new wrappers for mpicc++ and mpif90 (privatization)
 - **SESSIONS** adding sessions support
-- **OMP** 
+- **OMP**
     - Added fibers to OpenMP tasks
     - Fix OMP Tool support
     - Added interoperation between MPC-MPI / MPC-OpenMP(tasks) for the « loss of thread issue »
     - Refactored OpenMP task runtime (memory management, dependencies, tasks priorities)
-- **MPI** 
+- **MPI**
     - adding message queue
     - new pairwise alltoall algorithm
 - **CONFIG** add intracomm collective communications config switch

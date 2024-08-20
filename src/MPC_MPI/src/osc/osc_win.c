@@ -29,7 +29,7 @@
 
 #include "osc_win_attr.h"
 #include <sctk_alloc.h>
-#include <communicator.h> // FIXME: is this good include?
+#include <communicator.h>// FIXME: is this good include?
 #include <mpc_common_progress.h>
 
 extern lcp_context_h         lcp_ctx_loc;
@@ -92,7 +92,7 @@ static int _win_setup(mpc_win_t *win, void **base, size_t size,
 	mpc_osc_module_t *module = &win->win_module;
 	int            rc        = MPC_LOWCOMM_SUCCESS;
 	long           values[2];
-	lcp_mem_h      w_mem_data, w_mem_state;
+	lcp_mem_h      w_mem_data = NULL, w_mem_state = NULL;
 	lcp_mem_attr_t attr;
 	void *         win_info = NULL;
 	size_t         win_info_len;
@@ -117,7 +117,7 @@ static int _win_setup(mpc_win_t *win, void **base, size_t size,
 
 	PMPI_Allreduce(MPI_IN_PLACE, values, 2, MPI_LONG, MPI_MIN, comm);
 
-	if (values[0] == -values[1])       /* Every one has the same disp_unit, store only one. */
+	if (values[0] == -values[1])/* Every one has the same disp_unit, store only one. */
 	{
 		module->disp_unit = disp_unit;
 	}
@@ -292,9 +292,15 @@ static int _win_setup(mpc_win_t *win, void **base, size_t size,
 	win_info_offset += sizeof(int);
 	memcpy((char *)win_info + win_info_offset, &key_state_len,      sizeof(int));
 	win_info_offset += sizeof(int);
-	memcpy((char *)win_info + win_info_offset, key_data_buf,        key_data_len);
-	win_info_offset += key_data_len;
-	memcpy((char *)win_info + win_info_offset, key_state_buf,       key_state_len);
+	if (key_data_len > 0)
+	{
+		memcpy((char *)win_info + win_info_offset, key_data_buf, key_data_len);
+		win_info_offset += key_data_len;
+	}
+	if (key_state_len > 0)
+	{
+		memcpy((char *)win_info + win_info_offset, key_state_buf, key_state_len);
+	}
 
 	/* First send size of local key to all others. */
 	win_info_lengths = sctk_malloc(win->comm_size * sizeof(int));
