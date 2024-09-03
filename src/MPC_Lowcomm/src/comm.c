@@ -4479,7 +4479,10 @@ void mpc_lowcomm_request_initialize(void *request)
 	req->is_allocated = MPC_LOWCOMM_REQUEST_ALLOC;
 	mpc_lowcomm_request_set_null(request, 0);
 
-	mpi_req_info.request_init_func(req + 1);
+	if (mpi_req_info.request_init_func)
+	{
+		mpi_req_info.request_init_func(req + 1);
+	}
 }
 
 static int mpc_comm_progress()
