@@ -32,6 +32,7 @@
 
 #include "lcp.h"
 #include "mpc_common_debug.h"
+#include "mpc_common_flags.h"
 
 #include "lcp_def.h"
 #include "lcp_manager.h"
@@ -62,7 +63,7 @@ void lcp_task_request_init(mpc_mempool_t *mp, void *request)
 	lcp_task_h     task = mpc_container_of(mp, struct lcp_task, req_mp);
 	lcp_context_h  ctx  = task->ctx;
 
-	if (ctx->config.request.init != NULL)
+	if (mpc_common_check_for_print_config() == 1 && ctx != NULL && ctx->config.request.init != NULL)
 	{
 		ctx->config.request.init(req + 1);
 	}

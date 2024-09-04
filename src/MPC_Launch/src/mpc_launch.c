@@ -731,31 +731,6 @@ static void __topology_init()
 
 /* NOLINTEND(clang-diagnostic-unused-function) */
 
-
-void __check_for_print_config(void)
-{
-	const char *const absolute_path = mpc_common_get_flags()->exename;
-
-	if (absolute_path != NULL)
-	{
-		char *prev = mpc_common_get_flags()->exename;
-		char *curr = strtok(mpc_common_get_flags()->exename, "/");
-		while (curr != NULL)
-		{
-			prev = curr;
-			curr = strtok(NULL, "/");
-		}
-		const char *relative_path = prev;
-
-		if (!strcmp(relative_path, "mpc_print_config"))
-		{
-			mpc_common_get_flags()->process_number   = 1;
-			mpc_common_get_flags()->processor_number = 1;
-			mpc_common_get_flags()->node_number      = 1;
-		}
-	}
-}
-
 void mpc_launch_init_runtime()
 {
 	static volatile int __init_already_done = 0;
@@ -776,7 +751,7 @@ void mpc_launch_init_runtime()
 	__register_config();
 
 	/* Run sequential for print config */
-	__check_for_print_config();
+	mpc_common_check_for_print_config();
 
 	mpc_common_init_trigger("Base Runtime Init");
 

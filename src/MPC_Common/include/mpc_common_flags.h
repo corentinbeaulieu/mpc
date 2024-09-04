@@ -101,4 +101,6 @@ void mpc_common_init_list_register(char *list_name);
 void mpc_common_init_callback_register(char *list_name, char *callback_name, void (*callback)(), int priority);
 void mpc_common_init_print();
 
+int mpc_common_check_for_print_config(void);
+
 #endif /* MPC_COMMON_FLAGS_H_ */

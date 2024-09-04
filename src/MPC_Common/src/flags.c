@@ -193,3 +193,30 @@ void mpc_common_init_print()
 		mpc_common_debug("-------------------");
 	}
 }
+
+int mpc_common_check_for_print_config(void)
+{
+	const char *const absolute_path = mpc_common_get_flags()->exename;
+
+	if (absolute_path != NULL)
+	{
+		char *prev = mpc_common_get_flags()->exename;
+		char *curr = strtok(mpc_common_get_flags()->exename, "/");
+		while (curr != NULL)
+		{
+			prev = curr;
+			curr = strtok(NULL, "/");
+		}
+		const char *relative_path = prev;
+
+		if (!strcmp(relative_path, "mpc_print_config"))
+		{
+			mpc_common_get_flags()->process_number   = 1;
+			mpc_common_get_flags()->processor_number = 1;
+			mpc_common_get_flags()->node_number      = 1;
+			return 1;
+		}
+		return 0;
+	}
+	return -1;
+}
