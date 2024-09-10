@@ -88,7 +88,6 @@ typedef struct
 struct _mpc_shm_cell
 {
 	char                  data[MPC_SHM_EAGER_SIZE];
-	struct _mpc_shm_cell *next;
 	struct _mpc_shm_cell *prev;
 	unsigned int          free_list;
 };

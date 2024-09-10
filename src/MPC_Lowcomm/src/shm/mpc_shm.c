@@ -277,7 +277,6 @@ static inline void ___mpc_shm_list_head_push_no_lock(struct _mpc_shm_list_head *
                                                      struct _mpc_shm_cell *cell,
                                                      void *base)
 {
-	assert(cell->next == NULL);
 	assert(cell->prev == NULL);
 
 	/* Work with relative addresses */
@@ -295,7 +294,6 @@ static inline void ___mpc_shm_list_head_push_no_lock(struct _mpc_shm_list_head *
 	}
 
 	cell->prev = NULL;
-	cell->next = list->head;
 	list->head = relative_cell_addr;
 }
 
@@ -355,7 +353,6 @@ static inline struct _mpc_shm_cell * _mpc_shm_list_head_try_get(struct _mpc_shm_
 		{
 			ret        = (struct _mpc_shm_cell *)((char *)list->tail + (uint64_t)base);
 			list->tail = ret->prev;
-			ret->next  = NULL;
 			ret->prev  = NULL;
 			if (!list->tail)
 			{
@@ -1069,7 +1066,6 @@ int _mpc_shm_storage_init(struct _mpc_shm_storage *storage)
 	for (i = proc_rank * SHM_CELL_COUNT_PER_PROC ; i < (proc_rank + 1) * SHM_CELL_COUNT_PER_PROC; i++)
 	{
 		assume(i < storage->cell_count);
-		cells[i].next = NULL;
 		cells[i].prev = NULL;
 		_mpc_shm_list_head_push(&storage->free_lists[proc_rank * SHM_FREELIST_PER_PROC + rr_counter],
 			&cells[i],
@@ -1364,7 +1360,6 @@ lcr_component_t shm_component =
 	.devices       = NULL,
 	.num_devices   = 0,
 	.flags         = 0,
-	.next          = NULL
 };
 
 LCR_COMPONENT_REGISTER(&shm_component)
