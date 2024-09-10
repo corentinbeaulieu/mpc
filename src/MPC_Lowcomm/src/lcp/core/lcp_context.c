@@ -526,6 +526,7 @@ err_free:
 		{
 			sctk_free(ctx->components[i]->devices);
 		}
+		ctx->components[i]->num_devices = 0;
 	}
 
 	return rc;
