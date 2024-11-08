@@ -689,12 +689,15 @@ static void __topology_init()
 
 void __check_for_print_config(void)
 {
-	if(!strcmp(mpc_common_get_flags()->exename, "mpc_print_config"))
-	{
-		mpc_common_get_flags()->process_number = 1;
-		mpc_common_get_flags()->processor_number = 1;
-		mpc_common_get_flags()->node_number = 1;
-	}
+	if(mpc_common_get_flags()->exename != NULL)
+        {
+            if(!strcmp(mpc_common_get_flags()->exename, "mpc_print_config"))
+            {
+                mpc_common_get_flags()->process_number = 1;
+                mpc_common_get_flags()->processor_number = 1;
+                mpc_common_get_flags()->node_number = 1;
+            }
+        }
 }
 
 

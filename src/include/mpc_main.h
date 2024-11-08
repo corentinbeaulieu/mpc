@@ -23,6 +23,25 @@
 #ifndef ___MPC___GLOBAL_RENAMING__HEADER___FILE___
 #define ___MPC___GLOBAL_RENAMING__HEADER___FILE___
 
+#ifdef MPC_THREAD_ENABLED
+
+	/* atexit forward declaration is needed by mpc.h.
+	stdlib is not included since it would prevent it
+	from recognizing _GNU_SOURCE when defined by users.
+	This is due to mpc.h being included with -include 
+	and thus included before any other file and especially
+	 user sources containing _GNU_SOURCE definitions.*/
+
+#if defined(__CUDACC__)
+        /*to resolve atexit conflicting definition when compiling with mpc_nvcc*/
+	extern int atexit (void (*__func) (void)) throw();
+#else
+	extern int atexit (void (*__func) (void));
+#endif
+
+	#define atexit mpc_thread_atexit
+#endif
+
 #ifndef MPC_NO_AUTO_MAIN_REDEF
 	#undef main
 	#ifdef __cplusplus
