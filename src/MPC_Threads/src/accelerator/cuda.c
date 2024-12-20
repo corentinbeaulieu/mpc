@@ -258,7 +258,23 @@ void sctk_accl_cuda_release_context()
     sctk_cuda_ctx = NULL;
   }
   /* cuda runtime segfault after main if not release explicitly */
-  sctk_cuDevicePrimaryCtxRelease(0);
+  /* one primary context per gpu device */
+  int nb_check = 1;
+  safe_cudart(cudaGetDeviceCount(&nb_check));
+  CUdevice device;
+  CUcontext context;
+  unsigned int flags;
+  int is_active;
+  for(int i = 0; i < nb_check; i++)
+  {
+    safe_cudart(cuDeviceGet(&device, i));
+
+    // Get the primary context state
+    safe_cudart(cuDevicePrimaryCtxGetState(device, &flags, &is_active));
+    if (is_active) {
+      cuDevicePrimaryCtxRelease(device);
+    }
+  }
 }
 
 /*********************************
