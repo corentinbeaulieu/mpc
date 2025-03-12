@@ -37,6 +37,9 @@
 
 #define MPC_MODULE "Topology/Device"
 
+#if defined( MPC_USE_CUDA )
+#include <cuda.h>
+#endif
 
 /************************************************************************/
 /* ENUM DEFINITION                                                      */

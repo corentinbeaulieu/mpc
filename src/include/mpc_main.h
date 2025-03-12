@@ -33,7 +33,8 @@
 	 user sources containing _GNU_SOURCE definitions.*/
 
 #if defined(__CUDACC__)
-        /*to resolve atexit conflicting definition when compiling with mpc_nvcc*/
+	/*to resolve atexit conflicting definition when compiling with mpc_nvcc*/
+	extern int atexit (void (*__func) (void)) throw();
 #else
 	extern int atexit (void (*__func) (void));
 #endif

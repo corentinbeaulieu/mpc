@@ -161,19 +161,20 @@ apply_configuration_patch()
 }
 
 
-# libtool version 2.4.6 and below need patching.
-# libtool version 2.5.4 and above can not be patched.
+# libtool version 2.4.6 on redhat8 need patching.
+# libtool version 2.4.7 on ubuntu 24 lts is fixed (not patchable)
+# libtool version 2.5.4 on arch is fixed (not patchable).
 # Status of other libtool versions in between is unknown,
 # modify version check accordingly
-# is libtool version is under 2.5.4 ?
-if [ $(echo "$(libtool --version | grep -E -o "[0-9]+\.[0-9]+(\.[0-9]+)*")\n2.5.4" | sort -V | head -n 1) == "2.5.4" ]
+# is libtool version greeter or equel to 2.5.4 ?
+if [ "$(echo "$(libtool --version | grep -E -o "[0-9]+\.[0-9]+(\.[0-9]+)*")\n2.5.4" | sort -V | head -n 1)" = "2.4.7" ]
 then
+	# patches for flang and libgfortran are already upstreams, patching will fail
+	apply_configuration_patch "003"
+else
 	# apply all patchs
 	apply_configuration_patch "001"
 	apply_configuration_patch "002"
-	apply_configuration_patch "003"
-else
-	# patches for flang and libgfortran are already upstreams, patching will fail
 	apply_configuration_patch "003"
 fi
 

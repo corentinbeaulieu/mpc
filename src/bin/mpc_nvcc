@@ -31,8 +31,7 @@ SCRIPTPATH=$(dirname "$SCRIPT")
 # - MPC_SHARE_DIR
 # - MPC_DEFAULT_CXX_COMPILER
 # - CFLAGS
-eval $("${SCRIPTPATH}/mpc_cflags" -sh -p -s -cxx -f)
-CC="$MPC_DEFAULT_CXX_COMPILER"
+eval $("${SCRIPTPATH}/mpc_cflags" --sh -p -s -cxx -f)
 LDFLAGS=$("${MPC_INSTALL_PREFIX}/bin/mpc_ldflags")
 
 # Source Common function library
@@ -42,8 +41,8 @@ LDFLAGS=$("${MPC_INSTALL_PREFIX}/bin/mpc_ldflags")
 
 parse_cli_args "$@"
 
-# Update compiler in case CC was altered by CLI
-COMPILER="nvcc --compiler-bindir $CC"
+# Update compiler in case CXX was altered by CLI
+COMPILER="nvcc --compiler-bindir $CXX"
 
 # Add forwaders for NVCC
 LDFLAGS=$(echo "$LDFLAGS" | sed -e 's/\-Wl,/-Xlinker /g' -e 's/ -B/ -Xcompiler &/g')

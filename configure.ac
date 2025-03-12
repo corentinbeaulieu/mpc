@@ -1340,14 +1340,18 @@ AC_DEFINE_UNQUOTED([MPC_LAUNCHER], [$MPC_LAUNCHER], [Default launcher configured
 # Cuda Detection
 #
 
+
+AC_CHECKING([Checking CUDA])
+
 AC_ARG_WITH([cuda],
 [AS_HELP_STRING([--with-cuda],
                 [Enable CUDA context switching])],
 [mpc_cuda_ctx_switch=$withval],
 [mpc_cuda_ctx_switch=no])
 
-cuda_enabled="no"
+AC_MSG_WARN([mpc_cuda_ctx_switch=$mpc_cuda_ctx_switch])
 
+cuda_enabled="no"
 if test "x$mpc_cuda_ctx_switch" = "xyes"; then
 
         MPC_DETECT_DEPENDENCY([cuda.h], [cuda], [cuMemFree], [CUDA])
