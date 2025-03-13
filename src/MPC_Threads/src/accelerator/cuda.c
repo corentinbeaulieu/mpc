@@ -260,7 +260,13 @@ void sctk_accl_cuda_release_context()
   /* cuda runtime segfault after main if not release explicitly */
   /* one primary context per gpu device */
   int nb_check = 1;
-  safe_cudart(cudaGetDeviceCount(&nb_check));
+  cudaError_t code = cudaGetDeviceCount(&nb_check);
+  if (code == 999) // Avoid spamming Uknown Errors
+	  return;
+  if (code != cudaSuccess) {
+    fprintf(stderr, "CUDA Release Context (cudaGetDeviceCount): %s %d %s %d\n", cudaGetErrorString(code), code, __FILE__, __LINE__);
+    return;
+  }
   CUdevice device;
   CUcontext context;
   unsigned int flags;
