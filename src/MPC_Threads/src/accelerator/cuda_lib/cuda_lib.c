@@ -31,22 +31,39 @@
  * Don't forget to add a weak symbol in MPC too (sctk_cuda_wrap.c)
  */
 CUresult sctk_cuInit(unsigned int flag) { return cuInit(flag); }
+
 CUresult sctk_cuCtxCreate(CUcontext *c, unsigned int f, CUdevice d) {
-  return cuCtxCreate(c, f, d);
-}
-CUresult sctk_cuCtxCreate_v3(CUcontext* c, CUexecAffinityParam* paramsArray, int  numParams, unsigned int  f, CUdevice d) {
-  return cuCtxCreate_v3(c, paramsArray, numParams, f, d);
-}
-CUresult sctk_cuCtxPopCurrent(CUcontext *c) { return cuCtxPopCurrent(c); }
-CUresult sctk_cuCtxPushCurrent(CUcontext c) { return cuCtxPushCurrent(c); }
-CUresult sctk_cuDeviceGetByPCIBusId(CUdevice *d, const char *b) {
-  return cuDeviceGetByPCIBusId(d, b);
+	return cuCtxCreate(c, f, d);
 }
 
-CUresult sctk_cuDevicePrimaryCtxRelease(CUdevice d) {
-  return cuDevicePrimaryCtxRelease(d);
+CUresult sctk_cuCtxCreate_v3(CUcontext* c, CUexecAffinityParam* paramsArray,
+                             int  numParams, unsigned int  f, CUdevice d) {
+	return cuCtxCreate_v3(c, paramsArray, numParams, f, d);
 }
+
+CUresult sctk_cuCtxPopCurrent(CUcontext *c) { return cuCtxPopCurrent(c); }
+
+CUresult sctk_cuCtxPushCurrent(CUcontext c) { return cuCtxPushCurrent(c); }
+
+CUresult sctk_cuDevicePrimaryCtxGetState(CUdevice dev, unsigned int* flags,
+                                         int* active) {
+return cuDevicePrimaryCtxGetState(dev, flags, active);
+}
+
+CUresult sctk_cuDeviceGet(CUdevice* device, int ordinal) {
+	return cuDeviceGet(device, ordinal);
+}
+
+CUresult sctk_cuDeviceGetByPCIBusId(CUdevice *d, const char *b) {
+	return cuDeviceGetByPCIBusId(d, b);
+}
+
+CUresult sctk_cuDevicePrimaryCtxRelease(CUdevice dev) {
+	return cuDevicePrimaryCtxRelease(dev);
+}
+
 CUresult sctk_cuCtxDestroy(CUcontext c) {
-  return cuCtxDestroy(c);
+	return cuCtxDestroy(c);
 }
+
 #endif /* MPC_USE_CUDA */

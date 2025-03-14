@@ -38,7 +38,7 @@
 #define MPC_MODULE "Topology/Device"
 
 #if defined( MPC_USE_CUDA )
-#include <cuda.h>
+#include "mpc_thread_cuda.h"
 #endif
 
 /************************************************************************/

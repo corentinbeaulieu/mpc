@@ -31,6 +31,7 @@
 #include <mpc_common_spinlock.h>
 #include <mpc_topology.h>
 #include <mpc_common_flags.h>
+#include <mpc_thread_cuda.h>
 
 extern __thread void *sctk_cuda_ctx;
 
@@ -273,12 +274,12 @@ void sctk_accl_cuda_release_context()
   int is_active;
   for(int i = 0; i < nb_check; i++)
   {
-    safe_cudart(cuDeviceGet(&device, i));
+    safe_cudart(sctk_cuDeviceGet(&device, i));
 
     // Get the primary context state
-    safe_cudart(cuDevicePrimaryCtxGetState(device, &flags, &is_active));
+    safe_cudart(sctk_cuDevicePrimaryCtxGetState(device, &flags, &is_active));
     if (is_active) {
-      cuDevicePrimaryCtxRelease(device);
+      sctk_cuDevicePrimaryCtxRelease(device);
     }
   }
 }

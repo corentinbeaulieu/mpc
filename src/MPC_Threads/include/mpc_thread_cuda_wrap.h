@@ -52,6 +52,9 @@ CUresult sctk_cuCtxCreate(CUcontext *c, unsigned int f, CUdevice d);
 CUresult sctk_cuCtxCreate_v3(CUcontext* c, CUexecAffinityParam* paramsArray, int  numParams, unsigned int  f, CUdevice d);
 CUresult sctk_cuCtxPopCurrent(CUcontext *c);
 CUresult sctk_cuCtxPushCurrent(CUcontext c);
+CUresult sctk_cuDevicePrimaryCtxGetState(CUdevice dev, unsigned int* flags,
+                                         int* active);
+CUresult sctk_cuDeviceGet(CUdevice* device, int ordinal);
 CUresult sctk_cuDeviceGetByPCIBusId(CUdevice *d, const char *b);
 CUresult sctk_cuCtxDestroy(CUcontext c);
 CUresult sctk_cuDevicePrimaryCtxRelease(CUdevice d);

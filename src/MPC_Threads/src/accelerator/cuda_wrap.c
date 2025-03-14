@@ -29,56 +29,91 @@
 #ifdef MPC_USE_CUDA
 
 /**
- * Weak symbol to let MPC know the cuInit() symbol without linking to it at compile time.
- * The real symbol will be found at run time.
- * @param[in] flag not used in this wrapper
+ * Weak symbols to let MPC know symbols without linking to it at compile time.
+ * The real symbol will be found at run time (in cuda_lib/cuda_lib.c).
+ * Functions core removed for compatibility as gcc-14 consider 
+ * implicit functions declaration as errors.
  */
-#pragma weak sctk_cuInit
-CUresult sctk_cuInit(unsigned int flag) { return cuInit(flag); }
 
-/**
- * Weak symbol to let MPC know the cuCtxCreate() symbol without linking to it at compile time.
- * The real symbol will be found at run time.
- * @param[in] flag not used in this wrapper
- */
+#pragma weak sctk_cuInit
+CUresult sctk_cuInit(unsigned int flag) {
+	UNUSED(flag);
+	assert(0);
+	return 0;
+}
+
 #pragma weak sctk_cuCtxCreate
 CUresult sctk_cuCtxCreate(CUcontext *c, unsigned int f, CUdevice d) {
-  return cuCtxCreate(c, f, d);
+	UNUSED(c);
+	UNUSED(f);
+	UNUSED(d);
+	assert(0);
+	return 0;
 }
 
 #pragma weak sctk_cuCtxCreate_v3
-CUresult sctk_cuCtxCreate_v3(CUcontext* c, CUexecAffinityParam* paramsArray, int  numParams, unsigned int  f, CUdevice d) {
-  return cuCtxCreate_v3(c, paramsArray, numParams, f, d);
+CUresult sctk_cuCtxCreate_v3(CUcontext* c, CUexecAffinityParam* paramsArray, int  numParams, unsigned int f, CUdevice d) {
+	UNUSED(c);
+	UNUSED(paramsArray);
+	UNUSED(numParams);
+	UNUSED(f);
+	UNUSED(d);
+	assert(0);
+	return 0;
 }
 
-/**
- * Weak symbol to let MPC know the cuCtxPopCurrent() symbol without linking to it at compile time.
- * @param[in] flag not used in this wrapper
- */
 #pragma weak sctk_cuCtxPopCurrent
-CUresult sctk_cuCtxPopCurrent(CUcontext *c) { return cuCtxPopCurrent(c); }
-/**
- * Weak symbol to let MPC know the ctxPushCurrent() symbol without linking to it at compile time.
- * @param[in] flag not used in this wrapper
- */
+CUresult sctk_cuCtxPopCurrent(CUcontext *c) {
+	UNUSED(c);
+	assert(0);
+	return 0;
+}
 
 #pragma weak sctk_cuCtxPushCurrent
-CUresult sctk_cuCtxPushCurrent(CUcontext c) { return cuCtxPushCurrent(c); }
-/**
- * Weak symbol to let MPC know the cuDeviceGetByPCIBusId() symbol without linking to it at compile time.
- * @param[in] flag not used in this wrapper
- */
+CUresult sctk_cuCtxPushCurrent(CUcontext c) {
+	UNUSED(c);
+	assert(0);
+	return 0;
+}
+
+#pragma weak sctk_cuDevicePrimaryCtxGetState
+CUresult sctk_cuDevicePrimaryCtxGetState(CUdevice dev, unsigned int* flags,
+                                         int* active){
+	UNUSED(dev);
+	UNUSED(flags);
+	UNUSED(active);
+	assert(0);
+	return 0;
+}
+
+#pragma weak sctk_cuDeviceGet
+CUresult sctk_cuDeviceGet(CUdevice* device, int ordinal) {
+	UNUSED(device);
+	UNUSED(ordinal);
+	assert(0);
+	return 0;
+}
 
 #pragma weak sctk_cuDeviceGetByPCIBusId
 CUresult sctk_cuDeviceGetByPCIBusId(CUdevice *d, const char *b) {
-  return cuDeviceGetByPCIBusId(d, b);
+	UNUSED(d);
+	UNUSED(b);
+	assert(0);
+	return 0;
 }
+
 #pragma weak sctk_cuCtxDestroy
 CUresult sctk_cuCtxDestroy(CUcontext c) {
-  return cuCtxDestroy(c);
+	UNUSED(c);
+	assert(0);
+	return 0;
 }
+
 #pragma weak sctk_cuDevicePrimaryCtxRelease
-CUresult sctk_cuDevicePrimaryCtxRelease(CUdevice d) {
-  return cuDevicePrimaryCtxRelease(d);
+CUresult sctk_cuDevicePrimaryCtxRelease(CUdevice dev) {
+	UNUSED(dev);
+	assert(0);
+	return 0;
 }
+
 #endif
