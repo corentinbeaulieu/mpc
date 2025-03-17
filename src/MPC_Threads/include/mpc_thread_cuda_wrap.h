@@ -36,28 +36,7 @@
 	} while(0)
 
 #ifdef MPC_USE_CUDA
-/* As cuda.h is not included, create some bridges */
-#define CUDA_SUCCESS          0
-#define CU_CTX_SCHED_YIELD    0x02
-typedef int    CUresult;  /** CUDA driver return values*/
-typedef int    CUdevice;  /** CUDA device id (int) */
-typedef void * CUcontext; /** CUDA ctx (opaque pointer) */
-typedef void * CUexecAffinityParam; /** CUDA Affinity Parameters (opaque pointer) */
-
-/* all weak symbols.
- * We should have as many protoptypes as contained in cuda_lib/cuda_lib.c
- */
-CUresult sctk_cuInit(unsigned flag);
-CUresult sctk_cuCtxCreate(CUcontext *c, unsigned int f, CUdevice d);
-CUresult sctk_cuCtxCreate_v3(CUcontext* c, CUexecAffinityParam* paramsArray, int  numParams, unsigned int  f, CUdevice d);
-CUresult sctk_cuCtxPopCurrent(CUcontext *c);
-CUresult sctk_cuCtxPushCurrent(CUcontext c);
-CUresult sctk_cuDevicePrimaryCtxGetState(CUdevice dev, unsigned int* flags,
-                                         int* active);
-CUresult sctk_cuDeviceGet(CUdevice* device, int ordinal);
-CUresult sctk_cuDeviceGetByPCIBusId(CUdevice *d, const char *b);
-CUresult sctk_cuCtxDestroy(CUcontext c);
-CUresult sctk_cuDevicePrimaryCtxRelease(CUdevice d);
+#include <cuda.h>
 #endif
 
 #endif

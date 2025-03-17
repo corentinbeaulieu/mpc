@@ -58,7 +58,7 @@ static int sctk_accl_cuda_get_closest_device(int cpu_id) {
   if (num_devices <= 0)
     return 0;
 
-  safe_cudart(cudaGetDeviceCount(&nb_check));
+  safe_cudadv(cuDeviceGetCount(&nb_check));
   assert(num_devices == nb_check);
 
   /* else, we try to find the closest device for the current thread */
@@ -102,7 +102,7 @@ void sctk_accl_cuda_init_context() {
   }
 
   /* optional: sanity check */
-  safe_cudart(cudaGetDeviceCount(&check_nb));
+  safe_cudadv(cuDeviceGetCount(&check_nb));
   assert(check_nb == num_devices);
 
   /* we init CUDA TLS context */
@@ -116,12 +116,12 @@ void sctk_accl_cuda_init_context() {
 
   /* cast from int -> CUdevice (which is a typedef to a int) */
   CUdevice nearest_device =
-      (CUdevice)sctk_accl_cuda_get_closest_device(cuda->cpu_id);
+    (CUdevice) sctk_accl_cuda_get_closest_device(cuda->cpu_id);
 
   //safe_cudadv(
       //sctk_cuCtxCreate(&cuda->context, CU_CTX_SCHED_YIELD, nearest_device));
   /* Use v3 for right context API version since cuda 12.0 */
-  sctk_cuCtxCreate_v3(&cuda->context, NULL, 0, CU_CTX_SCHED_YIELD, nearest_device);
+  cuCtxCreate_v3(&cuda->context, NULL, 0, CU_CTX_SCHED_YIELD, nearest_device);
   /*sctk_cuCtxCreate() automatically attaches the ctx to the GPU */
   cuda->pushed = 1;
 
@@ -154,7 +154,7 @@ int sctk_accl_cuda_pop_context() {
     return 1;
 
   /* sanity check */
-  safe_cudart(cudaGetDeviceCount(&check_nb));
+  safe_cudadv(cuDeviceGetCount(&check_nb));
   assert(num_devices == check_nb);
 
   /* get The CUDA context for the current thread */
@@ -172,15 +172,8 @@ int sctk_accl_cuda_pop_context() {
    * other
    */
   if (cuda->pushed) {
-    safe_cudadv(sctk_cuCtxPopCurrent(&cuda->context));
+    safe_cudadv(cuCtxPopCurrent(&cuda->context));
     cuda->pushed = 0;
-
-    ///* DEBUG
-    int cuda_id;
-    safe_cudart(cudaGetDevice(&cuda_id));
-    mpc_common_nodebug("CUDA: (POP) PU %d detached from device %d", cuda->cpu_id,
-                 cuda_id);
-    //*/
   }
 
   return 0;
@@ -205,7 +198,7 @@ int sctk_accl_cuda_push_context() {
     return 1;
 
   /* sanity checks */
-  safe_cudart(cudaGetDeviceCount(&nb_check));
+  safe_cudadv(cuDeviceGetCount(&nb_check));
   assert(nb_check == num_devices);
 
   /* else, we try to push a ctx in GPU queue */
@@ -219,15 +212,8 @@ int sctk_accl_cuda_push_context() {
 
   /* if the context is not already on the GPU */
   if (!cuda->pushed) {
-    safe_cudadv(sctk_cuCtxPushCurrent(cuda->context));
+    safe_cudadv(cuCtxPushCurrent(cuda->context));
     cuda->pushed = 1;
-
-    ///* DEBUG
-    int cuda_id;
-    safe_cudart(cudaGetDevice(&cuda_id));
-    mpc_common_nodebug("CUDA (PUSH) PU %d pushed to device %d", cuda->cpu_id,
-                 cuda_id);
-    //*/
   }
   return 0;
 }
@@ -240,7 +226,7 @@ int sctk_accl_cuda_push_context() {
 int sctk_accl_cuda_init() {
   if (mpc_common_get_flags()->enable_accelerators) /* && sctk_cuda_support) */
   {
-    safe_cudadv(sctk_cuInit(0));
+    safe_cudadv(cuInit(0));
     return 0;
   }
   return 1;
@@ -255,31 +241,32 @@ void sctk_accl_cuda_release_context()
   if (mpc_common_get_flags()->enable_accelerators) /* && sctk_cuda_support) */
   {
     cuda_ctx_t *cuda = (cuda_ctx_t *)sctk_cuda_ctx;
-    sctk_cuCtxDestroy(cuda->context);
+    cuCtxDestroy(cuda->context);
     sctk_cuda_ctx = NULL;
   }
   /* cuda runtime segfault after main if not release explicitly */
   /* one primary context per gpu device */
-  int nb_check = 1;
-  cudaError_t code = cudaGetDeviceCount(&nb_check);
-  if (code == 999) // Avoid spamming Uknown Errors
+	int nb_check = 1;
+	CUresult code = cuDeviceGetCount(&nb_check);
+	if (code == CUDA_ERROR_UNKNOWN) // Avoid spamming Uknown Errors
 	  return;
-  if (code != cudaSuccess) {
-    fprintf(stderr, "CUDA Release Context (cudaGetDeviceCount): %s %d %s %d\n", cudaGetErrorString(code), code, __FILE__, __LINE__);
-    return;
-  }
+	if (code != CUDA_SUCCESS) {
+		const char *errorStr = NULL;
+		cuGetErrorString(code, &errorStr);
+		fprintf(stderr, "CUDA Release Context (cuDeviceGetCount): %s %d %s %d\n", errorStr, code, __FILE__, __LINE__);
+		return;
+	}
   CUdevice device;
-  CUcontext context;
   unsigned int flags;
   int is_active;
   for(int i = 0; i < nb_check; i++)
   {
-    safe_cudart(sctk_cuDeviceGet(&device, i));
+    safe_cudadv(cuDeviceGet(&device, i));
 
     // Get the primary context state
-    safe_cudart(sctk_cuDevicePrimaryCtxGetState(device, &flags, &is_active));
+    safe_cudadv(cuDevicePrimaryCtxGetState(device, &flags, &is_active));
     if (is_active) {
-      sctk_cuDevicePrimaryCtxRelease(device);
+      cuDevicePrimaryCtxRelease(device);
     }
   }
 }
@@ -294,7 +281,9 @@ void mpc_accelerator_cuda_register_function()
 {
 	MPC_INIT_CALL_ONLY_ONCE
 
-	mpc_common_init_callback_register( "VP Thread Start", "Init per VP Cuda context", sctk_accl_cuda_init_context, 25 );
+	mpc_common_init_callback_register("VP Thread Start",
+	                                  "Init per VP Cuda context",
+	                                  sctk_accl_cuda_init_context, 25);
 
 	mpc_common_init_callback_register("Ending Main",
 	                                  "Per MPI Thread cuda CTX Release",

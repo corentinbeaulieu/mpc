@@ -524,7 +524,7 @@ static inline void __topology_device_enrich_topology()
 	/* init() returns 0 if succeed (maybe not obvious) */
 	if ( !sctk_accl_cuda_init() )
 	{
-		cudaGetDeviceCount( &cuda_device_to_locate );
+		cuDeviceGetCount(&cuda_device_to_locate);
 	}
 
 #endif
@@ -554,7 +554,7 @@ static inline void __topology_device_enrich_topology()
 			sscanf( cur_attr, "busid=%s", busid_str );
 			/* maybe the init() should be done only once ? */
 			CUdevice dev = 0;
-			CUresult test = sctk_cuDeviceGetByPCIBusId( &dev, busid_str );
+			CUresult test = cuDeviceGetByPCIBusId( &dev, busid_str );
 
 			/* if the PCI bus ID matches a CUDA-enabled device */
 			if ( test == CUDA_SUCCESS )

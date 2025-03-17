@@ -58,15 +58,8 @@ libmpcthread_la_SOURCES += ethread_engine.c ethread_mxn_engine.c ethread_posix.c
 libmpcthread_la_SOURCES += accelerator.c
 
 if MPC_CUDA_ENABLED
-
-libmpcthread_la_SOURCES +=  ./accelerator/cuda.c ./accelerator/cuda_wrap.c
-
-lib_LTLIBRARIES += libmpc_cuda_addon.la
-
-libmpc_cuda_addon_la_SOURCES = ./accelerator/cuda_lib/cuda_lib.c
-libmpc_cuda_addon_la_LIBADD = -lcuda
-
+libmpcthread_la_SOURCES +=  ./accelerator/cuda.c
 endif
 
-
 libmpcthread_la_LIBADD = ../../MPC_Launch/src/libmpclaunch.la  -lpthread
+
