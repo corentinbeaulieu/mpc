@@ -1356,14 +1356,7 @@ if test "x$mpc_cuda_ctx_switch" = "xyes"; then
 
         MPC_DETECT_DEPENDENCY([cuda.h], [cuda], [cuMemFree], [CUDA])
         MPC_REQUIRED_DEPENDENCY([cuda], [$mpc_dep_found])
-
-        if test "x$mpc_dep_found" = "xyes"; then
-                MPC_DETECT_DEPENDENCY([cuda_runtime.h], [cudart], [cudaDeviceSetLimit], [CUDART])
-                MPC_REQUIRED_DEPENDENCY([cudart], [$mpc_dep_found])
-
-                AC_DEFINE([MPC_USE_CUDA], [1], [Cuda support is enabled])
-                cuda_enabled="yes"
-        fi
+        cuda_enabled="yes"
 fi
 
 AM_CONDITIONAL([MPC_CUDA_ENABLED], [test "x$cuda_enabled" = "xyes"])
