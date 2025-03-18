@@ -285,8 +285,8 @@ void mpc_accelerator_cuda_register_function()
 	                                  "Init per VP Cuda context",
 	                                  sctk_accl_cuda_init_context, 25);
 
-	mpc_common_init_callback_register("Ending Main",
-	                                  "Per MPI Thread cuda CTX Release",
+	mpc_common_init_callback_register("VP Thread End",
+	                                  "Release per VP Cuda context",
 	                                  sctk_accl_cuda_release_context, 22);
 }
 
