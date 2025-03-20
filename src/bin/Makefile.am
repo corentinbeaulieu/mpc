@@ -83,3 +83,10 @@ mpcrun_plugin_SCRIPTS +=  mpcrun_opt/mpcrun_prrte
 endif
 
 #CLEANFILES += $(bin_SCRIPTS) $(mpcrun_plugin_SCRIPTS)
+
+#
+# tmux gdb
+#
+
+bin_SCRIPTS += tmux_gdb
+
