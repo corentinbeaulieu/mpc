@@ -252,13 +252,16 @@ void sctk_accl_cuda_release_context()
 	/* one primary context per gpu device */
 	int nb_check = 1;
 	CUresult code = cuDeviceGetCount(&nb_check);
-	if (code == CUDA_ERROR_UNKNOWN) // Avoid spamming Uknown Errors
+	if (code == CUDA_ERROR_UNKNOWN) // Uknown Errors (if cuda driver is not started correctly).
+		return;
+	if (code == CUDA_ERROR_NOT_INITIALIZED) // Not initialized error if cuda is no cuinit.
 		return;
 	if (code != CUDA_SUCCESS) {
 		const char *errorStr = NULL;
 		cuGetErrorString(code, &errorStr);
-		fprintf(stderr, "CUDA: Release Context (cuDeviceGetCount): %s %d %s %d\n",
-		        errorStr, code, __FILE__, __LINE__);
+		mpc_common_debug_warning(
+		    "CUDA: Release Context (cuDeviceGetCount): %s (code %d) %s:%dL\n",
+		    errorStr, code, __FILE__, __LINE__);
 		return;
 	}
 	CUdevice device;
