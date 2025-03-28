@@ -677,12 +677,12 @@ const char * mpc_common_debug_verbosity_level_to_string(mpc_common_debug_verbosi
 	}
 
 	static const char * slevel[] = {
+		"error",
+		"warning",
 		"base",
 		"log",
 		"info",
 		"debug",
-		"error",
-		"warning"
 	};
 
 	return slevel[level];

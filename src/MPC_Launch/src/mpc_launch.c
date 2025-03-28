@@ -161,7 +161,7 @@ static inline void __set_thread_engine(void)
 static void __arg_set_verbosity(char *arg)
 {
 
-	int tmp = atoi(arg);
+	int tmp = atoi(arg) + MPC_COMMON_LOG_LEVEL_BASE;
 
 	if( (0 <= tmp) && (mpc_common_get_flags()->verbosity < tmp) )
 	{
@@ -525,7 +525,7 @@ static inline void __set_default_values()
 	snprintf(__launch_config.mpcrun_launcher, MPC_CONF_STRING_SIZE, "none");
 	snprintf(__launch_config.mpcrun_user_launcher,MPC_CONF_STRING_SIZE,"~/.mpc/");
 	__launch_config.disable_aslr = 1;
-	mpc_common_get_flags()->verbosity = 0;
+	mpc_common_get_flags()->verbosity = 2;
 	mpc_common_get_flags()->launcher = strdup(mpc_conf_stringify(MPC_LAUNCHER));
 
 	mpc_common_get_flags()->enable_smt_capabilities = 0;
