@@ -285,44 +285,43 @@ err:
 //TODO: force homogeneity of transport for one endpoint. Select transport with
 //      highest priority, then build transport endpoints for all allocated
 //      devices.
-static int lcp_ep_init_channels(lcp_manager_h mngr, lcp_ep_h ep,
-                                unsigned flags)
+static int lcp_ep_init_channels(lcp_manager_h mngr, lcp_ep_h ep, unsigned flags)
 {
-        UNUSED(flags);
-	int rc = MPC_LOWCOMM_SUCCESS, i;
-        lcp_context_h ctx = mngr->ctx;
-        int selected_prio = -1;
+	UNUSED(flags);
+	int rc = MPC_LOWCOMM_ERROR, i;
+	lcp_context_h ctx = mngr->ctx;
+	int selected_prio = -1;
 
 	//NOTE: ctx->resources are sorted in descending order of priority
-	//      already.
-        //NOTE: lcp_context initialization already has checked that there cant be
-        //      heterogeneous rails. As a consequence, interfaces contained in
-        //      manager at this point are the composable ones and only one
-        //      non-composable.
+	//	already.
+	//NOTE: lcp_context initialization already has checked that there cant be
+	//	heterogeneous rails. As a consequence, interfaces contained in
+	//	manager at this point are the composable ones and only one
+	//	non-composable.
 	//NOTE: rail homogeneity implies only one type of rail may be chosen.
-	//      With multirail, this is true only if two heterogeneous rails
-	//      have different priority. As a consequence, having heterogenous
-	//      rails with same priority would result in heterogeneous
-	//      multirail.
+	//	With multirail, this is true only if two heterogeneous rails
+	//	have different priority. As a consequence, having heterogenous
+	//	rails with same priority would result in heterogeneous
+	//	multirail.
 	for(i = 0; i < mngr->num_ifaces; i++)
 	{
 		_mpc_lowcomm_endpoint_t *lcr_ep;
-                sctk_rail_info_t        *iface = mngr->ifaces[i];
-                lcr_rail_attr_t          attr;
-                iface->iface_get_attr(iface, &attr);
+		sctk_rail_info_t	*iface = mngr->ifaces[i];
+		lcr_rail_attr_t		 attr;
+		iface->iface_get_attr(iface, &attr);
 
 		/* If uid cannot be reached through this interface, continue */
-                //FIXME: note that is is only useful for TBSM, for now any other
-                //       driver will return true but it does not mean that the
-                //       connection will be successful.
+		//FIXME: note that is is only useful for TBSM, for now any other
+		//	 driver will return true but it does not mean that the
+		//	 connection will be successful.
 		if(!iface->iface_is_reachable(iface, ep->uid) ) {
 			continue;
 		}
 
 		/* Set selected rail priority */
-                //NOTE: because rail are already ordered in descending order of
-                //      priority, only the first UID-reachable interface with
-                //      highest priority will be selected.
+		//NOTE: because rail are already ordered in descending order of
+		//	priority, only the first UID-reachable interface with
+		//	highest priority will be selected.
 		if(iface->priority >= selected_prio)
 		{
 			selected_prio = iface->priority;
@@ -338,12 +337,12 @@ static int lcp_ep_init_channels(lcp_manager_h mngr, lcp_ep_h ep,
 		ctx->resources[i].used = 1;
 
 		mpc_common_debug("LCP EP: route to %llu using %s", ep->uid,
-                                 iface->network_name);
+				 iface->network_name);
 
 		/* Check transport endpoint availability */
-                //NOTE: For connection-oriented transport (TCP for example), low
-                //      level endpoint could have already been added during the
-                //      connection protocol. Thus, check first if it exists.
+		//NOTE: For connection-oriented transport (TCP for example), low
+		//	level endpoint could have already been added during the
+		//	connection protocol. Thus, check first if it exists.
 		lcr_ep = sctk_rail_get_any_route_to_process(iface, ep->uid);
 		/* If endpoint does not exist yet, connect on demand */
 		if(lcr_ep == NULL)
@@ -352,7 +351,7 @@ static int lcp_ep_init_channels(lcp_manager_h mngr, lcp_ep_h ep,
 			iface->connect_on_demand(iface, ep->uid);
 			/* Get newly created endpoint */
 			lcr_ep = sctk_rail_get_any_route_to_process(iface,
-			                                            ep->uid);
+								    ep->uid);
 			if(lcr_ep == NULL) {
 				continue;
 			}
@@ -369,18 +368,28 @@ static int lcp_ep_init_channels(lcp_manager_h mngr, lcp_ep_h ep,
 
 		/* Transport endpoint is connected */
 		MPC_BITMAP_SET(ep->conn_map, i);
+		rc = MPC_LOWCOMM_SUCCESS;
+	}
+
+	if (rc == MPC_LOWCOMM_ERROR) {
+		mpc_common_debug_error("LCP EP: No suitable Interfaces foud for communications. (make sure interfaces are configured correctly)");
+		#ifdef MPC_USE_PORTALS
+			mpc_common_debug_warning("MPC_USE_PORTALS is enable.");
+		#elif MPC_USE_OFI
+			mpc_common_debug_warning("MPC_USE_OFI is enable.");
+		#endif
 	}
 
 	/* Protocol endpoint connected only if there are available interfaces
 	 * and all are connected */
 	int equal = !mpc_bitmap_is_zero(ep->avail_map) &&
-	            MPC_BITMAP_AND(ep->conn_map, ep->avail_map);
-        ep->state = !equal ? LCP_EP_FLAG_CONNECTING : LCP_EP_FLAG_CONNECTED;
+		    MPC_BITMAP_AND(ep->conn_map, ep->avail_map);
+	ep->state = !equal ? LCP_EP_FLAG_CONNECTING : LCP_EP_FLAG_CONNECTED;
 
-        //FIXME: num_chnls is set to num_iface since in many places a loop need
-        //       to be done on such range, channel are used depending on the
-        //       connection bitmap. Should be adapted...
-        ep->num_chnls = mngr->num_ifaces;
+	//FIXME: num_chnls is set to num_iface since in many places a loop need
+	//	 to be done on such range, channel are used depending on the
+	//	 connection bitmap. Should be adapted...
+	ep->num_chnls = mngr->num_ifaces;
 
 	mpc_common_debug("LCP EP: ep state=%s.", !equal ? "CONNECTING" : "CONNECTED");
 
