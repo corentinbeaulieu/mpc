@@ -30,7 +30,10 @@ SCRIPTPATH=$(dirname "$SCRIPT")
 # Where MPC is currently being BUILT
 PROJECT_BUILD_DIR=$(readlink -f "$PWD")
 
-USE_COLOR="no"
+# enable colors by default
+MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --enable-shell-colors"
+MPC_COMP_ADD_BUILD_PARAMETERS="${MPC_COMP_ADD_BUILD_PARAMETERS} --opts=--enable-color"
+USE_COLOR="yes"
 
 ####################
 # BUILD PARAMETERS #
@@ -1443,6 +1446,7 @@ do
 			;;
 		--disable-color)
 			MPCFRAMEWORK_BUILD_PARAMETERS=$(echo "$MPCFRAMEWORK_BUILD_PARAMETERS" | sed "s/--enable-shell-colors//")
+			MPC_COMP_ADD_BUILD_PARAMETERS=$(echo "$MPC_COMP_ADD_BUILD_PARAMETER"  | sed "s/--opts=--enable-color//")
 			USE_COLOR="no"
 			;;
 		--enable-debug)
