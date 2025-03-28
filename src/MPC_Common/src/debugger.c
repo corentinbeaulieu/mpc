@@ -329,10 +329,10 @@ static inline void __libunwind_backtrace( void )
 		{
 			if(first_lib == 0)
 			{
-				mpc_common_io_noalloc_fprintf( stderr, "\n"MPC_COLOR_VIOLET_BOLD(})"\n" );
+				mpc_common_io_noalloc_fprintf( stderr, "\n"MPC_COLOR_BOLD_VIOLET(})"\n" );
 			}
 			first_lib=0;
-			mpc_common_io_noalloc_fprintf( stderr, MPC_COLOR_VIOLET_BOLD( %s )"\n"MPC_COLOR_VIOLET_BOLD({)"\n", map[i].file );
+			mpc_common_io_noalloc_fprintf( stderr, MPC_COLOR_BOLD_VIOLET( %s )"\n"MPC_COLOR_BOLD_VIOLET({)"\n", map[i].file );
 						previous_lib = map[i].file;
 		}
 
@@ -345,18 +345,18 @@ static inline void __libunwind_backtrace( void )
 		mpc_common_nodebug( "dir %s", ptr.dir );
 		mpc_common_nodebug( "file %s", ptr.file );
 		mpc_common_nodebug( "absolute %s", ptr.absolute );
-		mpc_common_io_noalloc_fprintf( stderr, "\t[%2d] "MPC_COLOR_RED_BOLD( %s )" @ "MPC_COLOR_YELLOW( %llx )"\n", frame_id, func_name_buf, ip );
+		mpc_common_io_noalloc_fprintf( stderr, "\t[%2d] "MPC_COLOR_BOLD_RED( %s )" @ "MPC_COLOR_YELLOW( %llx )"\n", frame_id, func_name_buf, ip );
 
 		if ( ptr.line != ( unsigned long ) - 1 )
 		{
-			mpc_common_io_noalloc_fprintf( stderr, "\t     "MPC_COLOR_BLUE_BOLD( %s/%s/%s:%d )"\n", ptr.absolute,
+			mpc_common_io_noalloc_fprintf( stderr, "\t     "MPC_COLOR_BOLD_BLUE( %s/%s/%s:%d )"\n", ptr.absolute,
 							ptr.dir, ptr.file, ptr.line );
 		}
 
 		frame_id++;
 	}
 
-	mpc_common_io_noalloc_fprintf( stderr, "\n"MPC_COLOR_VIOLET_BOLD(})"\n" );
+	mpc_common_io_noalloc_fprintf( stderr, "\n"MPC_COLOR_BOLD_VIOLET(})"\n" );
 }
 #endif
 

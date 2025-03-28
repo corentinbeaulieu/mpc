@@ -563,15 +563,16 @@ static inline void __register_config(void)
 
 #ifdef MPC_ENABLE_SHELL_COLORS
  	mpc_common_get_flags()->colors = 1;
+#else
+ 	mpc_common_get_flags()->colors = 0;
 #endif
+
 	/* Register debug config */
 	mpc_conf_config_type_t *debug = mpc_conf_config_type_init("debug",
 	                                                       PARAM("backtrace", &__launch_config.bt_sig_enabled ,MPC_CONF_BOOL, "Produce backtraces on error"),
 														   PARAM("verbosity", &mpc_common_get_flags()->verbosity, MPC_CONF_INT, "Should debug messages be displayed (1-3)"),
 														   PARAM("callbacks", &mpc_common_get_flags()->debug_callbacks, MPC_CONF_BOOL, "Print callbacks debug information"),
-														   #ifdef MPC_ENABLE_SHELL_COLORS
 														   PARAM("colors", &mpc_common_get_flags()->colors, MPC_CONF_BOOL, "Enable shell colors"),
-														   #endif
 														   NULL);
 
 	/* Register Launch Config */

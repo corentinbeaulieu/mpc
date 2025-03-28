@@ -40,62 +40,92 @@
 #ifdef MPC_ENABLE_SHELL_COLORS
 
 	#define MPC_COLOR_ESC "\033["
+	#define MPC_COLOR_CHAR_DEFAULT       MPC_COLOR_ESC"0m"
+
 	/* Normal colors */
-	#define MPC_COLOR_RED(txt)             MPC_COLOR_ESC"31m"#txt MPC_COLOR_ESC"0m"
-	#define MPC_COLOR_GREEN(txt)           MPC_COLOR_ESC"32m"#txt MPC_COLOR_ESC"0m"
-	#define MPC_COLOR_YELLOW(txt)          MPC_COLOR_ESC"33m"#txt MPC_COLOR_ESC"0m"
-	#define MPC_COLOR_BLUE(txt)            MPC_COLOR_ESC"34m"#txt MPC_COLOR_ESC"0m"
-	#define MPC_COLOR_VIOLET(txt)          MPC_COLOR_ESC"35m"#txt MPC_COLOR_ESC"0m"
-	#define MPC_COLOR_GRAY(txt)            MPC_COLOR_ESC"30m"#txt MPC_COLOR_ESC"0m"
-	#define MPC_COLOR_WHITE(txt)           MPC_COLOR_ESC"37m"#txt MPC_COLOR_ESC"0m"
-	#define MPC_COLOR_CYAN(txt)            MPC_COLOR_ESC"36m"#txt MPC_COLOR_ESC"0m"
+	#define MPC_COLOR_RED(txt)           MPC_COLOR_ESC"31m"#txt MPC_COLOR_CHAR_DEFAULT
+	#define MPC_COLOR_GREEN(txt)         MPC_COLOR_ESC"32m"#txt MPC_COLOR_CHAR_DEFAULT
+	#define MPC_COLOR_YELLOW(txt)        MPC_COLOR_ESC"33m"#txt MPC_COLOR_CHAR_DEFAULT
+	#define MPC_COLOR_BLUE(txt)          MPC_COLOR_ESC"34m"#txt MPC_COLOR_CHAR_DEFAULT
+	#define MPC_COLOR_VIOLET(txt)        MPC_COLOR_ESC"35m"#txt MPC_COLOR_CHAR_DEFAULT
+	#define MPC_COLOR_GRAY(txt)          MPC_COLOR_ESC"30m"#txt MPC_COLOR_CHAR_DEFAULT
+	#define MPC_COLOR_WHITE(txt)         MPC_COLOR_ESC"37m"#txt MPC_COLOR_CHAR_DEFAULT
+	#define MPC_COLOR_CYAN(txt)          MPC_COLOR_ESC"36m"#txt MPC_COLOR_CHAR_DEFAULT
+
 	/* Bold colors */
-	#define MPC_COLOR_RED_BOLD(txt)        MPC_COLOR_ESC"1;31m"#txt MPC_COLOR_ESC"0m"
-	#define MPC_COLOR_GREEN_BOLD(txt)      MPC_COLOR_ESC"1;32m"#txt MPC_COLOR_ESC"0m"
-	#define MPC_COLOR_YELLOW_BOLD(txt)     MPC_COLOR_ESC"1;33m"#txt MPC_COLOR_ESC"0m"
-	#define MPC_COLOR_BLUE_BOLD(txt)       MPC_COLOR_ESC"1;34m"#txt MPC_COLOR_ESC"0m"
-	#define MPC_COLOR_VIOLET_BOLD(txt)     MPC_COLOR_ESC"1;35m"#txt MPC_COLOR_ESC"0m"
-	#define MPC_COLOR_GRAY_BOLD(txt)       MPC_COLOR_ESC"1;30m"#txt MPC_COLOR_ESC"0m"
-	#define MPC_COLOR_WHITE_BOLD(txt)      MPC_COLOR_ESC"1;37m"#txt MPC_COLOR_ESC"0m"
-	#define MPC_COLOR_CYAN_BOLD(txt)       MPC_COLOR_ESC"1;36m"#txt MPC_COLOR_ESC"0m"
+	#define MPC_COLOR_BOLD_RED(txt)      MPC_COLOR_ESC"1;31m"#txt MPC_COLOR_CHAR_DEFAULT
+	#define MPC_COLOR_BOLD_GREEN(txt)    MPC_COLOR_ESC"1;32m"#txt MPC_COLOR_CHAR_DEFAULT
+	#define MPC_COLOR_BOLD_YELLOW(txt)   MPC_COLOR_ESC"1;33m"#txt MPC_COLOR_CHAR_DEFAULT
+	#define MPC_COLOR_BOLD_BLUE(txt)     MPC_COLOR_ESC"1;34m"#txt MPC_COLOR_CHAR_DEFAULT
+	#define MPC_COLOR_BOLD_VIOLET(txt)   MPC_COLOR_ESC"1;35m"#txt MPC_COLOR_CHAR_DEFAULT
+	#define MPC_COLOR_BOLD_GRAY(txt)     MPC_COLOR_ESC"1;30m"#txt MPC_COLOR_CHAR_DEFAULT
+	#define MPC_COLOR_BOLD_WHITE(txt)    MPC_COLOR_ESC"1;37m"#txt MPC_COLOR_CHAR_DEFAULT
+	#define MPC_COLOR_BOLD_CYAN(txt)     MPC_COLOR_ESC"1;36m"#txt MPC_COLOR_CHAR_DEFAULT
 
-	#define MPC_COLOR_DEFAULT_CHAR MPC_COLOR_ESC"0m"
-	#define MPC_COLOR_RED_CHAR MPC_COLOR_ESC"31m"
-	#define MPC_COLOR_GREEN_CHAR MPC_COLOR_ESC"32m"
-	#define MPC_COLOR_YELLOW_CHAR MPC_COLOR_ESC"33m"
-	#define MPC_COLOR_VIOLET_CHAR MPC_COLOR_ESC"35m"
-	#define MPC_COLOR_GRAY_CHAR MPC_COLOR_ESC"1;30m"
+	/* Char Normal colors */
+	#define MPC_COLOR_CHAR_RED           MPC_COLOR_ESC"31m"
+	#define MPC_COLOR_CHAR_GREEN         MPC_COLOR_ESC"32m"
+	#define MPC_COLOR_CHAR_YELLOW        MPC_COLOR_ESC"33m"
+	#define MPC_COLOR_CHAR_BLUE          MPC_COLOR_ESC"34m"
+	#define MPC_COLOR_CHAR_VIOLET        MPC_COLOR_ESC"35m"
+	#define MPC_COLOR_CHAR_GRAY          MPC_COLOR_ESC"30m"
+	#define MPC_COLOR_CHAR_WHITE         MPC_COLOR_ESC"37m"
+	#define MPC_COLOR_CHAR_CYAN          MPC_COLOR_ESC"36m"
 
+	/* Char Bold colors */
+	#define MPC_COLOR_CHAR_BOLD_RED      MPC_COLOR_ESC"1;31m"
+	#define MPC_COLOR_CHAR_BOLD_GREEN    MPC_COLOR_ESC"1;32m"
+	#define MPC_COLOR_CHAR_BOLD_YELLOW   MPC_COLOR_ESC"1;33m"
+	#define MPC_COLOR_CHAR_BOLD_BLUE     MPC_COLOR_ESC"1;34m"
+	#define MPC_COLOR_CHAR_BOLD_VIOLET   MPC_COLOR_ESC"1;35m"
+	#define MPC_COLOR_CHAR_BOLD_GRAY     MPC_COLOR_ESC"1;30m"
+	#define MPC_COLOR_CHAR_BOLD_WHITE    MPC_COLOR_ESC"1;37m"
+	#define MPC_COLOR_CHAR_BOLD_CYAN     MPC_COLOR_ESC"1;36m"
 
 #else
 
+	#define MPC_COLOR_ESC ""
+	#define MPC_COLOR_CHAR_DEFAULT       MPC_COLOR_ESC""
+
 	/* Normal colors */
-	#define MPC_COLOR_RED(txt)             #txt
-	#define MPC_COLOR_GREEN(txt)           #txt
-	#define MPC_COLOR_YELLOW(txt)          #txt
-	#define MPC_COLOR_BLUE(txt)            #txt
-	#define MPC_COLOR_VIOLET(txt)          #txt
-	#define MPC_COLOR_GRAY(txt)            #txt
-	#define MPC_COLOR_WHITE(txt)           #txt
-	#define MPC_COLOR_CYAN(txt)            #txt
+	#define MPC_COLOR_RED(txt)           MPC_COLOR_ESC""#txt MPC_COLOR_CHAR_DEFAULT
+	#define MPC_COLOR_GREEN(txt)         MPC_COLOR_ESC""#txt MPC_COLOR_CHAR_DEFAULT
+	#define MPC_COLOR_YELLOW(txt)        MPC_COLOR_ESC""#txt MPC_COLOR_CHAR_DEFAULT
+	#define MPC_COLOR_BLUE(txt)          MPC_COLOR_ESC""#txt MPC_COLOR_CHAR_DEFAULT
+	#define MPC_COLOR_VIOLET(txt)        MPC_COLOR_ESC""#txt MPC_COLOR_CHAR_DEFAULT
+	#define MPC_COLOR_GRAY(txt)          MPC_COLOR_ESC""#txt MPC_COLOR_CHAR_DEFAULT
+	#define MPC_COLOR_WHITE(txt)         MPC_COLOR_ESC""#txt MPC_COLOR_CHAR_DEFAULT
+	#define MPC_COLOR_CYAN(txt)          MPC_COLOR_ESC""#txt MPC_COLOR_CHAR_DEFAULT
+
 	/* Bold colors */
-	#define MPC_COLOR_RED_BOLD(txt)        #txt
-	#define MPC_COLOR_GREEN_BOLD(txt)      #txt
-	#define MPC_COLOR_YELLOW_BOLD(txt)     #txt
-	#define MPC_COLOR_BLUE_BOLD(txt)       #txt
-	#define MPC_COLOR_VIOLET_BOLD(txt)     #txt
-	#define MPC_COLOR_GRAY_BOLD(txt)       #txt
-	#define MPC_COLOR_WHITE_BOLD(txt)      #txt
-	#define MPC_COLOR_CYAN_BOLD(txt)       #txt
+	#define MPC_COLOR_BOLD_RED(txt)      MPC_COLOR_ESC""#txt MPC_COLOR_CHAR_DEFAULT
+	#define MPC_COLOR_BOLD_GREEN(txt)    MPC_COLOR_ESC""#txt MPC_COLOR_CHAR_DEFAULT
+	#define MPC_COLOR_BOLD_YELLOW(txt)   MPC_COLOR_ESC""#txt MPC_COLOR_CHAR_DEFAULT
+	#define MPC_COLOR_BOLD_BLUE(txt)     MPC_COLOR_ESC""#txt MPC_COLOR_CHAR_DEFAULT
+	#define MPC_COLOR_BOLD_VIOLET(txt)   MPC_COLOR_ESC""#txt MPC_COLOR_CHAR_DEFAULT
+	#define MPC_COLOR_BOLD_GRAY(txt)     MPC_COLOR_ESC""#txt MPC_COLOR_CHAR_DEFAULT
+	#define MPC_COLOR_BOLD_WHITE(txt)    MPC_COLOR_ESC""#txt MPC_COLOR_CHAR_DEFAULT
+	#define MPC_COLOR_BOLD_CYAN(txt)     MPC_COLOR_ESC""#txt MPC_COLOR_CHAR_DEFAULT
 
+	/* Char Normal colors */
+	#define MPC_COLOR_CHAR_RED           MPC_COLOR_ESC""
+	#define MPC_COLOR_CHAR_GREEN         MPC_COLOR_ESC""
+	#define MPC_COLOR_CHAR_YELLOW        MPC_COLOR_ESC""
+	#define MPC_COLOR_CHAR_BLUE          MPC_COLOR_ESC""
+	#define MPC_COLOR_CHAR_VIOLET        MPC_COLOR_ESC""
+	#define MPC_COLOR_CHAR_GRAY          MPC_COLOR_ESC""
+	#define MPC_COLOR_CHAR_WHITE         MPC_COLOR_ESC""
+	#define MPC_COLOR_CHAR_CYAN          MPC_COLOR_ESC""
 
-	#define MPC_COLOR_DEFAULT_CHAR ""
-	#define MPC_COLOR_RED_CHAR ""
-	#define MPC_COLOR_GREEN_CHAR ""
-	#define MPC_COLOR_YELLOW_CHAR ""
-	#define MPC_COLOR_VIOLET_CHAR ""
-	#define MPC_COLOR_GRAY_CHAR ""
-
+	/* Char Bold colors */
+	#define MPC_COLOR_CHAR_BOLD_RED      MPC_COLOR_ESC""
+	#define MPC_COLOR_CHAR_BOLD_GREEN    MPC_COLOR_ESC""
+	#define MPC_COLOR_CHAR_BOLD_YELLOW   MPC_COLOR_ESC""
+	#define MPC_COLOR_CHAR_BOLD_BLUE     MPC_COLOR_ESC""
+	#define MPC_COLOR_CHAR_BOLD_VIOLET   MPC_COLOR_ESC""
+	#define MPC_COLOR_CHAR_BOLD_GRAY     MPC_COLOR_ESC""
+	#define MPC_COLOR_CHAR_BOLD_WHITE    MPC_COLOR_ESC""
+	#define MPC_COLOR_CHAR_BOLD_CYAN     MPC_COLOR_ESC""
 
 #endif /* SHELL_COLORS */
 

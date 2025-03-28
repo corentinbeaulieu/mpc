@@ -62,10 +62,7 @@ struct mpc_common_flags
         char * network_driver_name;             /*< Network configuration to be used by MPC */
 
 	/* Shell colors */
-        #ifdef MPC_ENABLE_SHELL_COLORS
         short colors;                           /*< Enable shell colors */
-        #endif
-
 };
 
 extern struct mpc_common_flags ___mpc_flags;

@@ -161,8 +161,8 @@ void sctk_profile_render_text_render_entry( struct sctk_profiler_array *array, i
 
 		if( sctk_profile_get_config()->color_stdout && sctk_profile_render_text_is_stdout )
 		{
-				fprintf( rd->output_file, MPC_COLOR_RED_BOLD(%-15s)"  "MPC_COLOR_BLUE_BOLD(%10llu)"  "MPC_COLOR_GREEN_BOLD(%-10s)"  "
-										  MPC_COLOR_VIOLET_BOLD(( %.2f %% ))"  %-10s  %-10s  %-10s\n", sctk_profiler_array_get_desc( id ), (unsigned long long int )sctk_profiler_array_get_hits( array, id ),
+				fprintf( rd->output_file, MPC_COLOR_BOLD_RED(%-15s)"  "MPC_COLOR_BOLD_BLUE(%10llu)"  "MPC_COLOR_BOLD_GREEN(%-10s)"  "
+										  MPC_COLOR_BOLD_VIOLET(( %.2f %% ))"  %-10s  %-10s  %-10s\n", sctk_profiler_array_get_desc( id ), (unsigned long long int )sctk_profiler_array_get_hits( array, id ),
 																			 to_unit_total, rd->ptree.entry_total_percentage_time[id] * 100,
 																			 to_unit_avg, to_unit_min, to_unit_max);
 		}

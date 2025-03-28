@@ -112,22 +112,22 @@ void MPC_printf(const char *fmt, ...);
 int mpc_common_debug_print(char *filename, int line, const char *funcname, char *color, mpc_common_debug_verbosity_level_t verbosity_level, char *modulename, char *string, ...);
 
 #define mpc_common_debug_warning(s, ...) do{\
-	mpc_common_debug_print(__FILE__, __LINE__, __func__, MPC_COLOR_YELLOW_CHAR, MPC_COMMON_LOG_LEVEL_WARNING, xstr(MPC_MODULE), s, ## __VA_ARGS__);}while(0)
+	mpc_common_debug_print(__FILE__, __LINE__, __func__, MPC_COLOR_CHAR_YELLOW, MPC_COMMON_LOG_LEVEL_WARNING, xstr(MPC_MODULE), s, ## __VA_ARGS__);}while(0)
 
 #define mpc_common_debug_error(s, ...) do{\
-	mpc_common_debug_print(__FILE__, __LINE__, __func__, MPC_COLOR_RED_CHAR, MPC_COMMON_LOG_LEVEL_ERROR, xstr(MPC_MODULE), s, ## __VA_ARGS__);}while(0)
+	mpc_common_debug_print(__FILE__, __LINE__, __func__, MPC_COLOR_CHAR_RED, MPC_COMMON_LOG_LEVEL_ERROR, xstr(MPC_MODULE), s, ## __VA_ARGS__);}while(0)
 
 #define mpc_common_debug_log(s, ...) do{\
-	mpc_common_debug_print(__FILE__, __LINE__, __func__, MPC_COLOR_GREEN_CHAR, MPC_COMMON_LOG_LEVEL_LOG, xstr(MPC_MODULE), s, ## __VA_ARGS__);}while(0)
+	mpc_common_debug_print(__FILE__, __LINE__, __func__, MPC_COLOR_CHAR_GREEN, MPC_COMMON_LOG_LEVEL_LOG, xstr(MPC_MODULE), s, ## __VA_ARGS__);}while(0)
 
 
 #define mpc_common_debug_info(s, ...) do{\
-	mpc_common_debug_print(__FILE__, __LINE__, __func__, MPC_COLOR_VIOLET_CHAR, MPC_COMMON_LOG_LEVEL_INFO, xstr(MPC_MODULE), s, ## __VA_ARGS__);}while(0)
+	mpc_common_debug_print(__FILE__, __LINE__, __func__, MPC_COLOR_CHAR_VIOLET, MPC_COMMON_LOG_LEVEL_INFO, xstr(MPC_MODULE), s, ## __VA_ARGS__);}while(0)
 
 
 #ifdef MPC_ENABLE_DEBUG_MESSAGES
 #define mpc_common_debug(s, ...) do{\
-	mpc_common_debug_print(__FILE__, __LINE__, __func__, MPC_COLOR_GRAY_CHAR, MPC_COMMON_LOG_LEVEL_DEBUG, xstr(MPC_MODULE), s, ## __VA_ARGS__);}while(0)
+	mpc_common_debug_print(__FILE__, __LINE__, __func__, MPC_COLOR_CHAR_BOLD_WHITE, MPC_COMMON_LOG_LEVEL_DEBUG, xstr(MPC_MODULE), s, ## __VA_ARGS__);}while(0)
 #else
 	#if defined(__GNUC__) || defined(__INTEL_COMPILER)
 		#define mpc_common_debug(fmt, ...)    (void)(0)

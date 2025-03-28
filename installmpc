@@ -139,7 +139,7 @@ show_run_cmd()
 
 info()
 {
-	printf "${colbgGRAY}==>${colRESET}${colGRAY} $1${colRESET}\n"
+	printf "==>${colGRAY} $1${colRESET}\n"
 }
 
 LAST_RESULT=""
@@ -148,7 +148,7 @@ checking()
 {
 	LAST_RESULT=""
 	PENDING_LB="yes"
-	printf "${colbgMAGENTA}==>${colRESET}${colMAGENTA} $1... ${colRESET}"
+	printf "==>${colMAGENTA} $1... ${colRESET}"
 }
 
 ok()

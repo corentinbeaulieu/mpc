@@ -243,7 +243,7 @@ void _mpc_lowcomm_checksum_init()
 {
 	if(mpc_common_get_process_rank() == 0)
 	{
-		fprintf(stderr, MPC_COLOR_RED_BOLD(WARNING: inter - node message checking enabled !) "\n");
+		fprintf(stderr, MPC_COLOR_BOLD_RED(WARNING: inter - node message checking enabled !) "\n");
 	}
 
 	checksum_enabled = _mpc_lowcomm_conf_get()->checksum;

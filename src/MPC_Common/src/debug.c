@@ -143,30 +143,24 @@ static void __log_to_file(char *filename, int line, const char *funcname, const 
 
 static inline char *__debug_print_info( char *buffer )
 {
-#ifdef MPC_ENABLE_SHELL_COLORS
 		if(mpc_common_debug_is_stderr_tty() && mpc_common_get_flags()->colors){
-			snprintf( buffer,
-					DEBUG_INFO_SIZE,
-					MPC_COLOR_GREEN( [ )
-										MPC_COLOR_RED(R%4d)
-										MPC_COLOR_BLUE( P%4dN%4d)
-										MPC_COLOR_GREEN( ] ),
-					mpc_common_get_task_rank(), mpc_common_get_process_rank(), mpc_common_get_node_rank() );
+			snprintf(buffer,
+			         DEBUG_INFO_SIZE,
+			         "%s[%sT%4d %sP%4d %sN%4d%s]%s ",	// Task, Process & Node rank
+			
+			         // Task process & node rank
+			         MPC_COLOR_CHAR_BOLD_WHITE,
+			         MPC_COLOR_CHAR_RED, mpc_common_get_task_rank(),
+			         MPC_COLOR_CHAR_BLUE, mpc_common_get_process_rank(),
+			         MPC_COLOR_CHAR_GREEN, mpc_common_get_node_rank(),
+			         MPC_COLOR_CHAR_BOLD_WHITE, MPC_COLOR_CHAR_DEFAULT);
 		}
 		else{
 			snprintf( buffer,
 					DEBUG_INFO_SIZE,
-					"[R%4dP%4dN%4d]",
+					"[T%4d P%4d N%4d]",
 					mpc_common_get_task_rank(), mpc_common_get_process_rank(), mpc_common_get_node_rank() );
-
 		}
-#else
-		snprintf( buffer,
-		          DEBUG_INFO_SIZE,
-		          "[R%4dP%4dN%4d]",
-		          mpc_common_get_task_rank(), mpc_common_get_process_rank(), mpc_common_get_node_rank() );
-#endif
-
 	return buffer;
 }
 /* NOLINTEND(clang-diagnostic-unused-function) */
@@ -279,15 +273,14 @@ void mpc_common_debug_abort_log( FILE *stream, int line,
 	va_list ap;
 	char buff[SMALL_BUFFER_SIZE];
 
-#ifdef MPC_ENABLE_SHELL_COLORS
 	if(mpc_common_debug_is_stderr_tty() && mpc_common_get_flags()->colors)
 		mpc_common_io_noalloc_snprintf( buff, SMALL_BUFFER_SIZE,
-					"%s:%d (%s):\n"
-					"-------------------------------------\n"
-					MPC_COLOR_RED_BOLD("%s")"\n"
-					"-------------------------------------\n"
-					"\n", file, line, func?func:"??",
-					fmt );
+		            "%s:%d (%s):\n"
+		            "-------------------------------------\n"
+		            "%s%s%s\n"
+		            "-------------------------------------\n"
+		            "\n", file, line, func?func:"??",
+		            MPC_COLOR_CHAR_BOLD_RED, fmt, MPC_COLOR_CHAR_DEFAULT);
 	else mpc_common_io_noalloc_snprintf( buff, SMALL_BUFFER_SIZE,
 					"%s:%d (%s):\n"
 					"-------------------------------------\n"
@@ -295,15 +288,6 @@ void mpc_common_debug_abort_log( FILE *stream, int line,
 					"-------------------------------------\n"
 					"\n", file, line, func?func:"??",
 					fmt );
-#else
-	mpc_common_io_noalloc_snprintf( buff, SMALL_BUFFER_SIZE,
-					"%s:%d (%s):\n"
-					"-------------------------------------\n"
-					"%s\n"
-					"-------------------------------------\n"
-					"\n", file, line, func?func:"??",
-					fmt );
-#endif
 
 	va_start( ap, fmt );
 	mpc_common_io_noalloc_vfprintf( stream, buff, ap );
@@ -338,34 +322,46 @@ void mpc_common_debug_check_size_equal( size_t a, size_t b, char *ca, char *cb, 
 	}
 }
 
-void __mpcprintf(char *messagebuffer, char *modulename, char *filename __UNUSED__, int line __UNUSED__, char *color){
-	int task_rank = mpc_common_get_task_rank();
-	#ifdef MPC_ENABLE_SHELL_COLORS
-		if(mpc_common_debug_is_stderr_tty() 
-			&& mpc_common_get_flags()->colors)
-			(void)fprintf(stderr, 
-				MPC_COLOR_GREEN([ )
-				MPC_COLOR_RED(R%4d)
-				MPC_COLOR_BLUE(P%4dN%4d)
-				MPC_COLOR_GREEN(])
-				" "
-				MPC_COLOR_CYAN(%s)
-				" "
-				"%s%s%s\n",
-				task_rank, 
-				mpc_common_get_process_rank(), 
-				mpc_common_get_node_rank(),
-				modulename,
-				color , messagebuffer, MPC_COLOR_DEFAULT_CHAR);
-		else
-	#endif
-			(void)fprintf(stderr, 
-				"[ R%4d P%4dN%4d ] %s %s%s%s\n",
-				task_rank, 
-				mpc_common_get_process_rank(), 
-				mpc_common_get_node_rank(),
-				modulename,
-				color , messagebuffer, MPC_COLOR_DEFAULT_CHAR);
+void __mpcprintf(char *messagebuffer, char *modulename, char *filename __UNUSED__, int line __UNUSED__, char *color, const char* verbosity_level){
+	if(mpc_common_debug_is_stderr_tty()
+		&& mpc_common_get_flags()->colors) {
+		fprintf(stderr,
+		        "%s[%sT%4d %sP%4d %sN%4d%s]%s "	// Task, Process & Node rank
+		        "%s[%s%s%s]%s "					// Verbosity level
+		        "%s[%s%s%s]%s "					// Module
+		        "%s%s%s\n",						// Message
+
+		        // Task process & node rank
+		        MPC_COLOR_CHAR_BOLD_WHITE,
+		        MPC_COLOR_CHAR_RED, mpc_common_get_task_rank(),
+		        MPC_COLOR_CHAR_BLUE, mpc_common_get_process_rank(),
+		        MPC_COLOR_CHAR_GREEN, mpc_common_get_node_rank(),
+		        MPC_COLOR_CHAR_BOLD_WHITE, MPC_COLOR_CHAR_DEFAULT,
+
+		        // Verbosity Level
+		        MPC_COLOR_CHAR_BOLD_WHITE,
+		        color, verbosity_level,
+		        MPC_COLOR_CHAR_BOLD_WHITE,
+		        MPC_COLOR_CHAR_DEFAULT,
+
+		        // Module
+		        MPC_COLOR_CHAR_BOLD_WHITE,
+		        MPC_COLOR_CHAR_CYAN, modulename,
+		        MPC_COLOR_CHAR_BOLD_WHITE,
+		        MPC_COLOR_CHAR_DEFAULT,
+
+		        // Message
+		        color, messagebuffer, MPC_COLOR_CHAR_DEFAULT);
+	} else {
+		fprintf(stderr, 
+		        "[T%4d P%4d N%4d] [%s] [%s] %s\n",
+		        mpc_common_get_task_rank(),
+		        mpc_common_get_process_rank(), 
+		        mpc_common_get_node_rank(),
+		        verbosity_level,
+		        modulename,
+		        messagebuffer);
+	}
 }
 
 
@@ -586,7 +582,7 @@ static inline int __call_is_filtered_from_env(const char * modulename, const cha
 static void __log_and_print(char *filename, int line, const char *funcname, char *color, const char * verbosity_level, char *modulename, char * content)
 {
 	/* To console */
-	__mpcprintf(content, modulename, filename, line, color);
+	__mpcprintf(content, modulename, filename, line, color, verbosity_level);
 	/* To file */
 	__log_to_file(filename, line, funcname, verbosity_level, modulename, content);
 }
@@ -594,23 +590,23 @@ static void __log_and_print(char *filename, int line, const char *funcname, char
 
 
 
-int mpc_common_debug_print(char *filename, int line, const char *funcname, char *color, mpc_common_debug_verbosity_level_t verbosity_level, char *modulename, char *string, ...){
+int mpc_common_debug_print(char *filename, int line, const char *funcname, char *color, mpc_common_debug_verbosity_level_t verbosity_level, char *modulename, char *string, ...) {
 	va_list ap;
 	int r = 0;
 
 	/* Check loglevel */
-	if( mpc_common_get_flags()->verbosity < (int)verbosity_level)
+	if(mpc_common_get_flags()->verbosity < (int) verbosity_level)
 	{
 		return 0;
 	}
 
 	if(__call_is_filtered_from_env(modulename, funcname, filename))
 	{
-		/* All filters did fail no need to print*/
+		/* All filters did fail no need to print */
 		return 0;
 	}
 
-	va_start (ap, string); 
+	va_start(ap, string); 
 
 	char messagebuffer[SMALL_BUFFER_SIZE];
 
