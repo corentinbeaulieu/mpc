@@ -970,7 +970,7 @@ static mpc_conf_config_type_t *__mpc_lowcomm_cli_conf_init(void)
 	                                                           PARAM("tcp", ___mpc_lowcomm_cli_conf_option_init("tcp", "tbsmmpi", "tcpmpi", NULL), MPC_CONF_TYPE, "TCP Alone"),
 #endif
 #ifdef MPC_USE_PORTALS
-	                                                           PARAM("ptl", ___mpc_lowcomm_cli_conf_option_init("ptl", "tbsmmpi", "portalsmpi", NULL), MPC_CONF_TYPE, "Combination of Portals and SHM"),
+	                                                           PARAM("ptl", ___mpc_lowcomm_cli_conf_option_init("ptl", "tbsmmpi", "portalsmpi", "shmmpi"), MPC_CONF_TYPE, "Combination of Portals and SHM"),
 	                                                           PARAM("mptl", ___mpc_lowcomm_cli_conf_option_init("mptl", "mportalsmpi", NULL, NULL), MPC_CONF_TYPE, "Matching Portals."),
 #endif
 	                                                           NULL);
