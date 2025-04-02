@@ -434,7 +434,7 @@ int lcr_tbsm_query_devices(lcr_component_t *component,
                 goto err;
         }
 
-        strcpy(devices[0].name, "tbsm"); /* not used */
+        strcpy(devices[0].name, "tbsm");
 
         *devices_p     = devices;
         *num_devices_p = num_devices;

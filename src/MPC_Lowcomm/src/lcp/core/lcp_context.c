@@ -205,7 +205,7 @@ static int _lcp_context_load_ctx_config(lcp_context_h ctx, lcp_context_param_t *
                 _mpc_lowcomm_config_proto_get();
 
         ctx->config.multirail_enabled    = config->multirail_enabled;
-	ctx->config.rndv_mode            = (lcp_rndv_mode_t)config->rndv_mode;
+        ctx->config.rndv_mode            = (lcp_rndv_mode_t)config->rndv_mode;
         ctx->config.max_num_managers     = 128; //FIXME: should be added to
                                                 //       lowcomm_config.
         ctx->process_uid                 = param->process_uid;
@@ -425,6 +425,7 @@ static int _lcp_context_devices_load_and_filter(lcp_context_h ctx)
                 }
         }
 
+        return rc;
         //TODO: add progress counter.
 
 err_free:
@@ -457,12 +458,12 @@ int _lcp_context_structures_init(lcp_context_h ctx)
         memset(ctx->mngrt, 0, ctx->config.max_num_managers * sizeof(lcp_manager_h));
 
         /* Init hash table of tasks */
-	ctx->tasks = sctk_malloc(ctx->num_tasks * sizeof(lcp_task_h));
-	if (ctx->tasks == NULL) {
-		mpc_common_debug_error("LCP CTX: Could not allocate tasks table.");
-		rc = MPC_LOWCOMM_ERROR;
+        ctx->tasks = sctk_malloc(ctx->num_tasks * sizeof(lcp_task_h));
+        if (ctx->tasks == NULL) {
+                mpc_common_debug_error("LCP CTX: Could not allocate tasks table.");
+                rc = MPC_LOWCOMM_ERROR;
                 goto err;
-	}
+        }
         //NOTE: to release tasks, lcp_context_fini relies on the fact that all entries
         //      are memset to NULL.
         memset(ctx->tasks, 0, ctx->num_tasks * sizeof(lcp_task_h));
@@ -476,8 +477,8 @@ err:
 
 int lcp_context_create(lcp_context_h *ctx_p, lcp_context_param_t *param)
 {
-	int rc = MPC_LOWCOMM_SUCCESS;
-	lcp_context_h ctx = {0};
+        int rc = MPC_LOWCOMM_SUCCESS;
+        lcp_context_h ctx = {0};
 
         //FIXME: should context creation be thread-safe ?
         if (static_ctx != NULL) {
@@ -510,13 +511,13 @@ int lcp_context_create(lcp_context_h *ctx_p, lcp_context_param_t *param)
                 goto err;
         }
 
-	/* Allocate context */
-	ctx = sctk_malloc(sizeof(struct lcp_context));
-	if (ctx == NULL) {
-		rc = MPC_LOWCOMM_ERROR;
-		goto err;
-	}
-	memset(ctx, 0, sizeof(struct lcp_context));
+        /* Allocate context */
+        ctx = sctk_malloc(sizeof(struct lcp_context));
+        if (ctx == NULL) {
+                rc = MPC_LOWCOMM_ERROR;
+                goto err;
+        }
+        memset(ctx, 0, sizeof(struct lcp_context));
 
         ctx->dt_ops      = param->dt_ops;
         ctx->process_uid = param->process_uid;
@@ -546,26 +547,26 @@ int lcp_context_create(lcp_context_h *ctx_p, lcp_context_param_t *param)
 
         _lcp_context_log_resource_config_summary(ctx);
 
-	*ctx_p = static_ctx = ctx;
+        *ctx_p = static_ctx = ctx;
 
-	return MPC_LOWCOMM_SUCCESS;
+        return MPC_LOWCOMM_SUCCESS;
 
 out_free_ctx:
         sctk_free(ctx);
 err:
-	return rc;
+        return rc;
 }
 
 int lcp_context_fini(lcp_context_h ctx)
 {
-	int i;
+        int i;
 
         //FIXME: free devices
-	for (i=0; i<ctx->num_resources; i++) {
+        for (i=0; i<ctx->num_resources; i++) {
                 sctk_free(ctx->devices);
                 free(ctx->resources[i].name);
-	}
-	sctk_free(ctx->resources);
+        }
+        sctk_free(ctx->resources);
         sctk_free(ctx->progress_counter);
 
         /* Free task table */
@@ -576,9 +577,9 @@ int lcp_context_fini(lcp_context_h ctx)
         }
         sctk_free(ctx->tasks);
 
-	sctk_free(ctx);
+        sctk_free(ctx);
 
-	return MPC_LOWCOMM_SUCCESS;
+        return MPC_LOWCOMM_SUCCESS;
 }
 
 /* Returns the manager identifier. */
