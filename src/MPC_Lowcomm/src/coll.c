@@ -1646,9 +1646,11 @@ void _mpc_coll_noalloc_bcast( void *buffer, const size_t size,
 		}
 
 		assume( total_max >= total );
-		mpc_common_nodebug( "enter broadcast total = %d, total_max = %d, "
-		              "myself = %d, BROADCAST_ARRITY = %d",
-		              total, total_max, myself, BROADCAST_ARRITY );
+		if (mpc_common_get_task_rank() == 0) {
+			mpc_common_debug("enter broadcast total = %d, total_max = %d, "
+			                 "myself = %d, BROADCAST_ARRITY = %d\n",
+			                 total, total_max, myself, BROADCAST_ARITY);
+		}
 
 		for ( i = BROADCAST_ARITY; i <= total_max;
 		      i = i * BROADCAST_ARITY )
@@ -1657,9 +1659,9 @@ void _mpc_coll_noalloc_bcast( void *buffer, const size_t size,
 			{
 				int dest;
 				dest = ( related_myself / i ) * i;
-
 				if ( dest >= 0 )
 				{
+					mpc_common_nodebug("BROADCAST RECV %d -> %d\n", dest, myself);
 					_mpc_coll_message_recv(
 					    communicator, ( dest + root ) % total, myself, root,
 					    buffer, size, MPC_LOWCOMM_BROADCAST_MESSAGE,
@@ -1675,26 +1677,33 @@ void _mpc_coll_noalloc_bcast( void *buffer, const size_t size,
 		{
 			if ( related_myself % i == 0 )
 			{
+				int dest_offset;
 				int dest;
 				int j;
-				dest = related_myself;
 
 				for ( j = 1; j < BROADCAST_ARITY; j++ )
 				{
-					if ( ( dest + ( j * ( i / BROADCAST_ARITY ) ) ) < total )
+					dest_offset = (related_myself + (j * (i / BROADCAST_ARITY)));
+					if (dest_offset < total)
 					{
+						dest = (root + dest_offset) % total;
+						mpc_common_nodebug("BROADCAST SEND %d -> %d\n", myself, dest);
 						_mpc_coll_message_send(
-						    communicator, myself,
-						    ( dest + root + ( j * ( i / BROADCAST_ARITY ) ) ) %
-						    total,
+						    communicator, myself, dest,
 						    root, buffer, size, MPC_LOWCOMM_BROADCAST_MESSAGE,
-						    _mpc_coll_message_table_get_item( &table, OPT_NOALLOC_MAX_ASYNC ), 	( size < (size_t)broadcast_check_threshold ) );
+						    _mpc_coll_message_table_get_item( &table, OPT_NOALLOC_MAX_ASYNC),
+						    (size < (size_t)broadcast_check_threshold));
 					}
 				}
 			}
 		}
 
 		_mpc_coll_messages_table_wait( &table );
+		if (mpc_common_get_task_rank() == 0) {
+			mpc_common_debug("end broadcast total = %d, total_max = %d, "
+			                 "myself = %d, BROADCAST_ARRITY = %d",
+			                 total, total_max, myself, BROADCAST_ARITY);
+		}
 	}
 }
 

@@ -954,13 +954,14 @@ static inline void __fill_global_to_local(mpc_lowcomm_group_t *g)
 			assume(trank < cw_size);
 			assume(0 <= trank);
 			g->global_to_local[trank] = i;
+			mpc_common_nodebug("binding %d (global) to %d (local)\n", trank, i);
 		}
 	}
 }
 
 mpc_lowcomm_group_t *_mpc_lowcomm_group_create(unsigned int size, _mpc_lowcomm_group_rank_descriptor_t *ranks, int deduplicate)
 {
-	mpc_lowcomm_group_t *ret = sctk_malloc(sizeof(mpc_lowcomm_group_t) );
+	mpc_lowcomm_group_t *ret = sctk_malloc(sizeof(mpc_lowcomm_group_t));
 
 	assume(ret != NULL);
 
@@ -979,9 +980,11 @@ mpc_lowcomm_group_t *_mpc_lowcomm_group_create(unsigned int size, _mpc_lowcomm_g
 	ret->extra_ctx_ptr          = MPC_LOWCOMM_HANDLE_CTX_NULL;
 	ret->is_a_copy              = 0;
 
-        //FIXME: groups seems to be local to each task. Thus maybe not required
-        //       to alloc with task_count size. Check world group special case.
-        ret->my_rank = sctk_malloc(mpc_common_get_local_task_count() * sizeof(int));
+	//FIXME: groups seems to be local to each task. Thus maybe not required
+	//       to alloc with task_count size. Check world group special case.
+	// mpc_common_get_local_task_count(); as not been setup yet and can't be
+	// used here. (will return 0)
+	ret->my_rank = sctk_malloc(mpc_common_get_task_count() * sizeof(int));
 
 	if(_mpc_lowcomm_group_rank_descriptor_all_from_local_set(size, ranks) )
 	{
