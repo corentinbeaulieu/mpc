@@ -46,6 +46,8 @@
 
 #include <lcr/lcr_component.h>
 
+#define MPC_MODULE "Lowcomm/Tbsm"
+
 ssize_t lcr_tbsm_send_am_bcopy(_mpc_lowcomm_endpoint_t *ep,
                                uint8_t id,
                                lcr_pack_callback_t pack,

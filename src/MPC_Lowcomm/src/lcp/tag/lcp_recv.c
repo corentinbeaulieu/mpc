@@ -80,7 +80,7 @@ lcp_status_ptr_t lcp_tag_recv_nb(lcp_manager_h mngr, lcp_task_h task, void *buff
 		return (lcp_status_ptr_t)(int64_t)rc;
 	}
 
-        mpc_common_debug_info("LCP: post recv tag task=%p, comm=%d, src=%d, "
+        mpc_common_debug("LCP: post recv tag task=%p, comm=%d, src=%d, "
                               "tag=%d, length=%d, buf=%p, req=%p",
                               task, req->recv.tag.comm, req->recv.tag.src_tid,
                               req->recv.tag.tag, count, buffer, req);
@@ -106,7 +106,7 @@ lcp_status_ptr_t lcp_tag_recv_nb(lcp_manager_h mngr, lcp_task_h task, void *buff
 
         /* Get pointer to payload */
 	if (match->flags & LCP_RECV_CONTAINER_UNEXP_RNDV_TAG) {
-                mpc_common_debug_info("LCP TAG: matched rndv unexp req=%p, "
+                mpc_common_debug("LCP TAG: matched rndv unexp req=%p, "
                                       "flags=%x", req, match->flags);
 
                 lcp_recv_rndv_tag_data(req, match + 1);
@@ -123,7 +123,7 @@ lcp_status_ptr_t lcp_tag_recv_nb(lcp_manager_h mngr, lcp_task_h task, void *buff
 	} else if (match->flags & (LCP_RECV_CONTAINER_UNEXP_EAGER_TAG |
                                    LCP_RECV_CONTAINER_UNEXP_EAGER_TAG_SYNC )) {
                 intptr_t data_offset;
-                mpc_common_debug_info("LCP TAG: matched eager bcopy unexp "
+                mpc_common_debug("LCP TAG: matched eager bcopy unexp "
                                       "req=%p, flags=%x", req, match->flags);
 
                 if (match->flags & LCP_RECV_CONTAINER_UNEXP_EAGER_TAG_SYNC) {

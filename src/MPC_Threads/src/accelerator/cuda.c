@@ -33,6 +33,8 @@
 #include <mpc_common_flags.h>
 #include <mpc_thread_cuda.h>
 
+#define MPC_MODULE "Threads/Accel/CUDA"
+
 extern __thread void *sctk_cuda_ctx;
 
 /**

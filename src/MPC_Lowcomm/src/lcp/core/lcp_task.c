@@ -41,6 +41,8 @@
 
 #define NUM_QUEUES UINT16_MAX
 
+#define MPC_MODULE "Lowcomm/LCP/Task"
+
 int lcp_am_set_handler_callback(lcp_manager_h mngr, lcp_task_h task, uint8_t am_id,
                                 void *user_arg, lcp_am_callback_t cb,
                                 unsigned flags)

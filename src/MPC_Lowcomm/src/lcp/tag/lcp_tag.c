@@ -238,7 +238,7 @@ int lcp_send_eager_tag_bcopy(lcp_request_t *req)
         ssize_t payload;
 	int rc = MPC_LOWCOMM_SUCCESS;
 
-        mpc_common_debug_info("LCP TAG: send eager tag bcopy comm=%d, src=%d, "
+        mpc_common_debug("LCP TAG: send eager tag bcopy comm=%d, src=%d, "
                               "dest=%d, length=%d, tag=%d, seqn=%d, buf=%p, req=%p.",
                               req->send.tag.comm, req->send.tag.src_tid,
                               req->send.tag.dest_tid, req->send.length,
@@ -296,7 +296,7 @@ int lcp_send_eager_tag_zcopy(lcp_request_t *req)
                 .comp_cb = lcp_tag_send_complete
         };
 
-        mpc_common_debug_info("LCP TAG: send am eager tag zcopy comm=%d, src=%d, "
+        mpc_common_debug("LCP TAG: send am eager tag zcopy comm=%d, src=%d, "
                               "dest=%d, tag=%d, length=%d", req->send.tag.comm,
                               req->send.tag.src_tid, req->send.tag.dest_tid,
                               req->send.tag.tag, req->send.length);
@@ -457,7 +457,7 @@ int lcp_recv_eager_tag_data(lcp_request_t *req, void *data)
         int rc = MPC_LOWCOMM_SUCCESS;
         ssize_t unpacked_len = 0;
 
-        mpc_common_debug_info("LCP TAG: recv tag data req=%p, src=%d, dest=%d, "
+        mpc_common_debug("LCP TAG: recv tag data req=%p, src=%d, dest=%d, "
                               "tag=%d, comm=%d, length=%d, seqn=%d", req,
                               req->recv.tag.src_tid, req->recv.tag.dest_tid,
                               req->recv.tag.tag, req->recv.tag.comm,
@@ -639,7 +639,7 @@ static int lcp_eager_tag_handler(void *arg, void *data,
                                 hdr->src_tid);
 	/* if request is not matched */
 	if (req == NULL) {
-                mpc_common_debug_info("LCP TAG: recv unexp tag src=%d, tag=%d, "
+                mpc_common_debug("LCP TAG: recv unexp tag src=%d, tag=%d, "
                                       "dest=%d, length=%d, sequence=%d",
                                       hdr->src_tid, hdr->tag, hdr->dest_tid,
                                       data_iov[1].iov_len,

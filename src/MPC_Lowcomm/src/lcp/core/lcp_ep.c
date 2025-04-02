@@ -40,6 +40,8 @@
 #include <assert.h>
 #include <mpc_common_helper.h>
 
+#define MPC_MODULE "Lowcomm/LCP/Ep"
+
 static int lcp_ep_check_if_valid(lcp_ep_h ep)
 {
 	/* Endpoint must have at least one transport interface */
