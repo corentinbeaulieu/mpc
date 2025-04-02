@@ -1370,8 +1370,8 @@ do
 			extractAndAddPackageOption 'HWLOC_BUILD_PARAMETERS' 'hwloc=' "$arg"
 			;;
 		################### CUDA ###################
-		--with-cuda=*)
-			extractParamValue 'CUDA_PREFIX' 'with-cuda' "$arg"
+		--with-cuda)
+			#extractParamValue 'CUDA_PREFIX' 'with-cuda' "$arg"
 			MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --with-cuda=yes"
 			;;
 		--with-openacc=*)

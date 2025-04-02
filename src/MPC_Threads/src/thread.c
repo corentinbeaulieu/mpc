@@ -1503,7 +1503,6 @@ void mpc_thread_exit(void *__retval)
 	_mpc_thread_exit_cleanup();
 	assert(_funcptr_mpc_thread_exit != NULL);
 	_funcptr_mpc_thread_exit(__retval);
-	// serial call to real exist here ?
 }
 
 /**********

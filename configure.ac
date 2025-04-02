@@ -1349,8 +1349,6 @@ AC_ARG_WITH([cuda],
 [mpc_cuda_ctx_switch=$withval],
 [mpc_cuda_ctx_switch=no])
 
-AC_MSG_WARN([mpc_cuda_ctx_switch=$mpc_cuda_ctx_switch])
-
 cuda_enabled="no"
 if test "x$mpc_cuda_ctx_switch" = "xyes"; then
 
