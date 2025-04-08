@@ -31,6 +31,10 @@
 #include <mpc_thread_cuda.h>
 #endif
 
+#ifdef MPC_USE_ROCM
+#include <mpc_thread_rocm.h>
+#endif
+
 #ifdef MPC_USE_OPENACC
 #error "OpenACC support does not exist yet with MPC !"
 #endif

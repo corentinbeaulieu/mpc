@@ -28,7 +28,8 @@
 
 #include <mpc_common_debug.h>
 
-static size_t nb_devices = 0;
+static size_t nb_cuda_devices = 0;
+static size_t nb_hip_devices = 0;
 
 /**
  * Initialize MPC_Accelerators.
@@ -40,18 +41,26 @@ void sctk_accl_init()
 {
 	if(!mpc_common_get_flags()->enable_accelerators)
 	{
-		nb_devices = 0;
+		nb_cuda_devices = 0;
+		nb_hip_devices = 0;
 		return;
 	}
 
-	mpc_common_debug_warning("Accelerators support ENABLED");
-
-	mpc_topology_device_t **list = mpc_topology_device_get_from_handle_regexp(
-	        "cuda-enabled-card*", (int *)&nb_devices);
-	sctk_free(list);
 
 #ifdef MPC_USE_CUDA
+	mpc_common_debug_warning("CUDA Accelerators support ENABLED");
+	mpc_topology_device_t **list = mpc_topology_device_get_from_handle_regexp(
+	        "cuda-enabled-card*", (int *) &nb_cuda_devices);
+	sctk_free(list);
 	sctk_accl_cuda_init();
+#endif
+
+#ifdef MPC_USE_ROCM
+	mpc_common_debug_warning("ROCM Accelerators support ENABLED");
+	mpc_topology_device_t **list = mpc_topology_device_get_from_handle_regexp(
+	        "hip-enabled-card*", (int *) &nb_hip_devices);
+	sctk_free(list);
+	sctk_accl_rocm_init();
 #endif
 
 #ifdef MPC_USE_OPENACC
@@ -62,15 +71,27 @@ void sctk_accl_init()
 }
 
 /**
- * Returns the number of GPUs on the current node.
+ * Returns the number of NVIDIA GPUs on the current node.
  *
  * Especially used to check CUDA can be used without errors.
  * @return the number of devices
  */
-size_t sctk_accl_get_nb_devices()
+size_t sctk_accl_get_nb_cuda_devices()
 {
-	return nb_devices;
+	return nb_cuda_devices;
 }
+
+/**
+ * Returns the number of AMD GPUs on the current node.
+ *
+ * Especially used to check HIP can be used without errors.
+ * @return the number of devices
+ */
+size_t sctk_accl_get_nb_hip_devices()
+{
+	return nb_hip_devices;
+}
+
 
 /*********************************
 * MPC ACCELERATOR INIT FUNCTION *

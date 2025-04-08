@@ -61,5 +61,9 @@ if MPC_CUDA_ENABLED
 libmpcthread_la_SOURCES +=  ./accelerator/cuda.c
 endif
 
+if MPC_ROCM_ENABLED
+libmpcthread_la_SOURCES +=  ./accelerator/rocm.c
+endif
+
 libmpcthread_la_LIBADD = ../../MPC_Launch/src/libmpclaunch.la  -lpthread
 

@@ -1337,11 +1337,10 @@ AC_SUBST([MPC_LAUNCHER_PROGRAM])
 AC_DEFINE_UNQUOTED([MPC_LAUNCHER], [$MPC_LAUNCHER], [Default launcher configured for MPC])
 
 #
-# Cuda Detection
+# CUDA Detection
 #
 
-
-AC_CHECKING([Checking CUDA])
+AC_CHECKING([CUDA])
 
 AC_ARG_WITH([cuda],
 [AS_HELP_STRING([--with-cuda],
@@ -1351,15 +1350,37 @@ AC_ARG_WITH([cuda],
 
 cuda_enabled="no"
 if test "x$mpc_cuda_ctx_switch" = "xyes"; then
-
         MPC_DETECT_DEPENDENCY([cuda.h], [cuda], [cuMemFree], [CUDA])
         MPC_REQUIRED_DEPENDENCY([cuda], [$mpc_dep_found])
 
-        AC_DEFINE([MPC_USE_CUDA], [1], [Cuda support is enabled])
+        AC_DEFINE([MPC_USE_CUDA], [1], [CUDA support is enabled])
         cuda_enabled="yes"
 fi
 
 AM_CONDITIONAL([MPC_CUDA_ENABLED], [test "x$cuda_enabled" = "xyes"])
+
+#
+# ROCM Detection
+#
+
+AC_CHECKING([ROCM])
+
+AC_ARG_WITH([rocm],
+[AS_HELP_STRING([--with-rocm],
+                [Enable ROCM context switching])],
+[mpc_rocm_ctx_switch=$withval],
+[mpc_rocm_ctx_switch=no])
+
+rocm_enabled="no"
+if test "x$mpc_rocm_ctx_switch" = "xyes"; then
+        MPC_DETECT_DEPENDENCY([hip/hip_runtime.h], [hip], [hipFree], [ROCM])
+        MPC_REQUIRED_DEPENDENCY([rocm], [$mpc_dep_found])
+
+        AC_DEFINE([MPC_USE_ROCM], [1], [ROCM support is enabled])
+        rocm_enabled="yes"
+fi
+
+AM_CONDITIONAL([MPC_ROCM_ENABLED], [test "x$rocm_enabled" = "xyes"])
 
 #
 # DMTCP detection

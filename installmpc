@@ -1209,7 +1209,8 @@ You may track issued commands using the "-v" flag.
   --with-mpc-comp=*                       : Specify mpc compiler additions prefix on the system
   --with-openpa=*                         : Specify openpa prefix on the system
   --with-hwloc=*                          : Specify hwloc prefix on the system
-  --with-cuda=*                           : Specify Cuda prefix on the system
+  --with-cuda=*                           : Specify CUDA prefix on the system
+  --with-rocm=*                           : Specify ROCM prefix on the system
   --with-openacc=*                        : Specify OpenACC prefix on the system (NIMPL)
   --with-opencl=*                         : Specify OpenCL prefix on the system (NIMPL)
   --with-hydra=*                          : Specify Hydra prefix on the system
@@ -1371,8 +1372,19 @@ do
 			;;
 		################### CUDA ###################
 		--with-cuda)
-			#extractParamValue 'CUDA_PREFIX' 'with-cuda' "$arg"
 			MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --with-cuda=yes"
+			;;
+		--with-cuda=*)
+			extractParamValue 'CUDA_PREFIX' 'with-cuda' "$arg"
+			MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --with-cuda=yes"
+			;;
+		################### ROCM ###################
+		--with-rocm)
+			MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --with-rocm=yes"
+			;;
+		--with-rocm=*)
+			extractParamValue 'ROCM_PREFIX' 'with-rocm' "$arg"
+			MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --with-rocm=yes"
 			;;
 		--with-openacc=*)
 			extractParamValue 'OPENACC_PREFIX' 'with-openacc' "$arg"

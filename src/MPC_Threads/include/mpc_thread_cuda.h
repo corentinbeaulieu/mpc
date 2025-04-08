@@ -25,7 +25,7 @@
 #define SCTK_CUDA_H
 
 #ifdef MPC_USE_CUDA
-#include <mpc_thread_cuda_wrap.h>
+#include <cuda.h>
 #include <mpc_common_debug.h>
 
 /** in debug mode, check all CUDA APIs return codes */

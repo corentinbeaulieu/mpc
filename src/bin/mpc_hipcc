@@ -1,0 +1,94 @@
+#!/bin/sh
+############################# MPC License ##############################
+# Wed Apr 08 16:30:25 CET 2025                                         #
+# Copyright or (C) or Copr. Commissariat a l'Energie Atomique          #
+#                                                                      #
+# IDDN.FR.001.230040.000.S.P.2007.000.10000                            #
+# This file is part of the MPC Runtime.                                #
+#                                                                      #
+# This software is governed by the CeCILL-C license under French law   #
+# and abiding by the rules of distribution of free software.  You can  #
+# use, modify and/ or redistribute the software under the terms of     #
+# the CeCILL-C license as circulated by CEA, CNRS and INRIA at the     #
+# following URL http://www.cecill.info.                                #
+#                                                                      #
+# The fact that you are presently reading this means that you have     #
+# had knowledge of the CeCILL-C license and that you accept its        #
+# terms.                                                               #
+#                                                                      #
+# Authors:                                                             #
+#   - MARIE Nicolas nicolas.marie@uvsq.fr                              #
+#                                                                      #
+#                                                                      #
+########################################################################
+
+# Common variables
+SCRIPT=$(readlink -f "$0")
+SCRIPTPATH=$(dirname "$SCRIPT")
+
+#Extract compiler configuration and flags
+# - MPC_INSTALL_PREFIX
+# - MPC_SHARE_DIR
+# - MPC_DEFAULT_CXX_COMPILER
+# - CFLAGS
+eval $("${SCRIPTPATH}/mpc_cflags" --sh -p -s -cxx -f)
+LDFLAGS=$("${MPC_INSTALL_PREFIX}/bin/mpc_ldflags")
+
+# Source Common function library
+
+# shellcheck source=/dev/null
+. "${MPC_SHARE_DIR}/mpc_compiler_common.sh"
+
+parse_cli_args "$@"
+
+# Update compiler in case CXX was altered by CLI
+COMPILER="hipcc --compiler-bindir $CXX"
+
+# Add forwaders for NVCC
+LDFLAGS=$(echo "$LDFLAGS" | sed -e 's/\-Wl,/-Xlinker /g' -e 's/ -B/ -Xcompiler &/g')
+
+
+# FIXME: add support for excluding host global variables from rocm
+#
+# NVCC additionnal blacklisting
+#
+
+#Used by nvcc to automatically blacklist some var patterns
+#list_cuda_global_vars()
+#{
+#	CUDA_FILE="/tmp/cuda_tmp_main${RANDOM}.cu"
+#
+#cat<< EOF_FILE > ${CUDA_FILE}
+##include <stdlib.h>
+#
+#__global__
+#void foo(void)
+#{
+#}
+#
+#int main(int argc, char ** argv)
+#{
+#	return 0;
+#}
+#EOF_FILE
+#
+#	IFS="
+#	"
+#
+#	tmp=""
+#	for decl in `${COMPILER} -Xcompiler -fmpc-privatize ${CUDA_FILE} -Xcompiler -B${MPC_INSTALL_PREFIX}/bin 2>&1 | grep "MPC task" | sed -e 's/.*variable //g' -e 's/ in file.*//g'`
+#	do
+#		tmp="${tmp}:${decl}"
+#	done
+#
+#	echo "${tmp}"
+#	rm ${CUDA_FILE}
+#}
+#
+#compiler_is_privatizing "${1}"
+#
+#if test "x${RES}" = "xyes"; then
+#	append_to "CFLAGS" "-fno-priv-var=$(list_cuda_global_vars)"
+#fi
+
+run_compiler

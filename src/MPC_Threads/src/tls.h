@@ -56,8 +56,11 @@ size_t sctk_extls_size();
 int sctk_locate_dynamic_initializers();
 int sctk_call_dynamic_initializers();
 
-#if defined(MPC_USE_CUDA)
+#ifdef MPC_USE_CUDA
 extern __thread void *sctk_cuda_ctx;
+#endif
+#ifdef MPC_USE_ROCM
+extern __thread void *sctk_hip_ctx;
 #endif
 
 #if defined (MPC_OpenMP)
@@ -119,10 +122,15 @@ static inline void sctk_context_save_tls(sctk_mctx_t *ucp)
 	tls_save(__mpc_task_rank);
 #endif
 
-#if defined(MPC_USE_CUDA)
+#ifdef MPC_USE_CUDA
 	sctk_accl_cuda_pop_context();
 	tls_save(sctk_cuda_ctx);
 #endif
+#ifdef MPC_USE_ROCM
+	sctk_accl_hip_pop_context();
+	tls_save(sctk_hip_ctx);
+#endif
+
 
 #if defined MPC_USE_DMTCP
 	tls_save(sctk_ft_critical_section);
@@ -180,14 +188,20 @@ static inline void sctk_context_restore_tls(sctk_mctx_t *ucp)
 #endif
 
 
-#if defined(MPC_USE_CUDA)
+#ifdef MPC_USE_CUDA
 	tls_restore(sctk_cuda_ctx);
-	if(sctk_cuda_ctx) /* if the thread to be scheduled has an attached cuda
-	                   * ctx: */
-	{
+	// if the thread to be scheduled has an attached CUDA ctx:
+	if(sctk_cuda_ctx)
 		sctk_accl_cuda_push_context();
-	}
 #endif
+#ifdef MPC_USE_ROCM
+	tls_restore(sctk_hip_ctx);
+	// if the thread to be scheduled has an attached HIP ctx:
+	if(sctk_hip_ctx)
+		sctk_accl_hip_push_context();
+#endif
+
+
 #endif
 }
 
@@ -229,8 +243,11 @@ static inline void sctk_context_init_tls(sctk_mctx_t *ucp)
 	ucp->__mpc_task_rank = -2;
 #endif
 
-#if defined(MPC_USE_CUDA)
+#ifdef MPC_USE_CUDA
 	tls_init(sctk_cuda_ctx);
+#endif
+#ifdef MPC_USE_ROCM
+	tls_init(sctk_hip_ctx);
 #endif
 
 

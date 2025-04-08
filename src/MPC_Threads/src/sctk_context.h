@@ -213,9 +213,14 @@ typedef struct sctk_mctx_st
 	int                                 __mpc_task_rank;
 #endif
 
-#if defined(MPC_USE_CUDA)
-	/* MPC CUDA context */
+#ifdef MPC_USE_CUDA
+	// MPC CUDA context
 	void *                              sctk_cuda_ctx;
+#endif
+
+#ifdef MPC_USE_ROCM
+	// MPC HIP context
+	void *                              sctk_hip_ctx;
 #endif
 
 #if defined (MPC_OpenMP)

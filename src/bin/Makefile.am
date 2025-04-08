@@ -34,6 +34,9 @@ prefix_bin_SCRIPTS=mpcvars.sh
 if MPC_CUDA_ENABLED
    bin_SCRIPTS += mpc_nvcc
 endif
+if MPC_ROCM_ENABLED
+   bin_SCRIPTS += mpc_hipcc
+endif
 
 bin_PROGRAMS=
 

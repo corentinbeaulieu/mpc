@@ -21,9 +21,11 @@
 /* #   - BOUHROUR Stephane stephane.bouhrour@uvsq.fr                      # */
 /* #                                                                      # */
 /* ######################################################################## */
+
 #include <mpc_config.h>
 
-#if defined(MPC_USE_CUDA)
+#ifdef MPC_USE_CUDA
+
 #include <mpc_thread_accelerator.h>
 #include <sctk_alloc.h>
 #include <mpc_common_debug.h>
@@ -37,11 +39,30 @@
 
 extern __thread void *sctk_cuda_ctx;
 
+
+static int sctk_accl_cuda_check_devices() {
+	int num_devices = sctk_accl_get_nb_cuda_devices();
+
+	// if CUDA support is loaded but the current configuration does not
+	// provide a GPU: stop
+	if (num_devices <= 0) {
+		mpc_common_debug_warning("CUDA: support enabled but no GPU found !");
+		return 0;
+	}
+
+	// sanity check
+	int nb_check;
+	safe_cudadv(cuDeviceGetCount(&nb_check));
+	assert(num_devices == nb_check);
+
+	return num_devices;
+}
+
 /**
  * Retrieve the best device to select for the thread cpu_id.
  *
  * This function mainly uses two sctk_device_topology calls:
- *   - <b>sctk_device_matric_get_list_closest_from_pu(...)</b>: 
+ *   - <b>sctk_device_matrix_get_list_closest_from_pu(...)</b>: 
  *     Returns a list of devices, each device being at the same distance from
  *     the PU than others
  *   - <b>sctk_device_attach_freest_device_from</b>: From the previously
@@ -52,31 +73,22 @@ extern __thread void *sctk_cuda_ctx;
  * @return the device_id for the elected device
  */
 static int sctk_accl_cuda_get_closest_device(int cpu_id) {
-	int num_devices = sctk_accl_get_nb_devices(), nb_check;
-
-	/* if CUDA support is loaded but the current configuration does not provide
-	 * a GPU: stop */
-	if (num_devices <= 0)
+	int num_devices;
+	if ((num_devices = sctk_accl_cuda_check_devices()) == 0)
 		return 0;
 
-	safe_cudadv(cuDeviceGetCount(&nb_check));
-	assert(num_devices == nb_check);
-
-	/* else, we try to find the closest device for the current thread */
+	// else, we try to find the closest device for the current thread
+	// to use, num_devices contains the number of minimum distance device
 	mpc_topology_device_t **closest_devices = NULL;
-	int nearest_id = -1;
-
-	/* to recycle, nb_check contains the number of minimum distance device */
 	closest_devices = mpc_topology_device_matrix_get_list_closest_from_pu(
-	                      cpu_id, "cuda-enabled-card*", &nb_check);
+	                      cpu_id, "cuda-enabled-card*", &num_devices);
 
-	/* once the list is filtered with the nearest ones, we need to elected
-	 * the one with the minimum number of attached resources */
+	// once the list is filtered with the nearest ones,
+	// we need to elected the one with the minimum number of attached resources
 	mpc_topology_device_t *elected =
-		mpc_topology_device_attach_freest_device_from(closest_devices, nb_check);
+		mpc_topology_device_attach_freest_device_from(closest_devices, num_devices);
 	assert(elected != NULL);
-
-	nearest_id = elected->device_id;
+	int nearest_id = elected->device_id;
 
 	mpc_common_nodebug("CUDA: (DETECTION) elected device %d", nearest_id);
 
@@ -92,21 +104,12 @@ static int sctk_accl_cuda_get_closest_device(int cpu_id) {
  */
 void sctk_accl_cuda_init_context() {
 	mpc_thread_yield();
-	int num_devices = sctk_accl_get_nb_devices(), check_nb;
-
-	/* if CUDA support is loaded but the current configuration does not provide
-	 * a GPU: stop */
-	if (num_devices <= 0) {
-		mpc_common_nodebug("CUDA: support enabled but no GPU found !");
+	int num_devices;
+	if ((num_devices = sctk_accl_cuda_check_devices()) == 0)
 		return;
-	}
-
-	/* optional: sanity check */
-	safe_cudadv(cuDeviceGetCount(&check_nb));
-	assert(check_nb == num_devices);
 
 	/* we init CUDA TLS context */
-	cuda_ctx_t *cuda = (cuda_ctx_t *)sctk_cuda_ctx;
+	cuda_ctx_t *cuda = (cuda_ctx_t *) sctk_cuda_ctx;
 	cuda = (cuda_ctx_t *)sctk_malloc(sizeof(cuda_ctx_t));
 	cuda->pushed = 0;
 	cuda->cpu_id = mpc_topology_get_current_cpu();
@@ -114,23 +117,22 @@ void sctk_accl_cuda_init_context() {
 	mpc_common_nodebug("CUDA: (MALLOC) pushed?%d, cpu_id=%d, address=%p",
 	                   cuda->pushed, cuda->cpu_id, cuda);
 
-	/* cast from int -> CUdevice (which is a typedef to a int) */
+	// cast from int -> CUdevice (which is a typedef to a int)
 	CUdevice nearest_device =
 		(CUdevice) sctk_accl_cuda_get_closest_device(cuda->cpu_id);
 
-	//safe_cudadv(
-	//sctk_cuCtxCreate(&cuda->context, CU_CTX_SCHED_YIELD, nearest_device));
-	/* Use v3 for right context API version since cuda 12.0 */
-	cuCtxCreate_v3(&cuda->context, NULL, 0, CU_CTX_SCHED_YIELD, nearest_device);
-	/*sctk_cuCtxCreate() automatically attaches the ctx to the GPU */
+	// Use v3 for right context API version since cuda 12.0
+	safe_cudadv(
+		cuCtxCreate_v3(&cuda->context, NULL, 0,
+		               CU_CTX_SCHED_YIELD, nearest_device));
+	// cuCtxCreate_v3 automatically attaches the ctx to the GPU
 	cuda->pushed = 1;
 
 	mpc_common_debug("CUDA: (INIT) PU %d bound to device %d",
 	                 cuda->cpu_id, nearest_device);
 
-	/* Set the current pointer as default one for the current thread */
+	// Set the current pointer as default one for the current thread
 	sctk_cuda_ctx = cuda;
-
 	return;
 }
 
@@ -145,32 +147,22 @@ void sctk_accl_cuda_init_context() {
  *   - 0 if the popping succeeded
  *   - 1 otherwise
  */
-int sctk_accl_cuda_pop_context() {
-	int num_devices = sctk_accl_get_nb_devices(), check_nb;
-
-	/* if CUDA support is loaded but the current configuration does not provide
-	 * a GPU: stop */
-	if (num_devices <= 0)
+int sctk_accl_cuda_pop_context() { 
+	int num_devices;
+	if ((num_devices = sctk_accl_cuda_check_devices()) == 0)
 		return 1;
 
-	/* sanity check */
-	safe_cudadv(cuDeviceGetCount(&check_nb));
-	assert(num_devices == check_nb);
+	// get The CUDA context for the current thread
+	cuda_ctx_t *cuda = (cuda_ctx_t *) sctk_cuda_ctx;
 
-	/* get The CUDA context for the current thread */
-	cuda_ctx_t *cuda = (cuda_ctx_t *)sctk_cuda_ctx;
-
-	/* if the calling thread does not provide a CUDA ctx, this thread is
-	 * supposed to not execute GPU code */
-	if (cuda == NULL) {
-		/* we returns 1, to notify the user that nothing happened */
+	// if the calling thread does not provide a CUDA ctx, this thread is
+	// supposed to not execute GPU code
+	if (cuda == NULL)
 		return 1;
-	}
 
-	/* if the associated CUDA context is pushed on the GPU
-	 * This allow us to maintain save()/restore() operations independent
-	 * from each other
-	 */
+	// if the associated CUDA context is pushed on the GPU
+	// This allow us to maintain save()/restore() operations independent
+	// from each other
 	if (cuda->pushed) {
 		safe_cudadv(cuCtxPopCurrent(&cuda->context));
 		cuda->pushed = 0;
@@ -190,25 +182,17 @@ int sctk_accl_cuda_pop_context() {
  *  - 1 otherwise
  */
 int sctk_accl_cuda_push_context() {
-	int num_devices = sctk_accl_get_nb_devices(), nb_check;
-
-	/* if CUDA support is loaded but the current configuration does not provide
-	 * a GPU: stop */
-	if (num_devices <= 0)
+	int num_devices;
+	if ((num_devices = sctk_accl_cuda_check_devices()) == 0)
 		return 1;
 
-	/* sanity checks */
-	safe_cudadv(cuDeviceGetCount(&nb_check));
-	assert(nb_check == num_devices);
 
-	/* else, we try to push a ctx in GPU queue */
-	cuda_ctx_t *cuda = (cuda_ctx_t *)sctk_cuda_ctx;
+	// else, we try to push a ctx in GPU queue
+	cuda_ctx_t *cuda = (cuda_ctx_t *) sctk_cuda_ctx;
 
-	/* it the current thread does not have a CUDA ctx, skip... */
-	if (cuda == NULL) {
-		/* we returns 1 to notify the user nothing happened */
+	// it the current thread does not have a CUDA ctx, skip...
+	if (cuda == NULL)
 		return 1;
-	}
 
 	/* if the context is not already on the GPU */
 	if (!cuda->pushed) {
@@ -224,7 +208,7 @@ int sctk_accl_cuda_push_context() {
  * @return 0 if succeeded, 1 otherwise
  */
 int sctk_accl_cuda_init() {
-	if (mpc_common_get_flags()->enable_accelerators) /* && sctk_cuda_support) */
+	if (mpc_common_get_flags()->enable_accelerators)
 	{
 		safe_cudadv(cuInit(0));
 		return 0;
@@ -237,39 +221,45 @@ int sctk_accl_cuda_init() {
  */
 void sctk_accl_cuda_release_context()
 {
-	/* release context created by cuda support */
-	if (mpc_common_get_flags()->enable_accelerators) /* && sctk_cuda_support) */
+	// release context created by cuda support
+	if (mpc_common_get_flags()->enable_accelerators)
 	{
-		cuda_ctx_t *cuda = (cuda_ctx_t *)sctk_cuda_ctx;
+		cuda_ctx_t *cuda = (cuda_ctx_t *) sctk_cuda_ctx;
 
 		CUdevice device;
-		CUresult code = cuCtxGetDevice(&device);
+		safe_cudadv(cuCtxGetDevice(&device));
 		mpc_common_debug("CUDA: (RELEASE) PU %d bound to device %d",
 		                 cuda->cpu_id, device);
 
 		cuCtxDestroy(cuda->context);
 		sctk_cuda_ctx = NULL;
 	}
-	/* cuda runtime segfault after main if not release explicitly */
-	/* one primary context per gpu device */
-	int nb_check = 1;
-	CUresult code = cuDeviceGetCount(&nb_check);
-	if (code == CUDA_ERROR_UNKNOWN) // Uknown Errors (if cuda driver is not started correctly).
+	
+	// cuda runtime segfault after main if not release explicitly
+	// one primary context per gpu device
+	int num_devices = 1;
+	CUresult code = cuDeviceGetCount(&num_devices);
+	// Uknown Errors (if cuda driver is not started correctly).
+	if (code == CUDA_ERROR_UNKNOWN)
 		return;
-	if (code == CUDA_ERROR_NOT_INITIALIZED) // Not initialized error if cuda is no cuinit.
+	// Not initialized error if cuda is no cuinit.
+	if (code == CUDA_ERROR_NOT_INITIALIZED)
 		return;
 	if (code != CUDA_SUCCESS) {
 		const char *errorStr = NULL;
+		// CUDA API does not specify if the sring is user owned
+		// and should be free
 		cuGetErrorString(code, &errorStr);
 		mpc_common_debug_warning(
-		    "CUDA: Release Context (cuDeviceGetCount): %s (code %d) %s:%dL\n",
-		    errorStr, code, __FILE__, __LINE__);
+			"CUDA: Release Context (cuDeviceGetCount): %s (code %d) %s:%dL\n",
+			errorStr, code, __FILE__, __LINE__);
 		return;
 	}
+
 	CUdevice device;
 	unsigned int flags;
 	int is_active;
-	for(int i = 0; i < nb_check; i++)
+	for(int i = 0; i < num_devices; i++)
 	{
 		safe_cudadv(cuDeviceGet(&device, i));
 
@@ -294,12 +284,12 @@ void mpc_accelerator_cuda_register_function()
 	MPC_INIT_CALL_ONLY_ONCE
 
 	mpc_common_init_callback_register("VP Thread Start",
-	                                  "Init per VP Cuda context",
+	                                  "Init per VP CUDA context",
 	                                  sctk_accl_cuda_init_context, 25);
 
 	mpc_common_init_callback_register("VP Thread End",
-	                                  "Release per VP Cuda context",
+	                                  "Release per VP CUDA context",
 	                                  sctk_accl_cuda_release_context, 22);
 }
 
-#endif // MPC_Accelerators && USE_CUDA
+#endif // MPC_USE_CUDA

@@ -40,8 +40,11 @@ typedef struct
 
 #if defined(TLS_SUPPORT)
 
-#if defined(MPC_USE_CUDA)
+#ifdef MPC_USE_CUDA
 __thread void *sctk_cuda_ctx;
+#endif
+#ifdef MPC_USE_ROCM
+__thread void *sctk_hip_ctx;
 #endif
 
 __thread char *mpc_user_tls_1 = NULL;
