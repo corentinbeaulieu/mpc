@@ -31,7 +31,7 @@
 /** in debug mode, check all HIP APIs return codes */
 #ifndef NDEBUG
 #define safe_hip(u) \
-	assume_m(((u) == hipSuccess), "HIP call failed with value %d", u)
+	assume_m(((u) == hipSuccess), "HIP call failed with value %d: (%s)", u, hipGetErrorString(u))
 #else
 #define safe_hip(u)    u
 #endif

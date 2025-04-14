@@ -1349,7 +1349,8 @@ AC_ARG_WITH([cuda],
 [mpc_cuda_ctx_switch=no])
 
 cuda_enabled="no"
-if test "x$mpc_cuda_ctx_switch" = "xyes"; then
+if test "x$mpc_cuda_ctx_switch" = "xyes"
+then
         MPC_DETECT_DEPENDENCY([cuda.h], [cuda], [cuMemFree], [CUDA])
         MPC_REQUIRED_DEPENDENCY([cuda], [$mpc_dep_found])
 
@@ -1372,12 +1373,26 @@ AC_ARG_WITH([rocm],
 [mpc_rocm_ctx_switch=no])
 
 rocm_enabled="no"
-if test "x$mpc_rocm_ctx_switch" = "xyes"; then
-        MPC_DETECT_DEPENDENCY([hip/hip_runtime.h], [hip], [hipFree], [ROCM])
-        MPC_REQUIRED_DEPENDENCY([rocm], [$mpc_dep_found])
+if test "x$mpc_rocm_ctx_switch" = "xyes" -o "x$mpc_rocm_ctx_switch" = "xamd" -o "x$mpc_rocm_ctx_switch" = "xnvidia"
+then
+	# selecting ROCM/HIP mode
+	if test "x$mpc_rocm_ctx_switch" = "xnvidia"
+	then
+		AC_DEFINE(__HIP_PLATFORM_NVIDIA__, [1], [ROCM mode: NVIDIA])
+		AC_DEFINE([MPC_HIP_PLATFORM_NVIDIA], [1], [ROCM mode: NVIDIA])
+		# we assume that cuda is also enable
+	else
+		AC_DEFINE(__HIP_PLATFORM_AMD__, [1], [ROCM mode: AMD])
+		AC_DEFINE([MPC_HIP_PLATFORM_AMD], [1], [ROCM mode: AMD])
+	fi
 
-        AC_DEFINE([MPC_USE_ROCM], [1], [ROCM support is enabled])
-        rocm_enabled="yes"
+	# detecting HIP runtime
+	MPC_DETECT_DEPENDENCY([/usr/include/hip/hip_runtime.h], [amdhip64], [hipFree], [ROCM])
+	MPC_REQUIRED_DEPENDENCY([rocm], [$mpc_dep_found])
+
+	# define HIP
+	AC_DEFINE([MPC_USE_ROCM], [1], [ROCM support is enabled])
+	rocm_enabled="yes"
 fi
 
 AM_CONDITIONAL([MPC_ROCM_ENABLED], [test "x$rocm_enabled" = "xyes"])

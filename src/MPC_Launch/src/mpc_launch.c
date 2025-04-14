@@ -294,8 +294,13 @@ static inline void __parse_argument(char *passed_arg)
 	SET_FLAG_BOOLEAN("text-placement", enable_topology_text_placement);
 	SET_FLAG_BOOLEAN("checkpoint", checkpoint_enabled);
 	/* Old syntax could be removed */
-	__SET_FLAG_BOOLEAN("--use-accl", enable_accelerators, 1);
-	SET_FLAG_BOOLEAN("accl", enable_accelerators);
+	SET_FLAG_BOOLEAN("cuda", enable_cuda);
+#if MPC_HIP_PLATFORM_NVIDIA // hip nvidia compatility mode (__HIP_PLATFORM_NVIDIA__).
+	SET_FLAG_BOOLEAN("rocm", enable_cuda);
+#else
+	SET_FLAG_BOOLEAN("rocm", enable_rocm);
+#endif
+
 	SET_FLAG_BOOLEAN("isatty", isatty);
 
 
@@ -541,7 +546,8 @@ static inline void __set_default_values()
 	/* TODO modularize */
 	mpc_common_get_flags()->profiler_outputs        = strdup("stdout");
 	mpc_common_get_flags()->checkpoint_enabled      = 0;
-	mpc_common_get_flags()->enable_accelerators     = 0;
+	mpc_common_get_flags()->enable_cuda             = 0;
+	mpc_common_get_flags()->enable_rocm             = 0;
 	mpc_common_get_flags()->checkpoint_model = strdup("No C/R");
 
 	/* force smt on MIC */

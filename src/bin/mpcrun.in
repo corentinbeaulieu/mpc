@@ -140,7 +140,8 @@ CONFIG_USER_LAUNCHERS=""
 CONFIG_AUTOKILL="0"
 CONFIG_DISABLE_ASLR="false"
 CONFIG_PROFILING="stdout"
-CONFIG_ACCELERATOR_SUPPORT="0"
+CONFIG_CUDA_SUPPORT="0"
+CONFIG_ROCM_SUPPORT="0"
 CONFIG_TOPOLOGY_DUMP_GRAPHIC="0"
 CONFIG_TOPOLOGY_DUMP_TEXT="0"
 
@@ -547,7 +548,14 @@ for arg in "$@" ; do
 					CONFIG_TOPOLOGY_DUMP_TEXT="1"
 					;;
 				--use-accl|--accl|-accl)
-					CONFIG_ACCELERATOR_SUPPORT="1"
+					echo "Using '--accl' is deprecated: use --cuda or --rocm instead. (Using CUDA for now)"
+					CONFIG_CUDA_SUPPORT="1"
+					;;
+				--use-cuda|--cuda)
+					CONFIG_CUDA_SUPPORT="1"
+					;;
+				--use-rocm|--rocm)
+					CONFIG_ROCM_SUPPORT="1"
 					;;
 				--dbg=*)
 					DEBUG="$(echo "A$arg" | sed -e 's/A--dbg=//g')"
@@ -865,7 +873,8 @@ add_arg "--mpc-verbose" "$CONFIG_MPC_VERBOSE"
 add_flag "--enable-smt" "$CONFIG_ENABLE_SMT"
 add_flag "--enable-graphic-placement" "$CONFIG_TOPOLOGY_DUMP_GRAPHIC"
 add_flag "--enable-text-placement" "$CONFIG_TOPOLOGY_DUMP_TEXT"
-append_arg "--enable-accl" "$CONFIG_ACCELERATOR_SUPPORT"
+append_arg "--cuda" "$CONFIG_CUDA_SUPPORT"
+append_arg "--rocm" "$CONFIG_ROCM_SUPPORT"
 
 append_arg "$MPC_ARG_THREAD_TYPE" "1"
 append_arg "$MPC_ARG_NETWORKING" "1"

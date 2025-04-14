@@ -31,7 +31,8 @@ struct mpc_common_flags
         short enable_smt_capabilities;          /*< Should MPC run on hyperthreads */
 
 	/* Accelerator support */
-	short enable_accelerators;
+	short enable_cuda;
+	short enable_rocm;
 
 	/* Checkpoint mode enabled */
 	short checkpoint_enabled;

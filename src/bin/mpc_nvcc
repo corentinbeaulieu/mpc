@@ -42,7 +42,7 @@ LDFLAGS=$("${MPC_INSTALL_PREFIX}/bin/mpc_ldflags")
 parse_cli_args "$@"
 
 # Update compiler in case CXX was altered by CLI
-COMPILER="nvcc --compiler-bindir $CXX"
+COMPILER="nvcc --compiler-bindir ${CXX}"
 
 # Add forwaders for NVCC
 LDFLAGS=$(echo "$LDFLAGS" | sed -e 's/\-Wl,/-Xlinker /g' -e 's/ -B/ -Xcompiler &/g')

@@ -41,8 +41,15 @@ LDFLAGS=$("${MPC_INSTALL_PREFIX}/bin/mpc_ldflags")
 
 parse_cli_args "$@"
 
+if [ "${MPC_USE_CUDA}" = "yes" ]
+then
+	export HIP_PLATFORM="nvidia"
+else
+	export HIP_PLATFORM="amd"
+fi
+
 # Update compiler in case CXX was altered by CLI
-COMPILER="hipcc --compiler-bindir $CXX"
+COMPILER="hipcc"
 
 # Add forwaders for NVCC
 LDFLAGS=$(echo "$LDFLAGS" | sed -e 's/\-Wl,/-Xlinker /g' -e 's/ -B/ -Xcompiler &/g')

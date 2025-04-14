@@ -21,6 +21,8 @@
 /* #   - JAEGER Julien julien.jaeger@cea.fr                               # */
 /* #                                                                      # */
 /* ######################################################################## */
+
+#include <mpc_common_flags.h>
 #include <mpc_topology_device.h>
 
 #include "mpc_common_debug.h"
@@ -522,7 +524,7 @@ static inline void __topology_device_enrich_topology()
 {
 
 int cuda_device_to_locate = 0;
-int hip_device_to_locate = 0;
+int rocm_device_to_locate = 0;
 
 #ifdef MPC_USE_CUDA
 	// init() returns 0 if succeed
@@ -533,12 +535,12 @@ int hip_device_to_locate = 0;
 #ifdef MPC_USE_ROCM
 	// init() returns 0 if succeed
 	if (! sctk_accl_hip_init())
-		hipGetDeviceCount(&hip_device_to_locate);
+		hipGetDeviceCount(&rocm_device_to_locate);
 #endif
 
 	for (int i = 0;
 	     i < __mpc_topology_device_list_count && 
-	     (cuda_device_to_locate > 0 || hip_device_to_locate > 0);
+	     (cuda_device_to_locate > 0 || rocm_device_to_locate > 0);
 	     i++)
 	{
 		mpc_topology_device_t *device = &__mpc_topology_device_list[i];
@@ -556,62 +558,83 @@ int hip_device_to_locate = 0;
 		// Read the PCI bus ID from the found attr
 		sscanf(cur_attr, "busid=%s", busid_str);
 
-		int res = 0;
+
+		// Query device infos from CUDA and HIP
+		bool is_cuda = false;
+		bool is_rocm = false;
+		int cuda_device_id = 0;
+		int rocm_device_id = 0;
+
+		#ifdef MPC_USE_CUDA
+		if (mpc_common_get_flags()->enable_cuda) {
+			CUdevice dev = 0;
+			CUresult test = cuDeviceGetByPCIBusId(&dev, busid_str);
+			// if the PCI bus ID matches a CUDA-enabled device
+			if(test == CUDA_SUCCESS) {
+				cuda_device_id = (int) dev;
+				is_cuda = true;
+			}
+		}
+		#endif
+
+		#ifdef MPC_USE_ROCM
+		if (mpc_common_get_flags()->enable_rocm) {
+			hipDevice_t dev = 0;
+			hipError_t test = hipDeviceGetByPCIBusId(&dev, busid_str);
+			// if the PCI bus ID matches a ROCM-enabled device
+			if(test == hipSuccess) {
+				rocm_device_id = (int) dev;
+				is_rocm = true;
+			}
+		}
+		#endif
+
+		// Compute gathered informations
 		char *name_prefix;
 		int device_id;
-
-		// check if cuda device
-		#ifdef MPC_USE_CUDA
-		CUdevice dev = 0;
-		CUresult test = cuDeviceGetByPCIBusId(&dev, busid_str);
-		// if the PCI bus ID matches a CUDA-enabled device
-		if(test == CUDA_SUCCESS) {
+		if (is_cuda) {
 			name_prefix = "cuda-enabled-card";
-			device_id = (int) dev;
-			res++;
 			cuda_device_to_locate--;
-		}
-		#endif
-
-		// check if rocm device
-		#ifdef MPC_USE_ROCM
-		hipDevice_t dev = 0;
-		hipError_t test = hipDeviceGetByPCIBusId(&dev, busid_str);
-		// if the PCI bus ID matches a ROCM-enabled device
-		if(test == hipSuccess) {
+			device_id = cuda_device_id;
+			if (is_rocm) // We are using: __HIP_PLATFORM_NVIDIA__
+				rocm_device_to_locate--;
+		} else if (is_rocm) {
+			// AMD card.
 			name_prefix = "rocm-enabled-card";
-			device_id = (int) dev;
-			res++;
-			hip_device_to_locate--;
+			rocm_device_to_locate--;
+			device_id = rocm_device_id;
 		}
-		#endif
 
-		if (res == 1)
-		{
-			// RENAMING THE DEVICE
+		// Exports gathered informations in topology
+		// RENAMING THE DEVICE
+		if (is_cuda || is_rocm) {
 			// we suppose 4 digits to encode GPU ids is enough !
 			int name_size = strlen(name_prefix) + 4;
 			char *name = sctk_malloc(sizeof(char) * name_size);
 			// Creating one single string
-			int check = snprintf(name, name_size, "%s%d", name_prefix, device_id);
+			int check = snprintf(name, name_size,
+			                     "%s%d", name_prefix, device_id);
 			assert(check < name_size);
 			device->name = name;
-			device->device_id = (int) dev;
-			mpc_common_debug("Detected GPU: %s (%s)\n", device->name, busid_str);
-		}
-		else if (res > 1)
-		{
-			mpc_common_debug_fatal("Detected GPU: %s (%s) to be both "
-			        "an NVIDIA CUDA GPU and an AMD ROCM GPU\n",
-			        device->name, busid_str);
-		}
-		else
-		{
+			device->device_id = device_id;
+			mpc_common_nodebug("Detected GPU: %s (%s)\n",
+			                         device->name, busid_str);
+		} else {
 			if (device->name == NULL)
 				device->name = "Unknown";
 			device->device_id = -1;
 		}
 	}
+
+	if (cuda_device_to_locate != 0)
+		mpc_common_debug_warning(
+			"Unable to get topology location for: %d CUDA devices.\n",
+			cuda_device_to_locate);
+
+	if (rocm_device_to_locate > 0)
+		mpc_common_debug_warning(
+			"Unable to get topology location for: %d ROCM devices.\n",
+			rocm_device_to_locate);
 }
 
 /************************************************************************/
@@ -959,7 +982,6 @@ mpc_topology_device_t **mpc_topology_device_get_from_handle_regexp( char *handle
 	for ( i = 0; i < __mpc_topology_device_list_count; i++ )
 	{
 		ret = regexec( &regexp, __mpc_topology_device_list[i].name, 0, NULL, 0 );
-		mpc_common_debug_warning("TOPOLOGY DEVICE: %s\n", __mpc_topology_device_list[i].name);
 		if ( ret == 0 )
 		{
 			/* Match then push the device */

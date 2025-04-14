@@ -1211,6 +1211,7 @@ You may track issued commands using the "-v" flag.
   --with-hwloc=*                          : Specify hwloc prefix on the system
   --with-cuda=*                           : Specify CUDA prefix on the system
   --with-rocm=*                           : Specify ROCM prefix on the system
+  --with-rocm-nvidia=*                    : Specify ROCM prefix on the system (hip with nvidia card)
   --with-openacc=*                        : Specify OpenACC prefix on the system (NIMPL)
   --with-opencl=*                         : Specify OpenCL prefix on the system (NIMPL)
   --with-hydra=*                          : Specify Hydra prefix on the system
@@ -1291,7 +1292,7 @@ add_process_mode_flag_to_mpc()
 
 enable_debug()
 {
-	MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --enable-debug"
+	MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --enable-debug-messages"
 	MPC_COMP_ADD_BUILD_PARAMETERS="${MPC_COMP_ADD_BUILD_PARAMETERS} --opts=--enable-debug"
 	OFI_BUILD_PARAMETERS="${OFI_BUILD_PARAMETERS} --enable-debug"
 }
@@ -1380,12 +1381,20 @@ do
 			;;
 		################### ROCM ###################
 		--with-rocm)
-			MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --with-rocm=yes"
+			MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --with-rocm=amd"
 			;;
 		--with-rocm=*)
 			extractParamValue 'ROCM_PREFIX' 'with-rocm' "$arg"
-			MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --with-rocm=yes"
+			MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --with-rocm=amd"
 			;;
+		--with-rocm-nvidia)
+			MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --with-cuda=yes --with-rocm=nvidia"
+			;;
+		--with-rocm-nvidia=*)
+			extractParamValue 'ROCM_PREFIX' 'with-rocm' "$arg"
+			MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --with-cuda=yes --with-rocm=nvidia"
+			;;
+		################### OTHER GPU ###################
 		--with-openacc=*)
 			extractParamValue 'OPENACC_PREFIX' 'with-openacc' "$arg"
 			;;

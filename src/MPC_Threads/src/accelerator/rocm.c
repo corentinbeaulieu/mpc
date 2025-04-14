@@ -23,9 +23,6 @@
 /* ######################################################################## */
 
 #include <mpc_config.h>
-
-#ifdef MPC_USE_ROCM
-
 #include <mpc_thread_accelerator.h>
 #include <sctk_alloc.h>
 #include <mpc_common_debug.h>
@@ -46,7 +43,7 @@ static int sctk_accl_hip_check_devices() {
 	// if HIP support is loaded but the current configuration does not
 	// provide a GPU: stop
 	if (num_devices <= 0) {
-		mpc_common_debug_warning("HIP: support enabled but no GPU found !");
+		mpc_common_nodebug("HIP: support enabled but no GPU found !");
 		return 0;
 	}
 
@@ -81,7 +78,7 @@ static int sctk_accl_hip_get_closest_device(int cpu_id) {
 	// to use, num_devices contains the number of minimum distance device
 	mpc_topology_device_t **closest_devices = NULL;
 	closest_devices = mpc_topology_device_matrix_get_list_closest_from_pu(
-	                      cpu_id, "hip-enabled-card*", &num_devices);
+	                      cpu_id, "rocm-enabled-card*", &num_devices);
 
 	// once the list is filtered with the nearest ones,
 	// we need to elected the one with the minimum number of attached resources
@@ -164,7 +161,7 @@ int sctk_accl_hip_pop_context() {
 	// This allow us to maintain save()/restore() operations independent
 	// from each other
 	if (hip->pushed) {
-		safe_hip(chipCtxPopCurren(hip&->context));
+		safe_hip(hipCtxPopCurrent(hip->context));
 		hip->pushed = 0;
 	}
 
@@ -208,7 +205,7 @@ int sctk_accl_hip_push_context() {
  * @return 0 if succeeded, 1 otherwise
  */
 int sctk_accl_hip_init() {
-	if (mpc_common_get_flags()->enable_accelerators)
+	if (mpc_common_get_flags()->enable_rocm)
 	{
 		safe_hip(hipInit(0));
 		return 0;
@@ -222,7 +219,7 @@ int sctk_accl_hip_init() {
 void sctk_accl_hip_release_context()
 {
 	// release context created by hip support
-	if (mpc_common_get_flags()->enable_accelerators)
+	if (mpc_common_get_flags()->enable_rocm)
 	{
 		hip_ctx_t *hip = (hip_ctx_t *) sctk_hip_ctx;
 
@@ -233,43 +230,6 @@ void sctk_accl_hip_release_context()
 
 		hipCtxDestroy(hip->context);
 		sctk_hip_ctx = NULL;
-	}
-
-
-	// explicitly release primary context
-	int num_devices = 1;
-	hipError_t code = hipGetDeviceCount(&num_devices);
-	// Uknown Errors (if hip driver is not started correctly).
-	if (code == hipErrorUnknown)
-		return;
-	// Not initialized error if hip is no init.
-	if (code == hipErrorNotInitialized)
-		return;
-	if (code != hipSuccess) {
-		const char *errorStr = NULL;
-		// HIP API does not specify if the sring is user owned
-		// and should be free
-		hipDrvGetErrorString(code, &errorStr);
-		mpc_common_debug_warning(
-			"HIP: Release Context (hipGetDeviceCount): %s (code %d) %s:%dL\n",
-			errorStr, code, __FILE__, __LINE__);
-		return;
-	}
-	
-	hipDevice_t device;
-	unsigned int flags;
-	int is_active;
-	for(int i = 0; i < num_devices; i++)
-	{
-		safe_hip(hipDeviceGet(&device, i));
-
-		// Get the primary context state
-		safe_hip(hipDevicePrimaryCtxGetState(device, &flags, &is_active));
-		if (is_active) {
-			hipDevicePrimaryCtxRelease(device);
-			mpc_common_debug("HIP: (RELEASE-PRIMARY) Context of device %d",
-			                 device);
-		}
 	}
 }
 
@@ -285,11 +245,9 @@ void mpc_accelerator_hip_register_function()
 
 	mpc_common_init_callback_register("VP Thread Start",
 	                                  "Init per VP HIP context",
-	                                  sctk_accl_hip_init_context, 25);
+	                                  sctk_accl_hip_init_context, 26);
 
 	mpc_common_init_callback_register("VP Thread End",
 	                                  "Release per VP HIP context",
-	                                  sctk_accl_hip_release_context, 22);
+	                                  sctk_accl_hip_release_context, 21);
 }
-
-#endif // MPC_USE_ROCM

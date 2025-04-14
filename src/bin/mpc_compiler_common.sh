@@ -142,7 +142,8 @@ OUTPUT_FILE_ARGS=""
 MPC_HEADER_INCLUDE="-include mpc.h"
 # This variable is updated to 'echo' when '-show' is active
 MPC_COMMAND_WRAPPER="eval"
-
+# Are we using cuda from HIP
+MPC_USE_CUDA="no"
 
 PRIV_FLAG_ALREADY_SET=""
 # By default priv is enabled in mpc_cc if the compiler supports it
@@ -324,10 +325,9 @@ parse_cli_args()
 		-compilers|--compilers)
 			deprectated_option
 			;;
-		-cuda)
-			append_to "LDFLAGS" "-lmpc_cuda_addon"
-			append_to "LDFLAGS" "-Wl,--unresolved-symbols=ignore-in-shared-libs"
+		--cuda)
 			TMP_IS_FOR_COMPILER=no
+			MPC_USE_CUDA="yes"
 			;;
 		-show)
 			TMP_IS_FOR_COMPILER=no

@@ -23,9 +23,6 @@
 /* ######################################################################## */
 
 #include <mpc_config.h>
-
-#ifdef MPC_USE_CUDA
-
 #include <mpc_thread_accelerator.h>
 #include <sctk_alloc.h>
 #include <mpc_common_debug.h>
@@ -46,7 +43,7 @@ static int sctk_accl_cuda_check_devices() {
 	// if CUDA support is loaded but the current configuration does not
 	// provide a GPU: stop
 	if (num_devices <= 0) {
-		mpc_common_debug_warning("CUDA: support enabled but no GPU found !");
+		mpc_common_nodebug("CUDA: support enabled but no GPU found !");
 		return 0;
 	}
 
@@ -208,7 +205,7 @@ int sctk_accl_cuda_push_context() {
  * @return 0 if succeeded, 1 otherwise
  */
 int sctk_accl_cuda_init() {
-	if (mpc_common_get_flags()->enable_accelerators)
+	if (mpc_common_get_flags()->enable_cuda)
 	{
 		safe_cudadv(cuInit(0));
 		return 0;
@@ -217,24 +214,10 @@ int sctk_accl_cuda_init() {
 }
 
 /**
- * Release the CUDA contexts with MPC
+ * Release Globals CUDA contexts
  */
-void sctk_accl_cuda_release_context()
+void sctk_accl_release_global_cuda_context()
 {
-	// release context created by cuda support
-	if (mpc_common_get_flags()->enable_accelerators)
-	{
-		cuda_ctx_t *cuda = (cuda_ctx_t *) sctk_cuda_ctx;
-
-		CUdevice device;
-		safe_cudadv(cuCtxGetDevice(&device));
-		mpc_common_debug("CUDA: (RELEASE) PU %d bound to device %d",
-		                 cuda->cpu_id, device);
-
-		cuCtxDestroy(cuda->context);
-		sctk_cuda_ctx = NULL;
-	}
-	
 	// cuda runtime segfault after main if not release explicitly
 	// one primary context per gpu device
 	int num_devices = 1;
@@ -273,6 +256,27 @@ void sctk_accl_cuda_release_context()
 	}
 }
 
+/**
+ * Release the CUDA contexts with MPC
+ */
+void sctk_accl_cuda_release_context()
+{
+	// release context created by cuda support
+	if (mpc_common_get_flags()->enable_cuda)
+	{
+		cuda_ctx_t *cuda = (cuda_ctx_t *) sctk_cuda_ctx;
+
+		CUdevice device;
+		safe_cudadv(cuCtxGetDevice(&device));
+		mpc_common_debug("CUDA: (RELEASE) PU %d bound to device %d",
+		                 cuda->cpu_id, device);
+
+		cuCtxDestroy(cuda->context);
+		sctk_cuda_ctx = NULL;
+	}
+	sctk_accl_release_global_cuda_context();
+}
+
 /*********************************
  * MPC CUDA INIT FUNCTION *
  *********************************/
@@ -291,5 +295,3 @@ void mpc_accelerator_cuda_register_function()
 	                                  "Release per VP CUDA context",
 	                                  sctk_accl_cuda_release_context, 22);
 }
-
-#endif // MPC_USE_CUDA
