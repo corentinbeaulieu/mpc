@@ -564,7 +564,7 @@ int lcp_context_fini(lcp_context_h ctx)
         //FIXME: free devices
         for (i=0; i<ctx->num_resources; i++) {
                 sctk_free(ctx->devices);
-                free(ctx->resources[i].name);
+                sctk_free(ctx->resources[i].name);
         }
         sctk_free(ctx->resources);
         sctk_free(ctx->progress_counter);
