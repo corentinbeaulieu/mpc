@@ -183,7 +183,6 @@ int sctk_accl_hip_push_context() {
 	if ((num_devices = sctk_accl_hip_check_devices()) == 0)
 		return 1;
 
-
 	// else, we try to push a ctx in GPU queue
 	hip_ctx_t *hip = (hip_ctx_t *) sctk_hip_ctx;
 
@@ -213,6 +212,49 @@ int sctk_accl_hip_init() {
 	return 1;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /**
  * Release the HIP contexts with MPC
  */
@@ -221,6 +263,10 @@ void sctk_accl_hip_release_context()
 	// release context created by hip support
 	if (mpc_common_get_flags()->enable_rocm)
 	{
+		int num_devices;
+		if ((num_devices = sctk_accl_hip_check_devices()) == 0)
+			return;
+
 		hip_ctx_t *hip = (hip_ctx_t *) sctk_hip_ctx;
 
 		hipDevice_t device;
@@ -231,6 +277,7 @@ void sctk_accl_hip_release_context()
 		hipCtxDestroy(hip->context);
 		sctk_hip_ctx = NULL;
 	}
+
 }
 
 /*********************************

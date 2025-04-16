@@ -183,7 +183,6 @@ int sctk_accl_cuda_push_context() {
 	if ((num_devices = sctk_accl_cuda_check_devices()) == 0)
 		return 1;
 
-
 	// else, we try to push a ctx in GPU queue
 	cuda_ctx_t *cuda = (cuda_ctx_t *) sctk_cuda_ctx;
 
@@ -264,6 +263,10 @@ void sctk_accl_cuda_release_context()
 	// release context created by cuda support
 	if (mpc_common_get_flags()->enable_cuda)
 	{
+		int num_devices;
+		if ((num_devices = sctk_accl_cuda_check_devices()) == 0)
+			return;
+
 		cuda_ctx_t *cuda = (cuda_ctx_t *) sctk_cuda_ctx;
 
 		CUdevice device;
