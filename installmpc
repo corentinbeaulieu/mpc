@@ -1377,7 +1377,7 @@ do
 			;;
 		--with-cuda=*)
 			extractParamValue 'CUDA_PREFIX' 'with-cuda' "$arg"
-			MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --with-cuda=yes"
+			MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --with-cuda=yes --with-cuda-prefix=${CUDA_PREFIX}"
 			;;
 		################### ROCM ###################
 		--with-rocm)
@@ -1385,14 +1385,14 @@ do
 			;;
 		--with-rocm=*)
 			extractParamValue 'ROCM_PREFIX' 'with-rocm' "$arg"
-			MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --with-rocm=amd"
+			MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --with-rocm=amd --with-rocm-prefix=${ROCM_PREFIX}"
 			;;
 		--with-rocm-nvidia)
 			MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --with-cuda=yes --with-rocm=nvidia"
 			;;
 		--with-rocm-nvidia=*)
 			extractParamValue 'ROCM_PREFIX' 'with-rocm' "$arg"
-			MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --with-cuda=yes --with-rocm=nvidia"
+			MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --with-cuda=yes --with-rocm=nvidia --with-rocm-prefix=${ROCM_PREFIX}"
 			;;
 		################### OTHER GPU ###################
 		--with-openacc=*)

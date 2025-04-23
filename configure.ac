@@ -1343,15 +1343,19 @@ AC_DEFINE_UNQUOTED([MPC_LAUNCHER], [$MPC_LAUNCHER], [Default launcher configured
 AC_CHECKING([CUDA])
 
 AC_ARG_WITH([cuda],
-[AS_HELP_STRING([--with-cuda],
-                [Enable CUDA context switching])],
-[mpc_cuda_ctx_switch=$withval],
-[mpc_cuda_ctx_switch=no])
+			[AS_HELP_STRING([--with-cuda], [Enable CUDA context switching])],
+			[mpc_cuda_ctx_switch=$withval],
+			[mpc_cuda_ctx_switch=no])
+
+AC_ARG_WITH([cuda-prefix],
+			[AS_HELP_STRING([--with-cuda-prefix], [CUDA installation PREFIX])],
+			[mpc_cuda_prefix=$withval],
+			[mpc_cuda_prefix="/usr"])
 
 cuda_enabled="no"
 if test "x$mpc_cuda_ctx_switch" = "xyes"
 then
-        MPC_DETECT_DEPENDENCY([cuda.h], [cuda], [cuMemFree], [CUDA])
+        MPC_DETECT_DEPENDENCY([$mpc_cuda_prefix/include/cuda.h], [cuda], [cuMemFree], [CUDA])
         MPC_REQUIRED_DEPENDENCY([cuda], [$mpc_dep_found])
 
         AC_DEFINE([MPC_USE_CUDA], [1], [CUDA support is enabled])
@@ -1367,10 +1371,14 @@ AM_CONDITIONAL([MPC_CUDA_ENABLED], [test "x$cuda_enabled" = "xyes"])
 AC_CHECKING([ROCM])
 
 AC_ARG_WITH([rocm],
-[AS_HELP_STRING([--with-rocm],
-                [Enable ROCM context switching])],
-[mpc_rocm_ctx_switch=$withval],
-[mpc_rocm_ctx_switch=no])
+			[AS_HELP_STRING([--with-rocm], [Enable ROCM context switching])],
+			[mpc_rocm_ctx_switch=$withval],
+			[mpc_rocm_ctx_switch=no])
+
+AC_ARG_WITH([rocm-prefix],
+			[AS_HELP_STRING([--with-rocm-prefix], [ROCM installation PREFIX])],
+			[mpc_rocm_prefix=$withval],
+			[mpc_rocm_prefix="/usr"])
 
 rocm_enabled="no"
 if test "x$mpc_rocm_ctx_switch" = "xyes" -o "x$mpc_rocm_ctx_switch" = "xamd" -o "x$mpc_rocm_ctx_switch" = "xnvidia"
@@ -1387,7 +1395,7 @@ then
 	fi
 
 	# detecting HIP runtime
-	MPC_DETECT_DEPENDENCY([/usr/include/hip/hip_runtime.h], [amdhip64], [hipFree], [ROCM])
+	MPC_DETECT_DEPENDENCY([$mpc_rocm_prefix/include/hip/hip_runtime.h], [amdhip64], [hipFree], [ROCM])
 	MPC_REQUIRED_DEPENDENCY([rocm], [$mpc_dep_found])
 
 	# define HIP
