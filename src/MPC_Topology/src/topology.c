@@ -652,105 +652,101 @@ hwloc_cpuset_t _mpc_topology_get_first_pu_for_level( hwloc_topology_t target_top
 	return roots;
 }
 
-int __mpc_topology_get_distance_from_pu_fill_prefix( hwloc_obj_t *prefix,
-										    hwloc_obj_t target_obj )
+size_t __mpc_topology_get_depth(hwloc_obj_t target_obj)
 {
-	/* Register in the tree */
-	if ( !target_obj )
-		return 0;
+	assume(target_obj != NULL);
 
-	int depth = 0;
-
+	size_t depth = 1;
+	
 	/* Compute depth as it is not set for
      * PCI devices ... */
 	hwloc_obj_t cur = target_obj;
 
-	while ( cur->parent )
+	while (cur->parent)
 	{
 		depth++;
-		cur = cur->parent;
-	}
-
-	/* Set depth +1 as NULL */
-	prefix[depth + 1] = NULL;
-
-	/* Prepare to walk up the tree */
-	cur = target_obj;
-	int cur_depth = depth;
-
-	mpc_common_nodebug( "================\n" );
-
-	while ( cur )
-	{
-		mpc_common_nodebug( "%d == %d == %s", cur_depth, cur->logical_index,
-					  hwloc_obj_type_string( cur->type ) );
-		prefix[cur_depth] = cur;
-		cur_depth--;
 		cur = cur->parent;
 	}
 
 	return depth;
 }
 
-int _mpc_topology_get_distance_from_pu(hwloc_topology_t target_topo, int source_pu, hwloc_obj_t target_obj )
+void __mpc_topology_fill_prefix(hwloc_obj_t *prefix,
+		size_t prefix_len, hwloc_obj_t target_obj)
 {
-	hwloc_obj_t source_pu_obj = hwloc_get_obj_by_type( target_topo, HWLOC_OBJ_PU, source_pu );
+	/* Set depth +1 as NULL */
+	prefix[prefix_len] = NULL;
+
+	/* Walk up the tree */
+	hwloc_obj_t cur = target_obj;
+	size_t cur_depth = prefix_len - 1;
+	while (cur)
+	{
+		mpc_common_nodebug("%d == %d == %s", cur_depth, cur->logical_index,
+				hwloc_obj_type_string(cur->type));
+		prefix[cur_depth] = cur;
+		cur_depth--;
+		cur = cur->parent;
+	}
+}
+
+int _mpc_topology_get_distance_from_pu(hwloc_topology_t target_topo,
+		int source_pu, hwloc_obj_t target_obj)
+{
+	hwloc_obj_t source_pu_obj =
+		hwloc_get_obj_by_type(target_topo, HWLOC_OBJ_PU, source_pu);
 
 	/* No such PU then no distance */
 	if ( !source_pu_obj )
 		return -1;
 
 	/* Compute topology depth */
-	int _mpc_topology_depth = hwloc_topology_get_depth( target_topo );
+	//DO NOT USE hwloc_topology_get_depth to compute topology tree depth
+	//from hwloc documentation:
+	//This is the depth of ::HWLOC_OBJ_PU objects plus one.
+	//\return the depth of the object tree.
+	//\note NUMA nodes, I/O and Misc objects are ignored when co
+	//the depth of the tree (they are placed on special levels).
+	//int _mpc_topology_depth = hwloc_topology_get_depth( target_topo );
+	size_t pu_depth = __mpc_topology_get_depth(source_pu_obj);
+	size_t obj_depth = __mpc_topology_get_depth(target_obj);
 
 	/* Allocate prefix lists */
-	hwloc_obj_t *prefix_PU =
-		sctk_malloc( ( _mpc_topology_depth + 1 ) * sizeof( hwloc_obj_t ) );
-	hwloc_obj_t *prefix_target =
-		sctk_malloc( ( _mpc_topology_depth + 1 ) * sizeof( hwloc_obj_t ) );
+	hwloc_obj_t *prefix_PU = sctk_malloc(pu_depth * sizeof(hwloc_obj_t));
+	hwloc_obj_t *prefix_target = sctk_malloc(obj_depth * sizeof(hwloc_obj_t));
 
-	assume( prefix_PU != NULL );
-	assume( prefix_target != NULL );
-
-	/* Fill them with zeroes */
-	int i;
-	for ( i = 0; i < _mpc_topology_depth; i++ )
-	{
-		prefix_PU[i] = NULL;
-		prefix_target[i] = NULL;
-	}
+	assume(prefix_PU != NULL);
+	assume(prefix_target != NULL);
 
 	/* Compute the prefix of the two objects in the tree */
-	int pu_depth =
-	 __mpc_topology_get_distance_from_pu_fill_prefix( prefix_PU, source_pu_obj );
-	int obj_depth =
-	 __mpc_topology_get_distance_from_pu_fill_prefix( prefix_target, target_obj );
+	__mpc_topology_fill_prefix(prefix_PU, pu_depth, source_pu_obj);
+	__mpc_topology_fill_prefix(prefix_target, obj_depth, target_obj);
 
 	/* Extract the common prefix */
-	int common_prefix = 0;
-	for ( i = 0; i < _mpc_topology_depth; i++ )
+	size_t min_depth = (pu_depth < obj_depth ? pu_depth : obj_depth); // min
+	size_t common_prefix = 0;
+	for (size_t i = 0; i < min_depth; i++)
 	{
-		if ( prefix_PU[i] != NULL && prefix_PU[i]->type == prefix_target[i]->type &&
-			 prefix_PU[i]->logical_index == prefix_target[i]->logical_index )
+		if (prefix_PU[i] != NULL
+			&& prefix_PU[i]->type == prefix_target[i]->type 
+			&& prefix_PU[i]->logical_index == prefix_target[i]->logical_index)
 		{
 			common_prefix = i;
-		}
-		else
-		{
+		} else {
 			break;
 		}
 	}
 
 	/* From this we know that the distance is the sum of the two prefixes
          * without the common part plus one */
-	int distance = ( pu_depth + obj_depth - ( common_prefix * 2 ) );
+	int distance = (pu_depth + obj_depth - (common_prefix * 2));
 
-	mpc_common_nodebug( "Common prefix %d PU %d OBJ %d == %d", common_prefix,
-				  pu_depth, obj_depth, distance );
+	mpc_common_nodebug("Common prefix %d PU %d OBJ %d == %d", common_prefix,
+		pu_depth, obj_depth, distance );
 
 	/* Free prefixes */
-	sctk_free( prefix_PU );
-	sctk_free( prefix_target );
+	sctk_free(prefix_PU);
+	sctk_free(prefix_target);
 
 	/* Return the distance */
 	return distance;

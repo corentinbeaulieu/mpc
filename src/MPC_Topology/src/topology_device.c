@@ -538,10 +538,15 @@ int rocm_device_to_locate = 0;
 		hipGetDeviceCount(&rocm_device_to_locate);
 #endif
 
-	for (int i = 0;
-	     i < __mpc_topology_device_list_count && 
-	     (cuda_device_to_locate > 0 || rocm_device_to_locate > 0);
-	     i++)
+#if defined(MPC_USE_CUDA) || defined(MPC_USE_ROCM)
+	if ((mpc_common_get_flags()->enable_cuda
+		|| mpc_common_get_flags()->enable_rocm)
+		&& __mpc_topology_device_list_count == 0)
+		mpc_common_debug_fatal("MPC TOPO: ACCELERATION DEVICE(S) REQUIRED "
+			"BUT HWLOC FOUND 0 PCI DEVICES");
+#endif
+
+	for (int i = 0; i < __mpc_topology_device_list_count; i++)
 	{
 		mpc_topology_device_t *device = &__mpc_topology_device_list[i];
 
@@ -557,7 +562,6 @@ int rocm_device_to_locate = 0;
 
 		// Read the PCI bus ID from the found attr
 		sscanf(cur_attr, "busid=%s", busid_str);
-
 
 		// Query device infos from CUDA and HIP
 		bool is_cuda = false;
@@ -579,12 +583,19 @@ int rocm_device_to_locate = 0;
 
 		#ifdef MPC_USE_ROCM
 		if (mpc_common_get_flags()->enable_rocm) {
-			hipDevice_t dev = 0;
-			hipError_t test = hipDeviceGetByPCIBusId(&dev, busid_str);
-			// if the PCI bus ID matches a ROCM-enabled device
-			if(test == hipSuccess) {
-				rocm_device_id = (int) dev;
-				is_rocm = true;
+			// Each rocm cards apears 3 times:
+			// Once as 'card', once as 'renderD' and once as 'rsmi'
+			if (device->name
+				&& strlen(device->name) >= 4
+				&& strncmp("rsmi", device->name, 4) == 0)
+			{
+				hipDevice_t dev = 0;
+				hipError_t test = hipDeviceGetByPCIBusId(&dev, busid_str);
+				// if the PCI bus ID matches a ROCM-enabled device
+				if(test == hipSuccess) {
+					rocm_device_id = (int) dev;
+					is_rocm = true;
+				}
 			}
 		}
 		#endif
@@ -615,10 +626,10 @@ int rocm_device_to_locate = 0;
 			int check = snprintf(name, name_size,
 			                     "%s%d", name_prefix, device_id);
 			assert(check < name_size);
+			mpc_common_debug("Detected GPU: %s -> %s (%s)\n",
+			                 device->name, name, busid_str);
 			device->name = name;
 			device->device_id = device_id;
-			mpc_common_nodebug("Detected GPU: %s (%s)\n",
-			                         device->name, busid_str);
 		} else {
 			if (device->name == NULL)
 				device->name = "Unknown";
@@ -628,12 +639,12 @@ int rocm_device_to_locate = 0;
 
 	if (cuda_device_to_locate != 0)
 		mpc_common_debug_warning(
-			"Unable to get topology location for: %d CUDA devices.\n",
+			"Unable to get topology location for %d CUDA devices.\n",
 			cuda_device_to_locate);
 
 	if (rocm_device_to_locate > 0)
 		mpc_common_debug_warning(
-			"Unable to get topology location for: %d ROCM devices.\n",
+			"Unable to get topology location for %d ROCM devices.\n",
 			rocm_device_to_locate);
 }
 
@@ -690,15 +701,14 @@ static inline void __topology_device_matrix_init( hwloc_topology_t topology )
 	__mpc_topology_device_matrix.pu_count = mpc_topology_get_pu_count();
 	__mpc_topology_device_matrix.distances = sctk_malloc( sizeof( int ) * __mpc_topology_device_matrix.device_count * __mpc_topology_device_matrix.pu_count );
 	assume( __mpc_topology_device_matrix.distances != NULL );
-	int i, j;
 
 	/* For each device */
-	for ( i = 0; i < __mpc_topology_device_matrix.device_count; i++ )
+	for (int i = 0; i < __mpc_topology_device_matrix.device_count; i++ )
 	{
 		hwloc_obj_t device_obj = __mpc_topology_device_list[i].obj;
 
 		/* For each PU */
-		for ( j = 0; j < __mpc_topology_device_matrix.pu_count; j++ )
+		for (int j = 0; j < __mpc_topology_device_matrix.pu_count; j++ )
 		{
 			int *cell = __topology_device_matrix_get_cell( j, i );
 
@@ -869,10 +879,9 @@ void _mpc_topology_device_init( hwloc_topology_t topology )
 #endif
 
 #if 0
-	int j;
-	for ( j = 0; j < __mpc_topology_device_list_count; j++ )
+	for (int j = 0; j < __mpc_topology_device_list_count; j++ )
 	{
-	 mpc_topology_device_print( &__mpc_topology_device_list[i] );
+		mpc_topology_device_print( &__mpc_topology_device_list[j] );
 	}
 #endif
 	/* Now initialize the device distance matrix */
