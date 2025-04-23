@@ -119,14 +119,16 @@ void sctk_accl_hip_init_context() {
 		(hipDevice_t) sctk_accl_hip_get_closest_device(hip->cpu_id);
 
 
-
-
 	safe_hip(
 		hipCtxCreate(&hip->context, hipDeviceScheduleYield, nearest_device));
+
+
 	hip->pushed = 1;
 
-	mpc_common_debug("HIP: (INIT) PU %d bound to device %d",
-	                 hip->cpu_id, nearest_device);
+	hipDevice_t device;
+	safe_hip(hipCtxGetDevice(&device));
+	mpc_common_debug("HIP: (INIT) PU %d bound to device %d (%d)\n",
+	                 hip->cpu_id, device, nearest_device);
 
 	// Set the current pointer as default one for the current thread
 	sctk_hip_ctx = hip;
@@ -161,7 +163,12 @@ int sctk_accl_hip_pop_context() {
 	// This allow us to maintain save()/restore() operations independent
 	// from each other
 	if (hip->pushed) {
-		safe_hip(hipCtxPopCurrent(hip->context));
+		//hipDevice_t device;
+		//safe_hip(hipCtxGetDevice(&device));
+		//mpc_common_debug("HIP: (POP) PU %d bound to device %d\n",
+		//                 hip->cpu_id, device);
+
+		safe_hip(hipCtxPopCurrent(&hip->context));
 		hip->pushed = 0;
 	}
 
@@ -194,6 +201,11 @@ int sctk_accl_hip_push_context() {
 	if (!hip->pushed) {
 		safe_hip(hipCtxPushCurrent(hip->context));
 		hip->pushed = 1;
+
+		//hipDevice_t device;
+		//safe_hip(hipCtxGetDevice(&device));
+		//mpc_common_debug("HIP: (PUSH) PU %d bound to device %d\n",
+		//                 hip->cpu_id, device);
 	}
 	return 0;
 }
@@ -271,7 +283,7 @@ void sctk_accl_hip_release_context()
 
 		hipDevice_t device;
 		safe_hip(hipCtxGetDevice(&device));
-		mpc_common_debug("HIP: (RELEASE) PU %d bound to device %d",
+		mpc_common_debug("HIP: (RELEASE) PU %d bound to device %d\n",
 		                 hip->cpu_id, device);
 
 		hipCtxDestroy(hip->context);

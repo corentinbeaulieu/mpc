@@ -125,6 +125,8 @@ void sctk_accl_cuda_init_context() {
 	// cuCtxCreate_v3 automatically attaches the ctx to the GPU
 	cuda->pushed = 1;
 
+
+
 	mpc_common_debug("CUDA: (INIT) PU %d bound to device %d",
 	                 cuda->cpu_id, nearest_device);
 
@@ -161,6 +163,11 @@ int sctk_accl_cuda_pop_context() {
 	// This allow us to maintain save()/restore() operations independent
 	// from each other
 	if (cuda->pushed) {
+
+
+
+
+
 		safe_cudadv(cuCtxPopCurrent(&cuda->context));
 		cuda->pushed = 0;
 	}
@@ -194,6 +201,11 @@ int sctk_accl_cuda_push_context() {
 	if (!cuda->pushed) {
 		safe_cudadv(cuCtxPushCurrent(cuda->context));
 		cuda->pushed = 1;
+
+
+
+
+
 	}
 	return 0;
 }
