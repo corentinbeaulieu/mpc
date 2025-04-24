@@ -44,6 +44,7 @@
 #endif
 
 void sctk_accl_init();
-size_t sctk_accl_get_nb_devices();
+size_t sctk_accl_get_nb_cuda_devices();
+size_t sctk_accl_get_nb_hip_devices();
 
 #endif
