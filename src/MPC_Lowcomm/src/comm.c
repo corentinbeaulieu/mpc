@@ -3197,10 +3197,13 @@ void mpc_lowcomm_request_init(mpc_lowcomm_request_t *request,
                               mpc_lowcomm_complete_callback_func_t cb,
                               unsigned flags)
 {
-        request->datatype         = datatype;
-        request->count            = count;
-        request->request_complete = cb;
-        request->flags            = flags;
+        request->header.source_task = 0;
+        request->datatype           = datatype;
+        request->count              = count;
+        request->request_complete   = cb;
+        request->flags              = flags;
+        request->dt_magic           = 0;
+        request->is_allocated       = false;
 }
 
 int mpc_lowcomm_request_cancel(mpc_lowcomm_request_t *msg)

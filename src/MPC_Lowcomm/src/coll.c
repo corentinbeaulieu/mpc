@@ -332,6 +332,7 @@ static _mpc_coll_messages_t *_mpc_coll_message_table_get_item( _mpc_coll_message
 static void _mpc_coll_message_table_init( _mpc_coll_messages_table_t *tab )
 {
 	tab->nb_used = 0;
+	memset(tab->msg_req, 0, sizeof(_mpc_coll_messages_t) * 64);
 }
 
 /*********************************
