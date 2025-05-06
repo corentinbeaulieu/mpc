@@ -656,16 +656,15 @@ size_t __mpc_topology_get_depth(hwloc_obj_t target_obj)
 {
 	assume(target_obj != NULL);
 
-	size_t depth = 1;
-	
 	/* Compute depth as it is not set for
      * PCI devices ... */
 	hwloc_obj_t cur = target_obj;
 
+	size_t depth = 1;
 	while (cur->parent)
 	{
-		depth++;
 		cur = cur->parent;
+		depth++;
 	}
 
 	return depth;
@@ -712,8 +711,10 @@ int _mpc_topology_get_distance_from_pu(hwloc_topology_t target_topo,
 	size_t obj_depth = __mpc_topology_get_depth(target_obj);
 
 	/* Allocate prefix lists */
-	hwloc_obj_t *prefix_PU = sctk_malloc(pu_depth * sizeof(hwloc_obj_t));
-	hwloc_obj_t *prefix_target = sctk_malloc(obj_depth * sizeof(hwloc_obj_t));
+	hwloc_obj_t *prefix_PU = sctk_malloc(
+								(pu_depth + 1) * sizeof(hwloc_obj_t));
+	hwloc_obj_t *prefix_target = sctk_malloc(
+								(obj_depth + 1) * sizeof(hwloc_obj_t));
 
 	assume(prefix_PU != NULL);
 	assume(prefix_target != NULL);
