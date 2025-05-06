@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <regex.h>
+#include <stdbool.h>
 
 #include <sctk_alloc.h>
 
