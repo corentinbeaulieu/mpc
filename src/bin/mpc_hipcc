@@ -35,67 +35,28 @@ eval $("${SCRIPTPATH}/mpc_cflags" --sh -p -s -cxx -f)
 LDFLAGS=$("${MPC_INSTALL_PREFIX}/bin/mpc_ldflags")
 
 # Source Common function library
-
-# shellcheck source=/dev/null
 . "${MPC_SHARE_DIR}/mpc_compiler_common.sh"
+
+COMPILER="hipcc"
 
 parse_cli_args "$@"
 
-if [ "${MPC_USE_CUDA}" = "yes" ]
+if [ "${MPC_HIP_USE_CUDA}" = "yes" ]
 then
 	export HIP_PLATFORM="nvidia"
 else
 	export HIP_PLATFORM="amd"
 fi
 
-# Update compiler in case CXX was altered by CLI
-COMPILER="hipcc"
+#
+# HIP does not support using an other compiler for host build sa of now.
+# Privatization cannot be used with mpc_hipcc.
+#
 
 # Add forwaders for NVCC
-LDFLAGS=$(echo "$LDFLAGS" | sed -e 's/\-Wl,/-Xlinker /g' -e 's/ -B/ -Xcompiler &/g')
-
-
-# FIXME: add support for excluding host global variables from rocm
-#
-# NVCC additionnal blacklisting
-#
-
-#Used by nvcc to automatically blacklist some var patterns
-#list_cuda_global_vars()
-#{
-#	CUDA_FILE="/tmp/cuda_tmp_main${RANDOM}.cu"
-#
-#cat<< EOF_FILE > ${CUDA_FILE}
-##include <stdlib.h>
-#
-#__global__
-#void foo(void)
-#{
-#}
-#
-#int main(int argc, char ** argv)
-#{
-#	return 0;
-#}
-#EOF_FILE
-#
-#	IFS="
-#	"
-#
-#	tmp=""
-#	for decl in `${COMPILER} -Xcompiler -fmpc-privatize ${CUDA_FILE} -Xcompiler -B${MPC_INSTALL_PREFIX}/bin 2>&1 | grep "MPC task" | sed -e 's/.*variable //g' -e 's/ in file.*//g'`
-#	do
-#		tmp="${tmp}:${decl}"
-#	done
-#
-#	echo "${tmp}"
-#	rm ${CUDA_FILE}
-#}
-#
-#compiler_is_privatizing "${1}"
-#
-#if test "x${RES}" = "xyes"; then
-#	append_to "CFLAGS" "-fno-priv-var=$(list_cuda_global_vars)"
-#fi
+CFLAGS=$(echo "$CFLAGS" \
+  | sed -e 's/ -f/ -Xcompiler -f/g')
+LDFLAGS=$(echo "$LDFLAGS" \
+  | sed -e 's/\-Wl,/-Xlinker /g' -e 's/ -B/ -Xcompiler &/g')
 
 run_compiler

@@ -36,10 +36,7 @@ eval $("${SCRIPTPATH}/mpc_cflags" --sh -p -s -cxx -f)
 COMPILER="$CXX"
 LDFLAGS=$("${MPC_INSTALL_PREFIX}/bin/mpc_ldflags")
 
-
 # Source Common function library
-
-# shellcheck source=/dev/null
 . "${MPC_SHARE_DIR}/mpc_compiler_common.sh"
 
 parse_cli_args "$@"

@@ -37,8 +37,6 @@ COMPILER="$CC"
 LDFLAGS=$("${MPC_INSTALL_PREFIX}/bin/mpc_ldflags")
 
 # Source Common function library
-
-# shellcheck source=/dev/null
 . "${MPC_SHARE_DIR}/mpc_compiler_common.sh"
 
 # This is the MPI class compiler proxy
@@ -48,16 +46,14 @@ LDFLAGS=$("${MPC_INSTALL_PREFIX}/bin/mpc_ldflags")
 # you can export MPI_PRIV to do it from here
 # or just use their mpc_* counterpart
 
-MPI_PRIV_ARG=""
-
-compiler_is_privatizing "mpc_cc"
-
 # here, 4 scenarios
 # 1. CC is priv && User wants to privatize -> priv flag
 # 2. CC is priv User doesn't want to privatize/don't care -> nopriv flag
 # 3. CC is not priv && User don't care --> NO flag (<== default)
 # 4. CC it not priv && User wants to priv --> ERR
-if test "x${RES}" = "xyes"; then
+MPI_PRIV_ARG=""
+if compiler_is_privatizing "mpc_cc"
+then
 	if test -n "$MPI_PRIV"; then
 		#Scenario 1
 		MPI_PRIV_ARG="-fmpc-privatize"

@@ -39,8 +39,6 @@ eval $("${SCRIPTPATH}/mpc_cflags" --sh -p -s -fc -cc -f -t --fortran)
 COMPILER="$FC"
 
 # Source Common function library
-
-# shellcheck source=/dev/null
 . "${MPC_SHARE_DIR}/mpc_compiler_common.sh"
 
 append_to "CFLAGS" "-fPIC"
@@ -51,8 +49,6 @@ set_fortran
 parse_cli_args "$@"
 
 # It is not possible to change CC for Fortran
-
-
 
 # Determine if we need to link to the privatized libmpc_fortran
 # mpc_ldflags does it for us just tell it if we privatize or not
@@ -65,7 +61,7 @@ fi
 
 # Important we need to make sure the right libgfortran is used
 # if the compiler is altered with -cc= to do so we use a gcc
-# commanf to resolve the libgfortran as seen from the compiler
+# command to resolve the libgfortran as seen from the compiler
 # and to add it as a RPATH
 locate_libgfortran()
 {
@@ -234,7 +230,10 @@ compile_and_patch_source_files()
 			# Compile source file
 			$MPC_COMMAND_WRAPPER $COMPILER $CFLAGS ${ARGS_NO_SOURCES} "${source_file}" $LDFLAGS -c -o "${TMP_OBJ_FILE}"
 
-			check_rc "$?"
+			if [ "x$?" != "x0" ]
+			then
+				exit "$?"
+			fi
 
 			# Check if patching is needed
 			scan_and_patch_o_file "${TMP_OBJ_FILE}"

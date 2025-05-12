@@ -34,10 +34,17 @@ prefix_bin_SCRIPTS=mpcvars.sh
 if MPC_CUDA_ENABLED
    bin_SCRIPTS += mpc_nvcc
 endif
+
+#
+# Hip support
+#
 if MPC_ROCM_ENABLED
    bin_SCRIPTS += mpc_hipcc
 endif
 
+#
+# MPC_Lowcomm Options
+#
 bin_PROGRAMS=
 
 if MPC_LOWCOMM_ENABLED

@@ -35,59 +35,61 @@ eval $("${SCRIPTPATH}/mpc_cflags" --sh -p -s -cxx -f)
 LDFLAGS=$("${MPC_INSTALL_PREFIX}/bin/mpc_ldflags")
 
 # Source Common function library
-
-# shellcheck source=/dev/null
 . "${MPC_SHARE_DIR}/mpc_compiler_common.sh"
+
+COMPILER="nvcc --compiler-bindir ${CXX}"
+PRIV_COMPILER="${CXX}"
 
 parse_cli_args "$@"
 
-# Update compiler in case CXX was altered by CLI
-COMPILER="nvcc --compiler-bindir ${CXX}"
-
-# Add forwaders for NVCC
-LDFLAGS=$(echo "$LDFLAGS" | sed -e 's/\-Wl,/-Xlinker /g' -e 's/ -B/ -Xcompiler &/g')
-
-
 #
 # NVCC additionnal blacklisting
+# (disable as it does not work and it does not seams to be an issue)
+# If necessary, fixe autopriv so that the 'sed' in the following block
+# is valide and reenable globals variables blacklisting.
 #
 
 #Used by nvcc to automatically blacklist some var patterns
-list_cuda_global_vars()
-{
-	CUDA_FILE="/tmp/cuda_tmp_main${RANDOM}.cu"
+#list_cuda_global_vars()
+#{
+#	CUDA_FILE="/tmp/cuda_tmp_main${RANDOM}.cu"
+#
+#cat<< EOF_FILE > ${CUDA_FILE}
+##include <stdlib.h>
+#
+#__global__
+#void foo(void)
+#{
+#}
+#
+#int main(int argc, char ** argv)
+#{
+#	return 0;
+#}
+#EOF_FILE
+#
+#	tmp=""
+#	for decl in $(${COMPILER} -Xcompiler -fmpc-privatize ${CUDA_FILE}\
+#		-Xcompiler -B${MPC_INSTALL_PREFIX}/bin 2>&1\
+#		| grep "MPC task"\
+#		| sed -e 's/.*variable \(.*\) in file.*/\1/g')
+#	do
+#		tmp="${tmp}:${decl}"
+#	done
+#
+#	echo "${tmp}"
+#	rm ${CUDA_FILE}
+#}
 
-cat<< EOF_FILE > ${CUDA_FILE}
-#include <stdlib.h>
+#if compiler_is_privatizing "${CXX}"
+#then
+#	append_to "CFLAGS" "-fno-priv-var=$(list_cuda_global_vars)"
+#fi
 
-__global__
-void foo(void)
-{
-}
-
-int main(int argc, char ** argv)
-{
-	return 0;
-}
-EOF_FILE
-
-	IFS="
-	"
-
-	tmp=""
-	for decl in `${COMPILER} -Xcompiler -fmpc-privatize ${CUDA_FILE} -Xcompiler -B${MPC_INSTALL_PREFIX}/bin 2>&1 | grep "MPC task" | sed -e 's/.*variable //g' -e 's/ in file.*//g'`
-	do
-		tmp="${tmp}:${decl}"
-	done
-
-	echo "${tmp}"
-	rm ${CUDA_FILE}
-}
-
-compiler_is_privatizing "${1}"
-
-if test "x${RES}" = "xyes"; then
-	append_to "CFLAGS" "-fno-priv-var=$(list_cuda_global_vars)"
-fi
+# Add forwaders for NVCC
+CFLAGS=$(echo "$CFLAGS" \
+  | sed -e 's/ -f/ -Xcompiler -f/g')
+LDFLAGS=$(echo "$LDFLAGS" \
+  | sed -e 's/\-Wl,/-Xlinker /g' -e 's/ -B/ -Xcompiler &/g')
 
 run_compiler

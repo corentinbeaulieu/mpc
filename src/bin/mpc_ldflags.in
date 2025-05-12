@@ -164,8 +164,8 @@ for arg in "$@" ; do
 		print_var "CFLAGS" "$FLAGS"
 		;;
 	--sh|--fortran|--priv)
-	# Handled in the first pass
-	;;
+		# Handled in the first pass
+		;;
 	*)
 		show_help
 		exit 0

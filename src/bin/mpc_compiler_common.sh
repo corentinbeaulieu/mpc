@@ -1,5 +1,49 @@
 #!/bin/sh
 
+#
+# Options
+#
+# Do we have to link eventually?
+MPC_DOING_LINK=yes
+# Are we using the pre-processor ? default to NO until seeing -E
+MPC_DOING_PREPROC=no
+# All args concerning the compiling process (w/out mpc_cc-related options)
+COMPILATION_ARGS=""
+# Output file argument
+OUTPUT_FILE_ARGS=""
+# Default included MPC header
+MPC_HEADER_INCLUDE="-include mpc.h"
+# This variable is updated to 'echo' when '-show' is active
+MPC_COMMAND_WRAPPER="eval"
+# Are we using cuda from HIP
+MPC_HIP_USE_CUDA="no"
+# Is Privatization flag already set
+PRIV_FLAG_SET=""
+# Is privatization enabled
+# By default priv is enabled in mpc_cc
+DO_PRIV="yes"
+# Are we compiling Fortran code
+IS_FORTRAN="no"
+
+# Show options
+SHOW_COMPILE="no"
+SHOW_ARGS="no"
+SHOW_LINK="no"
+SHOW_COMMAND="no"
+
+# The compiler use for privatization may not be tyhe main compiler,
+# in the cuda/hip case, it is the HOST compiler that is called using
+# nvcc or hipcc wrapper.
+# So we need to differentiate the (main) COMPILER from the PRIV_COMPILER
+if [ "x$PRIV_COMPILER" = "x" ]
+then
+	PRIV_COMPILER=${COMPILER}
+fi
+
+#
+# Basic Functions
+#
+
 die()
 {
 	printf "Error: %s\n" "$@" 1>&2
@@ -16,83 +60,25 @@ info()
 	printf "%s\n" "$@" 1>&2
 }
 
-check_rc()
-{
-	if test "x$1" != "x0" ; then
-		exit "$1"
-	fi
-}
-
-#used to override option w/ compiler specific when option has been provided
-# $1: var name
-# $2: compiler-specific option
-override_var_if_isset()
-{
-	content="`eval echo "$"${1}`"
-	if [ ! -z "${content}" ]
-	then
-		content="${2}"
-	else
-		content=""
-	fi
-
-	eval "${1}=${content}"
-}
-
-CACHED_RES_FOR_PRIV_COMP=""
-
 compiler_is_privatizing()
 {
-	if test -n "$CACHED_RES_FOR_PRIV_COMP"; then
-		RES="${CACHED_RES_FOR_PRIV_COMP}"
-	fi
-
-	${1} "--ap-help" > /dev/null 2>&1
-
-	if test "x$?" != "x0"; then
-		RES="no"
-	else
-		RES="yes"
-	fi
-
-	CACHED_RES_FOR_PRIV_COMP="${RES}"
-}
-
-assert_compiler_is_privatizing()
-{
-	compiler_is_privatizing "${1}"
-
-	shift
-
-	if test "x${RES}" = "xno"; then
-		die "$@"
-	fi
+	return "$(${1} "--ap-help" > /dev/null 2>&1; echo $?)"
 }
 
 warn_if_compiler_not_privatizing()
 {
-	compiler_is_privatizing "${1}"
-
-	shift
-
-	if test "x${RES}" = "xno"; then
+	if ! compiler_is_privatizing "${1}"
+	then
+		shift
 		warn "$@"
 	fi
 }
 
-mpc_disable_header_privarization()
+mpc_disable_header_privatization()
 {
-	compiler_is_privatizing "${1}"
-
-	if test "x${RES}" = "xyes"; then
+	if compiler_is_privatizing "${1}"
+	then
 		append_to "CFLAGS" "-fno-priv-file=mpc_mpi_comm_lib.h:mpcmicrothread.h:ompt.h"
-	fi
-}
-
-print_if_stdout()
-{
-	if test -t 1; then
-		printf "%s" "$@" 1>&2
 	fi
 }
 
@@ -106,11 +92,6 @@ append_to()
 
 	eval "${1}=\"${val}${2}\""
 }
-
-SHOW_COMPILE="no"
-SHOW_ARGS="no"
-SHOW_LINK="no"
-SHOW_COMMAND="no"
 
 handle_show_args()
 {
@@ -129,60 +110,31 @@ handle_show_args()
 	fi
 }
 
-
-# Do we have to link eventually?
-MPC_DOING_LINK=yes
-# Are we using the pre-processor ? default to NO until seeing -E
-MPC_DOING_PREPROC=no
-# All args concerning the compiling process (w/out mpc_cc-related options)
-COMPILATION_ARGS=""
-# Output file argument
-OUTPUT_FILE_ARGS=""
-# Default included MPC header
-MPC_HEADER_INCLUDE="-include mpc.h"
-# This variable is updated to 'echo' when '-show' is active
-MPC_COMMAND_WRAPPER="eval"
-# Are we using cuda from HIP
-MPC_USE_CUDA="no"
-
-PRIV_FLAG_ALREADY_SET=""
-# By default priv is enabled in mpc_cc if the compiler supports it
-DO_PRIV="yes"
-
-compiler_is_privatizing "$COMPILER"
-
-if test "x${RES}" = "xno"; then
-	DO_PRIV="no"
-fi
-
 mpc_enable_priv()
 {
-	if test -n "$PRIV_FLAG_ALREADY_SET"; then
+	if test -n "$PRIV_FLAG_SET"; then
 		return
 	fi
 
-	compiler_is_privatizing "$1"
-
-	if test "x${RES}" = "xyes"; then
+	if compiler_is_privatizing "${1}"
+	then
 		append_to "CFLAGS" "-fmpc-privatize"
 	fi
 
-	PRIV_FLAG_ALREADY_SET="yes"
+	PRIV_FLAG_SET="yes"
 }
 
-IS_FORTRAN="no"
 set_fortran()
 {
 	IS_FORTRAN="yes"
 }
-
 
 show_help()
 {
 	if "${COMPILER}" "--help" > /dev/null 2>&1; then
 		"${COMPILER}" "--help"
 	else
-		echo "INFO: target compiler \'${COMPILER}' does not seem to handle the --help flag"
+		echo "INFO: target compiler '${COMPILER}' does not seem to handle the --help flag"
 	fi
 
 	#And now we add the help for MPC
@@ -194,7 +146,7 @@ Options below are specific to $(basename "$0") for use with MPC.
 
 Changing compiler:
 
--cc=[COMP]	      : change the default compiler to COMP
+-cc=[COMP]          : change the default compiler to COMP
 
 Getting informations from the wrapper:
 
@@ -210,7 +162,8 @@ MPC main rewrite:
 -fno-mpc-include    : do not include MPC header for main rewrite
 EOF
 
-if compiler_is_privatizing "${COMPILER}"; then
+if compiler_is_privatizing "${PRIV_COMPILER}"
+then
 cat << EOF
 
 Privatization:
@@ -219,17 +172,9 @@ Privatization:
 -fno-mpc-privatize  : disable global variable privatization
 
 EOF
-
-
 fi
-
-
 	exit 0
-
 }
-
-
-
 
 #
 # Parse Command Line arguments and store those for the compiler
@@ -273,7 +218,6 @@ parse_cli_args()
 			# The compiler links by default
 			MPC_DOING_LINK=no
 			;;
-
 		-cc=*)
 			COMPILER=$(echo "A$arg" | sed -e 's/^A-cc=//g')
 			COMPILER=$(command -v "${COMPILER}" || echo "${COMPILER}")
@@ -303,14 +247,15 @@ parse_cli_args()
 			TMP_IS_FOR_COMPILER=no
 			;;
 		-fmpc-privatize|-fmpcprivatize|-f-mpc-privatize)
-			warn_if_compiler_not_privatizing "$COMPILER" "cannot pass $arg to a non-privarizing compiler"
+			warn_if_compiler_not_privatizing "$PRIV_COMPILER" \
+				"Cannot pass $arg to $PRIV_COMPILER (a non-privarizing compiler)"
 			DO_PRIV="yes"
 			TMP_IS_FOR_COMPILER=no
 			;;
 		-fno-mpc-privatize|-fno-mpcprivatize|-fnompc-privatize|-fnompcprivatize)
-			warn_if_compiler_not_privatizing "$COMPILER" "Cannot pass $arg to a non-privarizing compiler"
+			warn_if_compiler_not_privatizing "$PRIV_COMPILER" \
+				"Cannot pass $arg to $PRIV_COMPILER (a non-privarizing compiler)"
 			DO_PRIV="no"
-
 			TMP_IS_FOR_COMPILER=no
 			;;
 		-fmpc-include)
@@ -326,8 +271,7 @@ parse_cli_args()
 			deprectated_option
 			;;
 		--cuda)
-			TMP_IS_FOR_COMPILER=no
-			MPC_USE_CUDA="yes"
+			MPC_HIP_USE_CUDA="yes"
 			;;
 		-show)
 			TMP_IS_FOR_COMPILER=no
@@ -349,23 +293,28 @@ parse_cli_args()
 		# Update compiler arguments
 		if [ $TMP_IS_FOR_COMPILER = yes ] ; then
 			# Thanks to Bernd Mohr for the following that handles quotes and spaces
-			modarg=`echo "x$arg" | sed -e 's/^x//' -e 's/"/\\\"/g' -e s,\',%@%\',g -e 's/%@%/\\\/g' -e 's/ /\\\ /g' -e 's#(#\\\(#g' -e 's#)#\\\)#g'`
+			modarg=`echo "x$arg" | sed \
+				-e 's/^x//' \
+				-e 's/"/\\\"/g' \
+				-e s,\',%@%\',g \
+				-e 's/%@%/\\\/g' \
+				-e 's/ /\\\ /g' \
+				-e 's#(#\\\(#g' \
+				-e 's#)#\\\)#g'`
 			COMPILATION_ARGS="$COMPILATION_ARGS $modarg"
 		fi
 	done
 
-
 	if test "x${DO_PRIV}" = "xyes"; then
-		mpc_enable_priv "$COMPILER"
+		mpc_enable_priv "$PRIV_COMPILER"
 	fi
 
-	mpc_disable_header_privarization "$COMPILER"
+	mpc_disable_header_privatization "$PRIV_COMPILER"
 
 	if test "x${IS_FORTRAN}" = "xno"; then
 		if test "$MPC_DOING_PREPROC" = "yes"; then
 			MPC_HEADER_INCLUDE=""
 		fi
-
 		COMPILATION_ARGS="${COMPILATION_ARGS} ${MPC_HEADER_INCLUDE}"
 	fi
 
@@ -386,29 +335,25 @@ run_compiler()
 {
 	#Only pass link flags when linking
 	FINAL_LDFLAGS=""
-
-	if [ "$MPC_DOING_LINK" = yes ] ; then
-
-		if test "$USE_COMMAND" = "1"; then
+	if [ "$MPC_DOING_LINK" = yes ]
+		then
+		if [ "$USE_COMMAND" = "1" ]
+		then
 			LDFLAGS=""
 			CFLAGS=""
 		fi
-
 		# Append LDFLAGS to COMPILATION arguments
 		FINAL_LDFLAGS="$LDFLAGS"
 	fi
 
-	#shellcheck disable=SC2086
-	${MPC_COMMAND_WRAPPER} ${COMPILER} ${CFLAGS} ${COMPILATION_ARGS} ${FINAL_LDFLAGS} ${OUTPUT_FILE_ARGS}
-	rc=$?
-
-	exit $rc
+	${MPC_COMMAND_WRAPPER} ${COMPILER} ${CFLAGS} ${COMPILATION_ARGS}\
+		${FINAL_LDFLAGS} ${OUTPUT_FILE_ARGS}
+	exit $?
 }
 
 #
 #Fortran Main Renaming Helpers
 #
-
 
 ##########################################
 # Check if object in $1 contains symbol $2
