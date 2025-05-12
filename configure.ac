@@ -151,8 +151,6 @@ if test -f "${prefix}/bin/mpc_status"; then
         AC_MSG_NOTICE([It is recommended to remove MPC beforehand to avoid conflicts.])
         AC_MSG_NOTICE([PROCEED at your OWN RISKS !!])
         AC_MSG_NOTICE([!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!])
-        AC_MSG_WARN([You have 5 seconds to abort.])
-        sleep 5
 fi
 
 ####################################
@@ -498,6 +496,7 @@ ___unset_lib_cache()
 # $1 lib name
 # $2 lib function name
 # $3 provided prefix
+# $4 lib code
 #
 # Sets check_or_infer_prefix_include or returns ""
 #
@@ -790,21 +789,40 @@ fi
 LIBS_LIST_WITH_PATHS=""
 
 #
-# $1 header_name (ex. hwloc.h)
-# $2 libname     (ex. hwloc)
-# $3 looked up function (ex. hwloc_topology_init)
-# $4 LIBCODE (ex XML, HWLOC, ...)
-# $5 optionnal library version (need pkg-config)
-# $6 optionnal lib_prefix
-# $7 optionnal alternative lib name (when different from pkg_config)
+# $1 header_name (ex. hip_runtime.h)
+# $2 common_name (ex. rocm)
+# $3 libname     (ex. amdhip64)
+# $4 looked up function (ex. hwloc_topology_init)
+# $5 LIBCODE (ex XML, HWLOC, ...)
+# $6 optionnal library version (need pkg-config)
+# $7 optionnal lib_prefix
+# $8 optionnal alternative lib name (when different from pkg_config)
 #
 AC_DEFUN([MPC_DETECT_DEPENDENCY],
          [
                 AS_VAR_PUSHDEF([dep_found], [mpc_dep_found])
+
+                #AC_MSG_NOTICE(["MPC_DETEC_DEP call with 1:$1, 2:$2, 3:$3, 4:$4, 5:$5, 6:$6, 7:$7, 8:$8"])
+
+                header_name="$1"
+                common_name="$2"
+                libname="$3"
+                function_name="$4"
+                lib_code="$5"
+                version="$6"
+                inc_prefix=""
+                lib_prefix="$7"
+                alt_libname="$8"
+
                 AC_ARG_WITH([$2],
                 [AS_HELP_STRING([--with-$2],
                                 [Provide prefix for $2])],
-                [whole_prefix=$withval],[whole_prefix="/usr/"])
+                [whole_prefix=$withval],[whole_prefix="/usr"])
+                # allow to use package without specifying a prefix.
+                if test "x${whole_prefix}" = "xyes"
+                then
+                    whole_prefix="/usr"
+                fi
 
                 # As spack may export paths inside the env (e.g. CPATH)
                 # pkg-config way deduplicate them however we want to
@@ -812,29 +830,24 @@ AC_DEFUN([MPC_DETECT_DEPENDENCY],
                 # we then use this variable to inhibit this behavior
                 export PKG_CONFIG_ALLOW_SYSTEM_CFLAGS=1
 
-                if test "x${whole_prefix}" != "xno"; then
+                if test "x${whole_prefix}" != "xno"
+                then
                         # This IF is long !!
                         # >>>>>>>>>>>>>>>>>>>
-                        inc_prefix=""
+
                         AC_ARG_WITH([$2-inc],
                         [AS_HELP_STRING([--with-$2-inc],
                                         [Provide include path for $2])],
                         [inc_prefix=$withval],[])
-                        lib_prefix=""
+
                         AC_ARG_WITH([$2-libs],
                         [AS_HELP_STRING([--with-$2-libs],
                                         [Provide library path for $2])],
-                        [lib_prefix=$withval],[lib_prefix="$6"])
+                        [lib_prefix=$withval],[lib_prefix=$lib_prefix])
 
                         check_or_infer_prefix_result="no"
-                        header_name=$1
-                        libname=$2
-                        alt_libname=$7
-                        function_name=$3
-                        var_prefix=$4
-                        version="$5"
 
-                        if test -z "$lib_prefix"
+                        if test -z "${lib_prefix}"
                         then
                                 lib_prefix="$whole_prefix/lib"
                         fi
@@ -855,34 +868,39 @@ AC_DEFUN([MPC_DETECT_DEPENDENCY],
                                 inc_prefix="$whole_prefix/include/"
                         fi
 
-
-                        AC_SUBST([$4_CFLAGS])
-                        AC_SUBST([$4_LIBS])
+                        # $5 is $lib_code, but autoconf variable substitution is broken, as usual
+                        AC_SUBST([$5_CFALGS])
+                        AC_SUBST([$5_LIBS])
 
                         #echo "PREF : $whole_prefix LIB: $lib_prefix INC: $inc_prefix"
 
                         # First try with PKG config
                         AC_MSG_NOTICE([Locating $libname$version with pkg-config])
-                        PKG_CHECK_MODULES([$4], [$libname $version], [pkg_found=1], [pkg_found=0])
+                        # $5 is $lib_code, but autoconf variable substitution is broken, as usual
+                        PKG_CHECK_MODULES([$5], [$libname $version], [pkg_found=1], [pkg_found=0])
 
                         if test "x$pkg_found" = "x1"
                         then
                                 # Make sure lib paths are explicitly known
 
-                                $4_LIBS=$(extract_pkg_config_lib_prefixes "$libname" "${$4_LIBS}")
-                                $4_CFLAGS=$(extract_pkg_config_inc_prefixes "$libname" "${$4_CFLAGS}")
+                                # $5 is $lib_code, but autoconf variable substitution is broken, as usual
+                                $5_LIBS=$(extract_pkg_config_lib_prefixes "$libname" "${$5_LIBS}")
+                                $5_CFLAGS=$(extract_pkg_config_inc_prefixes "$libname" "${$5_CFLAGS}")
 
                                 # Ensure PKG config dependencies are also
                                 # injected using RPATH
-                                $4_LIBS=$(promote_to_rpath ${$4_LIBS})
-                                AC_MSG_NOTICE([$4 FLAGS are ${$4_LIBS}])
+                                # $5 is $lib_code, but autoconf variable substitution is broken, as usual
+                                $5_LIBS=$(promote_to_rpath ${$5_LIBS})
+                                AC_MSG_NOTICE([$lib_code FLAGS are ${$5_LIBS}])
 
                                 #Insert flags
-                                CPPFLAGS="${$4_CFLAGS} $CPPFLAGS"
-                                LDFLAGS="${$4_LIBS} $LDFLAGS"
+                                # $5 is $lib_code, but autoconf variable substitution is broken, as usual
+                                CPPFLAGS="${$5_CFLAGS} $CPPFLAGS"
+                                LDFLAGS="${$5_LIBS} $LDFLAGS"
 
-                                AC_SUBST([$4_CFLAGS])
-                                AC_SUBST([$4_LIBS])
+                                # $5 is $lib_code, but autoconf variable substitution is broken, as usual
+                                AC_SUBST([$5_CFLAGS])
+                                AC_SUBST([$5_LIBS])
 
                                 AC_MSG_NOTICE([$libname found using pkg-config])
 
@@ -899,13 +917,13 @@ AC_DEFUN([MPC_DETECT_DEPENDENCY],
 
                                 check_or_infer_prefix_result="yes"
                         else
-                                __check_or_infer_prefix_include "$header_name" "$inc_prefix" "$var_prefix"
+                                __check_or_infer_prefix_include "$header_name" "$inc_prefix" "$lib_code"
 
                                 if test -n "${alt_libname}"; then
                                         libname="${alt_libname}"
                                 fi
 
-                                __check_or_infer_prefix_lib "$libname" "$function_name" "$lib_prefix" "$var_prefix"
+                                __check_or_infer_prefix_lib "$libname" "$function_name" "$lib_prefix" "$lib_code"
 
                                 if test "x$check_or_infer_prefix_include" = "xyes" -a "x$check_or_infer_prefix_lib" = "xyes"
                                 then
@@ -916,12 +934,12 @@ AC_DEFUN([MPC_DETECT_DEPENDENCY],
                         fi
 
 
-                        AC_MSG_CHECKING([$2 cflags])
-                        XXCFLAGS=$(eval echo \${$4_CFLAGS})
+                        AC_MSG_CHECKING([${common_name} cflags])
+                        XXCFLAGS=$(eval echo \${${lib_code}_CFLAGS})
                         AC_MSG_RESULT([$XXCFLAGS])
 
-                        AC_MSG_CHECKING([$2 ldflags])
-                        XXLIB=$(eval echo \${$4_LIBS})
+                        AC_MSG_CHECKING([${common_name} ldflags])
+                        XXLIB=$(eval echo \${${lib_code}_LIBS})
                         AC_MSG_RESULT([$XXLIB])
 
                         echo $LIBS_WITH_PATH
@@ -930,7 +948,7 @@ AC_DEFUN([MPC_DETECT_DEPENDENCY],
 
                         AS_VAR_SET([dep_found], [$check_or_infer_prefix_result])
                 else
-                        AC_MSG_NOTICE([!! $2 is explicitly deactivated])
+                        AC_MSG_NOTICE([!! ${common_name} is explicitly deactivated])
                         AS_VAR_SET([dep_found], ["no"])
                 fi
                 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -949,10 +967,10 @@ AC_DEFUN([MPC_REQUIRED_DEPENDENCY],
                 fi
          ])
 
-MPC_DETECT_DEPENDENCY([hwloc.h],[hwloc], [hwloc_topology_init], [HWLOC], [> 2.0.0])
+MPC_DETECT_DEPENDENCY([hwloc.h], [hwloc], [hwloc], [hwloc_topology_init], [HWLOC], [> 2.0.0])
 MPC_REQUIRED_DEPENDENCY([hwloc], [$mpc_dep_found])
 
-MPC_DETECT_DEPENDENCY([opa_config.h],[openpa], [OPA_Queue_init], [OPA], [], [], [opa])
+MPC_DETECT_DEPENDENCY([opa_config.h], [openpa], [openpa], [OPA_Queue_init], [OPA], [], [], [opa])
 
 AC_ARG_ENABLE([rpmbuild],
 [AS_HELP_STRING([--enable-rpmbuild],
@@ -981,7 +999,7 @@ AC_ARG_ENABLE([ck],
                               [use_ck=maybe])
 
 if test "x$use_ck" = "xyes"; then
-    MPC_DETECT_DEPENDENCY([ck_stack.h],[ck], [ck_stack_pop_upmc], [CK], [], [], [ck])
+    MPC_DETECT_DEPENDENCY([ck_stack.h], [ck], [ck], [ck_stack_pop_upmc], [CK], [], [], [ck])
     MPC_REQUIRED_DEPENDENCY([ck], [$mpc_dep_found])
     AC_DEFINE([MPC_USE_CK], [1], [concurrency-kit support is enabled])
     ck_enabled="yes"
@@ -1005,7 +1023,7 @@ MPC_ALLOCATOR_PRELOAD="libmpcalloc.so"
 
 if test ! "x${use_mpcalloc}" = "xno"; then
 
-        MPC_DETECT_DEPENDENCY([mpcalloc.h], [mpcalloc], [sctk_malloc], [ALLOC])
+        MPC_DETECT_DEPENDENCY([mpcalloc.h], [mpcalloc], [mpcalloc], [sctk_malloc], [ALLOC])
         if test "x$mpc_dep_found" = "xyes"; then
                 AC_DEFINE([MPC_Allocator], [1], [mpcalloc support is enabled])
                 MPC_ALLOCATOR="mpcalloc"
@@ -1044,7 +1062,7 @@ AC_ARG_ENABLE([am],
 
 MPC_HAVE_AM="no"
 
-MPC_DETECT_DEPENDENCY([ffi.h], [libffi], [ffi_prep_cif], [FFI])
+MPC_DETECT_DEPENDENCY([ffi.h], [libffi], [libffi], [ffi_prep_cif], [FFI])
 HAVE_LIB_FFI="no"
 
 if test "x$mpc_dep_found" = "xyes"; then
@@ -1077,7 +1095,7 @@ AM_CONDITIONAL([MPC_HAVE_AM], [test "x$MPC_HAVE_AM" = "xyes"])
 mpc_libvmem="no"
 
 # First use the pkgconfig naming scheme
-MPC_DETECT_DEPENDENCY([libvmem.h], [libvmem], [vmem_create], [VMEM])
+MPC_DETECT_DEPENDENCY([libvmem.h], [libvmem], [libvmem], [vmem_create], [VMEM])
 
 if test "x$mpc_dep_found" = "xyes"; then
         AC_DEFINE([MPC_HAVE_LIBVMEM], [1], [libvmem support is enabled])
@@ -1093,7 +1111,7 @@ AC_MSG_RESULT([$mpc_libvmem])
 mpc_libunwind="no"
 
 # First use the pkgconfig naming scheme
-MPC_DETECT_DEPENDENCY([libunwind.h], [libunwind], [unw_init_local], [UNW])
+MPC_DETECT_DEPENDENCY([libunwind.h], [libunwind], [libunwind], [unw_init_local], [UNW])
 
 if test "x$mpc_dep_found" = "xyes"; then
         AC_DEFINE([MPC_HAVE_LIBUNWIND], [1], [libunwind support is enabled])
@@ -1115,7 +1133,7 @@ MPC_NETWORK_LIST="tcp shm"
 
 ofi_enabled="no"
 
-MPC_DETECT_DEPENDENCY([fabric.h], [libfabric], [ofi_wait_init], [OFI], [], [], [fabric])
+MPC_DETECT_DEPENDENCY([fabric.h], [libfabric], [libfabric], [ofi_wait_init], [OFI], [], [], [fabric])
 if test "x$mpc_dep_found" = "xyes"; then
         MPC_NETWORK_LIST="$MPC_NETWORK_LIST ofi"
         AC_DEFINE([MPC_USE_OFI], [1], [Libfabric support is enabled])
@@ -1132,7 +1150,7 @@ AC_SUBST([MPC_NETWORK_LIST])
 
 portals4_enabled="no"
 
-MPC_DETECT_DEPENDENCY([portals4.h], [portals], [PtlGet], [PORTALS])
+MPC_DETECT_DEPENDENCY([portals4.h], [portals],[portals], [PtlGet], [PORTALS])
 if test "x$mpc_dep_found" = "xyes"; then
         MPC_NETWORK_LIST="$MPC_NETWORK_LIST portals4 portals4_am"
         AC_DEFINE([MPC_USE_PORTALS], [1], [Portals support is enabled])
@@ -1235,12 +1253,12 @@ build_hydra=no
 if test "x$mpc_pmi1_enabled" != "xno"; then
         MPC_LAUNCHER="PMI1"
 
-        MPC_DETECT_DEPENDENCY([pmi.h],[pmi], [PMI_Finalize], [PMI])
+        MPC_DETECT_DEPENDENCY([pmi.h], [pmi], [pmi], [PMI_Finalize], [PMI])
         MPC_REQUIRED_DEPENDENCY([pmi], [$mpc_dep_found])
         AC_DEFINE([MPC_USE_PMI1], [1], [PMI1 will be used to launch parallel programs])
 elif test "x$mpc_pmix_enabled" != "xno"; then
         MPC_LAUNCHER="PMIX"
-        MPC_DETECT_DEPENDENCY([pmix.h],[pmix], [PMIx_Finalize], [PMIX])
+        MPC_DETECT_DEPENDENCY([pmix.h], [pmix], [pmix], [PMIx_Finalize], [PMIX])
         MPC_REQUIRED_DEPENDENCY([pmix], [$mpc_dep_found])
         AC_DEFINE([MPC_USE_PMIX], [1], [PMIX will be used to launch parallel programs])
 
@@ -1344,22 +1362,16 @@ AC_CHECKING([CUDA])
 
 AC_ARG_WITH([cuda],
 			[AS_HELP_STRING([--with-cuda], [Enable CUDA context switching])],
-			[mpc_cuda_ctx_switch=$withval],
-			[mpc_cuda_ctx_switch=no])
-
-AC_ARG_WITH([cuda-prefix],
-			[AS_HELP_STRING([--with-cuda-prefix], [CUDA installation PREFIX])],
-			[mpc_cuda_prefix=$withval],
-			[mpc_cuda_prefix="/usr"])
+			[mpc_cuda_ctx_switch=$withval], [mpc_cuda_ctx_switch=no])
 
 cuda_enabled="no"
-if test "x$mpc_cuda_ctx_switch" = "xyes"
+if test "x$mpc_cuda_ctx_switch" != "xno"
 then
-        MPC_DETECT_DEPENDENCY([$mpc_cuda_prefix/include/cuda.h], [cuda], [cuMemFree], [CUDA])
-        MPC_REQUIRED_DEPENDENCY([cuda], [$mpc_dep_found])
+		MPC_DETECT_DEPENDENCY([cuda.h], [cuda], [cuda], [cuMemFree], [CUDA])
+		MPC_REQUIRED_DEPENDENCY([cuda], [$mpc_dep_found])
 
-        AC_DEFINE([MPC_USE_CUDA], [1], [CUDA support is enabled])
-        cuda_enabled="yes"
+		AC_DEFINE([MPC_USE_CUDA], [1], [CUDA support is enabled])
+		cuda_enabled="yes"
 fi
 
 AM_CONDITIONAL([MPC_CUDA_ENABLED], [test "x$cuda_enabled" = "xyes"])
@@ -1372,30 +1384,30 @@ AC_CHECKING([ROCM])
 
 AC_ARG_WITH([rocm],
 			[AS_HELP_STRING([--with-rocm], [Enable ROCM context switching])],
-			[mpc_rocm_ctx_switch=$withval],
-			[mpc_rocm_ctx_switch=no])
+			[mpc_rocm_ctx_switch=$withval], [mpc_rocm_ctx_switch=no])
 
-AC_ARG_WITH([rocm-prefix],
-			[AS_HELP_STRING([--with-rocm-prefix], [ROCM installation PREFIX])],
-			[mpc_rocm_prefix=$withval],
-			[mpc_rocm_prefix="/usr"])
+AC_ARG_WITH([rocm-mod],
+			[AS_HELP_STRING([--with-rocm-mod], [Enable ROCM context switching])],
+			[mpc_rocm_mod=$withval],
+			[mpc_rocm_mod=amd])
 
 rocm_enabled="no"
-if test "x$mpc_rocm_ctx_switch" = "xyes" -o "x$mpc_rocm_ctx_switch" = "xamd" -o "x$mpc_rocm_ctx_switch" = "xnvidia"
+if ( test "x$mpc_rocm_ctx_switch" != "xno" && ( test "x$mpc_rocm_mod" = "xamd" || test "x$mpc_rocm_mod" = "xnvidia" ))
 then
 	# selecting ROCM/HIP mode
-	if test "x$mpc_rocm_ctx_switch" = "xnvidia"
+	if test "x$mpc_rocm_mod" = "xnvidia"
 	then
 		AC_DEFINE(__HIP_PLATFORM_NVIDIA__, [1], [ROCM mode: NVIDIA])
 		AC_DEFINE([MPC_HIP_PLATFORM_NVIDIA], [1], [ROCM mode: NVIDIA])
-		# we assume that cuda is also enable
+		# we assume that cuda is also enable (should be constrained by mpcinstall)
 	else
 		AC_DEFINE(__HIP_PLATFORM_AMD__, [1], [ROCM mode: AMD])
 		AC_DEFINE([MPC_HIP_PLATFORM_AMD], [1], [ROCM mode: AMD])
 	fi
 
 	# detecting HIP runtime
-	MPC_DETECT_DEPENDENCY([$mpc_rocm_prefix/include/hip/hip_runtime.h], [amdhip64], [hipFree], [ROCM])
+	# on ubuntu, use: --with-rocm-libs="/usr/lib/x86_64-linux-gnu"
+	MPC_DETECT_DEPENDENCY([hip/hip_runtime.h], [rocm], [amdhip64], [hipFree], [ROCM])
 	MPC_REQUIRED_DEPENDENCY([rocm], [$mpc_dep_found])
 
 	# define HIP
@@ -2919,7 +2931,7 @@ autopriv_support_found="no"
 
 if test "x$enable_mpc_proces_mode" = "xno"; then
 
-        MPC_DETECT_DEPENDENCY([extls.h],[autopriv], [extls_init], [EXTLS])
+        MPC_DETECT_DEPENDENCY([extls.h], [autopriv], [autopriv], [extls_init], [EXTLS])
         if test "x$mpc_dep_found" = "xyes"; then
                 AC_DEFINE([MPC_USE_EXTLS], [1], [Extls support is enabled])
                 autopriv_support_found="yes"

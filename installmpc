@@ -951,8 +951,7 @@ build_configure_based_package()
 
 		locate_tarball "$package" "$version"
 
-		checking "Extracting $package-$version"
-
+		checking "Extracting $package-$version (from $TARBALL_PATH)"
 
 		if test ! -f "$TARBALL_PATH"; then
 			nok
@@ -1373,26 +1372,26 @@ do
 			;;
 		################### CUDA ###################
 		--with-cuda)
-			MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --with-cuda=yes"
+			MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --with-cuda"
 			;;
 		--with-cuda=*)
 			extractParamValue 'CUDA_PREFIX' 'with-cuda' "$arg"
-			MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --with-cuda=yes --with-cuda-prefix=${CUDA_PREFIX}"
+			MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --with-cuda=${CUDA_PREFIX}"
 			;;
 		################### ROCM ###################
 		--with-rocm)
-			MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --with-rocm=amd"
+			MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --with-rocm"
 			;;
 		--with-rocm=*)
 			extractParamValue 'ROCM_PREFIX' 'with-rocm' "$arg"
-			MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --with-rocm=amd --with-rocm-prefix=${ROCM_PREFIX}"
+			MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --with-rocm=${ROCM_PREFIX}"
 			;;
 		--with-rocm-nvidia)
-			MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --with-cuda=yes --with-rocm=nvidia"
+			MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --with-cuda --with-rocm --with-rocm-mod=nvidia"
 			;;
 		--with-rocm-nvidia=*)
 			extractParamValue 'ROCM_PREFIX' 'with-rocm' "$arg"
-			MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --with-cuda=yes --with-rocm=nvidia --with-rocm-prefix=${ROCM_PREFIX}"
+			MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --with-cuda --with-rocm=${ROCM_PREFIX} --with-rocm-mod=nvidia"
 			;;
 		################### OTHER GPU ###################
 		--with-openacc=*)
