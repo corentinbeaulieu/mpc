@@ -31,14 +31,18 @@ SHOW_ARGS="no"
 SHOW_LINK="no"
 SHOW_COMMAND="no"
 
+
+PRIV_COMP_IS_DEFAULT="no"
 # The compiler use for privatization may not be tyhe main compiler,
 # in the cuda/hip case, it is the HOST compiler that is called using
 # nvcc or hipcc wrapper.
 # So we need to differentiate the (main) COMPILER from the PRIV_COMPILER
 if [ "x$PRIV_COMPILER" = "x" ]
 then
-	PRIV_COMPILER=${COMPILER}
+	PRIV_COMPILER="${COMPILER}"
+	PRIV_COMP_IS_DEFAULT="yes"
 fi
+
 
 #
 # Basic Functions
@@ -222,6 +226,10 @@ parse_cli_args()
 			COMPILER=$(echo "A$arg" | sed -e 's/^A-cc=//g')
 			COMPILER=$(command -v "${COMPILER}" || echo "${COMPILER}")
 			TMP_IS_FOR_COMPILER=no
+			if [ "${PRIV_COMP_IS_DEFAULT}" = "yes" ]
+			then
+				PRIV_COMPILER="${COMPILER}"
+			fi
 			;;
 		-o)
 			TMP_HANDLE_O_FLAG=yes
