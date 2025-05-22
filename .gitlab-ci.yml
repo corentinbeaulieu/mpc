@@ -1,3 +1,9 @@
+#%YAML 1.1
+# Yaml version 1.1 is needed to avoid 'Map keys must be unique' error
+# when parsing yaml file with yamllint.
+# Gitlab yaml parser is broken and does not regognise the %YAML header...
+# TODO: Uncomment previous header when gitlab has been fixed.
+---
 #Available stages to run in 'automatic' processing:
 # For convenience, implicit stages have been made explicit here...
 stages:
@@ -18,22 +24,25 @@ variables:
   GL_BUILD_DIR: $GL_PIPELINE_PATH/build
   GL_INSTALL_DIR: $GL_PIPELINE_PATH/install
   GIT_DEPTH: 1 # No need to clone the whole history
-  GIT_CLONE_PATH: $GL_PIPELINE_PATH/$CI_RUNNER_ID/$CI_CONCURRENT_ID
-  PCVS_COMMAND: pcvs -v run --override --profile mpc --print errors -S
+  #GIT_CLONE_PATH: $GL_PIPELINE_PATH/$CI_RUNNER_ID/$CI_CONCURRENT_ID
+  PCVS_COMMAND: pcvs -v run --override --profile-path ${GL_PIPELINE_PATH}/mpc_ci/mpc.yml --print errors -S
 
 .pcvs_prepare: &pcvs_prepare
   - export CI_PCVS_DIR="$GL_PIPELINE_PATH/step_$(echo "$CI_JOB_NAME" | sed -e "s/ /_/g")/"
   - test -d "${CI_PCVS_DIR}" && rm -rf "${CI_PCVS_DIR}"
   - mkdir -p "${CI_PCVS_DIR}"
-  - cd "${GL_PIPELINE_PATH}" 
+  - cd "${GL_PIPELINE_PATH}"
+  - test "x${CI_BRANCH}" != "x" && echo "Using CI branch ${CI_BRANCH}"
   - mkdir mpc_ci 2>"/dev/null"
-      && git clone "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.paratools.com/cea/mpc_ci.git" $(test "x${CI_BRANCH}" != "x" && echo "-b ${CI_BRANCH}") "mpc_ci"
+      && git clone "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.ccc.ocre.cea.fr/cea-mpc-team/mpc-ci.git" $(test "x${CI_BRANCH}" != "x" && echo "-b ${CI_BRANCH}") "mpc_ci"
       || sleep 5s
   - cd "${CI_PCVS_DIR}"
   - echo "Step run from ${CI_PCVS_DIR}"
   - source ${GL_INSTALL_DIR}/mpcvars.sh
   - echo "MPC loaded from ${GL_INSTALL_DIR}/mpcvars.sh"
-
+  - source "$(ccc_home -u mpc)"/gitlab-runner/spack_organizer_inti/setup.sh
+  - spack env activate pcvs
+  - module load pmix
 
 # Template nodes to be inserted to any CI step.
 # This ensure the pipeline will be triggered only for these scenarios.
@@ -43,8 +52,6 @@ variables:
   - devel
   - merge_requests
   - web
-
-
   except:
     variables:
       # Skip MR labeled "CI::Disabled"
@@ -72,27 +79,13 @@ Env Sanitize:
     - test -d $GL_PIPELINE_PATH && rm -rf $GL_PIPELINE_PATH
     - mkdir -p $GL_PIPELINE_PATH
 
-# post-actions to cleanup the machine after the run
-# The last line may not be necessary as a pipeline start run something like a "git clean" before running
-# This implies a probable issue when multiple piplines are run concurrently on the same project :(
-# Please read the CAUTION above !
-Artifact Deletion:
-  <<: *run_by_main
-  stage: Finalization
-  allow_failure: true
-  when: on_success
-  script:
-    - rm -rf $GL_PIPELINE_PATH
-    - $HOME/clean_old_pipelines.sh
-
 Resource Relinquishing:
   <<: *run_by_main
   <<: *uses_slurm
   stage: Finalization
-  allow_failure: true
   when: always
   script:
-  #
+  # FIXME: re-setup job canncellation.
   - scancel --name GL-build_$CI_PIPELINE_ID
   # Ugly, our way to kill allocations from tests
   - scancel -u $USER
@@ -101,23 +94,30 @@ Resource Relinquishing:
 ####### CONF STAGE  ########
 ############################
 .conf_run_cmds: &configuration_commands
+  - echo "${GL_BUILD_DIR}"
+  - echo "${GL_INSTALL_DIR}"
   - rm -rf ${GL_LOCAL_BUILD_DIR} ${GL_LOCAL_INSTALL_DIR}
   - mkdir ${GL_LOCAL_BUILD_DIR}; cd ${GL_LOCAL_BUILD_DIR}
-  - ${CI_PROJECT_DIR}/installmpc -vv --force-spack-arch=x86_64_v2 --prefix=${GL_LOCAL_INSTALL_DIR} ${GL_INSTALL_OPTS}
+  - source "$(ccc_home -u mpc)"/gitlab-runner/spack_organizer_inti/setup.sh
+  - spack env activate pcvs
+  - module load pmix
+  - ln -sf "$(ccc_home -u mpc)"/mpc_deps "${HOME}"/.mpcdep
+  - ${CI_PROJECT_DIR}/installmpc -vv --prefix=${GL_LOCAL_INSTALL_DIR} ${GL_INSTALL_OPTS}
+  - spack env deactivate
 
-
+# Default configuration need pmix to work on inti.
 MPC Default Configuration:
   <<: *run_by_main
   stage: Regular Installation
   variables:
     GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}
     GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}
-    GL_INSTALL_OPTS: --mpc-option="--enable-debug" --with-pmi1
+    GL_INSTALL_OPTS: --enable-debug --with-pmix
   script:
-    - spack env activate mpc
     - *configuration_commands
-    - spack env deactivate
-
+  artifacts:
+    paths:
+      - ${GL_LOCAL_INSTALL_DIR}
 
 MPC Process Mode (no Spack):
   <<: *run_by_main
@@ -125,11 +125,9 @@ MPC Process Mode (no Spack):
   variables:
     GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}_nopriv_no_spack
     GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_nopriv
-    GL_INSTALL_OPTS: --disable-spack --disable-mpc-autopriv
+    GL_INSTALL_OPTS: --disable-mpc-autopriv --disable-spack
   script:
     - *configuration_commands
-
-
 
 MPC Process Mode:
   <<: *run_by_main
@@ -177,7 +175,7 @@ MPC Debug Messages:
   variables:
     GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}_debug
     GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_debug
-    GL_INSTALL_OPTS: --disable-mpc-autopriv --enable-debug --mpc-option="--enable-debug-messages"
+    GL_INSTALL_OPTS: --disable-mpc-autopriv --enable-debug
   script:
     - *configuration_commands
 
@@ -191,23 +189,24 @@ MPC Slurm:
   script:
     - *configuration_commands
 
-MPC PMIx:
+MPC Disable PMIX:
   <<: *run_by_main
   stage: Configurations
   variables:
-    GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}_pmix
-    GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_pmix
-    GL_INSTALL_OPTS: --disable-mpc-autopriv --with-pmix
+    GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}_nopmix
+    GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_nopmix
+    GL_INSTALL_OPTS: --disable-mpc-autopriv
   script:
     - *configuration_commands
 
+# NOTE: Will fail
 MPC Compilation Workshare:
   <<: *run_by_main
   stage: Configurations
   variables:
     GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}_workshare
     GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_workshare
-    GL_INSTALL_OPTS: --mpc-option="--enable-debug" --enable-workshare
+    GL_INSTALL_OPTS: --enable-workshare --enable-debug
   allow_failure: true
   script:
     - *configuration_commands
@@ -216,7 +215,12 @@ MPC Compilation Workshare:
 ####### TEST STAGE ########
 ############################
 
-# a BASIC one, to stop the pipeline early in case of major issue (not able to compile/run a simple test)
+#
+# Basic Testing
+# to stop the pipeline early in case of major issue 
+# (not able to compile/run a simple test)
+#
+
 Simple run:
   <<: *run_by_main
   <<: *uses_slurm
@@ -224,7 +228,6 @@ Simple run:
   script:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/trivial/"
-
 
 Privatization:
   <<: *run_by_main
@@ -235,8 +238,17 @@ Privatization:
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/privatization/"
 
 #
-## a regular test, to assess some basic MPC feature
+# Regular Testing
+# to assess some basic MPC feature
 #
+
+Lowcomm:
+  <<: *run_by_main
+  <<: *uses_slurm
+  stage: Regular Testing
+  script:
+    - *pcvs_prepare
+    - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/lowcomm/"
 
 MPI Simple C:
   <<: *run_by_main
@@ -254,34 +266,28 @@ MPI Simple Fortran:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/MPI/simple/fortran/"
 
-#MPI NBC:
-#  <<: *run_by_main
-#  <<: *uses_slurm
-#  stage: Regular Testing
-#  script:
-#    - *pcvs_prepare
-#    - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/MPI/NBC/"
-
-Lowcomm:
+OpenMP Tasking examples:
   <<: *run_by_main
   <<: *uses_slurm
   stage: Regular Testing
   script:
     - *pcvs_prepare
-    - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/lowcomm/"
+    - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/OpenMP/task/examples"
 
-OpenMP Tasking:
+OpenMP Tasking cholesky:
   <<: *run_by_main
   <<: *uses_slurm
   stage: Regular Testing
   script:
     - *pcvs_prepare
-    - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/OpenMP/task/examples $HOME/repo/mpc_ci/OpenMP/task/cholesky"
-  allow_failure: true
+    - module load llvm
+    - module load lapack/mkl
+    - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/OpenMP/task/cholesky"
 
 #
 # Benchmarks
 #
+
 MPI IMB-MPI 2017:
   <<: *run_by_main
   <<: *uses_slurm
@@ -289,14 +295,6 @@ MPI IMB-MPI 2017:
   script:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/MPI/IMB_2017/check-mpi/"
-
-MPI NBC:
-  <<: *run_by_main
-  <<: *uses_slurm
-  stage: Benchmarks
-  script:
-    - *pcvs_prepare
-    - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/MPI/NBC/"
 
 MPI IMB-NBC 2017:
   <<: *run_by_main
@@ -306,10 +304,17 @@ MPI IMB-NBC 2017:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/MPI/IMB_2017/check-nbc/"
 
+MPI NBC:
+  <<: *run_by_main
+  <<: *uses_slurm
+  stage: Benchmarks
+  script:
+    - *pcvs_prepare
+    - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/MPI/NBC/"
+
 #
 # Applications
 #
-
 
 Lulesh:
   <<: *run_by_main
@@ -318,14 +323,6 @@ Lulesh:
   script:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/corals/lulesh-2.0.3/"
-
-miniFe:
-  <<: *run_by_main
-  <<: *uses_slurm
-  stage: Applications
-  script:
-    - *pcvs_prepare
-    - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/corals/miniFe/"
 
 NAS-MZ MPI:
   <<: *run_by_main
@@ -343,6 +340,13 @@ NAS-MZ OMP:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/hybrid/NAS/MZ-OMP/"
 
+miniFe:
+  <<: *run_by_main
+  <<: *uses_slurm
+  stage: Applications
+  script:
+    - *pcvs_prepare
+    - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/corals/miniFe/"
 
 ###################################
 ####### MANUALLY TRIGGERED ########
