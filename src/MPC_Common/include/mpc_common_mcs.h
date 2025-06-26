@@ -22,7 +22,8 @@
 #ifndef MPC_COMMON_MCS_LOCK_H_
 #define MPC_COMMON_MCS_LOCK_H_
 
-#include "sctk_alloc_posix.h"
+#include "sctk_alloc.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
