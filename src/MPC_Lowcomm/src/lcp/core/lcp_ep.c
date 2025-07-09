@@ -374,7 +374,7 @@ static int lcp_ep_init_channels(lcp_manager_h mngr, lcp_ep_h ep, unsigned flags)
 	}
 
 	if (rc == MPC_LOWCOMM_ERROR) {
-		mpc_common_debug_error("LCP EP: No suitable Interfaces foud for communications. (make sure interfaces are configured correctly)");
+		mpc_common_debug_error("LCP EP: No suitable Interfaces found for communications. (make sure interfaces are configured correctly)");
 		#ifdef MPC_USE_PORTALS
 			mpc_common_debug_warning("MPC_USE_PORTALS is enable.");
 		#elif MPC_USE_OFI
