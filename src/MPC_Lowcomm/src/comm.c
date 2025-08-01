@@ -4474,9 +4474,9 @@ static void __initialize_drivers()
 static void __finalize_driver()
 {
         //FIXME: error checking
+	_mpc_lowcomm_communicator_release();
         lcp_manager_fini(lcp_mngr_loc);
 	lcp_context_fini(lcp_ctx_loc);
-	_mpc_lowcomm_communicator_release();
 	_mpc_lowcomm_monitor_teardown();
 }
 

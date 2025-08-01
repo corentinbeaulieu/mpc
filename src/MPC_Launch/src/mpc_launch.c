@@ -766,6 +766,7 @@ void mpc_launch_release_runtime()
 {
 	mpc_common_init_trigger("Base Runtime Finalize");
 	mpc_topology_destroy();
+        mpc_launch_pmi_finalize();
 	mpc_conf_root_config_release_all();
 }
 
