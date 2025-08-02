@@ -52,7 +52,7 @@ static inline char *__get_per_node_segment_key(char *buff, int len)
 {
 	static unsigned int segment_id = 0;
 
-	snprintf(buff, len, "mpc-shm-filename-%d-%d", mpc_common_get_node_rank(), ++segment_id);
+	snprintf(buff, len, "mpc-shm-filename-%d-%d", mpc_common_get_node_rank(), segment_id++);
 	return buff;
 }
 
@@ -67,7 +67,7 @@ static inline void *__map_shm_segment_pmi(size_t size)
 	/* It is to avoid using the PMI when launched as singleton */
 	int is_singleton = (1 == mpc_common_get_process_count());
 
-	/* We need an unique name let 0 in each process define it */
+	/* We need an unique name let 0 in each unix process on local node define it */
 	if(mpc_common_get_local_process_rank() == 0)
 	{
 		__get_per_node_unique_name(segment_name, 128);
@@ -103,7 +103,7 @@ static inline void *__map_shm_segment_pmi(size_t size)
 		segment_name[0] = '\0';
 
 		/* First get the segment name */
-		mpc_launch_pmi_get(segment_name, 128, segment_key, 0);
+		mpc_launch_pmi_get_shm(segment_name, 128, segment_key, 0);
 
 
 		if(!strlen(segment_name) )

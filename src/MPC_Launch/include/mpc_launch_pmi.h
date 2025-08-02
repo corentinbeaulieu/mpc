@@ -186,6 +186,8 @@ int mpc_launch_pmi_put( char *value, char *key, int is_local );
  */
 int mpc_launch_pmi_get( char *value, size_t size, char *key, int remote);
 
+int mpc_launch_pmi_get_shm( char *value, size_t size, char *key, int remote);
+
 /*********************
  * OS PROCESS LAYOUT *
  *********************/

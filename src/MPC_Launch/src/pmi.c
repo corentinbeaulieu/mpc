@@ -993,7 +993,60 @@ int mpc_launch_pmi_put_as_rank( char *value, int tag, int is_local )
 	PMI_RETURN( rc );
 }
 
+int mpc_launch_pmi_get_shm( char *value, size_t size, char *key, int remote)
+{
+#if defined(MPC_USE_PMIX)
 
+
+	pmix_status_t rc;
+	pmix_value_t *val = NULL;
+	pmix_value_t *val2 = NULL;
+
+	pmix_proc_t proc;
+
+	PMIX_PROC_CONSTRUCT(&proc);
+	(void)strncpy(proc.nspace, pmi_context.pmix_proc.nspace, PMIX_MAX_NSLEN);
+
+	rc = PMIx_Get(&proc,PMIX_LOCAL_PEERS, NULL, 0, &val2);
+	PMI_CHECK_RC( rc, "PMI_KVS_Get" );
+
+        char *peers=strdup(val2->data.string);
+        char *token = strtok(peers,",");
+        int i=0;
+        pmix_rank_t r = PMIX_RANK_UNDEF;
+
+        while( token != NULL){
+                if (i == remote){
+                        r = (pmix_rank_t) atoi(token);
+                        break;
+                }
+                token = strtok(NULL,",");
+                i++;
+        }
+        free(peers);
+	PMIX_VALUE_RELEASE(val2);
+
+	proc.rank = r;
+
+	mpc_common_debug("GET %s from %d", key, r);
+	rc = PMIx_Get(&proc,key, NULL, 0, &val);
+	PMI_CHECK_RC( rc, "PMIx_Get" );
+	assume(val != NULL);
+	assume(val->type == PMIX_STRING);
+	strcpy(value, val->data.string);
+	PMIX_VALUE_RELEASE(val);
+	PMIX_PROC_DESTRUCT(&proc);
+	PMI_RETURN( rc );
+#else
+	UNUSED(remote);
+	int rc = 0;
+
+	// Get the value associated to the given key
+	rc = PMI_KVS_Get( pmi_context.kvsname, key, value, (int)size );
+	PMI_CHECK_RC( rc, "PMI_KVS_Get" );
+	PMI_RETURN( rc );
+#endif
+}
 int mpc_launch_pmi_get( char *value, size_t size, char *key, int remote)
 {
 #if defined(MPC_USE_PMIX)
