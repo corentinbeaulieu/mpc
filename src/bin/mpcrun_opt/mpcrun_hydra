@@ -21,6 +21,11 @@
 #                                                                      #
 ########################################################################
 if test -f "${LAUNCHER_CONFIG_MPIEXEC_HYDRA_PATH}"; then
+
+	if [ "$LAUNCHER_OPTION_CPU_NB" = "" ] || [ "$LAUNCHER_OPTION_CPU_NB" = "0" ]; then
+		LAUNCHER_OPTION_CPU_NB=1
+	fi
+
 	if test "$LAUNCHER_CONFIG_LAUNCH_MODE" = "exec"; then
 		if test "$MPMD_COMMAND" = "" ; then
 			LAUNCH_COMMAND="${LAUNCHER_CONFIG_MPIEXEC_HYDRA_PATH} $LAUNCH_OPTIONS -n $LAUNCHER_OPTION_PROCESS_NB $LAUNCHER_OPTION_WRAPPER $LAUNCHER_OPTION_BINARY $LAUNCHER_OPTION_BINARY_ARGS"

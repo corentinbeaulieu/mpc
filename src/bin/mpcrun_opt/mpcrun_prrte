@@ -29,8 +29,8 @@ if test "x${MPC_LAUNCHER}" = "xPMIX" -a -f "${LAUNCHER_CONFIG_PRTERUN_PATH}"; th
 		autokill_opt="--timeout ${MPC_AUTO_KILL_TIMEOUT}"
 	fi
 
-	if test -z "$LAUNCHER_OPTION_CPU_NB"; then
-        LAUNCHER_OPTION_CPU_NB=1
+	if [ "$LAUNCHER_OPTION_CPU_NB" = "" ] || [ "$LAUNCHER_OPTION_CPU_NB" = "0" ]; then
+		LAUNCHER_OPTION_CPU_NB=1
 	fi
 
     if test "x${LAUNCHER_OPTION_NODE_NB}" != "x1"; then

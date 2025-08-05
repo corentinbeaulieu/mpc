@@ -27,7 +27,7 @@ if test "x${MPC_LAUNCHER}" = "xPMI1" -o "x${MPC_LAUNCHER}" = "xPMIX"; then
 	else
 		autokill_opt="-t 0:${MPC_AUTO_KILL_TIMEOUT}"
 	fi
-	if test "$LAUNCHER_OPTION_CPU_NB" = "0" ; then
+	if [ "$LAUNCHER_OPTION_CPU_NB" = "" ] || [ "$LAUNCHER_OPTION_CPU_NB" = "0" ]; then
                 if test "$SLURM_CPUS_PER_TASK" != "" ; then
                 	LAUNCHER_OPTION_CPU_NB="$SLURM_CPUS_PER_TASK"
                 else
