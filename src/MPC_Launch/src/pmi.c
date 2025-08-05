@@ -103,7 +103,7 @@ INITIALIZATION/FINALIZE
         } else if ( (retcode) != PMI_SUCCESS )\
 	{\
 		(void)fprintf( stderr, "FAILURE (mpc_launch_pmi): %s: %d\n", ctx, retcode );\
-		/*mpc_launch_pmi_abort();\*/ \
+		/*mpc_launch_pmi_abort(retcode);\*/ \
 	}\
 }while(0)
 
@@ -875,13 +875,22 @@ int mpc_launch_pmi_is_initialized()
 }
 
 
-void mpc_launch_pmi_abort()
+void mpc_launch_pmi_abort(const int return_code)
 {
 #if defined(MPC_USE_PMIX)
-	PMIx_Abort(6, "ABORT from mpc_launch_pmi_abort", NULL, 0);
+	const int err = PMIx_Abort(return_code, "ABORT from mpc_launch_pmi_abort", NULL, 0);
 #else
-	PMI_Abort( 6, "ABORT from mpc_launch_pmi_abort" );
+	const int err = PMI_Abort(return_code, "ABORT from mpc_launch_pmi_abort");
 #endif
+	if (err != PMI_SUCCESS)
+	{
+		mpc_common_debug_error("PMI(x)_Abort error: %d. Resuming abortion of this process\n", err);
+	}
+	// Wait for the sigterm to arrive
+	sleep(5);
+	// If it doesn't come release all PMI(x) ressources and prepare to abort
+	// manually
+	mpc_launch_pmi_finalize();
 }
 
 

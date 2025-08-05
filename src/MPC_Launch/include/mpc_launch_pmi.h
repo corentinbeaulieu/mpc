@@ -127,8 +127,9 @@ int mpc_launch_pmi_is_initialized();
 /**
  * @brief Abort the process using PMI
  *
+ * @param [in] return_code	Return code to return from the processes
  */
-void mpc_launch_pmi_abort();
+void mpc_launch_pmi_abort(const int return_code);
 
 /*******************
  * SYNCHRONIZATION *

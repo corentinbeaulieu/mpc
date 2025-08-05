@@ -168,12 +168,14 @@ static inline char *__debug_print_info( char *buffer )
 /**********************************************************************/
 /*Abort                                                               */
 /**********************************************************************/
-void mpc_launch_pmi_abort();
+void mpc_launch_pmi_abort(const int);
 
 __attribute__((__noreturn__)) void mpc_common_debug_abort( void )
 {
 	mpc_common_debug_error("######## Program will now abort ########");
-	mpc_launch_pmi_abort();
+	mpc_launch_pmi_abort(6);
+	// We shouldn't arrive here but if it the case, PMI(x) resssources should be
+	// released
 	abort();
 }
 
