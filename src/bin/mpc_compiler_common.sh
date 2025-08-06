@@ -293,7 +293,7 @@ parse_cli_args()
 			;;
 
 		# Help
-		--help)
+		--help|-h)
 			show_help
 			;;
 		esac
