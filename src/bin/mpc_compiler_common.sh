@@ -19,9 +19,10 @@ MPC_COMMAND_WRAPPER="eval"
 MPC_HIP_USE_CUDA="no"
 # Is Privatization flag already set
 PRIV_FLAG_SET=""
-# Is privatization enabled
-# By default priv is enabled in mpc_cc
-DO_PRIV="yes"
+# By default, we want privatization if possible
+WANT_PRIV="yes"
+# By default, we don't know if we will privatize
+DO_PRIV=""
 # Are we compiling Fortran code
 IS_FORTRAN="no"
 
@@ -123,6 +124,9 @@ mpc_enable_priv()
 	if compiler_is_privatizing "${1}"
 	then
 		append_to "CFLAGS" "-fmpc-privatize"
+		DO_PRIV="yes"
+	else
+		DO_PRIV="no"
 	fi
 
 	PRIV_FLAG_SET="yes"
@@ -257,13 +261,13 @@ parse_cli_args()
 		-fmpc-privatize|-fmpcprivatize|-f-mpc-privatize)
 			warn_if_compiler_not_privatizing "$PRIV_COMPILER" \
 				"Cannot pass $arg to $PRIV_COMPILER (a non-privarizing compiler)"
-			DO_PRIV="yes"
+			WANT_PRIV="yes"
 			TMP_IS_FOR_COMPILER=no
 			;;
 		-fno-mpc-privatize|-fno-mpcprivatize|-fnompc-privatize|-fnompcprivatize)
 			warn_if_compiler_not_privatizing "$PRIV_COMPILER" \
 				"Cannot pass $arg to $PRIV_COMPILER (a non-privarizing compiler)"
-			DO_PRIV="no"
+			WANT_PRIV="no"
 			TMP_IS_FOR_COMPILER=no
 			;;
 		-fmpc-include)
@@ -313,7 +317,7 @@ parse_cli_args()
 		fi
 	done
 
-	if test "x${DO_PRIV}" = "xyes"; then
+	if test "x${WANT_PRIV}" = "xyes"; then
 		mpc_enable_priv "$PRIV_COMPILER"
 	fi
 
