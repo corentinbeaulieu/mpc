@@ -126,9 +126,9 @@ LAUNCHER_OPTION_WRAPPER=""
 LAUNCHER_OPTION_BINARY=""
 LAUNCHER_OPTION_BINARY_ARGS=""
 
-LAUNCHER_OPTION_CPU_NB=""
+LAUNCHER_OPTION_CPU_NB="1"
 LAUNCHER_OPTION_PROCESS_NB="1"
-LAUNCHER_OPTION_NODE_NB=""
+LAUNCHER_OPTION_NODE_NB="1"
 
 ############################
 # Default Parameter Values #
@@ -815,14 +815,24 @@ fi
 # Sanity Checks #
 #################
 
-# You need at least one node
-if test "$LAUNCHER_OPTION_NODE_NB" = "0" ; then
-	LAUNCHER_OPTION_NODE_NB="1"
-fi
+# Wrong user input
+CLI_ERROR=false
 
-# You need at least one process
-if test "$LAUNCHER_OPTION_PROCESS_NB" = "0" ; then
-	LAUNCHER_OPTION_PROCESS_NB="1"
+assert_valid_ressource_count() {
+
+	if ! [[ $1 =~ ^[1-9][0-9]*$ ]]; then
+		mpcrun_msg "ERROR" "$1 is a wrong count for $2"
+		CLI_ERROR=true
+	fi
+}
+
+assert_valid_ressource_count $LAUNCHER_OPTION_NODE_NB "--node_nb / -N"
+assert_valid_ressource_count $LAUNCHER_OPTION_PROCESS_NB "--process_nb / -p"
+assert_valid_ressource_count $MPC_ARG_TASK_NB "--task_nb / -n"
+assert_valid_ressource_count $LAUNCHER_OPTION_CPU_NB "--cpu_nb / -c"
+
+if $CLI_ERROR; then
+	exit 12
 fi
 
 ######################
