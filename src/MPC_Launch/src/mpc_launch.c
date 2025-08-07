@@ -696,15 +696,25 @@ static void __topology_init()
 
 void __check_for_print_config(void)
 {
-	if(mpc_common_get_flags()->exename != NULL)
-        {
-            if(!strcmp(mpc_common_get_flags()->exename, "mpc_print_config"))
-            {
-                mpc_common_get_flags()->process_number = 1;
-                mpc_common_get_flags()->processor_number = 1;
-                mpc_common_get_flags()->node_number = 1;
-            }
-        }
+	const char *const absolute_path = mpc_common_get_flags()->exename;
+	if (absolute_path != NULL)
+	{
+		char *prev, *curr;
+		curr = strtok(mpc_common_get_flags()->exename, "/");
+		while (curr != NULL)
+		{
+			prev = curr;
+			curr = strtok(NULL, "/");
+		}
+		const char *relative_path = prev;
+
+		if (!strcmp(relative_path, "mpc_print_config"))
+		{
+			mpc_common_get_flags()->process_number   = 1;
+			mpc_common_get_flags()->processor_number = 1;
+			mpc_common_get_flags()->node_number      = 1;
+		}
+	}
 }
 
 
