@@ -325,8 +325,6 @@ parse_cli_args()
 		fi
 		COMPILATION_ARGS="${COMPILATION_ARGS} ${MPC_HEADER_INCLUDE}"
 	fi
-
-	handle_show_args
 }
 
 #
@@ -341,6 +339,8 @@ parse_cli_args()
 #  - OUTPUT_FILE_ARGS: output file (-o foo.o)
 run_compiler()
 {
+	handle_show_args
+
 	#Only pass link flags when linking
 	FINAL_LDFLAGS=""
 	if [ "$MPC_DOING_LINK" = yes ]
