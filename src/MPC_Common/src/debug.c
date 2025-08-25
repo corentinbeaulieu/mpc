@@ -295,7 +295,7 @@ void mpc_common_debug_abort_log( FILE *stream, int line,
 	mpc_common_io_noalloc_vfprintf( stream, buff, ap );
 	va_end( ap );
 
-	exit(1);
+	mpc_common_debug_abort();
 }
 
 /**********************************************************************/
