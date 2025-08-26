@@ -11,8 +11,7 @@ stages:
   - Regular Installation
   - Basic Testing
   - Regular Testing
-  - Benchmarks
-  - Applications
+  - Benchmarks & Applications
   - Breaking tests
   - Configurations
   - Finalization
@@ -271,58 +270,54 @@ OpenMP Tasking cholesky:
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/OpenMP/task/cholesky"
 
 #
-# Benchmarks
+# Benchmarks & Applications
 #
 
 MPI IMB-MPI 2017:
   <<: *uses_slurm
-  stage: Benchmarks
+  stage: Benchmarks & Applications
   script:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/MPI/IMB_2017/check-mpi/"
 
 MPI IMB-NBC 2017:
   <<: *uses_slurm
-  stage: Benchmarks
+  stage: Benchmarks & Applications
   script:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/MPI/IMB_2017/check-nbc/"
 
 MPI NBC:
   <<: *uses_slurm
-  stage: Benchmarks
+  stage: Benchmarks & Applications
   script:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/MPI/NBC/"
 
-#
-# Applications
-#
-
 Lulesh:
   <<: *uses_slurm
-  stage: Applications
+  stage: Benchmarks & Applications
   script:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/corals/lulesh-2.0.3/"
 
 NAS-MZ MPI:
   <<: *uses_slurm
-  stage: Applications
+  stage: Benchmarks & Applications
   script:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/hybrid/NAS/MZ-MPI/"
 
 NAS-MZ OMP:
   <<: *uses_slurm
-  stage: Applications
+  stage: Benchmarks & Applications
   script:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/hybrid/NAS/MZ-OMP/"
 
 miniFe:
   <<: *uses_slurm
-  stage: Applications
+  stage: Benchmarks & Applications
   script:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/corals/miniFe/"
