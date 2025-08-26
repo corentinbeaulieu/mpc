@@ -13,6 +13,7 @@ stages:
   - Benchmarks 
   - Applications
   - Configurations
+  - Additionnal Tests
   - Release
 
 # Add clone variables for concurent PIPELINES
@@ -45,9 +46,6 @@ variables:
 # Pipeline launching rules
 workflow:
   rules:
-    # If only a tag commit => don't do
-    - if: '$CI_COMMIT_TAG'
-      when: never
     # If pipeline is disabled => don't do
     - if: '$CI_MERGE_REQUEST_LABELS =~ /CI::Disabled/'
       when: never
@@ -140,6 +138,7 @@ Simple Run:
 
 Privatization:
   <<: *uses_slurm
+  stage: Additionnal Tests
   needs: [MPC Default Configuration]
   variables:
     GL_INSTALL_DIR: $GL_PIPELINE_PATH/install_default
@@ -273,7 +272,8 @@ MPC Default Configuration:
     - [Env Sanitize]
   variables:
     GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}_default
-    GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_COMMON_OPTS} ${GL_INSTALL_DIR}_default
+    GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_default
+    GL_INSTALL_OPTS: ${GL_INSTALL_COMMON_OPTS}
   script:
     - *configuration_commands
   artifacts:
@@ -378,7 +378,7 @@ MPC Disable PMIX:
 # to ensure MPC to compile in a large variety of environments
 
 Debian Stretch:
-  stage: Regular Testing
+  stage: Additionnal Tests
   script: "docker run --rm -it paratoolsfrance/mpc-env:debian-stretch $HOME/docker/run_installmpc.sh"
   tags:
     - "docker"
@@ -387,7 +387,7 @@ Debian Stretch:
       - $MPC_CI_MODE == "multibuild"
 
 Centos 7:
-  stage: Regular Testing
+  stage: Additionnal Tests
   script: "docker run --rm -it paratoolsfrance/mpc-env:centos-7 $HOME/docker/run_installmpc.sh"
   tags:
     - "docker"
@@ -397,8 +397,11 @@ Centos 7:
 
 release:
   stage: Release
-  when: manual
+  rules:
+    - if: $CI_COMMIT_TAG && $CI_COMMIT_BRANCH == "master"
   script: utils/release_all.sh $CI_PROJECT_DIR/$CI_PIPELINE_ID
+  release:
+    tag_name: '$CI_COMMIT_TAG'
+    description: '$CI_COMMIT_TAG_MESSAGE'
   artifacts:
-    paths:
-      - $CI_PROJECT_DIR/$CI_PIPELINE_ID
+    paths: [$CI_PROJECT_DIR/$CI_PIPELINE_ID]
