@@ -8,11 +8,10 @@
 # For convenience, implicit stages have been made explicit here...
 stages:
   - Initialization
-  - Regular Installation
+  - Fast Installation
   - Basic Testing
   - Regular Testing
   - Benchmarks & Applications
-  - Breaking tests
   - Configurations
   - Finalization
   - Release
@@ -22,6 +21,7 @@ variables:
   GL_PIPELINE_PATH: $CI_BUILDS_DIR/GL_$CI_PIPELINE_ID
   GL_BUILD_DIR: $GL_PIPELINE_PATH/build
   GL_INSTALL_DIR: $GL_PIPELINE_PATH/install
+  GL_INSTALL_COMMON_OPTS: --enable-debug --with-pmix -j32
   GIT_DEPTH: 1 # No need to clone the whole history
   #GIT_CLONE_PATH: $GL_PIPELINE_PATH/$CI_RUNNER_ID/$CI_CONCURRENT_ID
   PCVS_COMMAND: pcvs -v run --override --profile-path ${GL_PIPELINE_PATH}/mpc_ci/utils/profile/mpc.yml --print errors -S
@@ -41,7 +41,7 @@ variables:
   - echo "MPC loaded from ${GL_INSTALL_DIR}/mpcvars.sh"
   - source "$(ccc_home -u mpc)"/gitlab-runner/spack_organizer_inti/setup.sh
   - spack env activate pcvs
-  - module load pmix
+  - module load pmix gnu/12.3.0
 
 # Pipeline launching rules
 workflow:
@@ -101,39 +101,38 @@ Resource Relinquishing:
   - mkdir ${GL_LOCAL_BUILD_DIR}; cd ${GL_LOCAL_BUILD_DIR}
   - source "$(ccc_home -u mpc)"/gitlab-runner/spack_organizer_inti/setup.sh
   - spack env activate pcvs
-  - module load pmix
+  - module load pmix gnu/12.3.0
   - ln -sf "$(ccc_home -u mpc)"/mpc_deps "${HOME}"/.mpcdep
   - ${CI_PROJECT_DIR}/installmpc -vv --prefix=${GL_LOCAL_INSTALL_DIR} ${GL_INSTALL_OPTS}
   - spack env deactivate
 
 # Default configuration need pmix to work on inti.
-MPC Default Configuration:
-  stage: Regular Installation
+Fast Installation:
+  stage: Fast Installation
   variables:
     GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}
     GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}
-    GL_INSTALL_OPTS: --enable-debug --with-pmix
+    GL_INSTALL_OPTS: ${GL_INSTALL_COMMON_OPTS} --disable-mpc-autopriv --disable-spack
+  script:
+    - *configuration_commands
+
+MPC Default Configuration:
+  stage: Configurations
+  variables:
+    GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}_default
+    GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_COMMON_OPTS} ${GL_INSTALL_DIR}_default
   script:
     - *configuration_commands
   artifacts:
     paths:
       - ${GL_LOCAL_INSTALL_DIR}
 
-MPC Process Mode (no Spack):
-  stage: Configurations
-  variables:
-    GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}_nopriv_no_spack
-    GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_nopriv
-    GL_INSTALL_OPTS: --disable-mpc-autopriv --disable-spack
-  script:
-    - *configuration_commands
-
 MPC Process Mode:
   stage: Configurations
   variables:
     GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}_nopriv
     GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_nopriv
-    GL_INSTALL_OPTS: --disable-mpc-autopriv
+    GL_INSTALL_OPTS: ${GL_INSTALL_COMMON_OPTS} --disable-mpc-autopriv
   script:
     - *configuration_commands
 
@@ -142,7 +141,7 @@ MPC Disable Lowcomm:
   variables:
     GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}_nolowcomm
     GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_nolowcomm
-    GL_INSTALL_OPTS: --disable-mpc-autopriv --mpc-option="--disable-lowcomm"
+    GL_INSTALL_OPTS: ${GL_INSTALL_COMMON_OPTS} --disable-mpc-autopriv --mpc-option="--disable-lowcomm"
   script:
     - *configuration_commands
 
@@ -151,7 +150,7 @@ MPC Disable MPI:
   variables:
     GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}_nompi
     GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_nompi
-    GL_INSTALL_OPTS: --disable-mpc-autopriv --mpc-option="--disable-mpi"
+    GL_INSTALL_OPTS: ${GL_INSTALL_COMMON_OPTS} --disable-mpc-autopriv --mpc-option="--disable-mpi"
   script:
     - *configuration_commands
 
@@ -160,7 +159,7 @@ MPC Disable Threads:
   variables:
     GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}_nothread
     GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_nothread
-    GL_INSTALL_OPTS: --disable-mpc-autopriv --mpc-option="--disable-threads"
+    GL_INSTALL_OPTS: ${GL_INSTALL_COMMON_OPTS} --disable-mpc-autopriv --mpc-option="--disable-threads"
   script:
     - *configuration_commands
 
@@ -169,7 +168,7 @@ MPC Debug Messages:
   variables:
     GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}_debug
     GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_debug
-    GL_INSTALL_OPTS: --disable-mpc-autopriv --enable-debug
+    GL_INSTALL_OPTS: ${GL_INSTALL_COMMON_OPTS} --disable-mpc-autopriv
   script:
     - *configuration_commands
 
@@ -178,7 +177,7 @@ MPC Slurm:
   variables:
     GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}_slurm
     GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_slurm
-    GL_INSTALL_OPTS: --disable-mpc-autopriv --with-slurm
+    GL_INSTALL_OPTS: --disable-mpc-autopriv --with-slurm --enable-debug -j32
   script:
     - *configuration_commands
 
@@ -187,7 +186,7 @@ MPC Disable PMIX:
   variables:
     GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}_nopmix
     GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_nopmix
-    GL_INSTALL_OPTS: --disable-mpc-autopriv
+    GL_INSTALL_OPTS: --disable-mpc-autopriv --enable-debug -j32
   script:
     - *configuration_commands
 
@@ -221,7 +220,9 @@ Simple run:
 
 Privatization:
   <<: *uses_slurm
-  stage: Basic Testing
+  needs: [MPC Default Configuration]
+  variables:
+    GL_INSTALL_DIR: $GL_PIPELINE_PATH/install_default
   script:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/privatization/"
