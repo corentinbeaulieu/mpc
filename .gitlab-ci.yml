@@ -7,13 +7,12 @@
 #Available stages to run in 'automatic' processing:
 # For convenience, implicit stages have been made explicit here...
 stages:
-  - Initialization
   - Fast Installation
   - Basic Testing
   - Regular Testing
-  - Benchmarks & Applications
+  - Benchmarks 
+  - Applications
   - Configurations
-  - Finalization
   - Release
 
 # Add clone variables for concurent PIPELINES
@@ -75,14 +74,15 @@ workflow:
 # both .pre and .post cannot be scheduled (thus, why not using user-defined pre and post
 # to avoid them to be run systematically ?)
 Env Sanitize:
-  stage: Initialization
+  stage: .pre
+  needs: []
   script:
     - test -d $GL_PIPELINE_PATH && rm -rf $GL_PIPELINE_PATH
     - mkdir -p $GL_PIPELINE_PATH
 
 Resource Relinquishing:
   <<: *uses_slurm
-  stage: Finalization
+  stage: .post
   when: always
   script:
   # FIXME: re-setup job canncellation.
@@ -109,6 +109,8 @@ Resource Relinquishing:
 # Default configuration need pmix to work on inti.
 Fast Installation:
   stage: Fast Installation
+  needs:
+    - [Env Sanitize]
   variables:
     GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}
     GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}
@@ -116,90 +118,6 @@ Fast Installation:
   script:
     - *configuration_commands
 
-MPC Default Configuration:
-  stage: Configurations
-  variables:
-    GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}_default
-    GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_COMMON_OPTS} ${GL_INSTALL_DIR}_default
-  script:
-    - *configuration_commands
-  artifacts:
-    paths:
-      - ${GL_LOCAL_INSTALL_DIR}
-
-MPC Process Mode:
-  stage: Configurations
-  variables:
-    GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}_nopriv
-    GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_nopriv
-    GL_INSTALL_OPTS: ${GL_INSTALL_COMMON_OPTS} --disable-mpc-autopriv
-  script:
-    - *configuration_commands
-
-MPC Disable Lowcomm:
-  stage: Configurations
-  variables:
-    GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}_nolowcomm
-    GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_nolowcomm
-    GL_INSTALL_OPTS: ${GL_INSTALL_COMMON_OPTS} --disable-mpc-autopriv --mpc-option="--disable-lowcomm"
-  script:
-    - *configuration_commands
-
-MPC Disable MPI:
-  stage: Configurations
-  variables:
-    GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}_nompi
-    GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_nompi
-    GL_INSTALL_OPTS: ${GL_INSTALL_COMMON_OPTS} --disable-mpc-autopriv --mpc-option="--disable-mpi"
-  script:
-    - *configuration_commands
-
-MPC Disable Threads:
-  stage: Configurations
-  variables:
-    GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}_nothread
-    GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_nothread
-    GL_INSTALL_OPTS: ${GL_INSTALL_COMMON_OPTS} --disable-mpc-autopriv --mpc-option="--disable-threads"
-  script:
-    - *configuration_commands
-
-MPC Debug Messages:
-  stage: Configurations
-  variables:
-    GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}_debug
-    GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_debug
-    GL_INSTALL_OPTS: ${GL_INSTALL_COMMON_OPTS} --disable-mpc-autopriv
-  script:
-    - *configuration_commands
-
-MPC Slurm:
-  stage: Configurations
-  variables:
-    GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}_slurm
-    GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_slurm
-    GL_INSTALL_OPTS: --disable-mpc-autopriv --with-slurm --enable-debug -j32
-  script:
-    - *configuration_commands
-
-MPC Disable PMIX:
-  stage: Configurations
-  variables:
-    GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}_nopmix
-    GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_nopmix
-    GL_INSTALL_OPTS: --disable-mpc-autopriv --enable-debug -j32
-  script:
-    - *configuration_commands
-
-# FIXME: We have to update Workshare for this test to pass 
-# MPC Compilation Workshare:
-#   stage: Configurations
-#   variables:
-#     GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}_workshare
-#     GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_workshare
-#     GL_INSTALL_OPTS: --enable-workshare --enable-debug
-#   allow_failure: true
-#   script:
-#     - *configuration_commands
 
 ############################
 ####### TEST STAGE ########
@@ -211,9 +129,11 @@ MPC Disable PMIX:
 # (not able to compile/run a simple test)
 #
 
-Simple run:
+Simple Run:
   <<: *uses_slurm
   stage: Basic Testing
+  needs:
+    - [Fast Installation]
   script:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/trivial/"
@@ -235,6 +155,8 @@ Privatization:
 Lowcomm:
   <<: *uses_slurm
   stage: Regular Testing
+  needs:
+    - [Simple Run]
   script:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/lowcomm/"
@@ -242,6 +164,8 @@ Lowcomm:
 MPI Simple C:
   <<: *uses_slurm
   stage: Regular Testing
+  needs:
+    - [Simple Run]
   script:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/MPI/simple/c/"
@@ -249,6 +173,8 @@ MPI Simple C:
 MPI Simple Fortran:
   <<: *uses_slurm
   stage: Regular Testing
+  needs:
+    - [Simple Run]
   script:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/MPI/simple/fortran/"
@@ -256,6 +182,8 @@ MPI Simple Fortran:
 OpenMP Tasking examples:
   <<: *uses_slurm
   stage: Regular Testing
+  needs:
+    - [Simple Run]
   script:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/OpenMP/task/examples"
@@ -263,6 +191,8 @@ OpenMP Tasking examples:
 OpenMP Tasking cholesky:
   <<: *uses_slurm
   stage: Regular Testing
+  needs:
+    - [Simple Run]
   script:
     - *pcvs_prepare
     - module load llvm
@@ -275,52 +205,168 @@ OpenMP Tasking cholesky:
 
 MPI IMB-MPI 2017:
   <<: *uses_slurm
-  stage: Benchmarks & Applications
+  stage: Benchmarks
+  needs:
+    - [Lowcomm, MPI Simple C, MPI Simple Fortran]
   script:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/MPI/IMB_2017/check-mpi/"
 
 MPI IMB-NBC 2017:
   <<: *uses_slurm
-  stage: Benchmarks & Applications
+  stage: Benchmarks
+  needs:
+    - [Lowcomm, MPI Simple C, MPI Simple Fortran]
   script:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/MPI/IMB_2017/check-nbc/"
 
 MPI NBC:
   <<: *uses_slurm
-  stage: Benchmarks & Applications
+  stage: Benchmarks
+  needs:
+    - [Lowcomm, MPI Simple C, MPI Simple Fortran]
   script:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/MPI/NBC/"
 
 Lulesh:
   <<: *uses_slurm
-  stage: Benchmarks & Applications
+  stage: Applications
+  needs:
+    - [Lowcomm, MPI Simple C, MPI Simple Fortran, OpenMP Tasking cholesky, OpenMP Tasking examples]
   script:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/corals/lulesh-2.0.3/"
 
 NAS-MZ MPI:
   <<: *uses_slurm
-  stage: Benchmarks & Applications
+  stage: Applications
+  needs:
+    - [Lowcomm, MPI Simple C, MPI Simple Fortran]
   script:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/hybrid/NAS/MZ-MPI/"
 
 NAS-MZ OMP:
   <<: *uses_slurm
-  stage: Benchmarks & Applications
+  stage: Applications
+  needs:
+    - [OpenMP Tasking cholesky, OpenMP Tasking examples]
   script:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/hybrid/NAS/MZ-OMP/"
 
 miniFe:
   <<: *uses_slurm
-  stage: Benchmarks & Applications
+  stage: Applications
+  needs:
+    - [Lowcomm, MPI Simple C, MPI Simple Fortran, OpenMP Tasking cholesky, OpenMP Tasking examples]
   script:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/corals/miniFe/"
+
+# Configurations
+MPC Default Configuration:
+  stage: Configurations
+  needs:
+    - [Env Sanitize]
+  variables:
+    GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}_default
+    GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_COMMON_OPTS} ${GL_INSTALL_DIR}_default
+  script:
+    - *configuration_commands
+  artifacts:
+    paths:
+      - ${GL_LOCAL_INSTALL_DIR}
+
+MPC Process Mode:
+  stage: Configurations
+  needs:
+    - [Env Sanitize]
+  variables:
+    GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}_nopriv
+    GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_nopriv
+    GL_INSTALL_OPTS: ${GL_INSTALL_COMMON_OPTS} --disable-mpc-autopriv
+  script:
+    - *configuration_commands
+
+MPC Disable Lowcomm:
+  stage: Configurations
+  needs:
+    - [Env Sanitize]
+  variables:
+    GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}_nolowcomm
+    GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_nolowcomm
+    GL_INSTALL_OPTS: ${GL_INSTALL_COMMON_OPTS} --disable-mpc-autopriv --mpc-option="--disable-lowcomm"
+  script:
+    - *configuration_commands
+
+MPC Disable MPI:
+  stage: Configurations
+  needs:
+    - [Env Sanitize]
+  variables:
+    GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}_nompi
+    GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_nompi
+    GL_INSTALL_OPTS: ${GL_INSTALL_COMMON_OPTS} --disable-mpc-autopriv --mpc-option="--disable-mpi"
+  script:
+    - *configuration_commands
+
+MPC Disable Threads:
+  stage: Configurations
+  needs:
+    - [Env Sanitize]
+  variables:
+    GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}_nothread
+    GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_nothread
+    GL_INSTALL_OPTS: ${GL_INSTALL_COMMON_OPTS} --disable-mpc-autopriv --mpc-option="--disable-threads"
+  script:
+    - *configuration_commands
+
+MPC Debug Messages:
+  stage: Configurations
+  needs:
+    - [Env Sanitize]
+  variables:
+    GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}_debug
+    GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_debug
+    GL_INSTALL_OPTS: ${GL_INSTALL_COMMON_OPTS} --disable-mpc-autopriv
+  script:
+    - *configuration_commands
+
+MPC Slurm:
+  stage: Configurations
+  needs:
+    - [Env Sanitize]
+  variables:
+    GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}_slurm
+    GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_slurm
+    GL_INSTALL_OPTS: --disable-mpc-autopriv --with-slurm --enable-debug -j32
+  script:
+    - *configuration_commands
+
+MPC Disable PMIX:
+  stage: Configurations
+  needs:
+    - [Env Sanitize]
+  variables:
+    GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}_nopmix
+    GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_nopmix
+    GL_INSTALL_OPTS: --disable-mpc-autopriv --enable-debug -j32
+  script:
+    - *configuration_commands
+
+# FIXME: We have to update Workshare for this test to pass 
+# MPC Compilation Workshare:
+#   stage: Configurations
+#   variables:
+#     GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}_workshare
+#     GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_workshare
+#     GL_INSTALL_OPTS: --enable-workshare --enable-debug
+#   allow_failure: true
+#   script:
+#     - *configuration_commands
 
 ###################################
 ####### MANUALLY TRIGGERED ########
