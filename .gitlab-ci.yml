@@ -276,9 +276,6 @@ MPC Default Configuration:
     GL_INSTALL_OPTS: ${GL_INSTALL_COMMON_OPTS}
   script:
     - *configuration_commands
-  artifacts:
-    paths:
-      - ${GL_LOCAL_INSTALL_DIR}
 
 MPC Process Mode:
   stage: Configurations
