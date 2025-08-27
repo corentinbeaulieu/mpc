@@ -41,7 +41,7 @@ variables:
   - echo "MPC loaded from ${GL_INSTALL_DIR}/mpcvars.sh"
   - source "$(ccc_home -u mpc)"/gitlab-runner/spack_organizer_inti/setup.sh
   - spack env activate pcvs
-  - module load pmix gnu/12.3.0
+  - module load pmix gnu/13.3.0
 
 # Pipeline launching rules
 workflow:
@@ -99,7 +99,7 @@ Resource Relinquishing:
   - mkdir ${GL_LOCAL_BUILD_DIR}; cd ${GL_LOCAL_BUILD_DIR}
   - source "$(ccc_home -u mpc)"/gitlab-runner/spack_organizer_inti/setup.sh
   - spack env activate pcvs
-  - module load pmix gnu/12.3.0
+  - module load pmix gnu/13.3.0
   - ln -sf "$(ccc_home -u mpc)"/mpc_deps "${HOME}"/.mpcdep
   - ${CI_PROJECT_DIR}/installmpc -vv --prefix=${GL_LOCAL_INSTALL_DIR} ${GL_INSTALL_OPTS}
   - spack env deactivate
