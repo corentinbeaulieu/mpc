@@ -7,7 +7,7 @@
 #Available stages to run in 'automatic' processing:
 # For convenience, implicit stages have been made explicit here...
 stages:
-  - Fast Installation
+  - Installations
   - Basic Testing
   - Regular Testing
   - Benchmarks 
@@ -105,8 +105,8 @@ Resource Relinquishing:
   - spack env deactivate
 
 # Default configuration need pmix to work on inti.
-Fast Installation:
-  stage: Fast Installation
+Process Mode Installation:
+  stage: Installations
   needs:
     - [Env Sanitize]
   variables:
@@ -116,6 +116,16 @@ Fast Installation:
   script:
     - *configuration_commands
 
+Privatization Installation:
+  stage: Installations
+  needs:
+    - [Env Sanitize]
+  variables:
+    GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}_default
+    GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_default
+    GL_INSTALL_OPTS: ${GL_INSTALL_COMMON_OPTS}
+  script:
+    - *configuration_commands
 
 ############################
 ####### TEST STAGE ########
@@ -127,11 +137,22 @@ Fast Installation:
 # (not able to compile/run a simple test)
 #
 
-Simple Run:
+Process Mode Simple Run:
   <<: *uses_slurm
   stage: Basic Testing
   needs:
-    - [Fast Installation]
+    - [Process Mode Installation]
+  script:
+    - *pcvs_prepare
+    - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/trivial/"
+
+Privatization Simple Run:
+  <<: *uses_slurm
+  stage: Basic Testing
+  needs:
+    - [Privatization Installation]
+  variables:
+    GL_INSTALL_DIR: $GL_PIPELINE_PATH/install_default
   script:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/trivial/"
@@ -139,7 +160,7 @@ Simple Run:
 Privatization:
   <<: *uses_slurm
   stage: Additionnal Tests
-  needs: [MPC Default Configuration]
+  needs: [Privatization Installation]
   variables:
     GL_INSTALL_DIR: $GL_PIPELINE_PATH/install_default
   script:
@@ -151,47 +172,104 @@ Privatization:
 # to assess some basic MPC feature
 #
 
-Lowcomm:
+Process Mode Lowcomm:
   <<: *uses_slurm
   stage: Regular Testing
   needs:
-    - [Simple Run]
+    - [Process Mode Simple Run]
   script:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/lowcomm/"
 
-MPI Simple C:
+Process Mode MPI Simple C:
   <<: *uses_slurm
   stage: Regular Testing
   needs:
-    - [Simple Run]
+    - [Process Mode Simple Run]
   script:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/MPI/simple/c/"
 
-MPI Simple Fortran:
+Process Mode MPI Simple Fortran:
   <<: *uses_slurm
   stage: Regular Testing
   needs:
-    - [Simple Run]
+    - [Process Mode Simple Run]
   script:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/MPI/simple/fortran/"
 
-OpenMP Tasking examples:
+Process Mode OpenMP Tasking examples:
   <<: *uses_slurm
   stage: Regular Testing
   needs:
-    - [Simple Run]
+    - [Process Mode Simple Run]
   script:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/OpenMP/task/examples"
 
-OpenMP Tasking cholesky:
+Process Mode OpenMP Tasking cholesky:
   <<: *uses_slurm
   stage: Regular Testing
   needs:
-    - [Simple Run]
+    - [Process Mode Simple Run]
+  script:
+    - *pcvs_prepare
+    - module load llvm
+    - module load lapack/mkl
+    - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/OpenMP/task/cholesky"
+
+Privatization Lowcomm:
+  <<: *uses_slurm
+  stage: Regular Testing
+  needs:
+    - [Privatization Simple Run]
+  variables:
+    GL_INSTALL_DIR: $GL_PIPELINE_PATH/install_default
+  script:
+    - *pcvs_prepare
+    - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/lowcomm/"
+
+Privatization MPI Simple C:
+  <<: *uses_slurm
+  stage: Regular Testing
+  needs:
+    - [Privatization Simple Run]
+  variables:
+    GL_INSTALL_DIR: $GL_PIPELINE_PATH/install_default
+  script:
+    - *pcvs_prepare
+    - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/MPI/simple/c/"
+
+Privatization MPI Simple Fortran:
+  <<: *uses_slurm
+  stage: Regular Testing
+  needs:
+    - [Privatization Simple Run]
+  variables:
+    GL_INSTALL_DIR: $GL_PIPELINE_PATH/install_default
+  script:
+    - *pcvs_prepare
+    - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/MPI/simple/fortran/"
+
+Privatization OpenMP Tasking examples:
+  <<: *uses_slurm
+  stage: Regular Testing
+  needs:
+    - [Privatization Simple Run]
+  variables:
+    GL_INSTALL_DIR: $GL_PIPELINE_PATH/install_default
+  script:
+    - *pcvs_prepare
+    - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/OpenMP/task/examples"
+
+Privatization OpenMP Tasking cholesky:
+  <<: *uses_slurm
+  stage: Regular Testing
+  needs:
+    - [Privatization Simple Run]
+  variables:
+    GL_INSTALL_DIR: $GL_PIPELINE_PATH/install_default
   script:
     - *pcvs_prepare
     - module load llvm
@@ -202,82 +280,155 @@ OpenMP Tasking cholesky:
 # Benchmarks & Applications
 #
 
-MPI IMB-MPI 2017:
+Process Mode MPI IMB-MPI 2017:
   <<: *uses_slurm
   stage: Benchmarks
   needs:
-    - [Lowcomm, MPI Simple C, MPI Simple Fortran]
+    - [Process Mode Lowcomm, Process Mode MPI Simple C, Process Mode MPI Simple Fortran]
   script:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/MPI/IMB_2017/check-mpi/"
 
-MPI IMB-NBC 2017:
+Process Mode MPI IMB-NBC 2017:
   <<: *uses_slurm
   stage: Benchmarks
   needs:
-    - [Lowcomm, MPI Simple C, MPI Simple Fortran]
+    - [Process Mode Lowcomm, Process Mode MPI Simple C, Process Mode MPI Simple Fortran]
   script:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/MPI/IMB_2017/check-nbc/"
 
-MPI NBC:
+Process Mode MPI NBC:
   <<: *uses_slurm
   stage: Benchmarks
   needs:
-    - [Lowcomm, MPI Simple C, MPI Simple Fortran]
+    - [Process Mode Lowcomm, Process Mode MPI Simple C, Process Mode MPI Simple Fortran]
   script:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/MPI/NBC/"
 
-Lulesh:
+Process Mode NAS-MZ MPI:
   <<: *uses_slurm
   stage: Applications
   needs:
-    - [Lowcomm, MPI Simple C, MPI Simple Fortran, OpenMP Tasking cholesky, OpenMP Tasking examples]
-  script:
-    - *pcvs_prepare
-    - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/corals/lulesh-2.0.3/"
-
-NAS-MZ MPI:
-  <<: *uses_slurm
-  stage: Applications
-  needs:
-    - [Lowcomm, MPI Simple C, MPI Simple Fortran]
+    - [Process Mode Lowcomm, Process Mode MPI Simple C, Process Mode MPI Simple Fortran]
   script:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/hybrid/NAS/MZ-MPI/"
 
-NAS-MZ OMP:
+Process Mode Lulesh:
   <<: *uses_slurm
   stage: Applications
   needs:
-    - [OpenMP Tasking cholesky, OpenMP Tasking examples]
+    - [Process Mode Lowcomm, Process Mode MPI Simple C, Process Mode MPI Simple Fortran]
+    - [Process Mode OpenMP Tasking cholesky, Process Mode OpenMP Tasking examples]
   script:
     - *pcvs_prepare
-    - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/hybrid/NAS/MZ-OMP/"
+    - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/corals/lulesh-2.0.3/"
 
-miniFe:
+Process Mode miniFe:
   <<: *uses_slurm
   stage: Applications
   needs:
-    - [Lowcomm, MPI Simple C, MPI Simple Fortran, OpenMP Tasking cholesky, OpenMP Tasking examples]
+    - [Process Mode Lowcomm, Process Mode MPI Simple C, Process Mode MPI Simple Fortran]
+    - [Process Mode OpenMP Tasking cholesky, Process Mode OpenMP Tasking examples]
   script:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/corals/miniFe/"
 
-# Configurations
-MPC Default Configuration:
-  stage: Configurations
+Process Mode OMP NAS-MZ:
+  <<: *uses_slurm
+  stage: Applications
   needs:
-    - [Env Sanitize]
-  variables:
-    GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}_default
-    GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_default
-    GL_INSTALL_OPTS: ${GL_INSTALL_COMMON_OPTS}
+    - [Process Mode OpenMP Tasking cholesky, Process Mode OpenMP Tasking examples]
   script:
-    - *configuration_commands
+    - *pcvs_prepare
+    - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/hybrid/NAS/MZ-OMP/"
 
-MPC Process Mode:
+
+Privatization MPI IMB-MPI 2017:
+  <<: *uses_slurm
+  stage: Benchmarks
+  needs:
+    - [Privatization Lowcomm, Privatization MPI Simple C, Privatization MPI Simple Fortran]
+  variables:
+    GL_INSTALL_DIR: $GL_PIPELINE_PATH/install_default
+  script:
+    - *pcvs_prepare
+    - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/MPI/IMB_2017/check-mpi/"
+
+Privatization MPI IMB-NBC 2017:
+  <<: *uses_slurm
+  stage: Benchmarks
+  needs:
+    - [Privatization Lowcomm, Privatization MPI Simple C, Privatization MPI Simple Fortran]
+  variables:
+    GL_INSTALL_DIR: $GL_PIPELINE_PATH/install_default
+  script:
+    - *pcvs_prepare
+    - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/MPI/IMB_2017/check-nbc/"
+
+Privatization MPI NBC:
+  <<: *uses_slurm
+  stage: Benchmarks
+  needs:
+    - [Privatization Lowcomm, Privatization MPI Simple C, Privatization MPI Simple Fortran]
+  variables:
+    GL_INSTALL_DIR: $GL_PIPELINE_PATH/install_default
+  script:
+    - *pcvs_prepare
+    - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/MPI/NBC/"
+
+Privatization MPI NAS-MZ:
+  <<: *uses_slurm
+  stage: Applications
+  needs:
+    - [Privatization Lowcomm, Privatization MPI Simple C, Privatization MPI Simple Fortran]
+  variables:
+    GL_INSTALL_DIR: $GL_PIPELINE_PATH/install_default
+  script:
+    - *pcvs_prepare
+    - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/hybrid/NAS/MZ-MPI/"
+
+Privatization Lulesh:
+  <<: *uses_slurm
+  stage: Applications
+  needs:
+    - [Privatization Lowcomm, Privatization MPI Simple C, Privatization MPI Simple Fortran]
+    - [Privatization OpenMP Tasking cholesky, Privatization OpenMP Tasking examples]
+  variables:
+    GL_INSTALL_DIR: $GL_PIPELINE_PATH/install_default
+  script:
+    - *pcvs_prepare
+    - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/corals/lulesh-2.0.3/"
+
+Privatization miniFe:
+  <<: *uses_slurm
+  stage: Applications
+  needs:
+    - [Privatization Lowcomm, Privatization MPI Simple C, Privatization MPI Simple Fortran]
+    - [Privatization OpenMP Tasking cholesky, Privatization OpenMP Tasking examples]
+  variables:
+    GL_INSTALL_DIR: $GL_PIPELINE_PATH/install_default
+  script:
+    - *pcvs_prepare
+    - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/corals/miniFe/"
+
+Privatization OMP NAS-MZ:
+  <<: *uses_slurm
+  stage: Applications
+  needs:
+    - [Privatization OpenMP Tasking cholesky, Privatization OpenMP Tasking examples]
+  variables:
+    GL_INSTALL_DIR: $GL_PIPELINE_PATH/install_default
+  script:
+    - *pcvs_prepare
+    - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/hybrid/NAS/MZ-OMP/"
+
+
+# Configurations
+
+Process Mode MPC:
   stage: Configurations
   needs:
     - [Env Sanitize]
