@@ -4,9 +4,9 @@ TMUX_GDB_TMP="/tmp/$(id -un)/tmux_gdb"
 
 mkdir -p "${TMUX_GDB_TMP}"
 
-BASE_PORT=$(ls "${TMUX_GDB_TMP}" | sort -r | head -n 1)
+BASE_PORT=$(find "${TMUX_GDB_TMP}" -mindepth 1 | sort -r | head -n 1)
 test "0$BASE_PORT" -lt 2159 && BASE_PORT=2159
-port=$[$BASE_PORT + $PMI_RANK + 1]
+port=$((BASE_PORT + PMI_RANK + 1))
 
 # gdb server need to be a process child of mpiexec.hydra
 # or it will miss file descriptor to do MPI_Init.
@@ -14,7 +14,7 @@ gdbserver :$port "$@" &
 
 # Create a new window and capture its ID
 WINDOW_ID=$(tmux new-window -P -F "#{window_id}" \
-"gdb -ex \"target remote localhost:$port\" --args $@ || read")
+"gdb -ex \"target remote localhost:$port\" --args $* || read")
 
 #tmux set-window-option -t "${WINDOW_ID}" remain-on-exit on
 
