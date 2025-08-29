@@ -851,10 +851,7 @@ static void *__per_client_loop(void *pctx)
 		if (!query)
 		{
 			mpc_common_nodebug("Client %lu left", ctx->uid);
-			if (__monitor_running)
-			{
-				_mpc_lowcomm_monitor_client_remove(ctx->monitor, ctx->uid);
-			}
+			_mpc_lowcomm_monitor_client_remove(ctx->monitor, ctx->uid);
 			break;
 		}
 
@@ -1117,8 +1114,8 @@ mpc_lowcomm_monitor_retcode_t _mpc_lowcomm_monitor_init(struct _mpc_lowcomm_moni
 
 mpc_lowcomm_monitor_retcode_t _mpc_lowcomm_monitor_release(struct _mpc_lowcomm_monitor_s *monitor)
 {
+	pthread_mutex_lock(&monitor->client_lock);
 	__monitor_worker_release();
-
 
 	__monitor_running = 0;
 
@@ -1131,9 +1128,11 @@ mpc_lowcomm_monitor_retcode_t _mpc_lowcomm_monitor_release(struct _mpc_lowcomm_m
 
 	_mpc_lowcomm_kernel_thread_join(&monitor->server_thread);
 
-
 	mpc_common_hashtable_release(&monitor->client_contexts);
-	pthread_mutex_destroy(&monitor->client_lock);
+	// mutex should not be destry,
+	// other threads may still try to lock it to remove client.
+	pthread_mutex_unlock(&monitor->client_lock);
+	//pthread_mutex_destroy(&monitor->client_lock);
 
 	return 0;
 }
@@ -1165,6 +1164,11 @@ int _mpc_lowcomm_monitor_client_remove(struct _mpc_lowcomm_monitor_s *monitor,
                                        uint64_t uid)
 {
 	pthread_mutex_lock(&monitor->client_lock);
+	if (!__monitor_running)
+	{
+		pthread_mutex_unlock(&monitor->client_lock);
+		return -1;
+	}
 	/* Is the peer already connected ? */
 	_mpc_lowcomm_client_ctx_t *ctx = mpc_common_hashtable_get(&monitor->client_contexts, uid);
 

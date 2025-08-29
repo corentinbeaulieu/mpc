@@ -233,8 +233,11 @@ void mpc_common_hashtable_release(struct mpc_common_hashtable *ht)
 
 void *mpc_common_hashtable_get_no_lock(struct mpc_common_hashtable *ht, uint64_t key)
 {
-	uint64_t             bucket = murmur_hash(key) % ht->table_size;
-	struct _mpc_ht_cell *head   = &ht->cells[bucket];
+	// make sure ht have not already been release ...
+	assert(ht != NULL);
+	assert(ht->table_size > 0);
+	uint64_t bucket = murmur_hash( key ) % ht->table_size;
+	struct _mpc_ht_cell *head = &ht->cells[bucket];
 
 	if (!head->use_flag)
 	{
@@ -263,8 +266,12 @@ void *mpc_common_hashtable_get_no_lock(struct mpc_common_hashtable *ht, uint64_t
 
 void *mpc_common_hashtable_get(struct mpc_common_hashtable *ht, uint64_t key)
 {
-	uint64_t             bucket = murmur_hash(key) % ht->table_size;
-	struct _mpc_ht_cell *head   = &ht->cells[bucket];
+	// make sure ht have not already been release ...
+	assert(ht != NULL);
+	assert(ht->table_size > 0);
+	uint64_t bucket = murmur_hash( key ) % ht->table_size;
+	struct _mpc_ht_cell *head = &ht->cells[bucket];
+	mpc_common_hashtable_lock_read( ht, bucket );
 
 	mpc_common_hashtable_lock_read(ht, bucket);
 
@@ -300,8 +307,11 @@ void *mpc_common_hashtable_get(struct mpc_common_hashtable *ht, uint64_t key)
 void *mpc_common_hashtable_get_or_create(struct mpc_common_hashtable *ht, uint64_t key,
                                          void *( create_entry )(uint64_t key), int *did_create)
 {
-	uint64_t             bucket = murmur_hash(key) % ht->table_size;
-	struct _mpc_ht_cell *head   = &ht->cells[bucket];
+	// make sure ht have not already been release ...
+	assert(ht != NULL);
+	assert(ht->table_size > 0);
+	uint64_t bucket = murmur_hash( key ) % ht->table_size;
+	struct _mpc_ht_cell *head = &ht->cells[bucket];
 
 	if (did_create)
 	{
@@ -357,8 +367,12 @@ void *mpc_common_hashtable_get_or_create(struct mpc_common_hashtable *ht, uint64
 
 void mpc_common_hashtable_set(struct mpc_common_hashtable *ht, uint64_t key, void *data)
 {
-	uint64_t             bucket = murmur_hash(key) % ht->table_size;
-	struct _mpc_ht_cell *head   = &ht->cells[bucket];
+	// make sure ht have not already been release ...
+	assert(ht != NULL);
+	assert(ht->table_size > 0);
+	uint64_t bucket = murmur_hash( key ) % ht->table_size;
+	struct _mpc_ht_cell *head = &ht->cells[bucket];
+	mpc_common_hashtable_lock_write( ht, bucket );
 
 	mpc_common_hashtable_lock_write(ht, bucket);
 
@@ -388,8 +402,12 @@ void mpc_common_hashtable_set(struct mpc_common_hashtable *ht, uint64_t key, voi
 
 void mpc_common_hashtable_delete(struct mpc_common_hashtable *ht, uint64_t key)
 {
-	uint64_t             bucket = murmur_hash(key) % ht->table_size;
-	struct _mpc_ht_cell *head   = &ht->cells[bucket];
+	// make sure ht have not already been release ...
+	assert(ht != NULL);
+	assert(ht->table_size > 0);
+	uint64_t bucket = murmur_hash( key ) % ht->table_size;
+	struct _mpc_ht_cell *head = &ht->cells[bucket];
+	mpc_common_hashtable_lock_write( ht, bucket );
 
 	mpc_common_hashtable_lock_write(ht, bucket);
 
@@ -418,6 +436,9 @@ void mpc_common_hashtable_delete(struct mpc_common_hashtable *ht, uint64_t key)
 
 int mpc_common_hashtable_empty(struct mpc_common_hashtable *ht)
 {
+	// make sure ht have not already been release ...
+	assert(ht != NULL);
+	assert(ht->table_size > 0);
 	int i, sz = ht->table_size;
 
 	for (i = 0; i < sz; ++i)
