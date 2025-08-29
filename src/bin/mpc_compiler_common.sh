@@ -35,7 +35,7 @@ SHOW_COMMAND="no"
 
 PRIV_COMP_IS_DEFAULT="no"
 # The compiler use for privatization may not be the main compiler,
-# in the cuda/hip case, it is the HOST compiler that is called using
+# in the cuda/hip case, it is the HOST compiler that is being called by
 # nvcc or hipcc wrapper.
 # So we need to differentiate the (main) COMPILER from the PRIV_COMPILER
 if [ "x$PRIV_COMPILER" = "x" ]
@@ -360,6 +360,7 @@ run_compiler()
 
 	${MPC_COMMAND_WRAPPER} ${COMPILER} ${CFLAGS} ${COMPILATION_ARGS}\
 		${FINAL_LDFLAGS} ${OUTPUT_FILE_ARGS}
+	res=$?
 	exit $?
 }
 
