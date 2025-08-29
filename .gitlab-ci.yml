@@ -10,8 +10,8 @@ stages:
   - Installations
   - Basic Testing
   - Regular Testing
-  - Benchmarks 
   - Applications
+  - Benchmarks 
   - Configurations
   - Additionnal Tests
   - Release
