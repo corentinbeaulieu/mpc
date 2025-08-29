@@ -1002,47 +1002,20 @@ int mpc_launch_pmi_put_as_rank( char *value, int tag, int is_local )
 	PMI_RETURN( rc );
 }
 
-int mpc_launch_pmi_get_shm( char *value, size_t size, char *key, int remote)
+int mpc_launch_pmi_get_global_rank_from_local(const int remote)
 {
-#if defined(MPC_USE_PMIX)
-	// Param remote is considered as a local rank here
 	// We need to retrieve its global rank to perform the get op
 	const int node_rank = mpc_common_get_node_rank();
 
-	pmix_status_t rc;
-	pmix_value_t *val = NULL;
-
-	pmix_proc_t proc;
-
-	PMIX_PROC_CONSTRUCT(&proc);
-	(void)strncpy(proc.nspace, pmi_context.pmix_proc.nspace, PMIX_MAX_NSLEN);
 	struct mpc_launch_pmi_process_layout *layout = NULL;
 
 	// Get the layout for the local node
 	HASH_FIND_INT(pmi_context.process_nb_from_node_rank, &node_rank, layout);
 	assume(layout->nb_process > remote);
 	// Get the global id associated with the local id remote
-	proc.rank = layout->process_list[remote];
-
-	mpc_common_debug("GET %s from %d", key, proc.rank);
-	rc = PMIx_Get(&proc, key, NULL, 0, &val);
-	PMI_CHECK_RC(rc, "PMIx_Get");
-	assume(val != NULL);
-	assume(val->type == PMIX_STRING);
-	strcpy(value, val->data.string);
-	PMIX_VALUE_RELEASE(val);
-	PMIX_PROC_DESTRUCT(&proc);
-	PMI_RETURN(rc);
-#else
-	UNUSED(remote);
-	int rc = 0;
-
-	// Get the value associated to the given key
-	rc = PMI_KVS_Get( pmi_context.kvsname, key, value, (int)size );
-	PMI_CHECK_RC( rc, "PMI_KVS_Get" );
-	PMI_RETURN( rc );
-#endif
+	return layout->process_list[remote];
 }
+
 int mpc_launch_pmi_get( char *value, size_t size, char *key, int remote)
 {
 #if defined(MPC_USE_PMIX)

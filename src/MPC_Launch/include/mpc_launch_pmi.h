@@ -187,8 +187,6 @@ int mpc_launch_pmi_put( char *value, char *key, int is_local );
  */
 int mpc_launch_pmi_get( char *value, size_t size, char *key, int remote);
 
-int mpc_launch_pmi_get_shm( char *value, size_t size, char *key, int remote);
-
 /*********************
  * OS PROCESS LAYOUT *
  *********************/
@@ -212,6 +210,14 @@ struct mpc_launch_pmi_process_layout
  * @return int SCTK_PMI_SUCCESS / _FAIL
  */
 int mpc_launch_pmi_get_process_layout( struct mpc_launch_pmi_process_layout **layout );
+
+/**
+ * @brief Translates a local (to the node) rank into a global rank
+ *
+ * @param remote [in] Local rank to translate
+ * @return Global rank of the given peer
+ */
+int mpc_launch_pmi_get_global_rank_from_local(const int remote);
 
 /**********************************
  * NUMBERING/TOPOLOGY INFORMATION *

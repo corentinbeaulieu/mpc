@@ -102,9 +102,11 @@ static inline void *__map_shm_segment_pmi(size_t size)
 	{
 		segment_name[0] = '\0';
 
-		/* First get the segment name */
-		mpc_launch_pmi_get_shm(segment_name, 128, segment_key, 0);
+		/* First get the global remote rank of the local leader */
+		const int local_leader = mpc_launch_pmi_get_global_rank_from_local(0);
 
+		/* Then get the segment name */
+		mpc_launch_pmi_get(segment_name, 128, segment_key, local_leader);
 
 		if(!strlen(segment_name) )
 		{
