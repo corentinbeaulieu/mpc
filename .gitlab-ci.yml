@@ -83,11 +83,10 @@ Resource Relinquishing:
   stage: .post
   when: always
   script:
-  # FIXME: re-setup job canncellation.
-  - scancel --name GL-build_$CI_PIPELINE_ID
-  # Ugly, our way to kill allocations from tests
-  - scancel -u $USER
-  - rm -rf ${GL_INSTALL_DIR} ${GL_BUILD_DIR}
+    - echo "Suppressing ${GL_PIPELINE_PATH} data"
+  after_script:
+    - rm -rf ${GL_INSTALL_DIR} ${GL_BUILD_DIR}
+    - rm -rf ${GL_PIPELINE_PATH}/*
 
 ############################
 ####### CONF STAGE  ########
