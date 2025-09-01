@@ -38,7 +38,7 @@
 /* Config */
 #define LCP_CONF_STRING_SIZE 512
 
-/* Chanel */
+/* Channel */
 #define LCP_MAX_CHANNELS 6
 #define LCP_NULL_CHANNEL ((lcp_chnl_idx_t)-1)
 typedef uint8_t lcp_chnl_idx_t; /* Communication channel index */

@@ -299,7 +299,7 @@ int PREPEND_PREFIX(Segment_blkidx_m2m)(DLOOP_Offset *blocks_p,
     char *dest;
     char const *src;
     cbufp = paramp->userbuf + rel_off;
-    DLOOP_Offset const *offsetp = offsetarray;
+    DLOOP_Offset const *offset = offsetarray;
 
     /* Separate the loops into the 2 directions */
     if (paramp->direction == DLOOP_M2M_TO_USERBUF) {
@@ -312,14 +312,14 @@ int PREPEND_PREFIX(Segment_blkidx_m2m)(DLOOP_Offset *blocks_p,
 		int64_t const *restrict l_src = (int64_t *)src;
 		while (blocks_left--) {
 		    int64_t *restrict l_dest =
-			(int64_t *)(cbufp + *offsetp++);
+			(int64_t *)(cbufp + *offset++);
 		    *l_dest = *l_src++;
 		}
 		src = (char const *)l_src;
 	    }
 	    else {
 		while (blocks_left--) {
-		    dest = cbufp + *offsetp++;
+		    dest = cbufp + *offset++;
 		    if (el_size == 8 MPIR_ALIGN8_TEST(src,dest)) {
 			int64_t const *l_src = (int64_t *)src;
 			int64_t *l_dest = (int64_t *)dest;
@@ -353,7 +353,7 @@ int PREPEND_PREFIX(Segment_blkidx_m2m)(DLOOP_Offset *blocks_p,
 		    srcsize = el_size * blocklen;
 		}
 
-		dest = cbufp + *offsetp++;
+		dest = cbufp + *offset++;
 
 		/* note: macro modifies dest buffer ptr, so we must reset */
 		if (el_size == 8
@@ -389,7 +389,7 @@ int PREPEND_PREFIX(Segment_blkidx_m2m)(DLOOP_Offset *blocks_p,
 		int64_t * restrict l_dest = (int64_t *)dest;
 		while (blocks_left--) {
 		    register int64_t const * restrict l_src     =
-			(int64_t *)(cbufp + *offsetp++);
+			(int64_t *)(cbufp + *offset++);
 		    *l_dest++ = *l_src;
 		}
 		dest = (char *)l_dest;
@@ -397,7 +397,7 @@ int PREPEND_PREFIX(Segment_blkidx_m2m)(DLOOP_Offset *blocks_p,
 	    else {
 		while (blocks_left--) {
 
-		    src  = cbufp + *offsetp++;
+		    src  = cbufp + *offset++;
 
 		    if (el_size == 8 MPIR_ALIGN8_TEST(src, dest)) {
 			int64_t *l_dest = (int64_t *)dest;
@@ -432,7 +432,7 @@ int PREPEND_PREFIX(Segment_blkidx_m2m)(DLOOP_Offset *blocks_p,
 		    destsize = el_size * blocklen;
 		}
 
-		src  = cbufp + *offsetp++;
+		src  = cbufp + *offset++;
 
 		/* note: macro modifies dest buffer ptr, so we must reset */
 		if (el_size == 8

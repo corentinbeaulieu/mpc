@@ -100,14 +100,14 @@ static inline uint64_t mpc_common_bit_array_size( struct mpc_common_bit_array *b
 /**
  * @brief mpc_common_bit_array initializer
  * @param ba the mpc_common_bit_array to initialize
- * @param size the number of bits wanted fot ba
+ * @param size the number of bits wanted for ba
  */
 void mpc_common_bit_array_init( struct mpc_common_bit_array *ba, uint64_t size );
 
 /**
  * @brief mpc_common_bit_array initializer with preallocated buffer
  * @param ba the mpc_common_bit_array to initialize
- * @param size the number of bits wanted fot ba
+ * @param size the number of bits wanted for ba
  * @param buff a preallocated buffer larger than size bits
  * @param buff_size the size of the preallocated buffer
  */
@@ -219,9 +219,9 @@ struct mpc_common_fifo_chunk;
  */
 struct mpc_common_fifo
 {
-	mpc_common_spinlock_t head_lock;  /**< @brief a lock for concurent access to the head */
+	mpc_common_spinlock_t head_lock;  /**< @brief a lock for concurrent access to the head */
 	struct mpc_common_fifo_chunk *head; /**< @brief the head chunk (chere elements are pushed */
-	mpc_common_spinlock_t tail_lock;  /**< @brief a lock for concurent access to the tail */
+	mpc_common_spinlock_t tail_lock;  /**< @brief a lock for concurrent access to the tail */
 	struct mpc_common_fifo_chunk *tail; /**< @brief the tail chunk (from where elements are popped */
 
 	uint64_t chunk_size; /**< @brief the size of the composing chunks */
@@ -357,7 +357,7 @@ void *mpc_common_hashtable_get_no_lock( struct mpc_common_hashtable *ht, uint64_
  * @param key the key to look of or assign to
  * @param create_entry a function pointer to a func returning the newly created elem (if needed)
  * @param did_create a flag defining if a new object was created
- * @return void* a pointer to the existing or new elemement
+ * @return void* a pointer to the existing or new element
  */
 void *mpc_common_hashtable_get_or_create( struct mpc_common_hashtable *ht, uint64_t key, void *( create_entry )( uint64_t key ), int *did_create );
 

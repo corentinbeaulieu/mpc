@@ -13,7 +13,7 @@
 ***********/
 
 
-/** \brief MPICH says check wether the progress engine is blocked assuming
+/** \brief MPICH says check whether the progress engine is blocked assuming
  * "YIELD"
  */
 void MPIR_Ext_cs_yield(void)
@@ -100,12 +100,12 @@ int MPIR_File_call_cxx_errhandler( __UNUSED__ void *fh, __UNUSED__ int *errorcod
 /************************************************************************/
 /* Datatype Optimization                                                */
 /************************************************************************/
-/** \brief This function is used in ROMIO in order to dermine if a data-type is contiguous
+/** \brief This function is used in ROMIO in order to determine if a data-type is contiguous
  *  We implement it here as it is much faster to do it with the
  *  knowledge of data-type internals
  *
  *  \param datatype Type to be tested
- *  \param flag OUT 1 of cont. 0 otherwize
+ *  \param flag OUT 1 of cont. 0 otherwise
  */
 void MPIR_Datatype_iscontig(MPI_Datatype datatype, int *flag)
 {
@@ -191,7 +191,7 @@ int MPIR_Get_node_id(MPI_Comm comm, int rank, int *id) {
 #ifdef MPC_FORTRAN_ENABLED
 
 /* These requests conversion functions are needed because
- * the fortran interface in ROMIO reffers to the old IOWait
+ * the fortran interface in ROMIO refers to the old IOWait
  * requests, therefore we just have to remap these calls to
  * the classical request management functions as MPIO_Requests
  * are in fact normal MPI_Requests */
@@ -214,8 +214,8 @@ MPI_Request PMPIO_Request_f2c(MPI_Fint rid )
 
 /** \brief MPC type flattening function for ROMIO
  *  ROMIO has at his core data-type flattening, using this function we make it
- *  faster as we already stor ethe internal layout. And also more reliable
- *  as the recursive implementation ion ROMIO chrashed in some cases (darray).
+ *  faster as we already store the internal layout. And also more reliable
+ *  as the recursive implementation ion ROMIO crashed in some cases (darray).
  *
  *  \param datatype Data-type to be flattened
  *  \param blocklen OUT size of blocks

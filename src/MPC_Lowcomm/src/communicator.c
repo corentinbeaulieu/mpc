@@ -778,15 +778,15 @@ static inline void ___free_hardware_info(mpc_hardware_split_info_t *hw_info)
 		__comm_free(hw_info->hwcomm[i + 1]);
 		__comm_free(hw_info->rootcomm[i]);
 
-		if(hw_info->childs_data_count != NULL)
+		if(hw_info->children_data_count != NULL)
 		{
-			sctk_free(hw_info->childs_data_count[i]);
+			sctk_free(hw_info->children_data_count[i]);
 		}
 	}
 
 	sctk_free(hw_info->hwcomm);
 	sctk_free(hw_info->rootcomm);
-	sctk_free(hw_info->childs_data_count);
+	sctk_free(hw_info->children_data_count);
 	sctk_free(hw_info->send_data_count);
 	sctk_free(hw_info->swap_array);
 
@@ -2260,7 +2260,7 @@ mpc_lowcomm_communicator_t mpc_lowcomm_communicator_intercomm_create(const mpc_l
 	mpc_lowcomm_communicator_id_t intercomm_id = __intercomm_root_id_exchange(left_comm, peer_comm, tag, local_comm_rank, local_leader, remote_leader);
 
 	/* ###################################
-	*   First attemps exchange comm ids
+	*   First attempts exchange comm ids
 	################################### */
 	mpc_lowcomm_communicator_id_t left_comm_id  = mpc_lowcomm_communicator_id(left_comm);
 	mpc_lowcomm_communicator_id_t right_comm_id = MPC_LOWCOMM_COMM_NULL_ID;

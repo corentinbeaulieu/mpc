@@ -32,7 +32,7 @@ allcolors = [
     "cq_build_failed",
     "cq_build_abandoned",
     # "cq_build_attempt_running"
-    # some version of chrome has a buggy name 'cq_build_attempt_runnig'
+    # some version of chrome has a buggy name 'cq_build_attempt_running'
     "cq_build_attempt_passed",
     "cq_build_attempt_failed",
 ]

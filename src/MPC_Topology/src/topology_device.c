@@ -79,9 +79,9 @@ const char *mpc_topology_device_type_to_char( mpc_topology_device_type_t type )
 			return "MPC_TOPO_DEVICE_DMA";
 			break;
 
-		case MPC_TOPO_DEVICE_UKNOWN:
+		case MPC_TOPO_DEVICE_UNKNOWN:
 		default:
-			return "MPC_TOPO_DEVICE_UKNOWN";
+			return "MPC_TOPO_DEVICE_UNKNOWN";
 			break;
 	}
 
@@ -117,7 +117,7 @@ mpc_topology_device_type_t mpc_topology_device_type_from_hwloc(hwloc_obj_osdev_t
 			return MPC_TOPO_DEVICE_DMA;
 	}
 
-	return MPC_TOPO_DEVICE_UKNOWN;
+	return MPC_TOPO_DEVICE_UNKNOWN;
 }
 
 const char *mpc_topology_device_container_to_char( mpc_topology_device_container_t type )
@@ -222,7 +222,7 @@ static inline void __topology_device_load_topology_limits( hwloc_topology_t topo
 
 			if ( local_count < last_count )
 			{
-				mpc_common_debug_warning( "Machine seems to be asymetric" );
+				mpc_common_debug_warning( "Machine seems to be asymmetric" );
 				last_count = local_count;
 			}
 		}
@@ -391,7 +391,7 @@ static void __topology_device_init( hwloc_topology_t topology, mpc_topology_devi
 		dev->nodeset = hwloc_bitmap_dup( dev->non_io_parent_obj->nodeset );
 		hwloc_const_cpuset_t allowed_cpuset = hwloc_topology_get_allowed_cpuset( topology );
 
-		/* If the device CPUset it diferent from the whole process
+		/* If the device CPUset it different from the whole process
 		 * cpuset then we can consider that this device might
 		 * be facing some topological constraints */
 		if ( !hwloc_bitmap_isequal( dev->cpuset, allowed_cpuset ) )
@@ -422,7 +422,7 @@ static void __topology_device_init( hwloc_topology_t topology, mpc_topology_devi
 		else
 		{
 			/* Here we have a device with no particular locality
-			 * we then apply a scatter algoritms to elect
+			 * we then apply a scatter algorithms to elect
 			 * a preferential NUMA node */
 			dev->container = MPC_TOPO_MACHINE_LEVEL_DEVICE;
 			mpc_common_spinlock_lock( &___counter_lock );
@@ -486,11 +486,11 @@ static void __topology_device_init( hwloc_topology_t topology, mpc_topology_devi
 #endif
 
 	/* Type resolution */
-	dev->type = MPC_TOPO_DEVICE_UKNOWN;
+	dev->type = MPC_TOPO_DEVICE_UNKNOWN;
 
 	if ( os_level_obj != NULL )
 	{
-		/* Overide the PCI level name with the OS level one if found */
+		/* Override the PCI level name with the OS level one if found */
 		if ( os_level_obj->name )
 		{
 			if ( dev->name )
@@ -584,7 +584,7 @@ int rocm_device_to_locate = 0;
 
 		#ifdef MPC_USE_ROCM
 		if (mpc_common_get_flags()->enable_rocm) {
-			// Each rocm cards apears 3 times:
+			// Each rocm cards appears 3 times:
 			// Once as 'card', once as 'renderD' and once as 'rsmi'
 			if (device->name
 				&& strlen(device->name) >= 4
@@ -601,7 +601,7 @@ int rocm_device_to_locate = 0;
 		}
 		#endif
 
-		// Compute gathered informations
+		// Compute gathered information
 		char *name_prefix;
 		int device_id;
 		if (is_cuda) {
@@ -617,7 +617,7 @@ int rocm_device_to_locate = 0;
 			device_id = rocm_device_id;
 		}
 
-		// Exports gathered informations in topology
+		// Exports gathered information in topology
 		// RENAMING THE DEVICE
 		if (is_cuda || is_rocm) {
 			// we suppose 4 digits to encode GPU ids is enough !
@@ -695,7 +695,7 @@ static inline void __topology_device_matrix_release()
 	__mpc_topology_device_matrix.distances = NULL;
 }
 
-/** Intializes the device matrix */
+/** Initializes the device matrix */
 static inline void __topology_device_matrix_init( hwloc_topology_t topology )
 {
 	__mpc_topology_device_matrix.device_count = __mpc_topology_device_list_count;

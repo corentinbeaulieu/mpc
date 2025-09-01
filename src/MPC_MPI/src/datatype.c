@@ -135,7 +135,7 @@ struct __mpc_dt_keyval
 	MPC_Type_copy_attr_function *  copy;        /**< Keyval copy func */
 	MPC_Type_delete_attr_function *delete;      /**< Keyval delete func */
 	void *                         extra_state; /**< An extra state to be stored */
-	int                            free_cell;   /**< Initally 0, 1 is the keyval is then freed */
+	int                            free_cell;   /**< Initially 0, 1 is the keyval is then freed */
 };
 
 /** Here we store Type Keyvals as a linear array */
@@ -440,7 +440,7 @@ static inline int __mpc_dt_attr_store_release(struct __mpc_dt_attr_store *store,
 /* Common Datatype                                                      */
 /************************************************************************/
 
-/* We need this funtions as MPI_* types are macro replaced by MPC_* ones
+/* We need this functions as MPI_* types are macro replaced by MPC_* ones
  * and the standard wants MPI_* so we replace ... */
 static inline void __mpc_common_dt_set_name(mpc_lowcomm_datatype_t datatype, const char *const name)
 {
@@ -829,7 +829,7 @@ mpc_lowcomm_datatype_t _mpc_dt_general_create(
 
 	if(type == NULL)
 	{
-		mpc_common_debug_fatal("Failled to allocate general type");
+		mpc_common_debug_fatal("Failed to allocate general type");
 	}
 
 	mpc_common_nodebug("general create ID %d", id);
@@ -848,7 +848,7 @@ mpc_lowcomm_datatype_t _mpc_dt_general_create(
 	/*EXPAT*/
 	if(!type->begins || !type->ends || !type->datatypes)
 	{
-		mpc_common_debug_fatal("Failled to allocate general type content");
+		mpc_common_debug_fatal("Failed to allocate general type content");
 	}
 
 	/* And we fill them from the parameters */
@@ -884,8 +884,8 @@ mpc_lowcomm_datatype_t _mpc_dt_general_create(
 	/* We assume 0 this value is set in the Struct constructor afterwards */
 	type->is_a_padded_struct = false;
 
-	/* The datatype isn't commited at first */
-	type->is_commited = false;
+	/* The datatype isn't committed at first */
+	type->is_committed = false;
 
         /* Initialize MPITypes handle. */
         type->handle = NULL;
@@ -919,7 +919,7 @@ mpc_lowcomm_datatype_t _mpc_dt_general_create(
  */
 static int __mpc_dt_general_release_internal(mpc_lowcomm_datatype_t *type_p)
 {
-	/* Dereference for convinience */
+	/* Dereference for convenience */
 	mpc_lowcomm_datatype_t type = *type_p;
 
 	/* Wrong argument */
@@ -1089,7 +1089,7 @@ int _mpc_dt_general_on_slot(mpc_lowcomm_datatype_t *type_p)
 	/* Dereference for free purpose */
 	mpc_lowcomm_datatype_t old_type = *type_p;
 
-	/* Already commited or common datatype */
+	/* Already committed or common datatype */
 	if(mpc_dt_is_valid(old_type) )
 	{
 		return MPC_LOWCOMM_SUCCESS;
@@ -1133,9 +1133,9 @@ int _mpc_dt_general_on_slot(mpc_lowcomm_datatype_t *type_p)
 			/* Release the datatype lock */
 			_mpc_cl_per_mpi_process_ctx_datatype_unlock();
 
-			/* Return the new commited datatype */
+			/* Return the new committed datatype */
 			*type_p = current_user_type;
-			/* Free the old structure not commited */
+			/* Free the old structure not committed */
 			sctk_free(old_type);
 
 			return MPC_LOWCOMM_SUCCESS;
@@ -1197,7 +1197,7 @@ void _mpc_dt_general_true_extend(const _mpc_lowcomm_general_datatype_t *type, lo
 	*true_ub = max_index;
 }
 
-/** \brief This stucture is used to optimize a general datatype
+/** \brief This structure is used to optimize a general datatype
  *  It is easier to manipulate pairs of begin and ends instead of two arrays
  */
 struct __mpc_general_type_desc
@@ -1756,7 +1756,7 @@ bool _mpc_dt_footprint_check_envelope(struct _mpc_dt_footprint *ref, struct _mpc
 	_mpc_dt_fill_envelope(ref, &num_integers_ref, &num_addresses_ref, &num_datatypes_ref, &dummy_combiner_ref);
 	_mpc_dt_fill_envelope(candidate, &num_integers_candidate, &num_addresses_candidate, &num_datatypes_candidate, &dummy_combiner_candidate);
 
-	/* Shorcut */
+	/* Shortcut */
 	if(num_integers_ref != num_integers_candidate)
 	{
 		return false;
@@ -1926,7 +1926,7 @@ static void __mpc_context_set_refcount(struct _mpc_dt_footprint *ctx, struct _mp
 	assume(ctx != NULL);
 	assume(dctx != NULL);
 
-	/* Is the type context initalized ? */
+	/* Is the type context initialized ? */
 	assume(dctx->combiner != MPC_COMBINER_UNKNOWN);
 
 	/* First we check if there is no previously allocated array
@@ -2250,7 +2250,7 @@ static void __mpc_context_set_refcount(struct _mpc_dt_footprint *ctx, struct _mp
 	for( j = 0; j < n_type; j++ )
 	{
 		/* As UB and LB are negative it would break
-		 * everyting in the array */
+		 * everything in the array */
 		if(_mpc_dt_is_boundary(ctx->array_of_types[j]) ||
 		   ctx->array_of_types[j] == MPC_DATATYPE_NULL ||
 		   mpc_lowcomm_datatype_is_common(ctx->array_of_types[j]) )

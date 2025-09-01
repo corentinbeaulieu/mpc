@@ -77,7 +77,7 @@ Ranking may be reordered (true) or not (false) (logical).
 .ft R
 .TP 1i
 comm_dist_graph
-Communicator with distibuted graph topology added (handle).
+Communicator with distributed graph topology added (handle).
 .ft R
 .TP 1i
 IERROR
@@ -85,7 +85,7 @@ Fortran only: Error status (integer).
 
 .SH DESCRIPTION
 .ft R
-MPI_Dist_graph_create_adjacent creats a new communicator \fIcomm_dist_graph\fP with distrubuted
+MPI_Dist_graph_create_adjacent creates a new communicator \fIcomm_dist_graph\fP with distributed
 graph topology and returns a handle to the new communicator. The number of processes in
 \fIcomm_dist_graph\fP is identical to the number of processes in \fIcomm_old\fP. Each process passes all
 information about its incoming and outgoing edges in the virtual distributed graph topology.
@@ -95,18 +95,18 @@ and in the destination process with the same weights. If there are multiple edge
 complete communication topology is the combination of all edges shown in the \fIsources\fP arrays
 of all processes in comm_old, which must be identical to the combination of all edges shown
 in the \fIdestinations\fP arrays. Source and destination ranks must be process ranks of comm_old.
-This allows a fully distributed specication of the communication graph. Isolated processes
-(i.e., processes with no outgoing or incoming edges, that is, processes that have specied
+This allows a fully distributed specification of the communication graph. Isolated processes
+(i.e., processes with no outgoing or incoming edges, that is, processes that have specified
 indegree and outdegree as zero and thus do not occur as source or destination rank in the
-graph specication) are allowed. The call to MPI_Dist_graph_create_adjacent is collective.
+graph specification) are allowed. The call to MPI_Dist_graph_create_adjacent is collective.
 
 .SH WEIGHTS
 .ft R
-Weights are specied as non-negative integers and can be used to influence the process
+Weights are specified as non-negative integers and can be used to influence the process
 remapping strategy and other internal MPI optimizations. For instance, approximate count
-arguments of later communication calls along specic edges could be used as their edge
+arguments of later communication calls along specific edges could be used as their edge
 weights. Multiplicity of edges can likewise indicate more intense communication between
-pairs of processes. However, the exact meaning of edge weights is not specied by the MPI
+pairs of processes. However, the exact meaning of edge weights is not specified by the MPI
 standard and is left to the implementation. An application can supply the special value
 MPI_UNWEIGHTED for the weight array to indicate that all edges have the same (effectively
 no) weight. It is erroneous to supply MPI_UNWEIGHTED for some but not all processes of

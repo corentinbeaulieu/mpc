@@ -237,7 +237,7 @@ void sctk_ft_no_suspend_end()
 /**
  * emit a DMTCP checkpoint request to the coordinator.
  * Should be called only once for the whole application. Each call will trigger a new checkpoint.
- * If N proceses call it, you will have N checkpoints (instead of one).
+ * If N processes call it, you will have N checkpoints (instead of one).
  */
 void sctk_ft_checkpoint()
 {
@@ -325,7 +325,7 @@ int sctk_ft_finalize()
 
 /**
  * Wait for checkpoint completion.
- * Called by all involved proceses.
+ * Called by all involved processes.
  * \return the enum representing the state (CHECKPOINT,IGNORED,RESTART)
  */
 mpc_lowcomm_checkpoint_state_t sctk_ft_checkpoint_wait()

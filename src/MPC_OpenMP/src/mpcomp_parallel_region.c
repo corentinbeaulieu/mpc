@@ -102,7 +102,7 @@ _mpc_omp_internal_begin_parallel_region( mpc_omp_parallel_region_t *info, const 
                                        ompt_parallel_invoker_program | ompt_parallel_team );
 
 #if MPCOMPT_HAS_FRAME_SUPPORT
-    /* Copy to transfert frame infos */
+    /* Copy to transfer frame infos */
     instance->team->frame_infos = t->frame_infos;
 #endif
 #endif /* OMPT_SUPPORT */

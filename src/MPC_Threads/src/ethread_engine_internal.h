@@ -65,10 +65,10 @@ size_t sctk_align_size_to_page(size_t size);
 static inline int ___mpc_thread_ethread_poll_vp(_mpc_thread_ethread_virtual_processor_t *vp,
                                                 _mpc_thread_ethread_per_thread_t *cur)
 {
-	_mpc_thread_ethread_status_t stat_sav;
+	_mpc_thread_ethread_status_t stat_save;
 
 
-	stat_sav = cur->status;
+	stat_save = cur->status;
 	assert(cur->status != ethread_inside_polling);
 	cur->status = ethread_inside_polling;
 
@@ -138,7 +138,7 @@ static inline int ___mpc_thread_ethread_poll_vp(_mpc_thread_ethread_virtual_proc
 			vp->poll_list = new_poll_list;
 		}
 	}
-	cur->status = stat_sav;
+	cur->status = stat_save;
 	return 0;
 }
 
@@ -411,11 +411,11 @@ static inline void ___mpc_thread_ethread_sched_yield_vp_tail(_mpc_thread_ethread
 	{
 		if(vp->migration != NULL)
 		{
-			mpc_common_nodebug("mirgation in yield");
+			mpc_common_nodebug("migration in yield");
 			vp->migration->
 			migration_func( (_mpc_thread_ethread_per_thread_t *)vp->migration);
 			vp->migration = NULL;
-			mpc_common_nodebug("mirgation in yield done");
+			mpc_common_nodebug("migration in yield done");
 		}
 		if(vp->dump != NULL)
 		{
@@ -501,7 +501,7 @@ static inline int ___mpc_thread_ethread_sched_yield_vp(_mpc_thread_ethread_virtu
 			{
 				___mpc_thread_ethread_poll_vp(vp, cur);
 				/*New tasks */
-				_mpc_thread_ethread_get_incomming_tasks(vp);
+				_mpc_thread_ethread_get_incoming_tasks(vp);
 				/*Old tasks */
 				_mpc_thread_ethread_get_old_tasks(vp);
 
@@ -519,7 +519,7 @@ static inline int ___mpc_thread_ethread_sched_yield_vp(_mpc_thread_ethread_virtu
 			case ethread_inside_polling:
 			{
 				/*New tasks */
-				_mpc_thread_ethread_get_incomming_tasks(vp);
+				_mpc_thread_ethread_get_incoming_tasks(vp);
 				/*Old tasks */
 				_mpc_thread_ethread_get_old_tasks(vp);
 
@@ -567,12 +567,12 @@ static inline int ___mpc_thread_ethread_sched_yield_vp(_mpc_thread_ethread_virtu
 			{
 				if(vp->migration != NULL)
 				{
-					mpc_common_nodebug("mirgation in yield");
+					mpc_common_nodebug("migration in yield");
 					vp->migration->
 					migration_func( (_mpc_thread_ethread_per_thread_t *)vp->
 					                migration);
 					vp->migration = NULL;
-					mpc_common_nodebug("mirgation in yield done");
+					mpc_common_nodebug("migration in yield done");
 				}
 				_mpc_thread_ethread_set_status(cur, mpc_thread_sleep_status);
 				mpc_common_nodebug("ethread_migrate");
@@ -638,7 +638,7 @@ static inline int ___mpc_thread_ethread_sched_yield_vp_idle(_mpc_thread_ethread_
 
 	___mpc_thread_ethread_poll_vp(vp, cur);
 	/*New tasks */
-	_mpc_thread_ethread_get_incomming_tasks(vp);
+	_mpc_thread_ethread_get_incoming_tasks(vp);
 	/*Old tasks */
 	_mpc_thread_ethread_get_old_tasks(vp);
 
@@ -766,7 +766,7 @@ static inline void ___mpc_thread_ethread_wait_for_value_and_poll(_mpc_thread_eth
                                                                  volatile int *restrict data, int value, void (*func)(void *), void *arg)
 {
 	_mpc_thread_ethread_polling_t cell;
-	_mpc_thread_ethread_status_t  stat_sav;
+	_mpc_thread_ethread_status_t  stat_save;
 	int i = 0;
 
 	if(cur->status != ethread_ready)
@@ -828,7 +828,7 @@ static inline void ___mpc_thread_ethread_wait_for_value_and_poll(_mpc_thread_eth
 	cell.func            = func;
 	cell.arg             = arg;
 	cell.my_self         = cur;
-	stat_sav             = cell.my_self->status;
+	stat_save             = cell.my_self->status;
 	cell.my_self->status = ethread_polling;
 	cell.next            = (_mpc_thread_ethread_polling_t *)vp->poll_list;
 	vp->poll_list        = &cell;
@@ -846,7 +846,7 @@ static inline void ___mpc_thread_ethread_wait_for_value_and_poll(_mpc_thread_eth
 	}
 	                 );
 
-	cell.my_self->status = stat_sav;
+	cell.my_self->status = stat_save;
 }
 
 static inline void __sctk_grab_zombie(_mpc_thread_ethread_virtual_processor_t
@@ -1160,7 +1160,7 @@ static inline int ___mpc_thread_ethread_mutex_trylock(_mpc_thread_ethread_virtua
 	 */
 
 	/*
-	 * On met ce test pour limiter au maximum la contention sur le spinlock.
+	 * On met ce test pour limiter au maximum la contention sure le spinlock.
 	 * Si on arrive pas � prendre le spinlock, c'est qu'il y a du mon et donc que l'on est
 	 * pas prioritaire.
 	 */
@@ -1204,7 +1204,7 @@ static inline int ___mpc_thread_ethread_mutex_trylock(_mpc_thread_ethread_virtua
 static inline int ___mpc_thread_ethread_mutex_unlock(__UNUSED__ _mpc_thread_ethread_virtual_processor_t *
                                                      restrict vp,
                                                      _mpc_thread_ethread_per_thread_t *
-                                                     restrict owner, void (*retrun_task)
+                                                     restrict owner, void (*return_task)
                                                      (_mpc_thread_ethread_per_thread_t *
                                                       restrict task),
                                                      _mpc_thread_ethread_mutex_t *restrict lock)
@@ -1245,7 +1245,7 @@ static inline int ___mpc_thread_ethread_mutex_unlock(__UNUSED__ _mpc_thread_ethr
 		to_wake    = (_mpc_thread_ethread_per_thread_t *)lock->owner;
 		cell->wake = 1;
 		mpc_common_nodebug("a r�veiller %p", to_wake);
-		retrun_task(to_wake);
+		return_task(to_wake);
 	}
 	else
 	{
@@ -1323,7 +1323,7 @@ static inline void *___mpc_thread_ethread_getspecific(_mpc_thread_ethread_per_th
 	return res;
 }
 
-/*Attribut creation */
+/*Attribute creation */
 static inline int ___mpc_thread_ethread_attr_init(_mpc_thread_ethread_attr_intern_t *
                                                   attr)
 {
@@ -1655,7 +1655,7 @@ static inline int ___mpc_thread_ethread_create(_mpc_thread_ethread_status_t stat
 	stack      = attr->stack;
 	stack_size = attr->stack_size;
 
-	/*Consitency_check */
+	/*Consistency_check */
 	/*    assume (attr->priority == 0); */
 	if(attr->priority != 0)
 	{
@@ -1774,8 +1774,8 @@ static inline int ___mpc_thread_ethread_create(_mpc_thread_ethread_status_t stat
 		mpc_common_spinlock_lock(&vp->spinlock);
 		___mpc_thread_ethread_enqueue_task
 		        (th_data,
-		        (_mpc_thread_ethread_per_thread_t **)&(vp->incomming_queue),
-		        (_mpc_thread_ethread_per_thread_t **)&(vp->incomming_queue_tail) );
+		        (_mpc_thread_ethread_per_thread_t **)&(vp->incoming_queue),
+		        (_mpc_thread_ethread_per_thread_t **)&(vp->incoming_queue_tail) );
 		mpc_common_spinlock_unlock(&vp->spinlock);
 	}
 	else if(status == ethread_idle)
@@ -1803,9 +1803,9 @@ static inline int ___mpc_thread_ethread_create(_mpc_thread_ethread_status_t stat
 		___mpc_thread_ethread_enqueue_task
 		        (th_data,
 		        (_mpc_thread_ethread_per_thread_t **)&(new_kernel_vp->
-		                                               incomming_queue),
+		                                               incoming_queue),
 		        (_mpc_thread_ethread_per_thread_t **)&(new_kernel_vp->
-		                                               incomming_queue_tail) );
+		                                               incoming_queue_tail) );
 		mpc_common_spinlock_unlock(&new_kernel_vp->spinlock);
 	}
 	else

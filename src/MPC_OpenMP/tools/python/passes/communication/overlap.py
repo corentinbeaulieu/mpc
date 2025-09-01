@@ -42,7 +42,7 @@ class CommunicationOverlapPass(ipass.Pass):
                 j = j + 1
 
         stats = {
-            'overlaped (no recv.)':  round(self.overlaped, 6),
+            'overlapped (no recv.)':  round(self.overlapped, 6),
             'overlapable (per core)':  round(overlapable, 6),       # this should be equals to the comm. duration
         }
         print(json.dumps(stats, indent=4))
@@ -51,7 +51,7 @@ class CommunicationOverlapPass(ipass.Pass):
         self.n_pending = 0                          # current number of pendings (= task block)
         self.windows = {}                           # current overlapping windows
         self.overlap_over_time = [(0.0, 0.0, 0)]    # % overlap over time
-        self.overlaped = 0.0                        # total overlaped time
+        self.overlapped = 0.0                        # total overlapped time
 
     def update(self, env, pending_variation):
 
@@ -74,7 +74,7 @@ class CommunicationOverlapPass(ipass.Pass):
             if len(self.overlap_over_time) >= 2:
                 dt = self.overlap_over_time[-1][0] - self.overlap_over_time[-2][0]
                 ov = self.overlap_over_time[-2][1] * len(env['bound'])
-                self.overlaped += ov * dt
+                self.overlapped += ov * dt
 
     def on_task_started(self, env):
         self.update(env, 0)

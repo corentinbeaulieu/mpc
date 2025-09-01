@@ -18,7 +18,7 @@ FLOAT_PRECISION = 6
 
 MAGIC         = "task"
 HEADER_SIZE   = 16
-BYTE_ORDER    = 'little' # or 'big' (endianess)
+BYTE_ORDER    = 'little' # or 'big' (endianness)
 
 MPC_OMP_TASK_LABEL_MAX_LENGTH = 64
 

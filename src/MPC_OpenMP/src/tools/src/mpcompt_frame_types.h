@@ -43,7 +43,7 @@ typedef enum mpc_omp_ompt_wrapper_e {
  */
 typedef struct mpc_omp_ompt_frame_info_s {
     mpc_omp_ompt_wrapper_t omp_wrapper;
-    int outter_caller;
+    int outer_caller;
     ompt_frame_t ompt_frame_infos;
     void* ompt_return_addr;
 } mpc_omp_ompt_frame_info_t;

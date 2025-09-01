@@ -888,7 +888,7 @@ void mpc_launch_pmi_abort(const int return_code)
 	}
 	// Wait for the sigterm to arrive
 	sleep(5);
-	// If it doesn't come release all PMI(x) ressources and prepare to abort
+	// If it doesn't come release all PMI(x) resources and prepare to abort
 	// manually
 	mpc_launch_pmi_finalize();
 }
@@ -1134,7 +1134,7 @@ int mpc_launch_pmi_get_app_size(int* appsize){
 		else mpc_common_debug_error("PMI: get app_size returned %d", ret);
 		return ret == PMIX_SUCCESS;
 	#else
-		mpc_common_debug_warning("mpc_launch_pmi_get_app_size unsuported");
+		mpc_common_debug_warning("mpc_launch_pmi_get_app_size unsupported");
 		*appsize = 1;
 	#endif
 	return PMI_SUCCESS;
@@ -1157,7 +1157,7 @@ int mpc_launch_pmi_get_app_num(int* appnum){
 		else mpc_common_debug_error("PMI: get job_num_apps returned %d", ret);
 		return ret == PMIX_SUCCESS;
 	#else
-		mpc_common_debug_warning("mpc_launch_pmi_get_app_num unsuported");
+		mpc_common_debug_warning("mpc_launch_pmi_get_app_num unsupported");
 		*appnum = 1;
 	#endif
 	return PMI_SUCCESS;
@@ -1177,7 +1177,7 @@ int mpc_launch_pmi_get_pset(char** pset){
 			return ret == PMIX_SUCCESS;
 		#endif
 	#else
-		mpc_common_debug_warning("mpc_launch_pmi_get_pset unsuported");
+		mpc_common_debug_warning("mpc_launch_pmi_get_pset unsupported");
 		*pset = NULL;
 	#endif
 
@@ -1204,7 +1204,7 @@ int mpc_launch_pmi_get_pset_list(char** psetlist){
 			return ret;
 		#endif
 	#else
-		mpc_common_debug_warning("mpc_launch_pmi_get_pset_list unsuported");
+		mpc_common_debug_warning("mpc_launch_pmi_get_pset_list unsupported");
 		*psetlist = NULL;
 	#endif
 

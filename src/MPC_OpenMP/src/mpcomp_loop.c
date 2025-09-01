@@ -128,7 +128,7 @@ static inline int __loop_get_static_nb_chunks_per_rank( int rank, int num_thread
 	    ( loop->chunk_size ) ? loop->chunk_size : trip_count / num_threads;
 	loop->chunk_size = ( loop->chunk_size ) ? loop->chunk_size : ( long ) 1;
 	nb_chunks_per_thread = trip_count / ( loop->chunk_size * num_threads );
-	/* Compute the number of extrat chunk nb_chunk_extra can't be greater than
+	/* Compute the number of extract chunk nb_chunk_extra can't be greater than
 	* nb_thread */
 	const int nb_chunk_extra =
 	    ( int ) ( ( trip_count / loop->chunk_size ) % num_threads );
@@ -136,7 +136,7 @@ static inline int __loop_get_static_nb_chunks_per_rank( int rank, int num_thread
 	/* The first threads will have one more chunk (according to the previous
 	* approximation) */
 	nb_chunks_per_thread += ( rank < nb_chunk_extra ) ? ( long ) 1 : ( long ) 0;
-	/* One thread may have one more additionnal smaller chunk to finish the
+	/* One thread may have one more additional smaller chunk to finish the
 	* iteration domain */
 	nb_chunks_per_thread +=
 	    ( rank == nb_chunk_extra && are_not_multiple ) ? ( long ) 1 : ( long ) 0;
@@ -159,7 +159,7 @@ static inline unsigned long long __loop_get_static_nb_chunks_per_rank_ull( unsig
 	loop->chunk_size = chunk_size;
 	/* Compute the number of chunks per thread (floor value) */
 	nb_chunks_per_thread = trip_count / ( chunk_size * num_threads );
-	/* Compute the number of extrat chunk nb_chunk_extra can't be greater than
+	/* Compute the number of extract chunk nb_chunk_extra can't be greater than
 	* nb_thread */
 	const unsigned long long nb_chunk_extra = ( int ) ( ( trip_count / chunk_size ) % num_threads );
 	const int are_not_multiple = ( trip_count % chunk_size ) ? 1 : 0;
@@ -167,7 +167,7 @@ static inline unsigned long long __loop_get_static_nb_chunks_per_rank_ull( unsig
 	* approximation) */
 	nb_chunks_per_thread +=
 	    ( rank < nb_chunk_extra ) ? ( unsigned long long ) 1 : ( unsigned long long ) 0;
-	/* One thread may have one more additionnal smaller chunk to finish the
+	/* One thread may have one more additional smaller chunk to finish the
 	* iteration domain */
 	nb_chunks_per_thread += ( rank == nb_chunk_extra && are_not_multiple )
 	                        ? ( unsigned long long ) 1
@@ -2067,7 +2067,7 @@ mpc_omp_for_dyn_coherency_end_barrier()
  ****************/
 
 TODO( runtime schedule
-      : ICVs are not well transfered ! )
+      : ICVs are not well transferred ! )
 
 /****
  *

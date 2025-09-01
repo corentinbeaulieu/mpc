@@ -579,7 +579,7 @@ mpc_omp_display_env(int verbosity)
     mpc_common_debug("\tlarceny mode=%d",             __omp_conf.task_larceny_mode);
     mpc_common_debug("\tsteal last stolen=%d",        __omp_conf.task_steal_last_stolen);
     mpc_common_debug("\tsteal last thief=%d",         __omp_conf.task_steal_last_thief);
-    mpc_common_debug("\tdirect succesor=%d",          __omp_conf.task_direct_successor_enabled);
+    mpc_common_debug("\tdirect successor=%d",          __omp_conf.task_direct_successor_enabled);
     mpc_common_debug("\tyield mode=%d",               __omp_conf.task_yield_mode);
     mpc_common_debug("\tyield fair min time (s.)=%lf",__omp_conf.task_yield_fair_min_time);
     mpc_common_debug("\tpriority policy=%d",          __omp_conf.task_priority_policy);
@@ -695,7 +695,7 @@ mpc_omp_display_env(int verbosity)
     mpc_common_debug("\tCoherency check enabled" );
 #endif
 #if MPC_OMP_ALIGN
-    mpc_common_debug("\tStructure field alignement" );
+    mpc_common_debug("\tStructure field alignment" );
 #endif
 
     if ( __omp_conf.OMP_WARN_NESTED )
@@ -727,7 +727,7 @@ mpc_omp_display_env(int verbosity)
 /*
  * Read environment variables for OpenMP.
  * Actually, the values are read from configuration: those values can be
- * assigned with environement variable or config file.
+ * assigned with environment variable or config file.
  * This function is called once per process
  */
 static inline void __read_env_variables()

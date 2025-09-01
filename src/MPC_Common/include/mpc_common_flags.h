@@ -85,7 +85,7 @@ static inline int mpc_common_flags_disguised_get()
 /* NOLINTEND(clang-diagnostic-unused-function) */
 
 /***********************
- * INTIALIZATION LISTS *
+ * INITIALIZATION LISTS *
  ***********************/
 
 #define MPC_INIT_CALL_ONLY_ONCE         static int __already_done = 0;\

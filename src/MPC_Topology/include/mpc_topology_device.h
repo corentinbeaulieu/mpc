@@ -69,7 +69,7 @@ typedef enum
 	MPC_TOPO_DEVICE_GPU = HWLOC_OBJ_OSDEV_GPU,		   /**< A GPU */
 	MPC_TOPO_DEVICE_COPROCESSOR = HWLOC_OBJ_OSDEV_COPROC,	   /**< A coprocessor (CUDA, OpenCL ...) */
 	MPC_TOPO_DEVICE_DMA = HWLOC_OBJ_OSDEV_DMA,		   /**< A DMA engine */
-	MPC_TOPO_DEVICE_UKNOWN = 99999				   /**< Something we did not get */
+	MPC_TOPO_DEVICE_UNKNOWN = 99999				   /**< Something we did not get */
 } mpc_topology_device_type_t;
 
 /**

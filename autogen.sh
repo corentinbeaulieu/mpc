@@ -166,10 +166,10 @@ apply_configuration_patch()
 # libtool version 2.4.7 on ubuntu 24 lts is fixed (not patchable)
 # libtool version 2.5.4 on arch is fixed (not patchable).
 PATCH_NEEDED_VERSION="2.4.5" # patch needed for versions up to this one.
-# is libtool version greeter or equel to ${PATCH_NEEDED_VERSION} ?
+# is libtool version greeter or equal to ${PATCH_NEEDED_VERSION} ?
 if [ "$(echo "$(libtool --version | grep -E -o "[0-9]+\.[0-9]+(\.[0-9]+)*")\n${PATCH_NEEDED_VERSION}" | sort -V -r | head -n 1)" = "${PATCH_NEEDED_VERSION}" ]
 then
-	# apply all patchs
+	# apply all patches
 	apply_configuration_patch "001"
 	apply_configuration_patch "002"
 	apply_configuration_patch "003"

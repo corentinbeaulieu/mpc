@@ -193,7 +193,7 @@ kmp_int32 __kmpc_barrier_master_nowait( __UNUSED__ ident_t *loc, __UNUSED__ kmp_
 
 
 /*******************
- * WRAPPER FUNTION *
+ * WRAPPER FUNCTION *
  *******************/
 
 void __intel_wrapper_func( void *arg )
@@ -1456,7 +1456,7 @@ void __kmpc_for_static_init_4( __UNUSED__ ident_t *loc, __UNUSED__ kmp_int32 gti
 				else
 				{
 					/* The final part has a smaller chunk_size, therefore the computation is
-					   splitted in 2 parts */
+					   split in 2 parts */
 					*pupper = *plower + extras * ( chunk_size + 1 ) * incr +
 					          ( rank + 1 - extras ) * chunk_size * incr - incr;
 					*plower = *plower + extras * ( chunk_size + 1 ) * incr +
@@ -1645,7 +1645,7 @@ void __kmpc_for_static_init_4u( __UNUSED__ ident_t *loc, __UNUSED__ kmp_int32 gt
 				else
 				{
 					/* The final part has a smaller chunk_size, therefore the computation is
-					   splitted in 2 parts */
+					   split in 2 parts */
 					*pupper = *plower + extras * ( chunk_size + 1 ) * incr +
 					          ( rank + 1 - extras ) * chunk_size * incr - incr;
 					*plower = *plower + extras * ( chunk_size + 1 ) * incr +
@@ -1831,7 +1831,7 @@ void __kmpc_for_static_init_8( __UNUSED__ ident_t *loc, __UNUSED__ kmp_int32 gti
 				else
 				{
 					/* The final part has a smaller chunk_size, therefore the computation is
-					   splitted in 2 parts */
+					   split in 2 parts */
 					*pupper = *plower + extras * ( chunk_size + 1 ) * incr +
 					          ( rank + 1 - extras ) * chunk_size * incr - incr;
 					*plower = *plower + extras * ( chunk_size + 1 ) * incr +
@@ -2025,7 +2025,7 @@ void __kmpc_for_static_init_8u( __UNUSED__ ident_t *loc, __UNUSED__ kmp_int32 gt
 				else
 				{
 					/* The final part has a smaller chunk_size, therefore the computation is
-					   splitted in 2 parts */
+					   split in 2 parts */
 					*pupper = *plower + extras * ( chunk_size + 1 ) * incr +
 					          ( rank + 1 - extras ) * chunk_size * incr - incr;
 					*plower = *plower + extras * ( chunk_size + 1 ) * incr +
@@ -2711,9 +2711,9 @@ __kmp_task_process(mpc_omp_task_t * task, void ** depend)
     }
     else
     {
-        // if non-persistent or first time encoutering
+        // if non-persistent or first time encountering
         if (!mpc_omp_task_property_isset(task->property, MPC_OMP_TASK_PROP_PERSISTENT) ||
-            TASK_STATE(task) == MPC_OMP_TASK_STATE_NOT_QUEUABLE)
+            TASK_STATE(task) == MPC_OMP_TASK_STATE_NOT_QUEUEABLE)
             _mpc_omp_task_deps(task, depend, priority);
         r = (kmp_int32) _mpc_omp_task_process(task);
         if (!mpc_omp_task_property_isset(task->property, MPC_OMP_TASK_PROP_PERSISTENT))
@@ -3219,7 +3219,7 @@ void __kmpc_taskloop( __UNUSED__ ident_t *loc, __UNUSED__ int gtid, kmp_task_t *
                         t->rank, num_tasks, grainsize, extras );
 
     if ( num_tasks > 1 ) {
-        /* default pading */
+        /* default padding */
         const long align_size = sizeof(void *);
         const long mpcomp_kmp_taskdata = sizeof(mpc_omp_task_t)
                                          + t->task_infos.sizeof_kmp_task_t;

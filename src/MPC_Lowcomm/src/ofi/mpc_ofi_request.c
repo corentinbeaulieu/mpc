@@ -84,17 +84,17 @@ int _mpc_ofi_request_cache_release(struct _mpc_ofi_request_cache_t *cache)
 
 static inline void __request_clear(struct _mpc_ofi_request_t * req,
                                    struct _mpc_ofi_domain_t * domain,
-                                   int (*comptetion_cb)(struct _mpc_ofi_request_t *, void *),
+                                   int (*completion_cb)(struct _mpc_ofi_request_t *, void *),
                                     void *arg,
-                                    int (*comptetion_cb_ext)(struct _mpc_ofi_request_t *, void *),
+                                    int (*completion_cb_ext)(struct _mpc_ofi_request_t *, void *),
                                     void *arg_ext)
 {
    req->done = 0;
    req->free = 0;
    req->domain = domain;
    req->arg = arg;
-   req->comptetion_cb = comptetion_cb;
-   req->comptetion_cb_ext = comptetion_cb_ext;
+   req->completion_cb = completion_cb;
+   req->completion_cb_ext = completion_cb_ext;
    req->arg_ext = arg_ext;
    req->mr_count = 0;
    req->was_allocated = 0;
@@ -102,9 +102,9 @@ static inline void __request_clear(struct _mpc_ofi_request_t * req,
 
 
 struct _mpc_ofi_request_t * _mpc_ofi_request_acquire(struct _mpc_ofi_request_cache_t *cache,
-                                                           int (*comptetion_cb)(struct _mpc_ofi_request_t *, void *),
+                                                           int (*completion_cb)(struct _mpc_ofi_request_t *, void *),
                                                            void *arg,
-                                                           int (*comptetion_cb_ext)(struct _mpc_ofi_request_t *, void *),
+                                                           int (*completion_cb_ext)(struct _mpc_ofi_request_t *, void *),
                                                            void *arg_ext)
 {
    unsigned int i = 0;
@@ -126,7 +126,7 @@ struct _mpc_ofi_request_t * _mpc_ofi_request_acquire(struct _mpc_ofi_request_cac
             continue;
          }
 
-         __request_clear(req, cache->domain, comptetion_cb, arg, comptetion_cb_ext, arg_ext);
+         __request_clear(req, cache->domain, completion_cb, arg, completion_cb_ext, arg_ext);
 
          mpc_common_spinlock_unlock(&req->lock);
 
@@ -138,7 +138,7 @@ struct _mpc_ofi_request_t * _mpc_ofi_request_acquire(struct _mpc_ofi_request_cac
    req = sctk_malloc(sizeof(struct _mpc_ofi_request_t));
    assume(req);
    mpc_common_spinlock_init(&req->lock, 0);
-   __request_clear(req, cache->domain, comptetion_cb, arg, comptetion_cb_ext, arg_ext);
+   __request_clear(req, cache->domain, completion_cb, arg, completion_cb_ext, arg_ext);
    req->was_allocated = 1;
 
    return req;

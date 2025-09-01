@@ -58,7 +58,7 @@ static inline char *__gen_rail_target_name(sctk_rail_info_t *rail, char *buff, i
 	return buff;
 }
 
-struct _mpc_ofi_deffered_completion_s
+struct _mpc_ofi_deferred_completion_s
 {
    lcr_ofi_am_hdr_t hdr;
    lcr_completion_t *comp;
@@ -69,7 +69,7 @@ struct _mpc_ofi_deffered_completion_s
 static inline void __init_ofi_endpoint(sctk_rail_info_t *rail, _mpc_lowcomm_ofi_endpoint_info_t *ofi_data)
 {
    mpc_mempool_init(&ofi_data->bsend, MPC_OFI_EP_MEMPOOL_MIN, MPC_OFI_EP_MEMPOOL_MAX, rail->runtime_config_driver_config->driver.value.ofi.bcopy_size + sizeof(lcr_ofi_am_hdr_t), sctk_malloc, sctk_free);
-   mpc_mempool_init(&ofi_data->deffered, MPC_OFI_EP_MEMPOOL_MIN, MPC_OFI_EP_MEMPOOL_MAX, sizeof(struct _mpc_ofi_deffered_completion_s), sctk_malloc, sctk_free);
+   mpc_mempool_init(&ofi_data->deferred, MPC_OFI_EP_MEMPOOL_MIN, MPC_OFI_EP_MEMPOOL_MAX, sizeof(struct _mpc_ofi_deferred_completion_s), sctk_malloc, sctk_free);
 }
 
 static void __add_route(mpc_lowcomm_peer_uid_t dest_uid, sctk_rail_info_t *rail, _mpc_lowcomm_endpoint_state_t state)
@@ -364,7 +364,7 @@ static int __ofi_on_demand_callback(mpc_lowcomm_peer_uid_t from,
 			{
 				is_connecting = 1;
 			}
-			mpc_common_tracepoint_fmt("Incoming on-demand from %s already BOOTSTRAPING decision is %d (%lu < %lu)", mpc_lowcomm_peer_format(cstate->remote_uid), is_connecting, mpc_lowcomm_monitor_get_uid(), from);
+			mpc_common_tracepoint_fmt("Incoming on-demand from %s already BOOTSTRAPPING decision is %d (%lu < %lu)", mpc_lowcomm_peer_format(cstate->remote_uid), is_connecting, mpc_lowcomm_monitor_get_uid(), from);
 
 		}
 		else
@@ -437,9 +437,9 @@ err:
 	return payload_length;
 }
 
-static inline int __deffered_completion_cb(__UNUSED__ struct _mpc_ofi_request_t *req, void *pcomp)
+static inline int __deferred_completion_cb(__UNUSED__ struct _mpc_ofi_request_t *req, void *pcomp)
 {
-   struct _mpc_ofi_deffered_completion_s *comp = (struct _mpc_ofi_deffered_completion_s *)pcomp;
+   struct _mpc_ofi_deferred_completion_s *comp = (struct _mpc_ofi_deferred_completion_s *)pcomp;
    comp->comp->comp_cb(comp->comp);
    mpc_mempool_free(NULL, comp);
    return 0;
@@ -455,7 +455,7 @@ int _mpc_ofi_send_am_zcopy(_mpc_lowcomm_endpoint_t *ep,
                                     __UNUSED__  unsigned flags,
                                     lcr_completion_t *comp)
 {
-	struct _mpc_ofi_deffered_completion_s *completion =  mpc_mempool_alloc(&ep->data.ofi.deffered);
+	struct _mpc_ofi_deferred_completion_s *completion =  mpc_mempool_alloc(&ep->data.ofi.deferred);
    assume(completion != NULL);
 
    completion->hdr.am_id = id;
@@ -497,7 +497,7 @@ int _mpc_ofi_send_am_zcopy(_mpc_lowcomm_endpoint_t *ep,
                          completion->full_iov,
                          total_iov_size,
                          NULL,
-                         __deffered_completion_cb,
+                         __deferred_completion_cb,
                          (void*)completion))
    {
       mpc_common_errorpoint("Failed to sendv a message");
@@ -585,7 +585,7 @@ int _mpc_ofi_get_zcopy(_mpc_lowcomm_endpoint_t *ep,
                            lcr_completion_t *comp)
 {
         UNUSED(local_key);
-	struct _mpc_ofi_deffered_completion_s *completion =  mpc_mempool_alloc(&ep->data.ofi.deffered);
+	struct _mpc_ofi_deferred_completion_s *completion =  mpc_mempool_alloc(&ep->data.ofi.deferred);
    assume(completion != NULL);
 
    assert(size);
@@ -606,7 +606,7 @@ int _mpc_ofi_get_zcopy(_mpc_lowcomm_endpoint_t *ep,
                      network_offset,
                      remote_key->pin.ofipin.shared.ofi_remote_mr_key,
                      NULL,
-                     __deffered_completion_cb,
+                     __deferred_completion_cb,
                      completion))
    {
       mpc_common_errorpoint("Failed to issue RDMA read");
@@ -628,7 +628,7 @@ int _mpc_ofi_send_put_zcopy(_mpc_lowcomm_endpoint_t *ep,
                            lcr_completion_t *comp)
 {
         UNUSED(local_key);
-	struct _mpc_ofi_deffered_completion_s *completion =  mpc_mempool_alloc(&ep->data.ofi.deffered);
+	struct _mpc_ofi_deferred_completion_s *completion =  mpc_mempool_alloc(&ep->data.ofi.deferred);
    assume(completion != NULL);
 
    assert(size);
@@ -649,7 +649,7 @@ int _mpc_ofi_send_put_zcopy(_mpc_lowcomm_endpoint_t *ep,
                      network_offset,
                      remote_key->pin.ofipin.shared.ofi_remote_mr_key,
                      NULL,
-                     __deffered_completion_cb,
+                     __deferred_completion_cb,
                      completion))
    {
       mpc_common_errorpoint("Failed to issue RDMA write");

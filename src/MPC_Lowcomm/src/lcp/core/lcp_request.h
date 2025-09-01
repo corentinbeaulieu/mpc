@@ -475,7 +475,7 @@ static inline lcp_status_ptr_t lcp_request_send(lcp_request_t *req)
                 break;
         case MPC_LOWCOMM_NO_RESOURCE:
                 //TODO: implement thread-safe pending queue
-                mpc_common_debug_error("LCP REQ: no resource managment not "
+                mpc_common_debug_error("LCP REQ: no resource management not "
                                        "implemented yet.");
                 not_implemented();
                 ret = req + 1;

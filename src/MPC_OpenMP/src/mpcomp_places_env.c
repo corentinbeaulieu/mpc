@@ -122,11 +122,11 @@ static inline int ___safe_atoi( char *string, char **next )
 
 static inline int mpc_omp_places_detect_collision( mpc_omp_places_info_t *list )
 {
-	int colision_count;
+	int collision_count;
 	hwloc_bitmap_t bitmap_val = hwloc_bitmap_alloc();
 	char string_place[256], string_place2[256], string_place3[256];
 	mpc_omp_places_info_t *place, *place2, *saveptr, *saveptr2;
-	colision_count = 0;
+	collision_count = 0;
 	DL_FOREACH_SAFE( list, place, saveptr )
 	{
 		DL_FOREACH_SAFE( saveptr, place2, saveptr2 )
@@ -140,23 +140,23 @@ static inline int mpc_omp_places_detect_collision( mpc_omp_places_info_t *list )
 
 			if ( hwloc_bitmap_intersects( place->interval, place2->interval ) )
 			{
-				colision_count++;
+				collision_count++;
 				hwloc_bitmap_list_snprintf( string_place, 255, place->interval );
 				hwloc_bitmap_list_snprintf( string_place2, 255, place2->interval );
 				hwloc_bitmap_list_snprintf( string_place3, 255, bitmap_val );
 				string_place[255] = '\0';
 				string_place2[255] = '\0';
-				mpc_common_debug_warning("colision between place #%d (%s) and place #%d (%s) |%s|\n", place->id, string_place, place2->id, string_place2, string_place3 );
+				mpc_common_debug_warning("collision between place #%d (%s) and place #%d (%s) |%s|\n", place->id, string_place, place2->id, string_place2, string_place3 );
 			}
 		}
 	}
 
-	if ( colision_count )
+	if ( collision_count )
 	{
-		mpc_common_debug_warning("found %d colision(s)\n", colision_count );
+		mpc_common_debug_warning("found %d collision(s)\n", collision_count );
 	}
 
-	return colision_count;
+	return collision_count;
 }
 
 
@@ -1049,7 +1049,7 @@ __places_detect_heretogeneous_places( mpc_omp_places_info_t *list )
  * Entry point to parse OMP_PLACES environment variable.
  *
  * \param[in] nb_mvps Target number of microVPs (i.e., OpenMP threads)
- * \return List of places (or NULL if an error occured)
+ * \return List of places (or NULL if an error occurred)
  */
 mpc_omp_places_info_t *
 _mpc_omp_places_env_variable_parsing( const int nb_mvps )

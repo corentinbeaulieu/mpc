@@ -169,7 +169,7 @@ _mpc_omp_ompt_finalize () {
                           __func__, thread->tool_instance->start_result,
                           thread->tool_instance );
 
-        /* Call tool finalize method, unregister callabcks and free tool infos */
+        /* Call tool finalize method, unregister callbacks and free tool infos */
         mpc_omp_ompt_unregister_tool();
 
         /* No more active tool */

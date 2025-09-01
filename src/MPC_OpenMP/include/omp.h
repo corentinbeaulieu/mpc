@@ -101,7 +101,7 @@ extern "C" {
     void omp_unset_lock( omp_lock_t *lock );
     int omp_test_lock( omp_lock_t *lock );
 
-    /* Nestable Lock Fuctions */
+    /* Nestable Lock Functions */
     void omp_init_nest_lock( omp_nest_lock_t *lock );
     void omp_init_nest_lock_with_hint( omp_nest_lock_t *lock,
             omp_lock_hint_t hint );

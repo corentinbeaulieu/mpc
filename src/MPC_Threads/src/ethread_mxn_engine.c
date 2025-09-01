@@ -88,9 +88,9 @@ _mpc_thread_ethread_mxn_engine_place_task_on_vp(_mpc_thread_ethread_virtual_proc
 	task->status = ethread_ready;
 	___mpc_thread_ethread_enqueue_task(task,
 	                                   (_mpc_thread_ethread_per_thread_t **)&(vp->
-	                                                                          incomming_queue),
+	                                                                          incoming_queue),
 	                                   (_mpc_thread_ethread_per_thread_t **)&(vp->
-	                                                                          incomming_queue_tail) );
+	                                                                          incoming_queue_tail) );
 	mpc_common_spinlock_unlock(&vp->spinlock);
 }
 
@@ -364,7 +364,7 @@ _mpc_thread_ethread_mxn_engine_getspecific(int key)
 	return ___mpc_thread_ethread_getspecific(current, key);
 }
 
-/*Attribut creation*/
+/*Attribute creation*/
 static int _mpc_thread_ethread_mxn_engine_attr_init(_mpc_thread_ethread_attr_t *attr)
 {
 	attr->ptr = (_mpc_thread_ethread_attr_intern_t *)
@@ -455,7 +455,7 @@ static int _mpc_thread_ethread_mxn_engine_create(_mpc_thread_ethread_t *threadp,
 
 	current = _mpc_thread_ethread_mxn_engine_self();
 
-	// new_binding= mpc_thread_get_task_placement(pos); //bind de mpc par defaut
+	// new_binding= mpc_thread_get_task_placement(pos); //bind de mpc par default
 
 	// PATCH : we dont need rerun mpc_thread_get_task_placement because you have the result in
 	// the arg structure
@@ -914,7 +914,7 @@ int _mpc_thread_ethread_mxn_engine_setaffinity_np(_mpc_thread_ethread_t thread, 
 
 	_cpuset = (cpu_set_t *) cpuset;
 
-	// avoid changing vp if we already are on a valide one.
+	// avoid changing vp if we already are on a valid one.
 	_mpc_thread_ethread_mxn_engine_self_all(&current_vp, &current);
 	if (CPU_ISSET_S(current_vp->rank, cpusetsize, _cpuset))
 		return 0;
@@ -1090,7 +1090,7 @@ void mpc_thread_ethread_mxn_engine_init(void)
 	sctk_add_func_type(_mpc_thread_ethread_posix, once,
 	                   int (*)(mpc_thread_once_t *, void (*)(void) ) );
 
-	/*les attributs des threads */
+	/*les attributes des threads */
 	sctk_add_func_type(_mpc_thread_ethread_posix, attr_setdetachstate,
 	                   int (*)(mpc_thread_attr_t *, int) );
 	sctk_add_func_type(_mpc_thread_ethread_posix, attr_getdetachstate,
@@ -1185,7 +1185,7 @@ void mpc_thread_ethread_mxn_engine_init(void)
 	sctk_add_func_type(_mpc_thread_ethread_posix, cond_destroy,
 	                   int (*)(mpc_thread_cond_t *) );
 
-	/*attributs des conditions */
+	/*attributes des conditions */
 	sctk_add_func_type(_mpc_thread_ethread_posix, condattr_init,
 	                   int (*)(mpc_thread_condattr_t *) );
 	sctk_add_func_type(_mpc_thread_ethread_posix, condattr_destroy,

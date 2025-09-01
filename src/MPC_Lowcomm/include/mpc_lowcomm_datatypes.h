@@ -46,14 +46,14 @@ typedef struct MPI_ABI_Datatype
 	long                        lb; /**< Lower bound offset  */
 	long                        ub; /**< Upper bound offset */
 
-	/* Additionnal informations */
+	/* Additional information */
 	unsigned int                id;                 /**< Integer ID (useful for debug and searching _mpc_dt_storage) */
 	unsigned int                ref_count;          /**< Ref counter to manage freeing */
 
 	bool                        is_lb;              /**< Does type has a lower bound */
 	bool                        is_ub;              /**< Does type has an upper bound */
 	bool                        is_a_padded_struct; /**< Was the type padded with UB during construction ? */
-	bool                        is_commited;        /**< Does type is commited ? */
+	bool                        is_committed;        /**< Does type is committed ? */
 
 	char                        padding[19];        /**< Pad to 128 bytes */
 } _mpc_lowcomm_general_datatype_t;

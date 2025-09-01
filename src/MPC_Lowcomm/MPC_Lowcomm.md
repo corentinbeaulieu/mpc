@@ -85,7 +85,7 @@ The following term are used throughout the documentation:
 
 The LCP Context handles the initialization of the network resources based on the
 configuration provided by the user. For example, it queries available devices
-(TCP, OFI, Portals), it instanciates and initializes resources,... It
+(TCP, OFI, Portals), it instantiates and initializes resources,... It
 centralizes all structures related to communication.
 
 Context initialization has 7 steps:
@@ -112,7 +112,7 @@ Context initialization has 7 steps:
 7. *Interface capabilities*: capabilities may be check using
    `lcr_iface_get_attr` only, so this can be known only after initialization since
    network resources may have runtime specifications (two Portals NIC from two
-   differents cluster may have different configurations).
+   different cluster may have different configurations).
 
 #### Connection management
 
@@ -147,7 +147,7 @@ Without going into much detail, we describe impactful design choice in LCP.
 
 ##### Datapaths
 
-LCP defines multiple **datapaths** depending on message size, resquest
+LCP defines multiple **datapaths** depending on message size, request
 parameter, endpoint layout (intra-process, intra-node, inter-node), available
 networks and their capabilities. For both TAG and AM API, branching is located
 in `*start*` functions (`lcp_tag_send_start` and `lcp_am_send_start`).
@@ -232,7 +232,7 @@ The said MPI receive call does not trigger the adequate active message callback 
 
 Before being sent to the network, data is successively encapsulated by the two
 layers, each adding their own protocol data. Indeed, through IOVEC or packing,
-user data is preceeded by a header containing protocol data of the current
+user data is proceeded by a header containing protocol data of the current
 layer.  Unpacking is performed upon data reception.
 
 Actual memory layout for both TAG and AM API may be found in `lcp_tag.c` and

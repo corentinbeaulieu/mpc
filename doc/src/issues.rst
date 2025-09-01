@@ -39,7 +39,7 @@ are host and target directory, the third being the actual command to load. For
 instance: `./mpc_env.sh x86_64 x86_64 mpc_cc main.c`
 
 The output of this command would help you to detect the error. Note you can also
-directly source in your current environment the mpcframework environement by
+directly source in your current environment the mpcframework environment by
 sourcing `$PREFIX/$host/$target/bin/mpcvars.sh` where *host* and *target* are,
 most of the time `x86_64`.
 

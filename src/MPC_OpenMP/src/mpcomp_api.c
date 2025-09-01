@@ -64,7 +64,7 @@ void ompc_set_num_threads(int num_threads) {
 }
 
 /*
- * Return the thread number (ID) of the current thread whitin its team.
+ * Return the thread number (ID) of the current thread within its team.
  * The master thread of each team has a thread ID equals to 0.
  * This function returns 0 if called from a serial part of the code (or from a
  * flatterned nested parallel region).

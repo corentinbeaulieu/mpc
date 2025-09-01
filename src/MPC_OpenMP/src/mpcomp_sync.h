@@ -81,7 +81,7 @@ int mpc_omp_sections_begin(int);
 int mpc_omp_sections_next(void);
 void mpc_omp_sections_end(void);
 void mpc_omp_sections_end_nowait(void);
-int _mpc_omp_sections_coherency_exiting_paralel_region(void);
+int _mpc_omp_sections_coherency_exiting_parallel_region(void);
 int _mpc_omp_sections_coherency_barrier(void);
 
 /*********

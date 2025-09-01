@@ -104,7 +104,7 @@ td_err_e td_ta_new (struct ps_prochandle *ph, td_thragent_t **ta) {
   }
 
   if (ta_p == NULL) {
-    /* instanciate the thread agent*/
+    /* instantiate the thread agent*/
     (*ta) = (td_thragent_t *) malloc (sizeof (td_thragent_t));
     if ((*ta) == NULL) {
       return TD_MALLOC;
@@ -119,7 +119,7 @@ td_err_e td_ta_new (struct ps_prochandle *ph, td_thragent_t **ta) {
     ta_p->thread_list_p = NULL ;
 
 
-    /* actual initialization will occure when the user provides them */
+    /* actual initialization will occur when the user provides them */
 
     ta_p->reg_offsets.size = 0 ;
 
@@ -150,7 +150,7 @@ td_err_e td_ta_new (struct ps_prochandle *ph, td_thragent_t **ta) {
     goto exit ;
 
   } else if(err != TD_OK){
-    /* something wrong happend, cannot handle it ... */
+    /* something wrong happened, cannot handle it ... */
 
     goto exit ;
   }
@@ -234,7 +234,7 @@ td_err_e td_is_ta_ready (const td_thragent_t *ta) {
   err = td_is_ta_initialized (ta) ;
   if (err != TD_OK) return err ;
 
-  /* if TA is initalized, but does not have yet its pointers,
+  /* if TA is initialized, but does not have yet its pointers,
    * try to set them */
   if (ta->thread_list_p == NULL) {
     tdb_log("td_is_ta_ready thread_data_list_addr is NULL") ;
@@ -663,7 +663,7 @@ exit:
  * whereas th is local at ta_iter.
  * thr_event_getmsg copies his th to msg->th_p. So we first need to save
  * msg->th_p, call thr_event_getmsg, then RESTORE its original value, to ensure
- * that msg->th_p pointes to the static address
+ * that msg->th_p points to the static address
  *
  * */
 int td_event_getmsg_callback(const td_thrhandle_t *th, void *cb_data) {
@@ -677,7 +677,7 @@ int td_event_getmsg_callback(const td_thrhandle_t *th, void *cb_data) {
   tdb_log("td_event_getmsg_callback callback for thread %p with msg %p", th->th_unique, msg);
   err = td_thr_event_getmsg (th, msg) ;
 
-  /* stop once a non-none msg is found or an error occured*/
+  /* stop once a non-none msg is found or an error occurred*/
   if (err == TD_OK && msg->event == TD_EVENT_NONE) {
     err = TD_OK ;
   } else {
@@ -2024,7 +2024,7 @@ ps_err_e ps_continue (struct ps_prochandle *ph) {
 /** ***************************************************************************** **/
 
 #define SMALL_BUFFER_SIZE 4096
-void tdb_formated_assert_print (FILE * stream, const int line,
+void tdb_formatted_assert_print (FILE * stream, const int line,
                                    const char *file, __UNUSED__ const char *func,
                                    const char *fmt, ...) {
   va_list ap;

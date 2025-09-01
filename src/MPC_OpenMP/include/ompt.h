@@ -57,8 +57,8 @@ typedef ompt_interface_fn_t (*ompt_function_lookup_t)
     macro( ompt_state_wait_barrier,                    0x010, "generic barrier")\
     macro( ompt_state_wait_barrier_implicit_parallel,  0x011, "todo")         \
     macro( ompt_state_wait_barrier_implicit_workshare, 0x012, "todo")         \
-    macro( ompt_state_wait_barrier_implicit,           0x013, "implicite barrier")\
-    macro( ompt_state_wait_barrier_explicit,           0x014, "explicite barrier")\
+    macro( ompt_state_wait_barrier_implicit,           0x013, "implicit barrier")\
+    macro( ompt_state_wait_barrier_explicit,           0x014, "explicit barrier")\
     /* TASK WAIT STATES */                                                    \
     macro( ompt_state_wait_taskwait,                   0x020, "waiting at a taskwait")\
     macro( ompt_state_wait_taskgroup,                  0x021, "waiting at a taskgroup")\

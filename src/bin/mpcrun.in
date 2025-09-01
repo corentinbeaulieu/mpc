@@ -410,7 +410,7 @@ Launcher:
 	--profiles=<p1,p2>              List of profiles to enable in config.
 
 
-Informations:
+Information:
 	-h, --help                      Display this help
 	--show                          Display command line
 
@@ -818,7 +818,7 @@ fi
 # Wrong user input
 CLI_ERROR=false
 
-assert_valid_ressource_count() {
+assert_valid_resource_count() {
 
 	if ! [[ $1 =~ ^[1-9][0-9]*$ ]]; then
 		mpcrun_msg "ERROR" "$1 is a wrong count for $2"
@@ -826,10 +826,10 @@ assert_valid_ressource_count() {
 	fi
 }
 
-assert_valid_ressource_count $LAUNCHER_OPTION_NODE_NB "--node_nb / -N"
-assert_valid_ressource_count $LAUNCHER_OPTION_PROCESS_NB "--process_nb / -p"
-assert_valid_ressource_count $MPC_ARG_TASK_NB "--task_nb / -n"
-assert_valid_ressource_count $LAUNCHER_OPTION_CPU_NB "--cpu_nb / -c"
+assert_valid_resource_count $LAUNCHER_OPTION_NODE_NB "--node_nb / -N"
+assert_valid_resource_count $LAUNCHER_OPTION_PROCESS_NB "--process_nb / -p"
+assert_valid_resource_count $MPC_ARG_TASK_NB "--task_nb / -n"
+assert_valid_resource_count $LAUNCHER_OPTION_CPU_NB "--cpu_nb / -c"
 
 if $CLI_ERROR; then
 	exit 12

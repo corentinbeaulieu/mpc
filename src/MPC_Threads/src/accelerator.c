@@ -37,7 +37,7 @@ static size_t nb_hip_devices = 0;
  * Initialize MPC_Accelerators.
  *
  * Should call sub-module init functions
- * @return 0 if everything succeded, 1 otherwise
+ * @return 0 if everything succeeded, 1 otherwise
  */
 void sctk_accl_init()
 {

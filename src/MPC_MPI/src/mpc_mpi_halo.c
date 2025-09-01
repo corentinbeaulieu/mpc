@@ -57,7 +57,7 @@ void sctk_mpi_halo_context_init( struct sctk_mpi_halo_context * ctx )
 }
 
 
-void sctk_mpi_halo_context_relase( struct sctk_mpi_halo_context * ctx )
+void sctk_mpi_halo_context_release( struct sctk_mpi_halo_context * ctx )
 {
 	memset(ctx, 0, sizeof(struct sctk_mpi_halo_context));
 }
@@ -310,7 +310,7 @@ int sctk_mpi_halo_set(  struct sctk_mpi_halo_s * halo, void * ptr )
 
 	if( !halo->is_committed )
 	{
-		mpc_common_debug_fatal("Could not set a buffer to a non-commited halo\n");
+		mpc_common_debug_fatal("Could not set a buffer to a non-committed halo\n");
 	}
 
 	halo->halo_buffer = ptr;
@@ -330,7 +330,7 @@ int sctk_mpi_halo_get(  struct sctk_mpi_halo_s * halo, void ** ptr )
 
 	if( !halo->is_committed )
 	{
-		mpc_common_debug_fatal("Could not get a buffer from a non-commited halo\n");
+		mpc_common_debug_fatal("Could not get a buffer from a non-committed halo\n");
 	}
 
 	*ptr = halo->halo_buffer;
@@ -569,7 +569,7 @@ int sctk_mpi_halo_exchange_request_init( struct sctk_mpi_halo_exchange_request *
 	return 0;
 }
 
-int sctk_mpi_halo_exchange_request_relase( struct sctk_mpi_halo_exchange_request * req  )
+int sctk_mpi_halo_exchange_request_release( struct sctk_mpi_halo_exchange_request * req  )
 {
 	req->source_process = -1;
 	req->dest_process = -1;
@@ -717,7 +717,7 @@ int sctk_mpi_halo_exchange_commit( struct sctk_mpi_halo_exchange_s * ex )
 		if( ! target_halo )
 		{
 			sctk_mpi_halo_exchange_request_print( current_req );
-			mpc_common_debug_error("Could not find a halo named %s in order to satify this request", current_req->remote_label );
+			mpc_common_debug_error("Could not find a halo named %s in order to satisfy this request", current_req->remote_label );
 			abort();
 		}
 
@@ -741,7 +741,7 @@ int sctk_mpi_halo_exchange_commit( struct sctk_mpi_halo_exchange_s * ex )
 		/* Register a send to this buffer */
 
 		/* Is request source in the same process ?
-		 * Note that as this relationship is symetrical
+		 * Note that as this relationship is symmetrical
 		 * the buffer is allocated a the other end if actually remote
 		 * */
 		int is_remote = mpc_lowcomm_is_remote_rank( current_req->source_process );

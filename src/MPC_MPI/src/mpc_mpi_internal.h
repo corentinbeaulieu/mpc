@@ -171,7 +171,7 @@ typedef enum
 	MPC_MPI_PERSISTENT_SSEND_INIT,
 	MPC_MPI_PERSISTENT_RECV_INIT,
 	MPC_MPI_PERSISTENT_BARRIER_INIT
-} MPI_Persistant_op_t;
+} MPI_Persistent_op_t;
 
 typedef struct prtd_map
 {
@@ -222,7 +222,7 @@ typedef struct
 	};
 } mpi_partitioned_t;
 
-typedef struct MPI_Persistant_s
+typedef struct MPI_Persistent_s
 {
 	void *              buf;
 	int                 count;
@@ -230,7 +230,7 @@ typedef struct MPI_Persistant_s
 	int                 dest_source;
 	int                 tag;
 	MPI_Comm            comm;
-	MPI_Persistant_op_t op;
+	MPI_Persistent_op_t op;
 	/* collective */
 	const void *        sendbuf;
 	void *              recvbuf;
@@ -247,7 +247,7 @@ typedef struct MPI_Persistant_s
 	const MPI_Datatype *recvtypes;
 	MPI_Op              op_coll;
 	MPI_Info            info;
-} MPI_Persistant_t;
+} MPI_Persistent_t;
 
 typedef struct MPI_internal_request_s
 {
@@ -258,7 +258,7 @@ typedef struct MPI_internal_request_s
 	int                                     rank; /**< Offset in the tab array from  struct \ref MPI_request_struct_s */
 
 	/* Persistent */
-	MPI_Persistant_t                        persistant;
+	MPI_Persistent_t                        persistent;
 	mpi_partitioned_t                       partitioned;
 	int                                     freeable;
 	int                                     is_active;
@@ -548,12 +548,12 @@ void PMPI_internal_free_request(MPI_Request *request);
 		}                                       \
 }while(0)
 
-#define mpi_check_status_array_error(size, statusses)             \
+#define mpi_check_status_array_error(size, statuses)             \
 	do{                                                       \
 		int ___i;                                         \
 		for(___i = 0 ; ___i < size ; ___i++)              \
 		{                                                 \
-			mpi_check_status_error(&statusses[___i]); \
+			mpi_check_status_error(&statuses[___i]); \
 		}                                                 \
 	}while(0)
 
@@ -565,8 +565,8 @@ void PMPI_internal_free_request(MPI_Request *request);
 	if( (!mpc_dt_is_valid(datatype) ) && ( (datatype != MPI_UB) && (datatype != MPI_LB) ) ){ \
 		MPI_ERROR_REPORT(comm, MPI_ERR_TYPE, "Unknown datatype provided!"); }
 
-#define mpi_check_type_commited(datatype, comm)                                                     \
-	if( (!mpc_dt_is_commited(datatype) ) && ( (datatype != MPI_UB) && (datatype != MPI_LB) ) ){ \
+#define mpi_check_type_committed(datatype, comm)                                                     \
+	if( (!mpc_dt_is_committed(datatype) ) && ( (datatype != MPI_UB) && (datatype != MPI_LB) ) ){ \
 		MPI_ERROR_REPORT(comm, MPI_ERR_TYPE, "Uncommitted datatype provided!"); }
 
 int _mpc_mpi_init_counter(int *counter);

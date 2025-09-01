@@ -71,7 +71,7 @@ endif
 
 if MPC_HAVE_AUTOPRIV
 # Generate a privatized library note that
-# by defaut autopriv wrappers do not privatize
+# by default autopriv wrappers do not privatize
 
 lib_LTLIBRARIES += libmpcfortran_priv.la
 

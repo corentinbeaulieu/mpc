@@ -77,7 +77,7 @@ int _mpc_thread_ethread_posix_once(mpc_thread_once_t *once_control,
 
 int _mpc_thread_ethread_posix_attr_setdetachstate(_mpc_thread_ethread_attr_t *attr, int detachstate)
 {
-	/*attributs posix
+	/*attributes posix
 	 * SCTK_THREAD_CREATE_JOINABLE
 	 * SCTK_THREAD_CREATE_DETACHED
 	 */
@@ -105,7 +105,7 @@ int _mpc_thread_ethread_posix_attr_getdetachstate(const _mpc_thread_ethread_attr
 
 int _mpc_thread_ethread_posix_attr_setschedpolicy(_mpc_thread_ethread_attr_t *attr, int policy)
 {
-	/*attributs posix
+	/*attributes posix
 	 * SCTK_SCHED_OTHER (normal)
 	 * SCTK_SCHED_RR (real time, round robin)
 	 * SCTK_SCHED_FIFO (realtime, first-in first-out)
@@ -136,7 +136,7 @@ int _mpc_thread_ethread_posix_attr_getschedpolicy(const _mpc_thread_ethread_attr
 
 int _mpc_thread_ethread_posix_attr_setinheritsched(_mpc_thread_ethread_attr_t *attr, int inherit)
 {
-	/*attributs posix
+	/*attributes posix
 	 * SCTK_THREAD_EXPLICIT_SCHED
 	 * SCTK_THREAD_INHERIT_SCHED
 	 */
@@ -247,7 +247,7 @@ int _mpc_thread_ethread_posix_attr_setstack(_mpc_thread_ethread_attr_t *attr, vo
                                             size_t stacksize)
 {
 	_mpc_thread_ethread_check_attr(attr);
-	if(attr == NULL || stacksize < SCTK_THREAD_STACK_MIN)   /*on effectue pas  le test d'alignement */
+	if(attr == NULL || stacksize < SCTK_THREAD_STACK_MIN)   /*on effectue pas  le test d'alignment */
 	{
 		return EINVAL;
 	}
@@ -640,7 +640,7 @@ _mpc_thread_ethread_sem_t *_mpc_thread_ethread_posix_sem_open(const char *name, 
 		}
 		maillon = (_mpc_thread_ethread_sem_name_t *)
 		          sctk_malloc(sizeof(_mpc_thread_ethread_sem_name_t) );
-		mpc_common_nodebug("%p pointe sur %p avec maillon vaux %p\n",
+		mpc_common_nodebug("%p pointe sure %p avec maillon vaux %p\n",
 		             sem_struct, sem_struct, maillon);
 		if(maillon == NULL)
 		{
@@ -663,7 +663,7 @@ _mpc_thread_ethread_sem_t *_mpc_thread_ethread_posix_sem_open(const char *name, 
 		maillon->sem    = sem;
 		maillon->nb     = 1;
 		maillon->unlink = 0;
-		mpc_common_nodebug("__sctk_head_sem %p pointe sur %p avec maillon vaux %p\n",
+		mpc_common_nodebug("__sctk_head_sem %p pointe sure %p avec maillon vaux %p\n",
 		             __sctk_head_sem, __sctk_head_sem.next, maillon);
 	}
 	if(tmp == NULL && !(oflag & O_CREAT) )
@@ -1141,7 +1141,7 @@ int _mpc_thread_ethread_posix_cond_timedwait(__UNUSED__ _mpc_thread_ethread_cond
 				/*
 				 * on reparcours toute la liste pour savoir ou on est
 				 * on peut etre absent (apres un broadcast qui c'est produit
-				 * entre le d�but du while et ici  par exemple
+				 * entre le d�but du while et ici  par example
 				 */
 				while(ptr->list != NULL)
 				{
@@ -1373,8 +1373,8 @@ int _mpc_thread_ethread_posix_spin_unlock(_mpc_thread_ethread_spinlock_t *lock)
 * RWLOCK *
 **********/
 
-/*on ne supporte pas les attributs dans le sens on ne supporte pas le fait
- * qu'on soit sur plusieurs processus*/
+/*on ne supporte pas les attributes dans le sens on ne supporte pas le fait
+ * qu'on soit sure plusieurs processus*/
 int _mpc_thread_ethread_posix_rwlock_init(_mpc_thread_ethread_rwlock_t *rwlock,
                                           const _mpc_thread_ethread_rwlockattr_t *attr)
 {
@@ -1493,7 +1493,7 @@ static inline int __rwlock_lock(_mpc_thread_ethread_rwlock_t *
 static inline int __rwlock_trylock(_mpc_thread_ethread_rwlock_t *rwlock, int type)
 {
 	mpc_common_spinlock_lock(&rwlock->spinlock);
-	/*si on n'est pas sur de devoir attendre */
+	/*si on n'est pas sure de devoir attendre */
 	if(rwlock->current != SCTK_RWLOCK_WRITE &&
 	   rwlock->wait != SCTK_RWLOCK_WR_WAIT)
 	{

@@ -54,7 +54,7 @@ static inline const char *lcp_ato_sw_decode_op(lcp_atomic_op_t op_type) {
         case LCP_ATOMIC_OP_AND: return "LCP_ATOMIC_OP_AND"; break;
         case LCP_ATOMIC_OP_SWAP: return "LCP_ATOMIC_OP_SWAP"; break;
         case LCP_ATOMIC_OP_CSWAP: return "LCP_ATOMIC_OP_CSWAP"; break;
-        default: return "Unknwon LCP atomic op."; break;
+        default: return "Unknown LCP atomic op."; break;
         }
 
         return NULL;

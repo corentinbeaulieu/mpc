@@ -39,7 +39,7 @@ extern "C" {
  ********************/
 
 /**
- * @brief Initalize device topology state
+ * @brief Initialize device topology state
  *
  * @param topology reference topology
  */

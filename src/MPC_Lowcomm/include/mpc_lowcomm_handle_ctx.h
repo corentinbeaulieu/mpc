@@ -73,7 +73,7 @@ int mpc_lowcomm_handle_ctx_free(mpc_lowcomm_handle_ctx_t * hctx);
  * @brief Check if two contexes are equal
  *
  * @param a first context
- * @param b second contex
+ * @param b second context
  * @return int 1 if equal
  */
 int mpc_lowcomm_handle_ctx_equal(mpc_lowcomm_handle_ctx_t a, mpc_lowcomm_handle_ctx_t b);
@@ -91,7 +91,7 @@ int mpc_lowcomm_handle_ctx_set_session(mpc_lowcomm_handle_ctx_t hctx, void * ses
 /**
  * @brief Get the session attached to an handle context
  *
- * @param hctx the handle context to querry
+ * @param hctx the handle context to query
  * @return void* the session handle context (opaque) NULL if none or error
  */
 void * mpc_lowcomm_handle_ctx_get_session(mpc_lowcomm_handle_ctx_t hctx);

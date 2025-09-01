@@ -32,7 +32,7 @@ extern "C" {
 /** This is the MPC low-level RDMA interface defining both windows
  * and operations on remote memory areas this interface has been
  * designed to be a support for an MPI one-sided layer hence
- * some desing choices are similar (for example in offsetting).
+ * some design choices are similar (for example in offsetting).
  */
 
 /************************************************************************/
@@ -57,7 +57,7 @@ extern "C" {
 
 /** Initialize a local window for RMA
  * @arg addr Start address of the window
- * @arg size Size of the region ot be mapped
+ * @arg size Size of the region to be mapped
  * @arg disp_unit Offsetting unit (used to compute displacements)
  * @arg comm Communicator used by this window (MPC_COMM_WORLD is a godd default)
  *
@@ -68,7 +68,7 @@ mpc_lowcomm_rdma_window_t mpc_lowcomm_rdma_window_init( void *addr, size_t size,
 /** Map to a remote window in order to initiate RDMAs
  *
  * When mapping to a remote window you need to know the ID
- * which can be exchanged using point ot point messages MPI_INT
+ * which can be exchanged using point to point messages MPI_INT
  * also be careful that a new window is created and that operations
  * on this new window are actually acting on the remote memory.
  *
@@ -98,7 +98,7 @@ void mpc_lowcomm_rdma_window_release( mpc_lowcomm_rdma_window_t win );
 /** Emit a fence on a window
  *
  * Note that in most case this call does nothing
- * as the wait on RDMA is sufficent to gurantee data-coherency
+ * as the wait on RDMA is sufficient to guarantee data-coherency
  * at the granularity of a single RMA. However for emulated
  * calls we need to make sure that all control messages
  * are processed by flussing the event queue this is the
@@ -233,7 +233,7 @@ void mpc_lowcomm_rdma_window_RDMA_read_win( mpc_lowcomm_rdma_window_t src_win_id
 	RDMA_TYPE_WCHAR
 
 * Care must be taken to match the data-type with the actual memory
-* region targetted otherwise leading to memory corruptions. As for
+* region targeted otherwise leading to memory corruptions. As for
 * READ and WRITE there requests exist in two versions one with
 * arbitrary address and the other in win to win yielding better
 * performance (avoiding memory registration overhead).
@@ -305,7 +305,7 @@ void mpc_lowcomm_rdma_window_RDMA_fetch_and_op_win( mpc_lowcomm_rdma_window_t re
  * @arg comp Pointer to the memory region to compare
  * @arg new_data Replacement data if comp matches
  * @arg res Pointer to a memory region where the original target memory segment is stored
- * @arg type Type of the operants (res, new_data, target)
+ * @arg type Type of the operands (res, new_data, target)
  * @arg req A request to wait the RMA with @ref mpc_lowcomm_rdma_window_RDMA_wait
  */
 void mpc_lowcomm_rdma_window_RDMA_CAS( mpc_lowcomm_rdma_window_t remote_win_id, size_t remote_offset, void * comp, void * new_data, void  * res, RDMA_type type, mpc_lowcomm_request_t  * req );
@@ -323,7 +323,7 @@ void mpc_lowcomm_rdma_window_RDMA_CAS( mpc_lowcomm_rdma_window_t remote_win_id, 
  * @arg res_offset Offset where to store the original data (dependent from disp_unit)
  * @arg comp Pointer to the memory region to compare
  * @arg new_data Replacement data if comp matches
- * @arg type Type of the operants (res, new_data, target)
+ * @arg type Type of the operands (res, new_data, target)
  * @arg req A request to wait the RMA with @ref mpc_lowcomm_rdma_window_RDMA_wait
  */
 void mpc_lowcomm_rdma_window_RDMA_CAS_win( mpc_lowcomm_rdma_window_t remote_win_id, size_t remote_offset,  mpc_lowcomm_rdma_window_t local_win_id, size_t res_offset, void * comp, void * new_data, RDMA_type type, mpc_lowcomm_request_t  * req );

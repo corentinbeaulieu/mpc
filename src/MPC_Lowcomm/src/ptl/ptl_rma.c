@@ -277,12 +277,12 @@ static int lcr_ptl_exec_flush_ep(lcr_ptl_rail_info_t *srail,
         int is_pushed = 0;
         lcr_ptl_mem_t   *mem;
 
-        /* First, load the number of oustanding operation. */
+        /* First, load the number of outstanding operation. */
         mpc_list_for_each(mem, &srail->net.rma.poll_list, lcr_ptl_mem_t, elem) {
                 /* Poll memory. */
                 completed = lcr_ptl_poll_mem(mem);
 
-                /* Count the number of oustanding operations. */
+                /* Count the number of outstanding operations. */
                 outstandings = mpc_common_max(0, flush_op->flush.op_count[i] - completed);
 
                 lcr_ptl_flush_txq(mem, &mem->txqt[ep->idx], completed);

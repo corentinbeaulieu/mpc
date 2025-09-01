@@ -17,7 +17,7 @@
  * @ingroup LCP_API
  * @{
  * LCP Context is the communication manager. Its primary functions are: list,
- * initiate, configure and instanciate the communication interfaces (rails)
+ * initiate, configure and instantiate the communication interfaces (rails)
  * available. There can be a single communication context per application.
  * @}
  */
@@ -102,7 +102,7 @@ typedef struct lcp_context_param {
  * @ingroup LCP_CONTEXT
  * @brief Context creation.
  *
- * List, init and instanciate communication inferfaces available. Based on the
+ * List, init and instantiate communication inferfaces available. Based on the
  * components (tcp, ptl, ofi,...), list available devices, open interfaces based
  * on user configuration.
  *
@@ -130,7 +130,7 @@ int lcp_context_fini(lcp_context_h ctx);
  * @ingroup LCP_TASK
  * @brief Create LCP Task.
  *
- * Instanciate an LCP Task that will contain all communication related
+ * Instantiate an LCP Task that will contain all communication related
  * information that should be own by a MPI task. There are as many tasks as MPI
  * ranks, each task is identified by its global MPI rank.
  *
@@ -148,8 +148,8 @@ int lcp_task_create(lcp_context_h ctx, int tid, lcp_task_h *task_p);
  * @brief LCP Task associate to manager.
  *
  * Associates a task to a communication context, or \ref lcp_manager_h.
- * Internal structures are instanciated to enable communication context
- * isolation. Type of structure instanciated may depend on the communication
+ * Internal structures are instantiated to enable communication context
+ * isolation. Type of structure instantiated may depend on the communication
  * model of the manager. For example, matching queues are only created for
  * two-sided communication model.
  *
@@ -198,7 +198,7 @@ enum {
 
 /**
  * @ingroup LCP_COMM
- * @brief Manager instanciation flags.
+ * @brief Manager instantiation flags.
  *
  * Specifies a set of flags that are proposed to improve performances in some
  * situation.
@@ -269,7 +269,7 @@ int lcp_progress(lcp_manager_h mngr);
  * @ingroup LCP_EP
  * @brief Create LCP Endpoint.
  *
- * Instanciate a protocol endpoint. Upon return, connection will have been
+ * Instantiate a protocol endpoint. Upon return, connection will have been
  * started and the endpoint can be used directly with communication primitives.
  *
  * @param [in] ctx  Manager handle.

@@ -82,7 +82,7 @@ AC_LANG(C)
 # generated files under version control
 AC_PREREQ(2.69)
 
-# two first arguments are omitted: PACKAGE & VERSION (infered from AC_INIT)
+# two first arguments are omitted: PACKAGE & VERSION (inferred from AC_INIT)
 # subdir-objects: any source file will map with a corresponding object file under same subtree from builddir
 # foreign: not conformant with GNU standard strictness
 # no-define: do not subst PACKAGE & VERSION (inferred from AC_INIT)
@@ -91,8 +91,8 @@ AC_PREREQ(2.69)
 AM_INIT_AUTOMAKE([1.15 subdir-objects foreign no-define std-options])
 
 # Avoid Makefile to print commands before running it
-# Overriden by configure: --disable-silent-rules
-# overriden by make: make V=1
+# Overridden by configure: --disable-silent-rules
+# overridden by make: make V=1
 AM_SILENT_RULES([yes])
 
 # Editing the build system (new directory, source file, changes in *.am/*.ac)
@@ -142,7 +142,7 @@ CONFIGURE_SCRIPT_PATH=$(dirname "`readlink -f "$0"`")
 # complaining. In particular this allows maintainer-mode to work cleanly
 # and it also allows direct reconfiguring (with the ./reconfigure scrip
 # generated in the buildir). This is then a tradeoff, changing MPC's
-# configuration is sill a possible souce of error.
+# configuration is sill a possible source of error.
 
 if test -f "${prefix}/bin/mpc_status"; then
         AC_MSG_NOTICE([!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!])
@@ -289,7 +289,7 @@ AC_CHECK_SIZEOF(pthread_t,,[#include <pthread.h>])
 #### DATATYPES #### {sec:datatypes}
 ###################
 
-# Configure subtitutions for mpc_common_types.h
+# Configure substitutions for mpc_common_types.h
 AC_CHECK_HEADER([stdbool.h],[HAVE_STDBOOL_H=1],[HAVE_STDBOOL_H=0])
 AC_SUBST([HAVE_STDBOOL_H], [$HAVE_STDBOOL_H])
 
@@ -794,9 +794,9 @@ LIBS_LIST_WITH_PATHS=""
 # $3 libname     (ex. amdhip64)
 # $4 looked up function (ex. hwloc_topology_init)
 # $5 LIBCODE (ex XML, HWLOC, ...)
-# $6 optionnal library version (need pkg-config)
-# $7 optionnal lib_prefix
-# $8 optionnal alternative lib name (when different from pkg_config)
+# $6 optional library version (need pkg-config)
+# $7 optional lib_prefix
+# $8 optional alternative lib name (when different from pkg_config)
 #
 AC_DEFUN([MPC_DETECT_DEPENDENCY],
          [
@@ -904,7 +904,7 @@ AC_DEFUN([MPC_DETECT_DEPENDENCY],
 
                                 AC_MSG_NOTICE([$libname found using pkg-config])
 
-                                AC_MSG_CHECKING([Compiling a simple progam with $libname flags])
+                                AC_MSG_CHECKING([Compiling a simple program with $libname flags])
                                 # Make sure we still link to crash early
                                 AC_LINK_IFELSE([AC_LANG_SOURCE([int main() {return 0;}])],
                                 [
@@ -1449,7 +1449,7 @@ fi
 AC_SUBST([MPC_HAVE_DMTCP])
 
 
-# Checks for optionnal headers
+# Checks for optional headers
 
 #TODO CHECK IB
 #TODO CHECK WHY libunwind.h
@@ -2069,12 +2069,12 @@ AM_CONDITIONAL([MPC_ARCH_GENERIC_MICROTASK], [test "x${MPC_ARCH_MICROTASK_ARCH}"
 AC_MSG_CHECKING([KMP optimized asm functions])
 
 if test "x$MPC_ARCH_MICROTASK_ARCH" = "xx86_64"; then
-        AC_DEFINE([KMP_ARCH_X86_64],[1], [KMP intrisincs x64 enabled])
+        AC_DEFINE([KMP_ARCH_X86_64],[1], [KMP intrinsics x64 enabled])
         AC_MSG_RESULT([x86_64])
 fi
 
 if test "x$MPC_ARCH_MICROTASK_ARCH" = "xx86"; then
-        AC_DEFINE([KMP_ARCH_X86],[1], [KMP intrisincs enabled])
+        AC_DEFINE([KMP_ARCH_X86],[1], [KMP intrinsics enabled])
         AC_MSG_RESULT([x86_64])
 fi
 
@@ -2298,7 +2298,7 @@ AC_SUBST([MPC_OPENMP_ENABLED])
 
 # Create a temporary file
 # Args:
-#  - $1 : suffix (ex .c) (optionnal)
+#  - $1 : suffix (ex .c) (optional)
 # Returns the file in TMP
 create_temp_file()
 {
@@ -2923,13 +2923,13 @@ AM_CONDITIONAL([MPC_HAVE_AUTOPRIV], [test "x${mpc_have_autopriv}" = "xyes"])
 AC_ARG_ENABLE([process-mode],
 [AS_HELP_STRING([--enable-process-mode],
                 [Compile MPC in process mode])],
-[enable_mpc_proces_mode=$enableval],
-[enable_mpc_proces_mode=no])
+[enable_mpc_process_mode=$enableval],
+[enable_mpc_process_mode=no])
 
 # First assume extls not found
 autopriv_support_found="no"
 
-if test "x$enable_mpc_proces_mode" = "xno"; then
+if test "x$enable_mpc_process_mode" = "xno"; then
 
         MPC_DETECT_DEPENDENCY([extls.h], [autopriv], [autopriv], [extls_init], [EXTLS])
         if test "x$mpc_dep_found" = "xyes"; then
@@ -2938,13 +2938,13 @@ if test "x$enable_mpc_proces_mode" = "xno"; then
         else
                 # If no privatization is available we fallback to Process-Based model
                 AC_MSG_NOTICE([No privatization support detected assuming Process-Based Model (no privatization)])
-                enable_mpc_proces_mode="yes"
+                enable_mpc_process_mode="yes"
         fi
 fi
 
 MPC_IN_PROCESS_MODE="no"
 
-if test "x${enable_mpc_proces_mode}" = "xyes"; then
+if test "x${enable_mpc_process_mode}" = "xyes"; then
         AC_DEFINE([MPC_IN_PROCESS_MODE], [1], [MPC compiled in process mode])
         MPC_IN_PROCESS_MODE="yes"
 fi
@@ -3002,7 +3002,7 @@ if test "x${MPC_ENABLE_CMA}" = "xyes"; then
                         AC_MSG_RESULT([OK])
                 else
                         AC_MSG_RESULT([FAIL])
-                        AC_MSG_NOTICE([/proc/sys/kernel/yama/ptrace_scope shoud contain 0 for CMA support in MPC])
+                        AC_MSG_NOTICE([/proc/sys/kernel/yama/ptrace_scope should contain 0 for CMA support in MPC])
                         MPC_ENABLE_CMA="no"
                 fi
         fi
@@ -3229,7 +3229,7 @@ fi
 AC_SUBST([MPC_GENERATION_DATE])
 
 #
-# Generate Conditionnal Substitutions for PKG-CONFIG
+# Generate Conditional Substitutions for PKG-CONFIG
 #
 
 MPC_THREAD_PKGCONFIG_DEP=""
@@ -3320,7 +3320,7 @@ MPC_CONFIG_RESULT="\
 ### COMPILERS ###\n\
 #\n\
 # Privatization........ $autopriv_support_found\n\
-# Process mode......... $enable_mpc_proces_mode\n\
+# Process mode......... $enable_mpc_process_mode\n\
 # mpc_cc points to..... $(basename $CC)\n\
 # mpc_cxx points to.... $(basename $CXX)\n\
 # mpc_fXX points to.... $(basename $FC)\n\

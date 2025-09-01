@@ -159,7 +159,7 @@ struct _mpc_shm_region * _mpc_shm_fragment_factory_get_segment(struct _mpc_shm_f
  * @param factory the factory to manipulate
  * @param segment_id the id of the segment to reference (@ref _mpc_shm_fragment_factory_register_segment)
  * @param base_addr the base address of where to copy the data
- * @param size the size of the whole local segement
+ * @param size the size of the whole local segment
  * @param completion the callback to call when completed
  * @param arg the argument to pass to the callback to call
  * @return uint64_t registration ID of the fragmented operation
@@ -207,7 +207,7 @@ int _mpc_shm_fragment_notify(struct _mpc_shm_fragment_factory *factory, uint64_t
       return 1;
    }
 
-   /* Region not overlaping no need to lock */
+   /* Region not overlapping no need to lock */
    memcpy(frag->base_addr + offset, buffer, size);
 
    size_t sizeleft = 0;
@@ -641,7 +641,7 @@ ssize_t mpc_shm_send_am_bcopy(_mpc_lowcomm_endpoint_t *ep,
    return payload_length;
 }
 
-static inline void __deffered_completion_cb(void *pcomp)
+static inline void __deferred_completion_cb(void *pcomp)
 {
    lcr_completion_t *comp = (lcr_completion_t *)pcomp;
    comp->comp_cb(comp);
@@ -663,7 +663,7 @@ int __get_zcopy_over_frag(_mpc_lowcomm_endpoint_t *ep,
                                               remote_key->pin.shm.id,
                                               (void*)local_addr,
                                               size,
-                                              __deffered_completion_cb,
+                                              __deferred_completion_cb,
                                               comp);
 
    struct _mpc_shm_cell * cell = _mpc_shm_storage_get_free_cell(&rail->network.shm.storage);
@@ -1289,7 +1289,7 @@ int mpc_shm_iface_open(int mngr_id, const char *device_name, int id,
 
    if( _mpc_shm_fragment_factory_init(&rail->network.shm.frag_factory))
    {
-      mpc_common_debug_error("Failed to initalize fragment factory");
+      mpc_common_debug_error("Failed to initialize fragment factory");
       return MPC_LOWCOMM_ERROR;
    }
 

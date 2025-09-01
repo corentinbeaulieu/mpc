@@ -115,7 +115,7 @@ struct MPC_Info_key * MPC_Info_key_set( struct MPC_Info_key * head, char * key, 
 
 	if( previous )
 	{
-		/* Update the content KEY is unchanged as it mathes by definition of MPC_Info_key_get */
+		/* Update the content KEY is unchanged as it matches by definition of MPC_Info_key_get */
 		free( previous->value );
 		previous->value = strdup( value );
 	}
@@ -138,7 +138,7 @@ struct MPC_Info_key * MPC_Info_key_set( struct MPC_Info_key * head, char * key, 
 
 		if( !last->next )
 		{
-			/* Failled to allocate */
+			/* Failed to allocate */
 			return head;
 		}
 

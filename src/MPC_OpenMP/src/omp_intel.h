@@ -259,7 +259,7 @@ typedef struct kmpc_shared_vars_t
 #define KMP_IDENT_WORK_LOOP 0x200
 /*! To mark a sections directive in OMPT callbacks */
 #define KMP_IDENT_WORK_SECTIONS 0x400
-/*! To mark a distirbute construct in OMPT callbacks */
+/*! To mark a distribute construct in OMPT callbacks */
 #define KMP_IDENT_WORK_DISTRIBUTE 0x800
 #endif /* OMPT_SUPPORT */
 
@@ -366,7 +366,7 @@ void __kmpc_omp_wait_deps( ident_t *, kmp_int32, kmp_int32, kmp_depend_info_t *,
 void __kmp_release_deps( kmp_int32, kmp_taskdata_t * );
 
 /*******************
- * WRAPPER FUNTION *
+ * WRAPPER FUNCTION *
  *******************/
 
 typedef struct mpc_omp_intel_wrapper_s

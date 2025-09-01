@@ -159,7 +159,7 @@ int _mpc_topology_get_distance_from_pu(hwloc_topology_t topology, int source_pu,
 */
 void _mpc_topology_mcdram_detection(hwloc_topology_t topology);
 
-/** @brief Detect if the system is equiped with NVDIMM storage and save OS device identifiers
+/** @brief Detect if the system is equipped with NVDIMM storage and save OS device identifiers
 */
 void _mpc_topology_nvdimm_detection(hwloc_topology_t topology);
 #endif

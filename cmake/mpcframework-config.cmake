@@ -109,7 +109,7 @@ mark_as_advanced(
   MPCFRAMEWORK_LIBRARY
 )
 
-# Not try to mimick some of the FindMPI things
+# Not try to mimic some of the FindMPI things
 
 
 if (MPCFRAMEWORK_FOUND)

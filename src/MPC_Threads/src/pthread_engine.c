@@ -520,7 +520,7 @@ void mpc_thread_pthread_engine_init(void)
 	MPC_PTHREAD_ADD_FUNC_TYPE_FORCE_CAST(pthread, once,
 	                   int (*)(mpc_thread_once_t *, void (*)(void) ) );
 #endif
-	/*les attributs des threads */
+	/*les attributes des threads */
 #ifdef HAVE_PTHREAD_ATTR_SETDETACHSTATE
 	MPC_PTHREAD_ADD_FUNC_TYPE_FORCE_CAST(pthread, attr_setdetachstate,
 	                   int (*)(mpc_thread_attr_t *, int) );
@@ -703,7 +703,7 @@ void mpc_thread_pthread_engine_init(void)
 #ifdef HAVE_PTHREAD_COND_SIGNAL
 	MPC_PTHREAD_ADD_FUNC_TYPE_FORCE_CAST(pthread, cond_signal, int (*)(mpc_thread_cond_t *) );
 #endif
-	/*attributs des conditions */
+	/*attributes des conditions */
 #ifdef HAVE_PTHREAD_CONDATTR_INIT
 	MPC_PTHREAD_ADD_FUNC_TYPE_FORCE_CAST(pthread, condattr_init,
 	                   int (*)(mpc_thread_condattr_t *) );
@@ -855,7 +855,7 @@ void mpc_thread_pthread_engine_init(void)
 #endif
 
 
-/*Non impl�ment� dans ethread(_mxn)*/
+/*Non impl�meant� dans ethread(_mxn)*/
 #ifdef HAVE_PTHREAD_ATTR_GETGUARDSIZE
 	MPC_PTHREAD_ADD_FUNC_TYPE_FORCE_CAST(pthread, attr_getguardsize,
 	                   int (*)(const mpc_thread_attr_t *, size_t *) );

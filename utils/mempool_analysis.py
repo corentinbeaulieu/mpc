@@ -124,7 +124,7 @@ additionals=""
 out = "out.csv"
 
 help = """
-This script is used to run and to display informations on the lcp mempool
+This script is used to run and to display information on the lcp mempool
 Usage : python process.py [options]
 
 Options :

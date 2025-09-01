@@ -209,7 +209,7 @@ static inline int __translate_futex_opcode(int opcode)
 		break;
 
 	default:
-		mpc_common_debug_error("Failled to convert FUTEX OP");
+		mpc_common_debug_error("Failed to convert FUTEX OP");
 	}
 
 	return opcode;
@@ -416,7 +416,7 @@ int futex_queue_release(struct futex_queue *fq)
 
 int *futex_queue_push(struct futex_queue *fq, int bitmask, int orig_op)
 {
-	/* Make sure we do not push when poping
+	/* Make sure we do not push when popping
 	 * to avoid repopping previously popped threads */
 	mpc_common_spinlock_lock(&fq->queue_is_wake_tainted);
 
@@ -451,7 +451,7 @@ int *futex_queue_repush(struct futex_queue *fq, struct futex_cell *to_repush)
 
 int futex_check_op_compat(int op, int orig_op)
 {
-	/* Check mistmatching TYPES */
+	/* Check mismatching TYPES */
 	if( (op == SCTK_FUTEX_UNLOCK_PI) ||
 	    (op == SCTK_FUTEX_CMP_REQUEUE_PI) ||
 	    (op == SCTK_FUTEX_WAIT_REQUEUE_PI) )
@@ -690,7 +690,7 @@ int *futex_queue_HT_register_thread(struct futex_queue_HT *ht, int *futex_key, i
 
 
 	/* Now that resource exhaustion has been managed
-	 * lets focus on ressource allocation */
+	 * lets focus on resource allocation */
 
 	int *ret = NULL;
 
@@ -1139,7 +1139,7 @@ int _mpc_thread_futex_LOCKPI(int *volatile futex, struct timespec *timeout)
 
 		if(_mpc_thread_futex_TRYLOCKPI(futex) != 0)
 		{
-			/* We failled to take the lock just mimic timeout */
+			/* We failed to take the lock just mimic timeout */
 			errno = ETIMEDOUT;
 			return -1;
 		}
@@ -1163,7 +1163,7 @@ int _mpc_thread_futex(void *addr1, int op, int val1,
 
 	/* We need to convert only if futexes
 	 * are supported by the system
-	 * othewise the value is already the
+	 * otherwise the value is already the
 	 * internal symbol this is handled
 	 * inside this function */
 	op = __translate_futex_op(op);

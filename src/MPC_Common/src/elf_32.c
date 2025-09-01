@@ -193,7 +193,7 @@ static char *get_arch( int machine )
 #endif
 #ifdef EM_NCPU
 		case EM_NCPU:
-			return "Sony nCPU embeeded RISC";
+			return "Sony nCPU embedded RISC";
 #endif
 #ifdef EM_NDR1
 		case EM_NDR1:
@@ -1150,7 +1150,7 @@ read_dwarf( elf_class_t *c, mpc_addr2line_t *ptrs, int nb )
 	int line_base;
 	long line_range;
 	long opcode_base;
-	long inital_length_size;
+	long initial_length_size;
 	char *data;
 	file_t file;
 	char *address;
@@ -1175,7 +1175,7 @@ read_dwarf( elf_class_t *c, mpc_addr2line_t *ptrs, int nb )
 restart:
 	address = NULL;
 	offset = 4;
-	inital_length_size = 4;
+	initial_length_size = 4;
 	file_nb = 0;
 	dir_nb = 1;
 	last_address = (void *) ( -1 );
@@ -1191,7 +1191,7 @@ restart:
 		length = get_bytes( cursor, 8 );
 		inc_line( cursor, 8, c );
 		offset = 8;
-		inital_length_size = 12;
+		initial_length_size = 12;
 	}
 
 #ifdef DEBUG
@@ -1244,7 +1244,7 @@ restart:
 	fprintf( stderr, "(Pointer size:               %ld)\n", offset );
 #endif
 
-	end_of_sequence = data + length + inital_length_size;
+	end_of_sequence = data + length + initial_length_size;
 
 	data = cursor + opcode_base - 1;
 	while ( *data != 0 )
@@ -1346,7 +1346,7 @@ restart:
 							address = (char *) get_bytes( data, len - 1 - 1 );
 							inc_line( data, len - 1 - 1, c );
 #if defined( DEBUG )
-							fprintf( stderr, "SET adresse to %p\n", address );
+							fprintf( stderr, "SET address to %p\n", address );
 #endif
 							break;
 					}
@@ -1363,7 +1363,7 @@ restart:
 					uladv *= min_insn_length;
 					address += uladv;
 #if defined( DEBUG )
-					fprintf( stderr, "STEP adresse to %p\n", address );
+					fprintf( stderr, "STEP address to %p\n", address );
 #endif
 					break;
 
@@ -1381,7 +1381,7 @@ restart:
 					uladv = ( ( ( 255 - opcode_base ) / line_range ) * min_insn_length );
 					address += uladv;
 #if defined( DEBUG )
-					fprintf( stderr, "STEP adresse to %p\n", address );
+					fprintf( stderr, "STEP address to %p\n", address );
 #endif
 					break;
 

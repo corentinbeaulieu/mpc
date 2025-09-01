@@ -1268,7 +1268,7 @@ __task_process_mpc_dep_entry(mpc_omp_task_t * task, void * addr)
     return entry;
 }
 
-// Return true if the given dependency of given type was already implicitely
+// Return true if the given dependency of given type was already implicitly
 // treated by a previous dependency
 static inline int
 __task_process_mpc_dep_is_redundant(
@@ -1352,7 +1352,7 @@ __task_process_mpc_dep(
                  */
 
                 // TODO : we always add an extra node... this is not necessary
-                // and sould be optimized on the specific case where there is
+                // and should be optimized on the specific case where there is
                 // only one 'inoutset' task
                 unsigned int size = sizeof(mpc_omp_task_t) + sizeof(mpc_omp_task_dep_list_elt_t);
                 pit = _mpc_omp_task_allocate(size);
@@ -1401,7 +1401,7 @@ __task_process_mpc_dep(
              * in:              O   O
              */
             // TODO : we always add an extra node... this is not necessary
-            // and sould be optimized on the specific case where there is
+            // and should be optimized on the specific case where there is
             // only one 'in' task
 
             /* if the inserted task is of type 'IN' then insert an 'INOUT'
@@ -1518,8 +1518,8 @@ __task_process_mpc_dep(
 # if MPC_OMP_TASK_COMPILE_TRACE
         assert(strcpy(pit->label, "control"));
 # endif /* MPC_OMP_TASK_COMPILE_TRACE */
-        assert(TASK_STATE(pit) == MPC_OMP_TASK_STATE_NOT_QUEUABLE);
-        TASK_STATE_TRANSITION(pit, MPC_OMP_TASK_STATE_QUEUABLE);
+        assert(TASK_STATE(pit) == MPC_OMP_TASK_STATE_NOT_QUEUEABLE);
+        TASK_STATE_TRANSITION(pit, MPC_OMP_TASK_STATE_QUEUEABLE);
         _mpc_omp_task_process(pit);
 #if MPC_OMP_TASK_COMPILE_PERSISTENT
         if (!region->active) _mpc_omp_task_deinit(pit);
@@ -1783,7 +1783,7 @@ __task_finalize_do(mpc_omp_task_t * task)
         }
 #endif /* MPC_OMP_TASK_COMPILE_PERSISTENT */
 
-        /* if successor' dependencies are fullfilled, process it */
+        /* if successor' dependencies are fulfilled, process it */
         if (OPA_fetch_and_decr_int(&(succ->dep_node.ref_predecessors)) == 1)
         {
             task->flags.successor = 1;
@@ -1825,7 +1825,7 @@ _mpc_omp_task_detach_fulfill(mpc_omp_event_handle_detach_t * handle)
 }
 
 /** called whenever a task completed it execution and transition to 'finalize'
- * if non-persistent, or 'non-queuable' if persistent */
+ * if non-persistent, or 'non-queueable' if persistent */
 void
 _mpc_omp_task_finalize(mpc_omp_task_t * task)
 {
@@ -1894,7 +1894,7 @@ __task_delete(mpc_omp_task_t * task)
 
 /** TASK PRIORITIES AND PROFILES */
 
-/** Return 1 if given task profile alraedy was registered */
+/** Return 1 if given task profile already was registered */
 static int
 __task_profile_exists(mpc_omp_task_t * task)
 {
@@ -2577,7 +2577,7 @@ ___task_get_victim_random_order_prepare( const int globalRank, __UNUSED__ const 
     {
         assert( gen_node->ptr.mvp->threads );
         randBuffer = MPC_OMP_TASK_MVP_GET_TASK_PQUEUE_RANDBUFFER( thread->mvp );
-        //TODO transfert data to current thread ...
+        //TODO transfer data to current thread ...
         //randBuffer = gen_node->ptr.mvp->threads->task_infos.pqueue_randBuffer;
     }
     else
@@ -3838,7 +3838,7 @@ _mpc_omp_task_yield(void)
 mpc_omp_task_t *
 _mpc_omp_task_allocate(size_t size)
 {
-    /* Intialize the OpenMP environnement (if needed) */
+    /* Initialize the OpenMP environment (if needed) */
     mpc_omp_init();
 
     /* Retrieve the information (microthread structure and current region) */
@@ -3860,7 +3860,7 @@ _mpc_omp_task_allocate(size_t size)
     task = malloc(size);
 # endif
 
-    TASK_STATE_TRANSITION(task, MPC_OMP_TASK_STATE_UNITIALIZED);
+    TASK_STATE_TRANSITION(task, MPC_OMP_TASK_STATE_UNINITIALIZED);
     mpc_common_spinlock_init(&(task->state_lock), 0);
 
     return task;
@@ -3876,7 +3876,7 @@ _mpc_omp_task_init_attributes(
 {
     assert(task);
 
-    /* Intialize the OpenMP environnement (if needed) */
+    /* Initialize the OpenMP environment (if needed) */
     mpc_omp_init();
 
     /* Reset all task infos to NULL */
@@ -3930,7 +3930,7 @@ _mpc_omp_task_init_attributes(
 /* PERSISTENT TASKS */
 
 #if MPC_OMP_TASK_COMPILE_PERSISTENT
-/* Retrive persistent task graph informations */
+/* Retrieve persistent task graph information */
 mpc_omp_persistent_region_t *
 mpc_omp_get_persistent_region(void)
 {
@@ -3968,8 +3968,8 @@ _mpc_omp_task_init(
     __task_ref_parent_task(task->parent);   /* _mpc_omp_task_finalize */
     __task_ref(task);                       /* _mpc_omp_task_finalize or _mpc_omp_task_deinit_persistent */
 
-    assert(TASK_STATE(task) == MPC_OMP_TASK_STATE_UNITIALIZED);
-    TASK_STATE_TRANSITION(task, MPC_OMP_TASK_STATE_NOT_QUEUABLE);
+    assert(TASK_STATE(task) == MPC_OMP_TASK_STATE_UNINITIALIZED);
+    TASK_STATE_TRANSITION(task, MPC_OMP_TASK_STATE_NOT_QUEUEABLE);
 
 #if MPC_OMP_TASK_COMPILE_PERSISTENT
     if (mpc_omp_task_property_isset(task->property, MPC_OMP_TASK_PROP_PERSISTENT))
@@ -3997,7 +3997,7 @@ _mpc_omp_task_reinit_persistent(mpc_omp_task_t * task)
 
     MPC_OMP_TASK_TRACE_CREATE(task);
     assert(TASK_STATE(task) == MPC_OMP_TASK_STATE_RESOLVED);
-    TASK_STATE_TRANSITION(task, MPC_OMP_TASK_STATE_QUEUABLE);
+    TASK_STATE_TRANSITION(task, MPC_OMP_TASK_STATE_QUEUEABLE);
 }
 
 void
@@ -4048,8 +4048,8 @@ _mpc_omp_task_deps(mpc_omp_task_t * task, void ** depend, int priority_hint)
     if (mpc_omp_task_property_isset(task->property, MPC_OMP_TASK_PROP_DEPEND))
         __task_process_deps(task, depend);
 
-    assert(TASK_STATE(task) == MPC_OMP_TASK_STATE_NOT_QUEUABLE);
-    TASK_STATE_TRANSITION(task, MPC_OMP_TASK_STATE_QUEUABLE);
+    assert(TASK_STATE(task) == MPC_OMP_TASK_STATE_NOT_QUEUEABLE);
+    TASK_STATE_TRANSITION(task, MPC_OMP_TASK_STATE_QUEUEABLE);
 
     /* compute priority */
 #if MPC_OMP_TASK_COMPILE_PRIORITY
@@ -4072,17 +4072,17 @@ _mpc_omp_task_process(mpc_omp_task_t * task)
 #if 0
     if (OPA_load_int(&(task->dep_node.ref_predecessors)) == 0)
     {
-        if (TASK_STATE_TRANSITION_ATOMIC(task, MPC_OMP_TASK_STATE_QUEUABLE, MPC_OMP_TASK_STATE_QUEUED))
+        if (TASK_STATE_TRANSITION_ATOMIC(task, MPC_OMP_TASK_STATE_QUEUEABLE, MPC_OMP_TASK_STATE_QUEUED))
         {
             became_ready = 1;
         }
     }
 #else
-    if (TASK_STATE(task) == MPC_OMP_TASK_STATE_QUEUABLE)
+    if (TASK_STATE(task) == MPC_OMP_TASK_STATE_QUEUEABLE)
     {
         mpc_common_spinlock_lock(&(task->state_lock));
         {
-            if (TASK_STATE(task) == MPC_OMP_TASK_STATE_QUEUABLE)
+            if (TASK_STATE(task) == MPC_OMP_TASK_STATE_QUEUEABLE)
             {
                 if (OPA_load_int(&(task->dep_node.ref_predecessors)) == 0)
                 {
@@ -4604,7 +4604,7 @@ mpc_omp_persistent_region_pop(void)
     /* cannot delete tasks on the 1st iteration or outside a persistent region */
     if (!region->active) return ;
 
-    // TODO : likely need to iterate to avoid poping a control flow task
+    // TODO : likely need to iterate to avoid popping a control flow task
     // TODO : task->persistent_infos.next - relink this list properly
     assert(0);
 

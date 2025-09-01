@@ -431,7 +431,7 @@ for f in mpi_interface:
 
     # Emit the subroutine code
     module_file_data += "\n\nSUBROUTINE " + capsfunctioname + "("
-    # FUCTION FOOTPRINT
+    # FUNCTION FOOTPRINT
     for i in range(0, len(names)):
         module_file_data += names[i]
         if i < (len(names) - 1):
@@ -730,7 +730,7 @@ for mpitype in f08types:
             module_file_data += "    integer*8 :: " + tname + "\n"
         elif ttype == "long":
             module_file_data += "    integer*8 :: " + tname + "\n"
-        # Done emmiting content
+        # Done emitting content
 
     module_file_data += "end type " + name + "\n"
     module_file_data += "\n"
@@ -1030,7 +1030,7 @@ f.close()
 #
 
 print("\n#########################################")
-print("Generating the F08 Contants  Fortran Module")
+print("Generating the F08 Constants  Fortran Module")
 print("###########################################\n")
 
 module_file_data = genheader()
@@ -1122,7 +1122,7 @@ f.close()
 def genCallArgs(argArray, ierror=0, fortranskip=1, pointer_args=0, add_char_len=0):
     ret = "( "
     length = len(argArray)
-    # Is there an errror flag to skip
+    # Is there an error flag to skip
     if ierror == 0:
         for i in range(0, length):
             arg = argArray[i]
@@ -1220,7 +1220,7 @@ def genCTypesforArg(args, suffix="", transtyping=0, doval=0, flat_ptr=0):
         comment = arg[0]
 
         # Handle the case of assumed size when using
-        # this function to genereate trans-typing constructs
+        # this function to generate trans-typing constructs
         assumed_size = 0
         if (flat_ptr == 1) and (arg[0].find("[]") != -1) and arg[0] != "MPI_Request[]":
             # Translate to integer width
@@ -1339,7 +1339,7 @@ for mpi_func, args in mpi_interface.items():
     # Handle string length args
     for a in args:
         if a[0] == "char*":
-            module_file_data += "integer(c_int), value :: {} ! {} lenght\n".format(a[1] + "_len", a[1])
+            module_file_data += "integer(c_int), value :: {} ! {} length\n".format(a[1] + "_len", a[1])
 
 
 

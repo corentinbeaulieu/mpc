@@ -319,7 +319,7 @@ extern "C"
  Note: Combined parallel/for region can be done by splitting into 2 different
  directives (one for the parallel region and one for the 'for' loop)
 
- !Warning! 'Nowait' clause is not considerd with 'ordered' construct
+ !Warning! 'Nowait' clause is not considered with 'ordered' construct
  */
 
 int mpc_omp_ordered_static_loop_begin (long lb, long b, long incr, long chunk_size, long *from, long *to) ;

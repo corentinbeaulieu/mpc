@@ -72,7 +72,7 @@ context pushed on top of the CUDA stack, depending on the running thread.
 MPC provides a new compiler wrapper named `mpc_nvcc`, in charge of compiling
 application through the `nvcc` compiler but also by taking care of global
 variable privatization. Be aware that a compilation through this wrapper can be
-longer than with `mpc_cc` or `nvcc` becasue the need of a double compilation.
+longer than with `mpc_cc` or `nvcc` because the need of a double compilation.
 Actually it is the only way to detect CUDA-internal variables that should not
 be disabled. (actually, variable names could be hard-coded, but it is a dirty
 way, right ?). The found variable names are de-privatized when building the

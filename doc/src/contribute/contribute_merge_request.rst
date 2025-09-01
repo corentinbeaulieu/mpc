@@ -44,7 +44,7 @@ keep it up-to-date to avoid later issues). Let consider your branch is labeled `
 	git checkout mr-A
 	git rebase`origin/devel
 
-2. (bis) In some *rare* scenarios, it may not be convenient to rebase the branch. Mainly this can occur after you try to rebase it and it comes with **a lot** of conflicts. The main pattern is because your branch modify a set of lines multiple times (once per commit for instance) and the devel branch modified it in the meantime. When rebasing,**each commit** may create a conflit, leading to a rebasing nightmare. In that type of scenario *only*, and with the approval of the reviewing peers/maintainers, a punctual merge can be done. To do so, instead of the rebase, run the following command. You'll have to resolve conflicts only
+2. (bis) In some *rare* scenarios, it may not be convenient to rebase the branch. Mainly this can occur after you try to rebase it and it comes with **a lot** of conflicts. The main pattern is because your branch modify a set of lines multiple times (once per commit for instance) and the devel branch modified it in the meantime. When rebasing,**each commit** may create a conflict, leading to a rebasing nightmare. In that type of scenario *only*, and with the approval of the reviewing peers/maintainers, a punctual merge can be done. To do so, instead of the rebase, run the following command. You'll have to resolve conflicts only
 once (only the last versions of devel & mr-A branch will be compared): 
 
 .. code-block:: sh 
@@ -101,7 +101,7 @@ The reviewing process
 
 Once a merge-request is submitted and tagged with `Ready for Review` labels, it is time for developers to review changes to be merged with the mainline. It is their only chance to give their point/advice about them before they become definitive from a project history perspective.
 
-To review changes, click on the `Changes` tab and browse through the UI. You can also check the branch out and go in-depth through the command line (recommended for archive, not supported by Gitlab UI). Please check also pipeline task status, especially if anyone comes red. **Take also some time to check the branch history, to detect any merge loop or severe GIt misusage**. History readibility and maintenance also depends on it.
+To review changes, click on the `Changes` tab and browse through the UI. You can also check the branch out and go in-depth through the command line (recommended for archive, not supported by Gitlab UI). Please check also pipeline task status, especially if anyone comes red. **Take also some time to check the branch history, to detect any merge loop or severe GIt misusage**. History readability and maintenance also depends on it.
 
 For each question/comment, you may have, post a comment. You can also answer to a previous comment by using the 'note' icon ("Reply" button). This will put your answer in a dedicated thread, easier to maintain (fold/unfold).
 

@@ -24,7 +24,7 @@
 ########################################################################
 #Setup defaults
 MPC_VERSION=""
-PATCHS_LIST=""
+PATCHES_LIST=""
 cpt=0
 
 ##################################
@@ -65,7 +65,7 @@ extract_all_dep_versions()
 {
 	#error
 	if test ! -f "${1}"; then
-		echo "Can't access to ${1} to get embeded dependencies versions" 1>&2
+		echo "Can't access to ${1} to get embedded dependencies versions" 1>&2
 		exit 1
 	fi
 
@@ -90,7 +90,7 @@ print_help(){
 	echo "#   --help                   Show this help.                                #"
 	echo "#   --version=<version>      Specifies version number to generate.          #"
 	echo "#                            (can use -v=)                                  #"
-	echo "#   --config=<config>        Specifies path to the config file with embeded #"
+	echo "#   --config=<config>        Specifies path to the config file with embedded #"
 	echo "#                            dependencies versions                          #"
 	echo "#############################################################################"
 }
@@ -104,7 +104,7 @@ do
 			MPC_VERSION="$(read_param_value $arg --version)"
 			;;
 		--patch=*)
-			PATCHS_LIST="${PATCHS_LIST} $(read_param_value $arg --patch)"
+			PATCHES_LIST="${PATCHES_LIST} $(read_param_value $arg --patch)"
 			;;
 		--config=*)
 			config_file="$(read_param_value $arg --config)"
@@ -119,7 +119,7 @@ do
 			exit 1
 			;;
 		*)
-			PATCHS_LIST="${PATCHS_LIST} $arg"
+			PATCHES_LIST="${PATCHES_LIST} $arg"
 			;;
 	esac
 done
@@ -149,9 +149,9 @@ echo "Packager: MPC Team <mpc-devel@lists.sourceforge.net>"
 echo "BuildRequires: make, gcc, gcc-gfortran, libibverbs-devel, gmp-devel, mpfr-devel, ncurses-devel, patch"
 echo "Requires: mpc-framework-runtime mpc-framework-devel mpc-framework-gcc mpc-framework-gdb"
 
-#patchs
-if test ! -z "${PATCHS_LIST}" ; then
-	for patch in ${PATCHS_LIST}
+#patches
+if test ! -z "${PATCHES_LIST}" ; then
+	for patch in ${PATCHES_LIST}
 	do
 		echo "CHILD: PATCH: $patch"
 		echo "Patch$cpt: $patch"
@@ -171,7 +171,7 @@ echo ""
 echo "%package devel"
 echo "Requires: mpc-framework-runtime"
 echo "Group: Applications"
-echo "Summary: The developpement files for the MPC framework."
+echo "Summary: The development files for the MPC framework."
 echo ""
 #mpc-gcc
 echo "%package gcc"
@@ -197,7 +197,7 @@ echo "This package provide all runtime files (libs and launchers)."
 echo ""
 echo "%description devel"
 echo "The MPC (MultiProcessor Computing) framework provides a unified parallel runtime designed to improve the scalability and performances of applications running on clusters of (very) large multiprocessor/multicore NUMA nodes."
-echo "This package provide all developpement files (headers, API manpages, compiler wrappers)"
+echo "This package provide all development files (headers, API manpages, compiler wrappers)"
 echo ""
 echo "%description gcc"
 echo "The MPC (MultiProcessor Computing) framework provides a unified parallel runtime designed to improve the scalability and performances of applications running on clusters of (very) large multiprocessor/multicore NUMA nodes."
@@ -222,9 +222,9 @@ echo ""
 echo "%prep"
 echo "%setup"
 
-if test ! -z "${PATCHS_LIST}" ; then
+if test ! -z "${PATCHES_LIST}" ; then
 	cpt=0
-	for patch in ${PATCHS_LIST}
+	for patch in ${PATCHES_LIST}
 	do
 		echo "%patch$cpt -p1"
 		cpt=$(( cpt + 1 ))

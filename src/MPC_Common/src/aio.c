@@ -87,7 +87,7 @@ static inline int __mpc_aio_joblist_release( struct mpc_common_aio_joblist *jl )
 {
 	if ( !__mpc_aio_joblist_empty( jl ) )
 	{
-		printf( "Errror You are freing an unempty AIO joblist !" );
+		printf( "Error You are freing an unempty AIO joblist !" );
 		abort();
 	}
 
@@ -707,7 +707,7 @@ static inline void __mpc_aio_listio_ctx_notify( union sigval pctx )
 
 	if ( do_free )
 	{
-		/* First the last one does the notification as we overrided
+		/* First the last one does the notification as we overrode
 		 * it to get here, we first do this before signaling the
 		 * total processing end */
 

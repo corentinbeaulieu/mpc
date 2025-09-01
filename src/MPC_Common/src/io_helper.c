@@ -206,7 +206,7 @@ ssize_t mpc_common_io_safe_read( int fd, void *buf, size_t count )
 		}
 		else if ( tmp < 0 )
 		{
-			/* on interuption continue to re-read */
+			/* on interruption continue to re-read */
 			if ( errno == EINTR )
 			{
 				continue;
@@ -247,7 +247,7 @@ ssize_t mpc_common_io_safe_write( int fd, const void *buf, size_t count )
 		/* check errors */
 		if ( tmp < 0 )
 		{
-			/* on interuption continue to re-read */
+			/* on interruption continue to re-read */
 			if ( errno == EINTR )
 			{
 				continue;
@@ -291,7 +291,7 @@ ssize_t mpc_common_iovec_safe_write(int fd,
 		cur_sent = sendmsg(fd, &msg, MSG_NOSIGNAL);
 
 		if (cur_sent < 0) {
-			/* on interuption continue to re-read */
+			/* on interruption continue to re-read */
 			if (errno == EINTR) {
 				continue;
 			} else if (errno == EBADF) /* possibly closed socket */ {
@@ -766,7 +766,7 @@ int mpc_common_getaddrinfo(const char *node, const char *service,
         return ret;
     }
 
-    /* We now want to reorder according to prefered interface name
+    /* We now want to reorder according to preferred interface name
        but to do so linearize the list */
 
     int res_count = __count_addrinfo(local_res);

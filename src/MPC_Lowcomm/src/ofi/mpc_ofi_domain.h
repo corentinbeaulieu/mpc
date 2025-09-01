@@ -244,7 +244,7 @@ int _mpc_ofi_domain_send(struct _mpc_ofi_domain_t *domain,
                         void *buff,
                         size_t size,
                         struct _mpc_ofi_request_t **req,
-                        int (*comptetion_cb_ext)(struct _mpc_ofi_request_t *, void *),
+                        int (*completion_cb_ext)(struct _mpc_ofi_request_t *, void *),
                         void *arg_ext);
 
 int _mpc_ofi_domain_sendv(struct _mpc_ofi_domain_t *domain,
@@ -252,7 +252,7 @@ int _mpc_ofi_domain_sendv(struct _mpc_ofi_domain_t *domain,
                          const struct iovec *iov,
                          size_t iovcnt,
                          struct _mpc_ofi_request_t **req,
-                         int (*comptetion_cb_ext)(struct _mpc_ofi_request_t *, void *),
+                         int (*completion_cb_ext)(struct _mpc_ofi_request_t *, void *),
                          void *arg_ext);
 
 int _mpc_ofi_domain_get(struct _mpc_ofi_domain_t *domain,
@@ -263,7 +263,7 @@ int _mpc_ofi_domain_get(struct _mpc_ofi_domain_t *domain,
                        uint64_t remote_addr,
                        uint64_t key,
                        struct _mpc_ofi_request_t **preq,
-                       int (*comptetion_cb_ext)(struct _mpc_ofi_request_t *, void *),
+                       int (*completion_cb_ext)(struct _mpc_ofi_request_t *, void *),
                        void *arg_ext);
 
 int _mpc_ofi_domain_put(struct _mpc_ofi_domain_t *domain,
@@ -274,7 +274,7 @@ int _mpc_ofi_domain_put(struct _mpc_ofi_domain_t *domain,
                        uint64_t remote_addr,
                        uint64_t key,
                        struct _mpc_ofi_request_t **preq,
-                       int (*comptetion_cb_ext)(struct _mpc_ofi_request_t *, void *),
+                       int (*completion_cb_ext)(struct _mpc_ofi_request_t *, void *),
                        void *arg_ext);
 
 struct fid_ep *_mpc_ofi_domain_connect(struct _mpc_ofi_domain_t *domain, mpc_lowcomm_peer_uid_t uid, void *addr, size_t addrlen);

@@ -53,10 +53,10 @@ struct _mpc_ofi_request_t
    char _pad_[MPC_OFI_REQUEST_PAD];
    /* Internal completion callback */
    void * arg;
-   int (*comptetion_cb)(struct _mpc_ofi_request_t * req, void * arg);
+   int (*completion_cb)(struct _mpc_ofi_request_t * req, void * arg);
    /* External completion callback */
    void * arg_ext;
-   int (*comptetion_cb_ext)(struct _mpc_ofi_request_t * req, void * arg_ext);
+   int (*completion_cb_ext)(struct _mpc_ofi_request_t * req, void * arg_ext);
    /* MR to be freed */
    struct fid_mr *mr[MPC_OFI_IOVEC_SIZE];
    unsigned int mr_count;
@@ -82,9 +82,9 @@ int _mpc_ofi_request_cache_init(struct _mpc_ofi_request_cache_t *cache, struct _
 
 
 struct _mpc_ofi_request_t * _mpc_ofi_request_acquire(struct _mpc_ofi_request_cache_t *cache,
-                                                   int (*comptetion_cb)(struct _mpc_ofi_request_t *, void *),
+                                                   int (*completion_cb)(struct _mpc_ofi_request_t *, void *),
                                                    void *arg,
-                                                   int (*comptetion_cb_ext)(struct _mpc_ofi_request_t *, void *),
+                                                   int (*completion_cb_ext)(struct _mpc_ofi_request_t *, void *),
                                                    void *arg_ext);
 
 
@@ -97,14 +97,14 @@ __UNUSED__ static int _mpc_ofi_request_done(struct _mpc_ofi_request_t *request)
    assume(!request->free);
 
    /* Call request completion CB if present */
-   if(request->comptetion_cb)
+   if(request->completion_cb)
    {
-      ret = (request->comptetion_cb)(request, request->arg);
+      ret = (request->completion_cb)(request, request->arg);
    }
 
-   if(request->comptetion_cb_ext)
+   if(request->completion_cb_ext)
    {
-      ret = (request->comptetion_cb_ext)(request, request->arg_ext);
+      ret = (request->completion_cb_ext)(request, request->arg_ext);
    }
 
    request->done = 1;

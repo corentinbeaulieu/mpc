@@ -182,7 +182,7 @@ int sctk_accl_hip_pop_context() {
  * This is done when a thread is restored, its context is pushed to the GPU
  *
  * @return
- *  - 0 if succeded
+ *  - 0 if succeeded
  *  - 1 otherwise
  */
 int sctk_accl_hip_push_context() {

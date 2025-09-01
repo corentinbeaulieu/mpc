@@ -388,7 +388,7 @@ static inline int sctk_mctx_set(sctk_mctx_t *mctx,
 		mpc_common_debug_abort();
 	}
 
-	mpc_common_nodebug("Structures initalized %p ", mctx);
+	mpc_common_nodebug("Structures initialized %p ", mctx);
 
 	mctx_called = FALSE;
 
@@ -428,7 +428,7 @@ static inline int sctk_mctx_set(sctk_mctx_t *mctx,
 	mctx_caller.error    = errno;
 	mctx_caller.restored = 0;
 
-	mpc_common_nodebug("retore new thread %p ", &mctx_caller);
+	mpc_common_nodebug("restore new thread %p ", &mctx_caller);
 
 	if(sctk_setjmp(mctx_caller.jb) == 0)
 	{
@@ -545,7 +545,7 @@ int sctk_makecontext(sctk_mctx_t *ucp,
 	int         res;
 	sctk_mctx_t lucp;
 
-	/* force temporary ctx to be inited to avoid unconsistent pointers during the
+	/* force temporary ctx to be inited to avoid inconsistent pointers during the
 	 * save() */
 	sctk_context_init_tls(&lucp);
 	sctk_context_save_tls(&lucp);

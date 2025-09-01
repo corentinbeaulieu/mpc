@@ -80,7 +80,7 @@ scripts.
         $ mpc_cc hello_world.c -o hello_world
 
  This command uses the main default patched *GCC* to compile the code. If you
- want to use your favorite compiler instead (loosing some features like OpenMP
+ want to use your favorite compiler instead (losing some features like OpenMP
  support and global-variable removal), you may use the *mpc\_cflags* and
  *mpc\_ldflags* commands:
 
@@ -96,7 +96,7 @@ Standard MPI Compilers
 -----------------------
 
 MPC does provide standard MPI compilers such as mpicc mpicxx mpif77. These compiler will
-call MPC but won't privarize by default (process-mode). If you'd like to port an exisiting
+call MPC but won't privarize by default (process-mode). If you'd like to port an existing
 build system relying on mpicc you may `export MPI_PRIV=1` which will turn on privatization
 in these wrappers.
 
@@ -191,7 +191,7 @@ Launcher:
 	--profiles=<p1,p2>              List of profiles to enable in config.
 
 
-Informations:
+Information:
 	-h, --help                      Display this help
 	--show                          Display command line
 

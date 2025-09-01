@@ -222,7 +222,7 @@ static int _lcp_context_load_ctx_config(lcp_context_h ctx, lcp_context_param_t *
                 goto err_free;
         }
 
-        /* Check that rails asked by user through CLI can be instanciated. */
+        /* Check that rails asked by user through CLI can be instantiated. */
         for (i = 0; i < num_configs; i++) {
                 net_found = 0;
                 for (j = 0; j < num_components; j++) {

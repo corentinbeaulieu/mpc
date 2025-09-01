@@ -70,7 +70,7 @@ extern "C"
 /*
  * Get a bug on new version of libs (centos6....), need to fix this. It produce segfault at
  * make install with --enable-debug. Seams to be impacted by -OX option.
- * Need to check this in more depth for futur version ( > 2.4.0-1).
+ * Need to check this in more depth for future version ( > 2.4.0-1).
  *
  * #ifndef DONOTHAVE_CONTEXTS
  * #if (defined(__linux__) && (defined(__GLIBC__) && ((__GLIBC__ >= 2) &&  (__GLIBC_MINOR__ >= 12)) ))

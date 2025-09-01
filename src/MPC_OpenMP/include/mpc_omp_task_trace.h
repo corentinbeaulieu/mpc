@@ -234,7 +234,7 @@ typedef struct  mpc_omp_task_trace_record_send_s
     /* task uid */
     int uid;
 
-    /* mpi informations */
+    /* mpi information */
     int count;
     int datatype;
     int dst;
@@ -254,7 +254,7 @@ typedef struct  mpc_omp_task_trace_record_recv_s
     /* task uid */
     int uid;
 
-    /* mpi informations */
+    /* mpi information */
     int count;
     int datatype;
     int src;
@@ -274,7 +274,7 @@ typedef struct  mpc_omp_task_trace_record_allreduce_s
     /* task uid */
     int uid;
 
-    /* mpi informations */
+    /* mpi information */
     int count;
     int datatype;
     int op;
@@ -321,7 +321,7 @@ typedef struct  mpc_omp_task_trace_node_s
 struct mpc_omp_task_s;
 
 /**
- *  Per thread trace informations
+ *  Per thread trace information
  */
 typedef struct  mpc_omp_thread_task_trace_infos_s
 {

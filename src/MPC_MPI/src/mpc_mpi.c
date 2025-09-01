@@ -554,7 +554,7 @@ void __sctk_init_mpc_request()
 	static mpc_thread_mutex_t sctk_request_lock = SCTK_THREAD_MUTEX_INITIALIZER;
 	MPI_request_struct_t *    requests = NULL;
 
-	/* Check wether requests are already initalized */
+	/* Check whether requests are already initialized */
 	PMPC_Get_requests( (void *)&requests);
 	assume(requests == NULL);
 
@@ -722,9 +722,9 @@ MPI_internal_request_t *__sctk_new_mpc_request_internal(MPI_Request *req,
 
 	/* Mark it as not an nbc */
 	tmp->is_nbc = 0;
-	/* Mark it as not a persistant */
+	/* Mark it as not a persistent */
 	tmp->is_persistent = 0;
-	/* Mark it as not a intermediate nbc persistant */
+	/* Mark it as not a intermediate nbc persistent */
 	tmp->is_intermediate_nbc_persistent = 0;
 
 	/* Set request to be the id in the tab array (rank) */
@@ -757,7 +757,7 @@ __sctk_convert_mpc_request_internal(MPI_Request *req,
 {
 	MPI_internal_request_t *tmp;
 
-	/* Retrieve the interger ID of this request */
+	/* Retrieve the integer ID of this request */
 	int int_req = *req;
 
 	/* If it is request NULL we have nothing to get */
@@ -839,7 +839,7 @@ inline void __sctk_delete_mpc_request(MPI_Request *req,
 {
 	MPI_internal_request_t *tmp;
 
-	/* Convert resquest to an integer */
+	/* Convert request to an integer */
 	int int_req = *req;
 
 	/* If it is request null there is nothing to do */
@@ -1401,7 +1401,7 @@ int PMPIX_Grequest_class_allocate(MPIX_Grequest_class target_class, void *extra_
 /** \brief This function creates a contiguous MPI_Datatype with possible CTX inheritance
  *
  *  Such datatype is obtained by directly appending  count copies of data_in type
- *  HERE CONTEXT CAN BE OVERRIDED (for example to be a contiguous vector)
+ *  HERE CONTEXT CAN BE OVERRIDDEN (for example to be a contiguous vector)
  *
  *  \param count Number of elements of type data_in in the data_out type
  *  \param data_in The type to be replicated count times
@@ -1436,7 +1436,7 @@ static inline int __PMPI_Type_contiguous_inherits(unsigned long count, MPI_Datat
 		int derived_ret = 0;
 		_mpc_lowcomm_general_datatype_t input_datatype;
 
-		/* Retrieve input datatype informations */
+		/* Retrieve input datatype information */
 		_mpc_cl_general_datatype_try_get_info(data_in, &derived_ret, &input_datatype);
 
 		/* Compute the total datatype size including boundaries */
@@ -1453,7 +1453,7 @@ static inline int __PMPI_Type_contiguous_inherits(unsigned long count, MPI_Datat
 
 		if(!begins_out || !ends_out || !datatypes)
 		{
-			MPI_ERROR_REPORT(MPI_COMM_WORLD, MPI_ERR_INTERN, "Failled to allocate type context");
+			MPI_ERROR_REPORT(MPI_COMM_WORLD, MPI_ERR_INTERN, "Failed to allocate type context");
 		}
 
 		/* Fill in datatype description for a contiguous type */
@@ -1549,10 +1549,10 @@ static int __INTERNAL__PMPI_Type_create_hindexed_block(int count, int blocklengt
 		blocklength_array[i] = blocklength;
 	}
 
-	/* Call the orignal indexed function */
+	/* Call the original indexed function */
 	int res = PMPI_Type_create_hindexed(count, blocklength_array, indices, old_type, newtype);
 
-	/* Set its context to overide the one from hdindexed */
+	/* Set its context to override the one from hdindexed */
 	struct _mpc_dt_context dtctx;
 
 	_mpc_dt_context_clear(&dtctx);
@@ -1598,10 +1598,10 @@ static int __INTERNAL__PMPI_Type_create_indexed_block(int count, int blocklength
 		byte_offsets[i] = indices[i] * extent;
 	}
 
-	/* Call the orignal indexed function */
+	/* Call the original indexed function */
 	int res = __INTERNAL__PMPI_Type_create_hindexed_block(count, blocklength, byte_offsets, old_type, newtype);
 
-	/* Set its context to overide the one from hdindexed block */
+	/* Set its context to override the one from hdindexed block */
 	struct _mpc_dt_context dtctx;
 
 	_mpc_dt_context_clear(&dtctx);
@@ -1620,7 +1620,7 @@ static int __INTERNAL__PMPI_Type_create_indexed_block(int count, int blocklength
 
 /* #########################################################################
  * sctk_MPIOI_Type_block, sctk_MPIOI_Type_cyclic,  sctk_Type_create_darray
- * and sctk_Type_create_subarray are from the ROMIO implemntations and
+ * and sctk_Type_create_subarray are from the ROMIO implementations and
  * are subject to ROMIO copyright:
  * Copyright (C) 1997 University of Chicago.
  *                             COPYRIGHT
@@ -2238,7 +2238,7 @@ static inline MPI_Datatype *__get_typemask(MPI_Datatype datatype, int *type_mask
 	return NULL;
 }
 
-#define MPI_MAX_CONCURENT    128
+#define MPI_MAX_CONCURRENT    128
 
 /* Function pointer for user collectives */
 
@@ -2630,7 +2630,7 @@ int __INTERNAL__PMPI_Bcast_intra_shm(void *buffer, int count,
 		/* Does root need to pack ? */
 		if(!is_contig_type)
 		{
-			/* We have a tmp bufer where to reduce */
+			/* We have a tmp buffer where to reduce */
 			data_buff = sctk_malloc(count * tsize);
 
 			assume(data_buff != NULL);
@@ -3042,7 +3042,7 @@ int __INTERNAL__PMPI_Gatherv_intra_shm(const void *sendbuf, int sendcnt,
 	/* Does root need to pack ? */
 	if(!_mpc_dt_is_contig_mem(sendtype) )
 	{
-		/* We have a tmp bufer where to reduce */
+		/* We have a tmp buffer where to reduce */
 		data_buff = sctk_malloc(sendcnt * stsize);
 
 		assume(data_buff != NULL);
@@ -5892,7 +5892,7 @@ int __INTERNAL__PMPI_Reduce_shm(void *sendbuf, void *recvbuf, int count,
 	/* Do we need to pack ? */
 	if(!is_contig_type)
 	{
-		/* We have a tmp bufer where to reduce */
+		/* We have a tmp buffer where to reduce */
 		data_buff = sctk_malloc(count * tsize);
 
 		assume(data_buff != NULL);
@@ -7793,7 +7793,7 @@ SCTK__MPI_INIT_REQUEST(MPI_Request *request)
 }
 
 /** \brief Swap an ALLOCATED segment in place using zero-copy if possible
- *  \param sendrecv_buf Adress of the pointer to the buffer used to send and receive data
+ *  \param sendrecv_buf Address of the pointer to the buffer used to send and receive data
  *  \param remote_rank Rank which is part of the exchange
  *  \param size Total size of the message in bytes
  *  \param comm Target communicator
@@ -7865,8 +7865,8 @@ int PMPIX_Swap(void **sendrecv_buf, int remote_rank, MPI_Count size, MPI_Comm co
 }
 
 /** \brief Swap between two ALLOCATED segment in place using zero-copy if possible
- *  \param send_buf Adress of the pointer to the buffer used to send data
- *  \param recvbuff Adress of the pointer to the buffer used to receive data
+ *  \param send_buf Address of the pointer to the buffer used to send data
+ *  \param recvbuff Address of the pointer to the buffer used to receive data
  *  \param remote_rank Rank which is part of the exchange
  *  \param size Total size of the message in bytes
  *  \param comm Target communicator
@@ -7958,7 +7958,7 @@ int PMPI_Send_internal(const void *buf, int count, MPI_Datatype datatype, int de
 	_mpc_cl_comm_size(comm, &size);
 	mpi_check_rank_send(dest, size, comm);
 	mpi_check_type(datatype, comm);
-	mpi_check_type_commited(datatype, comm);
+	mpi_check_type_committed(datatype, comm);
 	mpi_check_count(count, comm);
 
 	if(count != 0)
@@ -8070,7 +8070,7 @@ int PMPI_Recv_internal(void *buf, int count, MPI_Datatype datatype, int source, 
 
 	mpi_check_comm(comm);
 	mpi_check_type(datatype, comm);
-	mpi_check_type_commited(datatype, comm);
+	mpi_check_type_committed(datatype, comm);
 	mpi_check_count(count, comm);
 	mpc_common_nodebug("tag %d", tag);
 	int size;
@@ -8188,7 +8188,7 @@ int PMPI_Bsend(const void *buf, int count, MPI_Datatype datatype, int dest, int 
 		_mpc_cl_comm_size(comm, &size);
 		mpi_check_rank_send(dest, size, comm);
 		mpi_check_type(datatype, comm);
-		mpi_check_type_commited(datatype, comm);
+		mpi_check_type_committed(datatype, comm);
 		mpi_check_count(count, comm);
 		mpc_common_nodebug("tag %d", tag);
 		mpi_check_tag_send(tag, comm);
@@ -8225,7 +8225,7 @@ int PMPI_Ssend(const void *buf, int count, MPI_Datatype datatype, int dest, int 
 		_mpc_cl_comm_size(comm, &size);
 		mpi_check_rank_send(dest, size, comm);
 		mpi_check_type(datatype, comm);
-		mpi_check_type_commited(datatype, comm);
+		mpi_check_type_committed(datatype, comm);
 		mpi_check_count(count, comm);
 		mpc_common_nodebug("tag %d", tag);
 		mpi_check_tag_send(tag, comm);
@@ -8274,7 +8274,7 @@ int PMPI_Rsend(const void *buf, int count, MPI_Datatype datatype, int dest, int 
 		_mpc_cl_comm_size(comm, &size);
 		mpi_check_rank_send(dest, size, comm);
 		mpi_check_type(datatype, comm);
-		mpi_check_type_commited(datatype, comm);
+		mpi_check_type_committed(datatype, comm);
 		mpi_check_count(count, comm);
 		mpc_common_nodebug("tag %d", tag);
 		mpi_check_tag_send(tag, comm);
@@ -8393,7 +8393,7 @@ int PMPI_Isend_internal(const void *buf, int count, MPI_Datatype datatype, int d
 	_mpc_cl_comm_size(comm, &size);
 	mpi_check_rank_send(dest, size, comm);
 	mpi_check_type(datatype, comm);
-	mpi_check_type_commited(datatype, comm);
+	mpi_check_type_committed(datatype, comm);
 	mpi_check_count(count, comm);
 	mpc_common_nodebug("tag %d", tag);
 
@@ -8435,7 +8435,7 @@ int PMPI_Ibsend(const void *buf, int count, MPI_Datatype datatype, int dest, int
 		_mpc_cl_comm_size(comm, &size);
 		mpi_check_rank_send(dest, size, comm);
 		mpi_check_type(datatype, comm);
-		mpi_check_type_commited(datatype, comm);
+		mpi_check_type_committed(datatype, comm);
 		mpi_check_count(count, comm);
 		mpc_common_nodebug("tag %d", tag);
 		mpi_check_tag_send(tag, comm);
@@ -8478,7 +8478,7 @@ int PMPI_Irecv_internal(void *buf, int count, MPI_Datatype datatype, int source,
 		int size;
 		mpi_check_comm(comm);
 		mpi_check_type(datatype, comm);
-		mpi_check_type_commited(datatype, comm);
+		mpi_check_type_committed(datatype, comm);
 		mpi_check_count(count, comm);
 		mpc_common_nodebug("tag %d", tag);
 		_mpc_cl_comm_size(comm, &size);
@@ -9427,7 +9427,7 @@ int PMPI_Send_init(const void *buf, int count, MPI_Datatype datatype, int dest,
 		_mpc_cl_comm_size(comm, &size);
 		mpi_check_rank_send(dest, size, comm);
 		mpi_check_type(datatype, comm);
-		mpi_check_type_commited(datatype, comm);
+		mpi_check_type_committed(datatype, comm);
 		mpi_check_count(count, comm);
 		mpc_common_nodebug("tag %d", tag);
 		mpi_check_tag_send(tag, comm);
@@ -9449,13 +9449,13 @@ int PMPI_Send_init(const void *buf, int count, MPI_Datatype datatype, int dest,
 		req->is_active        = 0;
                 mpc_req->request_type = REQUEST_NULL;
 
-		req->persistant.buf         = (void *)buf;
-		req->persistant.count       = 0;
-		req->persistant.datatype    = datatype;
-		req->persistant.dest_source = MPC_PROC_NULL;
-		req->persistant.tag         = MPI_ANY_TAG;
-		req->persistant.comm        = comm;
-		req->persistant.op          = MPC_MPI_PERSISTENT_SEND_INIT;
+		req->persistent.buf         = (void *)buf;
+		req->persistent.count       = 0;
+		req->persistent.datatype    = datatype;
+		req->persistent.dest_source = MPC_PROC_NULL;
+		req->persistent.tag         = MPI_ANY_TAG;
+		req->persistent.comm        = comm;
+		req->persistent.op          = MPC_MPI_PERSISTENT_SEND_INIT;
 	}
 	else
 	{
@@ -9463,13 +9463,13 @@ int PMPI_Send_init(const void *buf, int count, MPI_Datatype datatype, int dest,
 		req->is_active        = 0;
                 mpc_req->request_type = REQUEST_SEND;
 
-		req->persistant.buf         = (void *)buf;
-		req->persistant.count       = count;
-		req->persistant.datatype    = datatype;
-		req->persistant.dest_source = dest;
-		req->persistant.tag         = tag;
-		req->persistant.comm        = comm;
-		req->persistant.op          = MPC_MPI_PERSISTENT_SEND_INIT;
+		req->persistent.buf         = (void *)buf;
+		req->persistent.count       = count;
+		req->persistent.datatype    = datatype;
+		req->persistent.dest_source = dest;
+		req->persistent.tag         = tag;
+		req->persistent.comm        = comm;
+		req->persistent.op          = MPC_MPI_PERSISTENT_SEND_INIT;
 	}
 	return MPI_SUCCESS;
 }
@@ -9483,7 +9483,7 @@ int PMPI_Bsend_init(const void *buf, int count, MPI_Datatype datatype,
 		_mpc_cl_comm_size(comm, &size);
 		mpi_check_rank_send(dest, size, comm);
 		mpi_check_type(datatype, comm);
-		mpi_check_type_commited(datatype, comm);
+		mpi_check_type_committed(datatype, comm);
 		mpi_check_count(count, comm);
 		mpc_common_nodebug("tag %d", tag);
 		mpi_check_tag_send(tag, comm);
@@ -9504,13 +9504,13 @@ int PMPI_Bsend_init(const void *buf, int count, MPI_Datatype datatype,
 		req->is_active        = 0;
 		mpc_req->request_type = REQUEST_NULL;
 
-		req->persistant.buf         = (void *)buf;
-		req->persistant.count       = 0;
-		req->persistant.datatype    = datatype;
-		req->persistant.dest_source = MPC_PROC_NULL;
-		req->persistant.tag         = MPI_ANY_TAG;
-		req->persistant.comm        = comm;
-		req->persistant.op          = MPC_MPI_PERSISTENT_BSEND_INIT;
+		req->persistent.buf         = (void *)buf;
+		req->persistent.count       = 0;
+		req->persistent.datatype    = datatype;
+		req->persistent.dest_source = MPC_PROC_NULL;
+		req->persistent.tag         = MPI_ANY_TAG;
+		req->persistent.comm        = comm;
+		req->persistent.op          = MPC_MPI_PERSISTENT_BSEND_INIT;
 	}
 	else
 	{
@@ -9518,13 +9518,13 @@ int PMPI_Bsend_init(const void *buf, int count, MPI_Datatype datatype,
 		req->is_active        = 0;
 		mpc_req->request_type = REQUEST_SEND;
 
-		req->persistant.buf         = (void *)buf;
-		req->persistant.count       = count;
-		req->persistant.datatype    = datatype;
-		req->persistant.dest_source = dest;
-		req->persistant.tag         = tag;
-		req->persistant.comm        = comm;
-		req->persistant.op          = MPC_MPI_PERSISTENT_BSEND_INIT;
+		req->persistent.buf         = (void *)buf;
+		req->persistent.count       = count;
+		req->persistent.datatype    = datatype;
+		req->persistent.dest_source = dest;
+		req->persistent.tag         = tag;
+		req->persistent.comm        = comm;
+		req->persistent.op          = MPC_MPI_PERSISTENT_BSEND_INIT;
 	}
 	return MPI_SUCCESS;
 }
@@ -9538,7 +9538,7 @@ int PMPI_Ssend_init(const void *buf, int count, MPI_Datatype datatype, int dest,
 		_mpc_cl_comm_size(comm, &size);
 		mpi_check_rank_send(dest, size, comm);
 		mpi_check_type(datatype, comm);
-		mpi_check_type_commited(datatype, comm);
+		mpi_check_type_committed(datatype, comm);
 		mpi_check_count(count, comm);
 		mpc_common_nodebug("tag %d", tag);
 		mpi_check_tag_send(tag, comm);
@@ -9558,13 +9558,13 @@ int PMPI_Ssend_init(const void *buf, int count, MPI_Datatype datatype, int dest,
 		req->is_active        = 0;
 		mpc_req->request_type = REQUEST_NULL;
 
-		req->persistant.buf         = (void *)buf;
-		req->persistant.count       = 0;
-		req->persistant.datatype    = datatype;
-		req->persistant.dest_source = MPC_PROC_NULL;
-		req->persistant.tag         = MPI_ANY_TAG;
-		req->persistant.comm        = comm;
-		req->persistant.op          = MPC_MPI_PERSISTENT_SSEND_INIT;
+		req->persistent.buf         = (void *)buf;
+		req->persistent.count       = 0;
+		req->persistent.datatype    = datatype;
+		req->persistent.dest_source = MPC_PROC_NULL;
+		req->persistent.tag         = MPI_ANY_TAG;
+		req->persistent.comm        = comm;
+		req->persistent.op          = MPC_MPI_PERSISTENT_SSEND_INIT;
 	}
 	else
 	{
@@ -9572,13 +9572,13 @@ int PMPI_Ssend_init(const void *buf, int count, MPI_Datatype datatype, int dest,
 		req->is_active        = 0;
 		mpc_req->request_type = REQUEST_SEND;
 
-		req->persistant.buf         = (void *)buf;
-		req->persistant.count       = count;
-		req->persistant.datatype    = datatype;
-		req->persistant.dest_source = dest;
-		req->persistant.tag         = tag;
-		req->persistant.comm        = comm;
-		req->persistant.op          = MPC_MPI_PERSISTENT_SSEND_INIT;
+		req->persistent.buf         = (void *)buf;
+		req->persistent.count       = count;
+		req->persistent.datatype    = datatype;
+		req->persistent.dest_source = dest;
+		req->persistent.tag         = tag;
+		req->persistent.comm        = comm;
+		req->persistent.op          = MPC_MPI_PERSISTENT_SSEND_INIT;
 	}
 	return MPI_SUCCESS;
 }
@@ -9592,7 +9592,7 @@ int PMPI_Rsend_init(const void *buf, int count, MPI_Datatype datatype, int dest,
 		_mpc_cl_comm_size(comm, &size);
 		mpi_check_rank_send(dest, size, comm);
 		mpi_check_type(datatype, comm);
-		mpi_check_type_commited(datatype, comm);
+		mpi_check_type_committed(datatype, comm);
 		mpi_check_count(count, comm);
 		mpc_common_nodebug("tag %d", tag);
 		mpi_check_tag_send(tag, comm);
@@ -9612,13 +9612,13 @@ int PMPI_Rsend_init(const void *buf, int count, MPI_Datatype datatype, int dest,
 		req->is_active        = 0;
 		mpc_req->request_type = REQUEST_NULL;
 
-		req->persistant.buf         = (void *)buf;
-		req->persistant.count       = 0;
-		req->persistant.datatype    = datatype;
-		req->persistant.dest_source = MPC_PROC_NULL;
-		req->persistant.tag         = MPI_ANY_TAG;
-		req->persistant.comm        = comm;
-		req->persistant.op          = MPC_MPI_PERSISTENT_RSEND_INIT;
+		req->persistent.buf         = (void *)buf;
+		req->persistent.count       = 0;
+		req->persistent.datatype    = datatype;
+		req->persistent.dest_source = MPC_PROC_NULL;
+		req->persistent.tag         = MPI_ANY_TAG;
+		req->persistent.comm        = comm;
+		req->persistent.op          = MPC_MPI_PERSISTENT_RSEND_INIT;
 	}
 	else
 	{
@@ -9626,13 +9626,13 @@ int PMPI_Rsend_init(const void *buf, int count, MPI_Datatype datatype, int dest,
 		req->is_active        = 0;
 		mpc_req->request_type = REQUEST_SEND;
 
-		req->persistant.buf         = (void *)buf;
-		req->persistant.count       = count;
-		req->persistant.datatype    = datatype;
-		req->persistant.dest_source = dest;
-		req->persistant.tag         = tag;
-		req->persistant.comm        = comm;
-		req->persistant.op          = MPC_MPI_PERSISTENT_RSEND_INIT;
+		req->persistent.buf         = (void *)buf;
+		req->persistent.count       = count;
+		req->persistent.datatype    = datatype;
+		req->persistent.dest_source = dest;
+		req->persistent.tag         = tag;
+		req->persistent.comm        = comm;
+		req->persistent.op          = MPC_MPI_PERSISTENT_RSEND_INIT;
 	}
 	return MPI_SUCCESS;
 }
@@ -9668,7 +9668,7 @@ int PMPI_Recv_init(void *buf, int count, MPI_Datatype datatype, int source,
 		int size;
 		mpi_check_comm(comm);
 		mpi_check_type(datatype, comm);
-		mpi_check_type_commited(datatype, comm);
+		mpi_check_type_committed(datatype, comm);
 		mpi_check_count(count, comm);
 		mpc_common_nodebug("tag %d", tag);
 		mpi_check_tag(tag, comm);
@@ -9691,13 +9691,13 @@ int PMPI_Recv_init(void *buf, int count, MPI_Datatype datatype, int source,
 	req->is_active        = 0;
 	mpc_req->request_type = REQUEST_RECV;
 
-	req->persistant.buf         = buf;
-	req->persistant.count       = count;
-	req->persistant.datatype    = datatype;
-	req->persistant.dest_source = source;
-	req->persistant.tag         = tag;
-	req->persistant.comm        = comm;
-	req->persistant.op          = MPC_MPI_PERSISTENT_RECV_INIT;
+	req->persistent.buf         = buf;
+	req->persistent.count       = count;
+	req->persistent.datatype    = datatype;
+	req->persistent.dest_source = source;
+	req->persistent.tag         = tag;
+	req->persistent.comm        = comm;
+	req->persistent.op          = MPC_MPI_PERSISTENT_RECV_INIT;
 
 	return MPI_SUCCESS;
 }
@@ -9750,7 +9750,7 @@ int PMPI_Start(MPI_Request *request)
 		return MPI_ERR_REQUEST;
 	}
 	if(!req->is_persistent)
-	{ /* TODO only if req not persistant (has to be changed)*/
+	{ /* TODO only if req not persistent (has to be changed)*/
 		req->is_active = 1;
 	}
 
@@ -9769,56 +9769,56 @@ int PMPI_Start(MPI_Request *request)
 
 	NBC_Handle *handle = NULL;
 
-	switch(req->persistant.op)
+	switch(req->persistent.op)
 	{
 		case MPC_MPI_PERSISTENT_SEND_INIT:
 			res =
-				__Isend_test_req(req->persistant.buf,
-				                 req->persistant.count,
-				                 req->persistant.datatype,
-				                 req->persistant.dest_source,
-				                 req->persistant.tag,
-				                 req->persistant.comm, request, 1);
+				__Isend_test_req(req->persistent.buf,
+				                 req->persistent.count,
+				                 req->persistent.datatype,
+				                 req->persistent.dest_source,
+				                 req->persistent.tag,
+				                 req->persistent.comm, request, 1);
 			break;
 
 		case MPC_MPI_PERSISTENT_BSEND_INIT:
 			res =
-				__Ibsend_test_req(req->persistant.buf,
-				                  req->persistant.count,
-				                  req->persistant.datatype,
-				                  req->persistant.dest_source,
-				                  req->persistant.tag,
-				                  req->persistant.comm, request, 1);
+				__Ibsend_test_req(req->persistent.buf,
+				                  req->persistent.count,
+				                  req->persistent.datatype,
+				                  req->persistent.dest_source,
+				                  req->persistent.tag,
+				                  req->persistent.comm, request, 1);
 			break;
 
 		case MPC_MPI_PERSISTENT_RSEND_INIT:
 			res =
-				__Isend_test_req(req->persistant.buf,
-				                 req->persistant.count,
-				                 req->persistant.datatype,
-				                 req->persistant.dest_source,
-				                 req->persistant.tag,
-				                 req->persistant.comm, request, 1);
+				__Isend_test_req(req->persistent.buf,
+				                 req->persistent.count,
+				                 req->persistent.datatype,
+				                 req->persistent.dest_source,
+				                 req->persistent.tag,
+				                 req->persistent.comm, request, 1);
 			break;
 
 		case MPC_MPI_PERSISTENT_SSEND_INIT:
 			res =
-				__Isend_test_req(req->persistant.buf,
-				                 req->persistant.count,
-				                 req->persistant.datatype,
-				                 req->persistant.dest_source,
-				                 req->persistant.tag,
-				                 req->persistant.comm, request, 1);
+				__Isend_test_req(req->persistent.buf,
+				                 req->persistent.count,
+				                 req->persistent.datatype,
+				                 req->persistent.dest_source,
+				                 req->persistent.tag,
+				                 req->persistent.comm, request, 1);
 			break;
 
 		case MPC_MPI_PERSISTENT_RECV_INIT:
 			res =
-				__Irecv_test_req(req->persistant.buf,
-				                 req->persistant.count,
-				                 req->persistant.datatype,
-				                 req->persistant.dest_source,
-				                 req->persistant.tag,
-				                 req->persistant.comm, request, 1);
+				__Irecv_test_req(req->persistent.buf,
+				                 req->persistent.count,
+				                 req->persistent.datatype,
+				                 req->persistent.dest_source,
+				                 req->persistent.tag,
+				                 req->persistent.comm, request, 1);
 			break;
 
 		case MPC_MPI_PERSISTENT_BCAST_INIT:
@@ -9931,8 +9931,8 @@ int PMPI_Sendrecv_internal(const void *sendbuf, int sendcount, MPI_Datatype send
 
 	mpi_check_type(sendtype, comm);
 	mpi_check_type(recvtype, comm);
-	mpi_check_type_commited(sendtype, comm);
-	mpi_check_type_commited(recvtype, comm);
+	mpi_check_type_committed(sendtype, comm);
+	mpi_check_type_committed(recvtype, comm);
 	mpi_check_count(sendcount, comm);
 	mpi_check_count(recvcount, comm);
 	mpi_check_rank_send(dest, size, comm);
@@ -9999,7 +9999,7 @@ int PMPI_Sendrecv_replace(void *buf, int count, MPI_Datatype datatype,
 
 	mpi_check_comm(comm);
 	mpi_check_type(datatype, comm);
-	mpi_check_type_commited(datatype, comm);
+	mpi_check_type_committed(datatype, comm);
 	mpi_check_count(count, comm);
 	mpi_check_tag_send(sendtag, comm);
 	mpi_check_tag(recvtag, comm);
@@ -10169,7 +10169,7 @@ int PMPI_Type_vector(int count, int blocklength, int stride, MPI_Datatype old_ty
 	/* Retrieve type extent */
 	PMPI_Type_extent(old_type, &extent);
 
-	/* Set its context to overide the one from hvector */
+	/* Set its context to override the one from hvector */
 	struct _mpc_dt_context dtctx;
 
 	_mpc_dt_context_clear(&dtctx);
@@ -10242,7 +10242,7 @@ int PMPI_Type_hvector(int count, int blocklen, MPI_Aint stride, MPI_Datatype old
 		int derived_ret = 0;
 		_mpc_lowcomm_general_datatype_t input_datatype;
 
-		/* Retrieve input datatype informations */
+		/* Retrieve input datatype information */
 		_mpc_cl_general_datatype_try_get_info(old_type, &derived_ret, &input_datatype);
 
 		/* Compute the extent */
@@ -10393,10 +10393,10 @@ int PMPI_Type_indexed(int count, const int blocklens[], const int indices[], MPI
 		byte_offsets[i] = indices[i] * extent;
 	}
 
-	/* Call the byte offseted version of type_indexed */
+	/* Call the byte offsetted version of type_indexed */
 	res = PMPI_Type_create_hindexed(count, blocklens, byte_offsets, old_type, newtype);
 
-	/* Set its context to overide the one from hdindexed */
+	/* Set its context to override the one from hdindexed */
 	struct _mpc_dt_context dtctx;
 
 	_mpc_dt_context_clear(&dtctx);
@@ -10538,7 +10538,7 @@ int PMPI_Type_create_hindexed(int count, const int blocklens[], const MPI_Aint i
 
 		_mpc_lowcomm_general_datatype_t input_datatype;
 
-		/* Retrieve input datatype informations */
+		/* Retrieve input datatype information */
 		_mpc_cl_general_datatype_try_get_info(old_type, &derived_ret, &input_datatype);
 
 		/* Get datatype extent */
@@ -10887,11 +10887,11 @@ int PMPI_Type_struct(int count,
 				unsigned int extent_mod = max_pad_value;
 
 
-				long missing_to_allign = common_type_size % extent_mod;
+				long missing_to_align = common_type_size % extent_mod;
 
 				/* Set an UB to the type to fulfil alignment */
 				new_is_ub = 1;
-				new_ub    = common_type_size + extent_mod - missing_to_allign;
+				new_ub    = common_type_size + extent_mod - missing_to_align;
 
 				if(new_ub != common_type_size)
 				{
@@ -11200,7 +11200,7 @@ int PMPI_Type_create_resized(MPI_Datatype old_type, MPI_Aint lb, MPI_Aint extent
 	{
 		int derived_ret = 0;
 		_mpc_lowcomm_general_datatype_t input_datatype;
-		/* Retrieve input datatype informations */
+		/* Retrieve input datatype information */
 		_mpc_cl_general_datatype_try_get_info(old_type, &derived_ret, &input_datatype);
 
 		struct _mpc_dt_context dtctx;
@@ -11316,7 +11316,7 @@ int PMPI_Type_get_elements_x(MPI_Status *status, MPI_Datatype datatype, MPI_Coun
 	/* Retrieve the number of block in the datatype */
 	size_t el_count = datatype->count;
 
-        /* Count the number of elements by substracting
+        /* Count the number of elements by subtracting
          * individual blocks from total size until reaching 0 */
         for(i = 0; i < el_count; i++)
         {
@@ -11807,7 +11807,7 @@ int PMPI_Pack_external_size(const char *datarep, int incount, MPI_Datatype datat
 	mpi_check_type_created(datatype, comm);
 	if(strcmp(datarep, "external32") != 0)
 	{
-		mpc_common_debug_warning("MPI_Pack_external_size: unsuported data-rep %s", datarep);
+		mpc_common_debug_warning("MPI_Pack_external_size: unsupported data-rep %s", datarep);
 		MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "");
 	}
 
@@ -13419,7 +13419,7 @@ int PMPI_Cart_create(MPI_Comm comm_old, int ndims, const int dims[], const int p
 	if(nb_tasks == size)
 	{
 		res = PMPI_Comm_dup(comm_old, comm_cart);
-		MPI_HANDLE_ERROR(res, comm_old, "Failled duplicating communicators");
+		MPI_HANDLE_ERROR(res, comm_old, "Failed duplicating communicators");
 	}
 	else
 	{
@@ -14736,7 +14736,7 @@ int PMPI_Finalize(void)
         //      needs a token before sending the message. To progress the
         //      communication, it is such needed to call LCP progression
         //      function.
-        //      This is a known probleme, see ompi_mpi_finalize from OpenMPI, to
+        //      This is a known problem, see ompi_mpi_finalize from OpenMPI, to
         //      overcome this, they use asynchronous PMIx call when possible.
         //      Otherwise, they do not solve the problem.
         int i = 0;
@@ -14887,7 +14887,7 @@ static void MPC_Message_handle_release_once()
 
 #endif
 
-/** This is how you create a new mesage */
+/** This is how you create a new message */
 struct MPC_Message *MPC_Message_new()
 {
 	MPC_Message_handle_init_once();
@@ -16676,7 +16676,7 @@ int PMPI_Bcast(void *buffer, int count, MPI_Datatype datatype, int root, MPI_Com
 	mpi_check_buf(buffer, comm);
 	mpi_check_count(count, comm);
 	mpi_check_type(datatype, comm);
-	mpi_check_type_commited(datatype, comm);
+	mpi_check_type_committed(datatype, comm);
 
 
 
@@ -16751,7 +16751,7 @@ int PMPI_Gather(const void *sendbuf, int sendcnt, MPI_Datatype sendtype,
 		mpi_check_buf(sendbuf, comm);
 		mpi_check_count(sendcnt, comm);
 		mpi_check_type(sendtype, comm);
-		mpi_check_type_commited(sendtype, comm);
+		mpi_check_type_committed(sendtype, comm);
 	}
 	else
 	{
@@ -16760,11 +16760,11 @@ int PMPI_Gather(const void *sendbuf, int sendcnt, MPI_Datatype sendtype,
 			mpi_check_buf(sendbuf, comm);
 			mpi_check_count(sendcnt, comm);
 			mpi_check_type(sendtype, comm);
-			mpi_check_type_commited(sendtype, comm);
+			mpi_check_type_committed(sendtype, comm);
 		}
 		mpi_check_buf(recvbuf, comm);
 		mpi_check_count(recvcnt, comm);
-		mpi_check_type_commited(recvtype, comm);
+		mpi_check_type_committed(recvtype, comm);
 	}
 
 	if( (0 == sendcnt && MPI_ROOT != root &&
@@ -16829,10 +16829,10 @@ int PMPI_Gatherv(const void *sendbuf, int sendcnt, MPI_Datatype sendtype,
 	mpi_check_buf(sendbuf, comm);
 	mpi_check_count(sendcnt, comm);
 	mpi_check_type(sendtype, comm);
-	mpi_check_type_commited(sendtype, comm);
+	mpi_check_type_committed(sendtype, comm);
 	mpi_check_buf(recvbuf, comm);
 	mpi_check_type(recvtype, comm);
-	mpi_check_type_commited(recvtype, comm);
+	mpi_check_type_committed(recvtype, comm);
 
 	if(sendbuf == recvbuf && rank == root)
 	{
@@ -16905,7 +16905,7 @@ int PMPI_Scatter(const void *sendbuf, int sendcnt, MPI_Datatype sendtype,
 		mpi_check_buf(sendbuf, comm);
 		mpi_check_count(sendcnt, comm);
 		mpi_check_type(sendtype, comm);
-		mpi_check_type_commited(sendtype, comm);
+		mpi_check_type_committed(sendtype, comm);
 		if(recvbuf == sendbuf)
 		{
 			MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "");
@@ -16916,7 +16916,7 @@ int PMPI_Scatter(const void *sendbuf, int sendcnt, MPI_Datatype sendtype,
 		mpi_check_buf(recvbuf, comm);
 		mpi_check_count(recvcnt, comm);
 		mpi_check_type(recvtype, comm);
-		mpi_check_type_commited(recvtype, comm);
+		mpi_check_type_committed(recvtype, comm);
 	}
 
 	if( (rank != root && MPI_IN_PLACE == recvbuf) ||
@@ -17002,7 +17002,7 @@ int PMPI_Scatterv(const void *sendbuf, const int *sendcnts, const int *displs,
 		if(root == MPI_ROOT)
 		{
 			mpi_check_type(sendtype, comm);
-			mpi_check_type_commited(sendtype, comm);
+			mpi_check_type_committed(sendtype, comm);
 			for(i = 0; i < size; i++)
 			{
 				mpi_check_buf( (char *)(sendbuf) + displs[i] * extent, comm);
@@ -17014,7 +17014,7 @@ int PMPI_Scatterv(const void *sendbuf, const int *sendcnts, const int *displs,
 			mpi_check_buf(recvbuf, comm);
 			mpi_check_count(recvcnt, comm);
 			mpi_check_type(recvtype, comm);
-			mpi_check_type_commited(recvtype, comm);
+			mpi_check_type_committed(recvtype, comm);
 		}
 	}
 	else
@@ -17023,7 +17023,7 @@ int PMPI_Scatterv(const void *sendbuf, const int *sendcnts, const int *displs,
 		if(rank == root)
 		{
 			mpi_check_type(sendtype, comm);
-			mpi_check_type_commited(sendtype, comm);
+			mpi_check_type_committed(sendtype, comm);
 			for(i = 0; i < size; i++)
 			{
 				mpi_check_buf( (char *)(sendbuf) + displs[i] * extent, comm);
@@ -17034,7 +17034,7 @@ int PMPI_Scatterv(const void *sendbuf, const int *sendcnts, const int *displs,
 				mpi_check_buf(recvbuf, comm);
 				mpi_check_count(recvcnt, comm);
 				mpi_check_type(recvtype, comm);
-				mpi_check_type_commited(recvtype, comm);
+				mpi_check_type_committed(recvtype, comm);
 			}
 		}
 		else
@@ -17042,7 +17042,7 @@ int PMPI_Scatterv(const void *sendbuf, const int *sendcnts, const int *displs,
 			mpi_check_buf(recvbuf, comm);
 			mpi_check_count(recvcnt, comm);
 			mpi_check_type(recvtype, comm);
-			mpi_check_type_commited(recvtype, comm);
+			mpi_check_type_committed(recvtype, comm);
 		}
 	}
 
@@ -17085,7 +17085,7 @@ int PMPI_Allgather(const void *sendbuf, int sendcount, MPI_Datatype sendtype,
 		mpi_check_buf(sendbuf, comm);
 		mpi_check_count(sendcount, comm);
 		mpi_check_type(sendtype, comm);
-		mpi_check_type_commited(sendtype, comm);
+		mpi_check_type_committed(sendtype, comm);
 	}
 
 	if(sendbuf == recvbuf)
@@ -17095,7 +17095,7 @@ int PMPI_Allgather(const void *sendbuf, int sendcount, MPI_Datatype sendtype,
 	mpi_check_buf(recvbuf, comm);
 	mpi_check_count(recvcount, comm);
 	mpi_check_type(recvtype, comm);
-	mpi_check_type_commited(recvtype, comm);
+	mpi_check_type_committed(recvtype, comm);
 
         if (sendtype == MPI_DATATYPE_NULL) {
                 sendtype = recvtype;
@@ -17173,7 +17173,7 @@ int PMPI_Allgatherv(const void *sendbuf, int sendcount, MPI_Datatype sendtype,
 		mpi_check_buf(sendbuf, comm);
 		mpi_check_count(sendcount, comm);
 		mpi_check_type(sendtype, comm);
-		mpi_check_type_commited(sendtype, comm);
+		mpi_check_type_committed(sendtype, comm);
 	}
 
 	if(sendbuf == recvbuf)
@@ -17183,7 +17183,7 @@ int PMPI_Allgatherv(const void *sendbuf, int sendcount, MPI_Datatype sendtype,
 
 	mpi_check_buf(recvbuf, comm);
 	mpi_check_type(recvtype, comm);
-	mpi_check_type_commited(recvtype, comm);
+	mpi_check_type_committed(recvtype, comm);
 
 	if(sendtype != recvtype)
 	{
@@ -17235,12 +17235,12 @@ int PMPI_Alltoall(const void *sendbuf, int sendcount, MPI_Datatype sendtype,
 		mpi_check_buf(sendbuf, comm);
 		mpi_check_count(sendcount, comm);
 		mpi_check_type(sendtype, comm);
-		mpi_check_type_commited(sendtype, comm);
+		mpi_check_type_committed(sendtype, comm);
 	}
 	mpi_check_buf(recvbuf, comm);
 	mpi_check_count(recvcount, comm);
 	mpi_check_type(recvtype, comm);
-	mpi_check_type_commited(recvtype, comm);
+	mpi_check_type_committed(recvtype, comm);
 
 	if(MPI_IN_PLACE == sendbuf)
 	{
@@ -17312,10 +17312,10 @@ int PMPI_Alltoallv(const void *sendbuf, const int *sendcnts, const int *sdispls,
 	}
 	mpi_check_buf(sendbuf, comm);
 	mpi_check_type(sendtype, comm);
-	mpi_check_type_commited(sendtype, comm);
+	mpi_check_type_committed(sendtype, comm);
 	mpi_check_buf(recvbuf, comm);
 	mpi_check_type(recvtype, comm);
-	mpi_check_type_commited(recvtype, comm);
+	mpi_check_type_committed(recvtype, comm);
 
 	if(MPI_IN_PLACE == recvbuf || recvbuf == sendbuf)
 	{
@@ -17391,7 +17391,7 @@ int PMPI_Alltoallw(const void *sendbuf, const int *sendcnts, const int *sdispls,
 		if(sendbuf != MPI_IN_PLACE)
 		{
 			mpi_check_type(sendtypes[i], comm);
-			mpi_check_type_commited(sendtypes[i], comm);
+			mpi_check_type_committed(sendtypes[i], comm);
 			res = PMPI_Type_extent(sendtypes[i], &sextent);
 			if(res != MPI_SUCCESS)
 			{
@@ -17401,7 +17401,7 @@ int PMPI_Alltoallw(const void *sendbuf, const int *sendcnts, const int *sdispls,
 			mpi_check_count(sendcnts[i], comm);
 		}
 		mpi_check_type(recvtypes[i], comm);
-		mpi_check_type_commited(sendtypes[i], comm);
+		mpi_check_type_committed(sendtypes[i], comm);
 		res = PMPI_Type_extent(recvtypes[i], &rextent);
 		if(res != MPI_SUCCESS)
 		{
@@ -17469,7 +17469,7 @@ int PMPI_Reduce(const void *sendbuf, void *recvbuf, int count, MPI_Datatype data
 	mpi_check_root(root, size, comm);
 	mpi_check_count(count, comm);
 	mpi_check_type(datatype, comm);
-	mpi_check_type_commited(datatype, comm);
+	mpi_check_type_committed(datatype, comm);
 	mpi_check_op(op, datatype, comm);
 	if(mpc_lowcomm_communicator_is_intercomm(comm) )
 	{
@@ -17545,7 +17545,7 @@ int PMPI_Allreduce(const void *sendbuf, void *recvbuf, int count,
 	mpi_check_buf(recvbuf, comm);
 	mpi_check_count(count, comm);
 	mpi_check_type(datatype, comm);
-	mpi_check_type_commited(datatype, comm);
+	mpi_check_type_committed(datatype, comm);
 	mpi_check_op(op, datatype, comm);
 
 	if(MPI_IN_PLACE == recvbuf)
@@ -17613,7 +17613,7 @@ int PMPI_Reduce_scatter(const void *sendbuf, void *recvbuf, const int recvcnts[]
 		mpi_check_count(recvcnts[i], comm);
 	}
 	mpi_check_type(datatype, comm);
-	mpi_check_type_commited(datatype, comm);
+	mpi_check_type_committed(datatype, comm);
 	mpi_check_op(op, datatype, comm);
 
 
@@ -17656,7 +17656,7 @@ int PMPI_Reduce_scatter_block(const void *sendbuf, void *recvbuf, int recvcnt,
 	}
 	mpi_check_count(recvcnt, comm);
 	mpi_check_type(datatype, comm);
-	mpi_check_type_commited(datatype, comm);
+	mpi_check_type_committed(datatype, comm);
 	mpi_check_op(op, datatype, comm);
 
 
@@ -17682,7 +17682,7 @@ int PMPI_Scan(const void *sendbuf, void *recvbuf, int count, MPI_Datatype dataty
 	mpi_check_buf(recvbuf, comm);
 	mpi_check_count(count, comm);
 	mpi_check_type(datatype, comm);
-	mpi_check_type_commited(datatype, comm);
+	mpi_check_type_committed(datatype, comm);
 	mpi_check_op(op, datatype, comm);
 
 	/* Invalid operation for intercommunicators */
@@ -17734,7 +17734,7 @@ int PMPI_Exscan(const void *sendbuf, void *recvbuf, int count, MPI_Datatype data
 	mpi_check_buf(recvbuf, comm);
 	mpi_check_count(count, comm);
 	mpi_check_type(datatype, comm);
-	mpi_check_type_commited(datatype, comm);
+	mpi_check_type_committed(datatype, comm);
 	mpi_check_op(op, datatype, comm);
 
 

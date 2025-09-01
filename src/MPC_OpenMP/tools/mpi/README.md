@@ -12,7 +12,7 @@ MPC_OMP_TASK_TRACE_ALLREDUCE(1, 0, 0, 0, 1);
 ```
 
 # How to compile
-Edit Makefile to your conveniance then type
+Edit Makefile to your convenience then type
 > make
 
 # How to link with your app

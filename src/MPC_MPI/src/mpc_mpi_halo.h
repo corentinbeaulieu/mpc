@@ -47,7 +47,7 @@ struct sctk_mpi_halo_context
 };
 
 void sctk_mpi_halo_context_init( struct sctk_mpi_halo_context * ctx );
-void sctk_mpi_halo_context_relase( struct sctk_mpi_halo_context * ctx );
+void sctk_mpi_halo_context_release( struct sctk_mpi_halo_context * ctx );
 
 struct sctk_mpi_halo_s* sctk_mpi_halo_context_get( struct sctk_mpi_halo_context * ctx, int id );
 int sctk_mpi_halo_context_set( struct sctk_mpi_halo_context * ctx,  int id, struct sctk_mpi_halo_s * halo );
@@ -144,7 +144,7 @@ struct sctk_mpi_halo_exchange_request
 };
 
 int sctk_mpi_halo_exchange_request_init( struct sctk_mpi_halo_exchange_request * req , struct sctk_mpi_halo_s * halo );
-int sctk_mpi_halo_exchange_request_relase( struct sctk_mpi_halo_exchange_request * req  );
+int sctk_mpi_halo_exchange_request_release( struct sctk_mpi_halo_exchange_request * req  );
 void sctk_mpi_halo_exchange_request_print( struct sctk_mpi_halo_exchange_request * req );
 
 

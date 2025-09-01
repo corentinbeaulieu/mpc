@@ -24,7 +24,7 @@ typedef struct  mpix_progress_info_s
     /* number of requests */
     unsigned int n;
 
-    /* the partition id in case of partitionned communication */
+    /* the partition id in case of partitioned communication */
     int partition;
 }               mpix_progress_info_t;
 
@@ -115,7 +115,7 @@ __request_progress(mpix_progress_info_t * infos)
         {
             /** cancel MPI requests, but do not fulfill the event
              *  the event will be fulfilled later on
-             *  by a succesful MPI_Test on the cancelled request */
+             *  by a successful MPI_Test on the cancelled request */
             unsigned int i;
             for (i = 0 ; i < infos->n ; ++i)
             {

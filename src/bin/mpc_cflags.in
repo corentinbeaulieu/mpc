@@ -32,7 +32,7 @@ MPC_INCLUDEDIR="@PKG_INCDIR@"
 MPC_GENERATION_DATE="@MPC_GENERATION_DATE@"
 
 #
-# Default compiler environmnent
+# Default compiler environment
 #
 
 CC="@CC@"

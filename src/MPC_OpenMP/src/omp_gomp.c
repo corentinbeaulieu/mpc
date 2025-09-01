@@ -2075,7 +2075,7 @@ mpc_omp_GOMP_task( void ( *fn )( void * ), void *data,
     else
 #endif /* MPC_OMP_TASK_COMPILE_PERSISTENT */
     {
-        /* compute task size, data alignement, and allocate the task */
+        /* compute task size, data alignment, and allocate the task */
         const size_t size = _mpc_omp_task_align_single_malloc(sizeof(mpc_omp_task_t) + data_size, align);
         task = _mpc_omp_task_allocate(size);
 

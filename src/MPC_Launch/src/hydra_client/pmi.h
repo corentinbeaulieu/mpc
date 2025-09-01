@@ -407,7 +407,7 @@ int PMI_KVS_Get( const char kvsname[], const char key[], char value[], int lengt
 /* PMI Process Creation functions */
 
 /*S
-PMI_keyval_t - keyval structure used by PMI_Spawn_mulitiple
+PMI_keyval_t - keyval structure used by PMI_Spawn_multiple
 
 Fields:
 + key - name of the key

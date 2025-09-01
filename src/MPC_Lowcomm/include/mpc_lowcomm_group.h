@@ -40,7 +40,7 @@ struct MPI_ABI_Group;
 typedef struct MPI_ABI_Group mpc_lowcomm_group_t;
 
 /*******************************
-* CONSTRUCTORS AND DESTUCTORS *
+* CONSTRUCTORS AND DESTRUCTORS *
 *******************************/
 
 /**
@@ -56,7 +56,7 @@ mpc_lowcomm_group_t *mpc_lowcomm_group_create(unsigned int size, int *comm_world
  * @brief Release a group
  *
  * @param group pointer to the group to be freed (set to NULL)
- * @return int SCTK_SUCESS if all ok
+ * @return int SCTK_SUCCESS if all ok
  */
 int mpc_lowcomm_group_free(mpc_lowcomm_group_t **group);
 
@@ -97,7 +97,7 @@ mpc_lowcomm_group_t *mpc_lowcomm_group_from_id(int linear_id);
 /**
  * @brief Get the linear id for a group
  *
- * @param group the group to querry
+ * @param group the group to query
  * @return int the corresponding linear ID
  */
 int mpc_lowcomm_group_linear_id(mpc_lowcomm_group_t * group);
@@ -207,10 +207,10 @@ mpc_lowcomm_group_t * mpc_lowcomm_group_incl(mpc_lowcomm_group_t *grp,
                                              const int ranks[]);
 
 /**
- * @brief Substract member of a group from another to build a new group
+ * @brief Subtract member of a group from another to build a new group
  *
  * @param grp the group to use as reference
- * @param grp_to_sub the members to substract
+ * @param grp_to_sub the members to subtract
  * @return mpc_lowcomm_group_t* new group (NULL if error)
  */
 mpc_lowcomm_group_t * mpc_lowcomm_group_difference(mpc_lowcomm_group_t *grp,
@@ -223,7 +223,7 @@ mpc_lowcomm_group_t * mpc_lowcomm_group_difference(mpc_lowcomm_group_t *grp,
  * @param grp2 second group
  * @return mpc_lowcomm_group_t* the intersecting group
  */
-mpc_lowcomm_group_t * mpc_lowcomm_group_instersection(mpc_lowcomm_group_t *grp, mpc_lowcomm_group_t *grp2);
+mpc_lowcomm_group_t * mpc_lowcomm_group_intersection(mpc_lowcomm_group_t *grp, mpc_lowcomm_group_t *grp2);
 
 /**
  * @brief Merge two groups to build a new one
@@ -236,11 +236,11 @@ mpc_lowcomm_group_t * mpc_lowcomm_group_union(mpc_lowcomm_group_t *grp,
                                               mpc_lowcomm_group_t *grp2);
 
 /**
- * @brief Check if a given comm workd rank is part of a group
+ * @brief Check if a given comm world rank is part of a group
  *
  * @param g the group to check
  * @param cw_rank the comm_world rank
- * @param uid the UID of the rank (to differenciate sets)
+ * @param uid the UID of the rank (to differentiate sets)
  * @return int true if the rank is part of the group
  */
 int mpc_lowcomm_group_includes(mpc_lowcomm_group_t *g, int cw_rank, mpc_lowcomm_peer_uid_t uid);
@@ -313,13 +313,13 @@ int mpc_lowcomm_group_set_context_pointer(mpc_lowcomm_group_t * g, mpc_lowcomm_h
  * @brief This is the storage for a process set
  *
  */
-struct mpc_lowcomm_proces_set_s
+struct mpc_lowcomm_process_set_s
 {
 	char                 name[MPC_LOWCOMM_GROUP_MAX_PSET_NAME_LEN];  /*<< PSET name */
 	mpc_lowcomm_group_t *group; /*<< PSET group */
 };
 
-typedef struct mpc_lowcomm_proces_set_s mpc_lowcomm_process_set_t;
+typedef struct mpc_lowcomm_process_set_s mpc_lowcomm_process_set_t;
 
 /**
  * @brief Get the number of process set currently available

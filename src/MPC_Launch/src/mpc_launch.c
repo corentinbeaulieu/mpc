@@ -295,7 +295,7 @@ static inline void __parse_argument(char *passed_arg)
 	SET_FLAG_BOOLEAN("checkpoint", checkpoint_enabled);
 	/* Old syntax could be removed */
 	SET_FLAG_BOOLEAN("cuda", enable_cuda);
-#if MPC_HIP_PLATFORM_NVIDIA // hip nvidia compatility mode (__HIP_PLATFORM_NVIDIA__).
+#if MPC_HIP_PLATFORM_NVIDIA // hip nvidia compatibility mode (__HIP_PLATFORM_NVIDIA__).
 	SET_FLAG_BOOLEAN("rocm", enable_cuda);
 #else
 	SET_FLAG_BOOLEAN("rocm", enable_rocm);
@@ -455,7 +455,7 @@ static void *__mpc_mpi_task_start_function(void *parg)
 		{
 			int previous_val = OPA_swap_int(&__mpc_main_return_code, retcode);
 
-			/* if -1 I'm the firt to return all ok */
+			/* if -1 I'm the first to return all ok */
 			if(previous_val != -1)
 			{
 				/* Check if previous val is not different if so enter incoherent mode */

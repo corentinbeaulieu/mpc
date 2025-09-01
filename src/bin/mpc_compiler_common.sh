@@ -34,7 +34,7 @@ SHOW_COMMAND="no"
 
 
 PRIV_COMP_IS_DEFAULT="no"
-# The compiler use for privatization may not be tyhe main compiler,
+# The compiler use for privatization may not be the main compiler,
 # in the cuda/hip case, it is the HOST compiler that is called using
 # nvcc or hipcc wrapper.
 # So we need to differentiate the (main) COMPILER from the PRIV_COMPILER
@@ -156,7 +156,7 @@ Changing compiler:
 
 -cc=[COMP]          : change the default compiler to COMP
 
-Getting informations from the wrapper:
+Getting information from the wrapper:
 
 --showme:link       : show link command to be used
 --showme:compile    : show compilation command
@@ -280,7 +280,7 @@ parse_cli_args()
 			TMP_IS_FOR_COMPILER=no
 			;;
 		-compilers|--compilers)
-			deprectated_option
+			deprecated_option
 			;;
 		--cuda)
 			MPC_HIP_USE_CUDA="yes"
@@ -374,7 +374,7 @@ has_symbol ()
 	HAS_SYMBOL="no"
 
 	if test -f "${1}"; then
-		# nm -P -> Posix formating (start w/ symbol name)
+		# nm -P -> Posix formatting (start w/ symbol name)
 		nb=$(nm -P "${1}" | grep -cE "^${2} ")
 
 		if test "x${nb}" = "x1"; then
@@ -394,7 +394,7 @@ rename_sym ()
 # Replace any main* symbol in $1 object file.
 # this includes:
 # - the MAIN call
-# - any outlined OpenMP rountines, which could be located in MAIN function
+# - any outlined OpenMP routines, which could be located in MAIN function
 rename_main_symbols ()
 {
 	# rename the MAIN

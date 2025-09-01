@@ -87,8 +87,8 @@ _mpc_omp_ompt_frame_set_no_reentrant() {
     assert( thread );
 
     /* Indicates that frames infos have already been saved
-     * from runtime outter entry function */
-    thread->frame_infos.outter_caller = 1;
+     * from runtime outer entry function */
+    thread->frame_infos.outer_caller = 1;
 }
 
 static inline void
@@ -100,7 +100,7 @@ _mpc_omp_ompt_frame_unset_no_reentrant() {
     assert( thread );
 
     /* Reset */
-    thread->frame_infos.outter_caller = 0;
+    thread->frame_infos.outer_caller = 0;
 }
 
 /*
@@ -190,7 +190,7 @@ _mpc_omp_ompt_frame_get_infos() {
     else {
         frame_infos = &thread->frame_infos;
 
-        if( !frame_infos->outter_caller ) {
+        if( !frame_infos->outer_caller ) {
             /* Save enter frame address */
             curr_task = thread->task_infos.current_task;
             curr_task->ompt_task_frame.enter_frame.ptr =
@@ -241,7 +241,7 @@ _mpc_omp_ompt_frame_get_wrapper_infos( mpc_omp_ompt_wrapper_t w ) {
             frame_infos->omp_wrapper = w;
 
         if( frame_infos->omp_wrapper == w
-            && !frame_infos->outter_caller ) {
+            && !frame_infos->outer_caller ) {
             /* Save enter frame address */
             curr_task = thread->task_infos.current_task;
             curr_task->ompt_task_frame.enter_frame.ptr =

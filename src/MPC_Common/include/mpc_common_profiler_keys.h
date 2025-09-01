@@ -2887,7 +2887,7 @@ PROBE(sctk_free_distant,MPC_ALLOC,sctk_free_distant)
 
 PROBE(sctk_mmap,MPC_ALLOC,sctk_mmap)
 
-PROBE(sctk_alloc_ptr_small_serach_chunk,MPC_ALLOC,sctk_alloc_ptr_small_serach_chunk)
+PROBE(sctk_alloc_ptr_small_search_chunk,MPC_ALLOC,sctk_alloc_ptr_small_search_chunk)
 
 
 

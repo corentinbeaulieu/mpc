@@ -20,8 +20,8 @@
 /* #                                                                      # */
 /* ######################################################################## */
 
-#ifndef __SCTK___DEBUGGGER__
-#define __SCTK___DEBUGGGER__
+#ifndef __SCTK___DEBUGGER__
+#define __SCTK___DEBUGGER__
 
 #ifdef __cplusplus
 extern "C"

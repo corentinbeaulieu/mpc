@@ -259,7 +259,7 @@ string in Fortran; that is no longer required in this version of Open
 MPI.
 .sp
 Calling MPI_Comm_spawn(3) many times would create many sets of
-children with different MPI_COMM_WORLDs, whereas
+children with different MPI_COMM_WORLDDs, whereas
 MPI_Comm_spawn_multiple creates children with a single MPI_COMM_WORLD,
 so the two methods are not completely equivalent. Also if you need to
 spawn multiple executables, you may get better performance by using

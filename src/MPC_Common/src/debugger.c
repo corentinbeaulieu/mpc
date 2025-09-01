@@ -132,7 +132,7 @@ print_map()
 	int pid;
 	static char name[4096];
 	static char buffer[4096 * 1024];
-	unsigned long readed = 0;
+	unsigned long readded = 0;
 	FILE *in;
 	pid = getpid();
 	sprintf( name, "/proc/%d/maps", pid );
@@ -140,10 +140,10 @@ print_map()
 
 	do
 	{
-		readed = fread( buffer, 1, 4096 * 1024, in );
-		fwrite( buffer, 1, readed, stdout );
+		readded = fread( buffer, 1, 4096 * 1024, in );
+		fwrite( buffer, 1, readded, stdout );
 	}
-	while ( readed != 0 );
+	while ( readded != 0 );
 
 	fclose( in );
 }
@@ -386,7 +386,7 @@ void sctk_vprint_backtrace( const char *format, va_list ap )
 	mpc_common_spinlock_unlock( &big_lock );
 }
 
-void mpc_common_debuger_print_backtrace( const char *format, ... )
+void mpc_common_debugger_print_backtrace( const char *format, ... )
 {
 	va_list ap;
 	va_start( ap, format );
@@ -394,7 +394,7 @@ void mpc_common_debuger_print_backtrace( const char *format, ... )
 	va_end( ap );
 }
 
-void mpc_common_debuger_resolve( mpc_addr2line_t *tab, int size )
+void mpc_common_debugger_resolve( mpc_addr2line_t *tab, int size )
 {
 	int j;
 	int i;
@@ -489,7 +489,7 @@ void mpc_common_debugger_sig_handler( int sig, siginfo_t *info, __UNUSED__ void 
 	if(!already_in_sighandler)
 	{
 		already_in_sighandler = 1;
-		mpc_common_debuger_print_backtrace( "", NULL );
+		mpc_common_debugger_print_backtrace( "", NULL );
 	}
 	else
 	{

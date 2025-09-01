@@ -34,7 +34,7 @@ extern "C" {
 /* Rank Query                                                           */
 /************************************************************************/
 
-/** These functions can be used for rank manipulaton */
+/** These functions can be used for rank manipulation */
 
 /** Get MPC_COMM_WORLD rank
  * @return the comm world rank
@@ -169,7 +169,7 @@ int mpc_lowcomm_universe_irecv(mpc_lowcomm_peer_uid_t src,
 int mpc_lowcomm_open_port(char * iport_name, int port_name_len);
 
 /**
- * @brief Close a previously openned port
+ * @brief Close a previously opened port
  *
  * @param id the port to be freed
  * @return int 0 on success
@@ -292,7 +292,7 @@ int mpc_lowcomm_ssend(int dest, const void *data, size_t size, int tag, mpc_lowc
  */
 int _mpc_lowcomm_isend(int dest, const void *data, size_t size, int tag, mpc_lowcomm_communicator_t comm, mpc_lowcomm_request_t *req, int synchronized);
 
-/** Receive an asynchornous message
+/** Receive an asynchronous message
  * @param src Source rank
  * @param buffer Buffer where to store the data
  * @param size Size of the data to be received
@@ -412,7 +412,7 @@ int mpc_lowcomm_bcast(void *buffer, const size_t size,
  * @param elem_count Number of elements
  * @param func @ref sctk_Op_f to be used to do the operation (void (*sctk_Op_f) (const void *, void *, size_t, mpc_lowcomm_datatype_t);)
  * @param communicator Communicator on which to do the operation
- * @param datatype Datatype (not used in comms) but can be useful to swich in the reduce operation (passed in arg)
+ * @param datatype Datatype (not used in comms) but can be useful to switch in the reduce operation (passed in arg)
  */
 void mpc_lowcomm_allreduce(const void *buffer_in, void *buffer_out,
                            const size_t elem_size,
@@ -421,7 +421,7 @@ void mpc_lowcomm_allreduce(const void *buffer_in, void *buffer_out,
                            const mpc_lowcomm_communicator_t communicator,
                            mpc_lowcomm_datatype_t datatype);
 
-void mpc_lowcomm_terminaison_barrier(void);
+void mpc_lowcomm_termination_barrier(void);
 
 void mpc_lowcomm_request_wait_all_msgs(const int task, const mpc_lowcomm_communicator_t com);
 

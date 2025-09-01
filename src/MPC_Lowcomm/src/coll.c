@@ -307,7 +307,7 @@ static void _mpc_coll_messages_table_wait( _mpc_coll_messages_table_t *tab )
 
 	for ( i = 0; i < tab->nb_used; i++ )
 	{
-		mpc_common_nodebug( "Wait for messag %d", i );
+		mpc_common_nodebug( "Wait for message %d", i );
 		mpc_lowcomm_wait(  &tab->msg_req[i].request, MPC_LOWCOMM_STATUS_NULL);
 	}
 
@@ -495,38 +495,38 @@ void mpc_lowcomm_bcast_opt_messages( void *buffer, const size_t size,
 		int total_max;
 		int i;
 		_mpc_coll_messages_table_t table;
-		int BROADCAST_ARRITY = 2;
+		int BROADCAST_ARITY = 2;
 		_mpc_coll_message_table_init( &table );
-		BROADCAST_ARRITY = broadcast_max_size / size;
+		BROADCAST_ARITY = broadcast_max_size / size;
 
-		if ( BROADCAST_ARRITY < 2 )
+		if ( BROADCAST_ARITY < 2 )
 		{
-			BROADCAST_ARRITY = 2;
+			BROADCAST_ARITY = 2;
 		}
 
-		if ( BROADCAST_ARRITY > broadcast_arity_max )
+		if ( BROADCAST_ARITY > broadcast_arity_max )
 		{
-			BROADCAST_ARRITY = broadcast_arity_max;
+			BROADCAST_ARITY = broadcast_arity_max;
 		}
 
 		total = mpc_lowcomm_communicator_size( communicator );
 		myself = mpc_lowcomm_communicator_rank_of( communicator, mpc_common_get_task_rank() );
 		related_myself = ( myself + total - root ) % total;
-		total_max = log( total ) / log( BROADCAST_ARRITY );
-		total_max = pow( BROADCAST_ARRITY, total_max );
+		total_max = log( total ) / log( BROADCAST_ARITY );
+		total_max = pow( BROADCAST_ARITY, total_max );
 
 		if ( total_max < total )
 		{
-			total_max = total_max * BROADCAST_ARRITY;
+			total_max = total_max * BROADCAST_ARITY;
 		}
 
 		assume( total_max >= total );
 		mpc_common_nodebug( "enter broadcast total = %d, total_max = %d, "
-		              "myself = %d, BROADCAST_ARRITY = %d",
-		              total, total_max, myself, BROADCAST_ARRITY );
+		              "myself = %d, BROADCAST_ARITY = %d",
+		              total, total_max, myself, BROADCAST_ARITY );
 
-		for ( i = BROADCAST_ARRITY; i <= total_max;
-		      i = i * BROADCAST_ARRITY )
+		for ( i = BROADCAST_ARITY; i <= total_max;
+		      i = i * BROADCAST_ARITY )
 		{
 			if ( related_myself % i != 0 )
 			{
@@ -546,7 +546,7 @@ void mpc_lowcomm_bcast_opt_messages( void *buffer, const size_t size,
 			}
 		}
 
-		for ( ; i >= BROADCAST_ARRITY; i = i / BROADCAST_ARRITY )
+		for ( ; i >= BROADCAST_ARITY; i = i / BROADCAST_ARITY )
 		{
 			if ( related_myself % i == 0 )
 			{
@@ -554,13 +554,13 @@ void mpc_lowcomm_bcast_opt_messages( void *buffer, const size_t size,
 				int j;
 				dest = related_myself;
 
-				for ( j = 1; j < BROADCAST_ARRITY; j++ )
+				for ( j = 1; j < BROADCAST_ARITY; j++ )
 				{
-					if ( ( dest + ( j * ( i / BROADCAST_ARRITY ) ) ) < total )
+					if ( ( dest + ( j * ( i / BROADCAST_ARITY ) ) ) < total )
 					{
 						_mpc_coll_message_send(
 						    communicator, myself,
-						    ( dest + root + ( j * ( i / BROADCAST_ARRITY ) ) ) %
+						    ( dest + root + ( j * ( i / BROADCAST_ARITY ) ) ) %
 						    total,
 						    root, buffer, size, MPC_LOWCOMM_BROADCAST_MESSAGE,
 						    _mpc_coll_message_table_get_item( &table, OPT_COLL_MAX_ASYNC ),
@@ -606,7 +606,7 @@ static void _mpc_coll_opt_allreduce_intern( const void *buffer_in, void *buffer_
 		void *buffer_tmp;
 		void **buffer_table;
 		_mpc_coll_messages_table_t table;
-		int ALLREDUCE_ARRITY = 2;
+		int ALLREDUCE_ARITY = 2;
 		int total_max;
 		/*
 		  MPI require that the result of the allreduce is the same on all MPI tasks.
@@ -615,24 +615,24 @@ static void _mpc_coll_opt_allreduce_intern( const void *buffer_in, void *buffer_
 		*/
 		_mpc_coll_message_table_init( &table );
 		size = elem_size * elem_number;
-		ALLREDUCE_ARRITY = allreduce_max_size / size;
+		ALLREDUCE_ARITY = allreduce_max_size / size;
 
-		if ( ALLREDUCE_ARRITY < 2 )
+		if ( ALLREDUCE_ARITY < 2 )
 		{
-			ALLREDUCE_ARRITY = 2;
+			ALLREDUCE_ARITY = 2;
 		}
 
-		if ( ALLREDUCE_ARRITY > allreduce_arity_max )
+		if ( ALLREDUCE_ARITY > allreduce_arity_max )
 		{
-			ALLREDUCE_ARRITY = allreduce_arity_max;
+			ALLREDUCE_ARITY = allreduce_arity_max;
 		}
 
-		buffer_tmp = sctk_malloc( size * ( ALLREDUCE_ARRITY - 1 ) );
-		buffer_table = sctk_malloc( ( ALLREDUCE_ARRITY - 1 ) * sizeof( void * ) );
+		buffer_tmp = sctk_malloc( size * ( ALLREDUCE_ARITY - 1 ) );
+		buffer_table = sctk_malloc( ( ALLREDUCE_ARITY - 1 ) * sizeof( void * ) );
 		{
 			int j;
 
-			for ( j = 1; j < ALLREDUCE_ARRITY; j++ )
+			for ( j = 1; j < ALLREDUCE_ARITY; j++ )
 			{
 				buffer_table[j - 1] = ( ( char * ) buffer_tmp ) + ( size * ( j - 1 ) );
 			}
@@ -646,18 +646,18 @@ static void _mpc_coll_opt_allreduce_intern( const void *buffer_in, void *buffer_
 		assume( size > 0 );
 		total = mpc_lowcomm_communicator_size( communicator );
 		myself = mpc_lowcomm_communicator_rank_of( communicator, mpc_common_get_task_rank() );
-		total_max = log( total ) / log( ALLREDUCE_ARRITY );
-		total_max = pow( ALLREDUCE_ARRITY, total_max );
+		total_max = log( total ) / log( ALLREDUCE_ARITY );
+		total_max = pow( ALLREDUCE_ARITY, total_max );
 
 		if ( total_max < total )
 		{
-			total_max = total_max * ALLREDUCE_ARRITY;
+			total_max = total_max * ALLREDUCE_ARITY;
 		}
 
 		assume( total_max >= total );
 
-		for ( i = ALLREDUCE_ARRITY; i <= total_max;
-		      i = i * ALLREDUCE_ARRITY )
+		for ( i = ALLREDUCE_ARITY; i <= total_max;
+		      i = i * ALLREDUCE_ARITY )
 		{
 			if ( myself % i == 0 )
 			{
@@ -665,14 +665,14 @@ static void _mpc_coll_opt_allreduce_intern( const void *buffer_in, void *buffer_
 				int j;
 				src = myself;
 
-				for ( j = 1; j < ALLREDUCE_ARRITY; j++ )
+				for ( j = 1; j < ALLREDUCE_ARITY; j++ )
 				{
-					if ( ( src + ( j * ( i / ALLREDUCE_ARRITY ) ) ) < total )
+					if ( ( src + ( j * ( i / ALLREDUCE_ARITY ) ) ) < total )
 					{
 						mpc_common_nodebug( "Recv from %d",
-						              src + ( j * ( i / ALLREDUCE_ARRITY ) ) );
+						              src + ( j * ( i / ALLREDUCE_ARITY ) ) );
 						_mpc_coll_message_recv(
-						    communicator, src + ( j * ( i / ALLREDUCE_ARRITY ) ),
+						    communicator, src + ( j * ( i / ALLREDUCE_ARITY ) ),
 						    myself, 0, buffer_table[j - 1], size,
 						    MPC_LOWCOMM_ALLREDUCE_MESSAGE,
 						    _mpc_coll_message_table_get_item( &table, OPT_COLL_MAX_ASYNC ), 0 );
@@ -681,9 +681,9 @@ static void _mpc_coll_opt_allreduce_intern( const void *buffer_in, void *buffer_
 
 				_mpc_coll_messages_table_wait( &table );
 
-				for ( j = 1; j < ALLREDUCE_ARRITY; j++ )
+				for ( j = 1; j < ALLREDUCE_ARITY; j++ )
 				{
-					if ( ( src + ( j * ( i / ALLREDUCE_ARRITY ) ) ) < total )
+					if ( ( src + ( j * ( i / ALLREDUCE_ARITY ) ) ) < total )
 					{
 						func( buffer_table[j - 1], buffer_out, elem_number,
 						      data_type );
@@ -717,7 +717,7 @@ static void _mpc_coll_opt_allreduce_intern( const void *buffer_in, void *buffer_
 
 		_mpc_coll_messages_table_wait( &table );
 
-		for ( ; i >= ALLREDUCE_ARRITY; i = i / ALLREDUCE_ARRITY )
+		for ( ; i >= ALLREDUCE_ARITY; i = i / ALLREDUCE_ARITY )
 		{
 			if ( myself % i == 0 )
 			{
@@ -725,15 +725,15 @@ static void _mpc_coll_opt_allreduce_intern( const void *buffer_in, void *buffer_
 				int j;
 				dest = myself;
 
-				for ( j = 1; j < ALLREDUCE_ARRITY; j++ )
+				for ( j = 1; j < ALLREDUCE_ARITY; j++ )
 				{
-					if ( ( dest + ( j * ( i / ALLREDUCE_ARRITY ) ) ) < total )
+					if ( ( dest + ( j * ( i / ALLREDUCE_ARITY ) ) ) < total )
 					{
 						mpc_common_nodebug( "send to %d",
-						              dest + ( j * ( i / ALLREDUCE_ARRITY ) ) );
+						              dest + ( j * ( i / ALLREDUCE_ARITY ) ) );
 						_mpc_coll_message_send(
 						    communicator, myself,
-						    dest + ( j * ( i / ALLREDUCE_ARRITY ) ), 1, buffer_out,
+						    dest + ( j * ( i / ALLREDUCE_ARITY ) ), 1, buffer_out,
 						    size, MPC_LOWCOMM_ALLREDUCE_MESSAGE,
 						    _mpc_coll_message_table_get_item( &table, OPT_COLL_MAX_ASYNC ), 0 );
 					}
@@ -974,21 +974,21 @@ void _mpc_coll_hetero_bcast_inter( void *buffer, const size_t size,
 		int total_max;
 		int i;
 		_mpc_coll_messages_table_t table;
-		int BROADCAST_ARRITY;
+		int BROADCAST_ARITY;
 		int specific_tag = MPC_LOWCOMM_BROADCAST_HETERO_MESSAGE;
 		int *process_array;
 		int root;
 		_mpc_coll_message_table_init( &table );
-		BROADCAST_ARRITY = broadcast_max_size / size;
+		BROADCAST_ARITY = broadcast_max_size / size;
 
-		if ( BROADCAST_ARRITY < 2 )
+		if ( BROADCAST_ARITY < 2 )
 		{
-			BROADCAST_ARRITY = 2;
+			BROADCAST_ARITY = 2;
 		}
 
-		if ( BROADCAST_ARRITY > broadcast_arity_max )
+		if ( BROADCAST_ARITY > broadcast_arity_max )
 		{
-			BROADCAST_ARRITY = broadcast_arity_max;
+			BROADCAST_ARITY = broadcast_arity_max;
 		}
 
 		int process_rank = mpc_common_get_process_rank();
@@ -1006,18 +1006,18 @@ void _mpc_coll_hetero_bcast_inter( void *buffer, const size_t size,
 		assume( myself_ptr );
 		root = ( myself_ptr - process_array );
 		related_myself = ( myself + total - root ) % total;
-		total_max = log( total ) / log( BROADCAST_ARRITY );
-		total_max = pow( BROADCAST_ARRITY, total_max );
+		total_max = log( total ) / log( BROADCAST_ARITY );
+		total_max = pow( BROADCAST_ARITY, total_max );
 
 		if ( total_max < total )
 		{
-			total_max = total_max * BROADCAST_ARRITY;
+			total_max = total_max * BROADCAST_ARITY;
 		}
 
 		assume( total_max >= total );
 
-		for ( i = BROADCAST_ARRITY; i <= total_max;
-		      i = i * BROADCAST_ARRITY )
+		for ( i = BROADCAST_ARITY; i <= total_max;
+		      i = i * BROADCAST_ARITY )
 		{
 			if ( related_myself % i != 0 )
 			{
@@ -1037,7 +1037,7 @@ void _mpc_coll_hetero_bcast_inter( void *buffer, const size_t size,
 			}
 		}
 
-		for ( ; i >= BROADCAST_ARRITY; i = i / BROADCAST_ARRITY )
+		for ( ; i >= BROADCAST_ARITY; i = i / BROADCAST_ARITY )
 		{
 			if ( related_myself % i == 0 )
 			{
@@ -1045,14 +1045,14 @@ void _mpc_coll_hetero_bcast_inter( void *buffer, const size_t size,
 				int j;
 				dest = related_myself;
 
-				for ( j = 1; j < BROADCAST_ARRITY; j++ )
+				for ( j = 1; j < BROADCAST_ARITY; j++ )
 				{
-					if ( ( dest + ( j * ( i / BROADCAST_ARRITY ) ) ) < total )
+					if ( ( dest + ( j * ( i / BROADCAST_ARITY ) ) ) < total )
 					{
 						_mpc_coll_message_send(
 						    communicator, process_array[myself],
 						    process_array[( dest + root +
-						                    ( j * ( i / BROADCAST_ARRITY ) ) ) %
+						                    ( j * ( i / BROADCAST_ARITY ) ) ) %
 						                  total],
 						    root_process, buffer, size, specific_tag,
 						    _mpc_coll_message_table_get_item( &table, HETERO_COLL_MAX_ASYNC ),
@@ -1165,7 +1165,7 @@ static void _mpc_coll_hetero_allreduce_intern_inter( const void *buffer_in, void
 	size_t allreduce_check_threshold = _mpc_lowcomm_coll_conf_get()->allreduce_check_threshold;
 
 
-	int ALLREDUCE_ARRITY = 2;
+	int ALLREDUCE_ARITY = 2;
 	int total_max;
 	_mpc_coll_messages_table_t table;
 	void *buffer_tmp;
@@ -1190,24 +1190,24 @@ static void _mpc_coll_hetero_allreduce_intern_inter( const void *buffer_in, void
 	   point datatypes.
 	   */
 	_mpc_coll_message_table_init( &table );
-	ALLREDUCE_ARRITY = allreduce_max_size / size;
+	ALLREDUCE_ARITY = allreduce_max_size / size;
 
-	if ( ALLREDUCE_ARRITY < 2 )
+	if ( ALLREDUCE_ARITY < 2 )
 	{
-		ALLREDUCE_ARRITY = 2;
+		ALLREDUCE_ARITY = 2;
 	}
 
-	if ( ALLREDUCE_ARRITY > allreduce_arity_max )
+	if ( ALLREDUCE_ARITY > allreduce_arity_max )
 	{
-		ALLREDUCE_ARRITY = allreduce_arity_max;
+		ALLREDUCE_ARITY = allreduce_arity_max;
 	}
 
-	buffer_tmp = sctk_malloc( size * ( ALLREDUCE_ARRITY - 1 ) );
-	buffer_table = sctk_malloc( ( ALLREDUCE_ARRITY - 1 ) * sizeof( void * ) );
+	buffer_tmp = sctk_malloc( size * ( ALLREDUCE_ARITY - 1 ) );
+	buffer_table = sctk_malloc( ( ALLREDUCE_ARITY - 1 ) * sizeof( void * ) );
 	{
 		int j;
 
-		for ( j = 1; j < ALLREDUCE_ARRITY; j++ )
+		for ( j = 1; j < ALLREDUCE_ARITY; j++ )
 		{
 			buffer_table[j - 1] = ( ( char * ) buffer_tmp ) + ( size * ( j - 1 ) );
 		}
@@ -1221,17 +1221,17 @@ static void _mpc_coll_hetero_allreduce_intern_inter( const void *buffer_in, void
 	assume(process_array != NULL);
 
 	myself = ( myself_ptr - process_array );
-	total_max = log( total ) / log( ALLREDUCE_ARRITY );
-	total_max = pow( ALLREDUCE_ARRITY, total_max );
+	total_max = log( total ) / log( ALLREDUCE_ARITY );
+	total_max = pow( ALLREDUCE_ARITY, total_max );
 
 	if ( total_max < total )
 	{
-		total_max = total_max * ALLREDUCE_ARRITY;
+		total_max = total_max * ALLREDUCE_ARITY;
 	}
 
 	assume( total_max >= total );
 
-	for ( i = ALLREDUCE_ARRITY; i <= total_max; i = i * ALLREDUCE_ARRITY )
+	for ( i = ALLREDUCE_ARITY; i <= total_max; i = i * ALLREDUCE_ARITY )
 	{
 		if ( myself % i == 0 )
 		{
@@ -1239,15 +1239,15 @@ static void _mpc_coll_hetero_allreduce_intern_inter( const void *buffer_in, void
 			int j;
 			src = myself;
 
-			for ( j = 1; j < ALLREDUCE_ARRITY; j++ )
+			for ( j = 1; j < ALLREDUCE_ARITY; j++ )
 			{
-				if ( ( src + ( j * ( i / ALLREDUCE_ARRITY ) ) ) < total )
+				if ( ( src + ( j * ( i / ALLREDUCE_ARITY ) ) ) < total )
 				{
 					mpc_common_nodebug( "Recv from %d",
-					              src + ( j * ( i / ALLREDUCE_ARRITY ) ) );
+					              src + ( j * ( i / ALLREDUCE_ARITY ) ) );
 					_mpc_coll_message_recv(
 					    communicator,
-					    process_array[src + ( j * ( i / ALLREDUCE_ARRITY ) )],
+					    process_array[src + ( j * ( i / ALLREDUCE_ARITY ) )],
 					    process_array[myself], 0, buffer_table[j - 1], size,
 					    specific_tag, _mpc_coll_message_table_get_item( &table, HETERO_COLL_MAX_ASYNC ),
 					    (size < allreduce_check_threshold) );
@@ -1257,9 +1257,9 @@ static void _mpc_coll_hetero_allreduce_intern_inter( const void *buffer_in, void
 			memcpy( buffer_out, buffer_in, size );
 			_mpc_coll_messages_table_wait( &table );
 
-			for ( j = 1; j < ALLREDUCE_ARRITY; j++ )
+			for ( j = 1; j < ALLREDUCE_ARITY; j++ )
 			{
-				if ( ( src + ( j * ( i / ALLREDUCE_ARRITY ) ) ) < total )
+				if ( ( src + ( j * ( i / ALLREDUCE_ARITY ) ) ) < total )
 				{
 					func( buffer_table[j - 1], buffer_out, elem_number, data_type );
 				}
@@ -1291,7 +1291,7 @@ static void _mpc_coll_hetero_allreduce_intern_inter( const void *buffer_in, void
 
 	_mpc_coll_messages_table_wait( &table );
 
-	for ( ; i >= ALLREDUCE_ARRITY; i = i / ALLREDUCE_ARRITY )
+	for ( ; i >= ALLREDUCE_ARITY; i = i / ALLREDUCE_ARITY )
 	{
 		if ( myself % i == 0 )
 		{
@@ -1299,14 +1299,14 @@ static void _mpc_coll_hetero_allreduce_intern_inter( const void *buffer_in, void
 			int j;
 			dest = myself;
 
-			for ( j = 1; j < ALLREDUCE_ARRITY; j++ )
+			for ( j = 1; j < ALLREDUCE_ARITY; j++ )
 			{
-				if ( ( dest + ( j * ( i / ALLREDUCE_ARRITY ) ) ) < total )
+				if ( ( dest + ( j * ( i / ALLREDUCE_ARITY ) ) ) < total )
 				{
-					mpc_common_nodebug( "send to %d", dest + ( j * ( i / ALLREDUCE_ARRITY ) ) );
+					mpc_common_nodebug( "send to %d", dest + ( j * ( i / ALLREDUCE_ARITY ) ) );
 					_mpc_coll_message_send(
 					    communicator, process_array[myself],
-					    process_array[dest + ( j * ( i / ALLREDUCE_ARRITY ) )], 1,
+					    process_array[dest + ( j * ( i / ALLREDUCE_ARITY ) )], 1,
 					    buffer_out, size, specific_tag,
 					    _mpc_coll_message_table_get_item( &table, HETERO_COLL_MAX_ASYNC ),
 					    ( size < (size_t)allreduce_check_threshold ) );
@@ -1649,7 +1649,7 @@ void _mpc_coll_noalloc_bcast( void *buffer, const size_t size,
 		assume( total_max >= total );
 		if (mpc_common_get_task_rank() == 0) {
 			mpc_common_debug("enter broadcast total = %d, total_max = %d, "
-			                 "myself = %d, BROADCAST_ARRITY = %d\n",
+			                 "myself = %d, BROADCAST_ARITY = %d\n",
 			                 total, total_max, myself, BROADCAST_ARITY);
 		}
 
@@ -1702,7 +1702,7 @@ void _mpc_coll_noalloc_bcast( void *buffer, const size_t size,
 		_mpc_coll_messages_table_wait( &table );
 		if (mpc_common_get_task_rank() == 0) {
 			mpc_common_debug("end broadcast total = %d, total_max = %d, "
-			                 "myself = %d, BROADCAST_ARRITY = %d",
+			                 "myself = %d, BROADCAST_ARITY = %d",
 			                 total, total_max, myself, BROADCAST_ARITY);
 		}
 	}
@@ -1736,7 +1736,7 @@ static void _mpc_coll_noalloc_allreduce_intern( const void *buffer_in, void *buf
 	void *buffer_tmp;
 	void **buffer_table;
 	_mpc_coll_messages_table_t table;
-	int ALLREDUCE_ARRITY;
+	int ALLREDUCE_ARITY;
 	int total_max;
 	static __thread int buffer_used = 0;
 	int need_free = 0;
@@ -1747,22 +1747,22 @@ static void _mpc_coll_noalloc_allreduce_intern( const void *buffer_in, void *buf
 	*/
 	_mpc_coll_message_table_init( &table );
 	size = elem_size * elem_number;
-	ALLREDUCE_ARRITY = allreduce_max_size / size;
+	ALLREDUCE_ARITY = allreduce_max_size / size;
 
-	if ( ALLREDUCE_ARRITY < 2 )
+	if ( ALLREDUCE_ARITY < 2 )
 	{
-		ALLREDUCE_ARRITY = 2;
+		ALLREDUCE_ARITY = 2;
 	}
 
-	if ( ALLREDUCE_ARRITY > allreduce_arity_max )
+	if ( ALLREDUCE_ARITY > allreduce_arity_max )
 	{
-		ALLREDUCE_ARRITY = allreduce_arity_max;
+		ALLREDUCE_ARITY = allreduce_arity_max;
 	}
 
 	if ( ( buffer_used == 1 ) || ( comm_id >= ALLREDUCE_ALLOC_BUFFER_COMMUNICATORS ) )
 	{
-		buffer_tmp = sctk_malloc( size * ( ALLREDUCE_ARRITY - 1 ) );
-		buffer_table = sctk_malloc( ( ALLREDUCE_ARRITY - 1 ) * sizeof( void * ) );
+		buffer_tmp = sctk_malloc( size * ( ALLREDUCE_ARITY - 1 ) );
+		buffer_table = sctk_malloc( ( ALLREDUCE_ARITY - 1 ) * sizeof( void * ) );
 		need_free = 1;
 	}
 	else
@@ -1774,16 +1774,16 @@ static void _mpc_coll_noalloc_allreduce_intern( const void *buffer_in, void *buf
 		need_free = 0;
 		buffer_used = 1;
 
-		if ( size * ( ALLREDUCE_ARRITY - 1 ) > buffer_tmp_loc_size[comm_id] )
+		if ( size * ( ALLREDUCE_ARITY - 1 ) > buffer_tmp_loc_size[comm_id] )
 		{
-			buffer_tmp_loc_size[comm_id] = size * ( ALLREDUCE_ARRITY - 1 );
+			buffer_tmp_loc_size[comm_id] = size * ( ALLREDUCE_ARITY - 1 );
 			sctk_free( buffer_tmp_loc[comm_id] );
 			buffer_tmp_loc[comm_id] = sctk_malloc( buffer_tmp_loc_size[comm_id] );
 		}
 
-		if ( ( ALLREDUCE_ARRITY - 1 ) * sizeof( void * ) > buffer_table_loc_size[comm_id] )
+		if ( ( ALLREDUCE_ARITY - 1 ) * sizeof( void * ) > buffer_table_loc_size[comm_id] )
 		{
-			buffer_table_loc_size[comm_id] = ( ALLREDUCE_ARRITY - 1 ) * sizeof( void * );
+			buffer_table_loc_size[comm_id] = ( ALLREDUCE_ARITY - 1 ) * sizeof( void * );
 			sctk_free( buffer_table_loc[comm_id] );
 			buffer_table_loc[comm_id] = sctk_malloc( buffer_table_loc_size[comm_id] );
 		}
@@ -1795,7 +1795,7 @@ static void _mpc_coll_noalloc_allreduce_intern( const void *buffer_in, void *buf
 	{
 		int j;
 
-		for ( j = 1; j < ALLREDUCE_ARRITY; j++ )
+		for ( j = 1; j < ALLREDUCE_ARITY; j++ )
 		{
 			buffer_table[j - 1] = ( ( char * ) buffer_tmp ) + ( size * ( j - 1 ) );
 		}
@@ -1809,17 +1809,17 @@ static void _mpc_coll_noalloc_allreduce_intern( const void *buffer_in, void *buf
 	assume( size > 0 );
 	total = mpc_lowcomm_communicator_size( communicator );
 	myself = mpc_lowcomm_communicator_rank_of( communicator, mpc_common_get_task_rank() );
-	total_max = log( total ) / log( ALLREDUCE_ARRITY );
-	total_max = pow( ALLREDUCE_ARRITY, total_max );
+	total_max = log( total ) / log( ALLREDUCE_ARITY );
+	total_max = pow( ALLREDUCE_ARITY, total_max );
 
 	if ( total_max < total )
 	{
-		total_max = total_max * ALLREDUCE_ARRITY;
+		total_max = total_max * ALLREDUCE_ARITY;
 	}
 
 	assume( total_max >= total );
 
-	for ( i = ALLREDUCE_ARRITY; i <= total_max; i = i * ALLREDUCE_ARRITY )
+	for ( i = ALLREDUCE_ARITY; i <= total_max; i = i * ALLREDUCE_ARITY )
 	{
 		if ( myself % i == 0 )
 		{
@@ -1827,14 +1827,14 @@ static void _mpc_coll_noalloc_allreduce_intern( const void *buffer_in, void *buf
 			int j;
 			src = myself;
 
-			for ( j = 1; j < ALLREDUCE_ARRITY; j++ )
+			for ( j = 1; j < ALLREDUCE_ARITY; j++ )
 			{
-				if ( ( src + ( j * ( i / ALLREDUCE_ARRITY ) ) ) < total )
+				if ( ( src + ( j * ( i / ALLREDUCE_ARITY ) ) ) < total )
 				{
 					mpc_common_nodebug( "Recv from %d",
-					              src + ( j * ( i / ALLREDUCE_ARRITY ) ) );
+					              src + ( j * ( i / ALLREDUCE_ARITY ) ) );
 					_mpc_coll_message_recv(
-					    communicator, src + ( j * ( i / ALLREDUCE_ARRITY ) ), myself, 0,
+					    communicator, src + ( j * ( i / ALLREDUCE_ARITY ) ), myself, 0,
 					    buffer_table[j - 1], size, MPC_LOWCOMM_ALLREDUCE_MESSAGE,
 					    _mpc_coll_message_table_get_item( &table, OPT_NOALLOC_MAX_ASYNC ),
 					    0 );
@@ -1843,9 +1843,9 @@ static void _mpc_coll_noalloc_allreduce_intern( const void *buffer_in, void *buf
 
 			_mpc_coll_messages_table_wait( &table );
 
-			for ( j = 1; j < ALLREDUCE_ARRITY; j++ )
+			for ( j = 1; j < ALLREDUCE_ARITY; j++ )
 			{
-				if ( ( src + ( j * ( i / ALLREDUCE_ARRITY ) ) ) < total )
+				if ( ( src + ( j * ( i / ALLREDUCE_ARITY ) ) ) < total )
 				{
 					func( buffer_table[j - 1], buffer_out, elem_number, data_type );
 				}
@@ -1878,7 +1878,7 @@ static void _mpc_coll_noalloc_allreduce_intern( const void *buffer_in, void *buf
 
 	_mpc_coll_messages_table_wait( &table );
 
-	for ( ; i >= ALLREDUCE_ARRITY; i = i / ALLREDUCE_ARRITY )
+	for ( ; i >= ALLREDUCE_ARITY; i = i / ALLREDUCE_ARITY )
 	{
 		if ( myself % i == 0 )
 		{
@@ -1886,13 +1886,13 @@ static void _mpc_coll_noalloc_allreduce_intern( const void *buffer_in, void *buf
 			int j;
 			dest = myself;
 
-			for ( j = 1; j < ALLREDUCE_ARRITY; j++ )
+			for ( j = 1; j < ALLREDUCE_ARITY; j++ )
 			{
-				if ( ( dest + ( j * ( i / ALLREDUCE_ARRITY ) ) ) < total )
+				if ( ( dest + ( j * ( i / ALLREDUCE_ARITY ) ) ) < total )
 				{
-					mpc_common_nodebug( "send to %d", dest + ( j * ( i / ALLREDUCE_ARRITY ) ) );
+					mpc_common_nodebug( "send to %d", dest + ( j * ( i / ALLREDUCE_ARITY ) ) );
 					_mpc_coll_message_send(
-					    communicator, myself, dest + ( j * ( i / ALLREDUCE_ARRITY ) ),
+					    communicator, myself, dest + ( j * ( i / ALLREDUCE_ARITY ) ),
 					    1, buffer_out, size, MPC_LOWCOMM_ALLREDUCE_MESSAGE,
 					    _mpc_coll_message_table_get_item( &table, OPT_NOALLOC_MAX_ASYNC ), 0 );
 				}
@@ -2000,9 +2000,9 @@ void mpc_lowcomm_coll_init_noalloc( mpc_lowcomm_communicator_t id )
  **********************************************/
 
 /************************************************************************/
-/*Terminaison Barrier                                                   */
+/*Termination Barrier                                                   */
 /************************************************************************/
-void mpc_lowcomm_terminaison_barrier( void )
+void mpc_lowcomm_termination_barrier( void )
 {
 	int local;
 	static volatile int done = 0;
@@ -2013,7 +2013,7 @@ void mpc_lowcomm_terminaison_barrier( void )
 	local =  mpc_lowcomm_communicator_local_task_count( MPC_COMM_WORLD );
 	pthread_mutex_lock( &lock );
 	done++;
-	mpc_common_nodebug( "mpc_lowcomm_terminaison_barrier %d %d", done, local );
+	mpc_common_nodebug( "mpc_lowcomm_termination_barrier %d %d", done, local );
 
 	if ( done == local )
 	{
@@ -2028,17 +2028,17 @@ void mpc_lowcomm_terminaison_barrier( void )
 			mpc_launch_pmi_barrier();
 		}
 
-		mpc_common_nodebug( "WAKE ALL in mpc_lowcomm_terminaison_barrier" );
+		mpc_common_nodebug( "WAKE ALL in mpc_lowcomm_termination_barrier" );
 		pthread_cond_broadcast( &cond );
 	}
 	else
 	{
-		mpc_common_nodebug( "WAIT in mpc_lowcomm_terminaison_barrier" );
+		mpc_common_nodebug( "WAIT in mpc_lowcomm_termination_barrier" );
 		pthread_cond_wait( &cond, &lock );
 	}
 
 	pthread_mutex_unlock( &lock );
-	mpc_common_nodebug( "mpc_lowcomm_terminaison_barrier %d %d DONE", done, local );
+	mpc_common_nodebug( "mpc_lowcomm_termination_barrier %d %d DONE", done, local );
 }
 
 /************************************************************************/
@@ -2234,14 +2234,14 @@ void mpc_lowcomm_allreduce( const void *buffer_in, void *buffer_out,
  * GATHER *
  **********/
 
-#define MPC_MAX_CONCURENT    100
+#define MPC_MAX_CONCURRENT    100
 
 static inline int ___gather_inter(void *sendbuf, void *recvbuf, const size_t size, int root, mpc_lowcomm_communicator_t comm)
 {
 	int i;
 	int j;
 
-	mpc_lowcomm_request_t *           recvrequest   = sctk_malloc(sizeof(mpc_lowcomm_request_t) * MPC_MAX_CONCURENT);
+	mpc_lowcomm_request_t *           recvrequest   = sctk_malloc(sizeof(mpc_lowcomm_request_t) * MPC_MAX_CONCURRENT);
 	assume(recvrequest != NULL);
 
 	int comm_size = mpc_lowcomm_communicator_size(comm);
@@ -2255,7 +2255,7 @@ static inline int ___gather_inter(void *sendbuf, void *recvbuf, const size_t siz
 		i     = 0;
 		while(i < comm_size)
 		{
-			for(j = 0; (i < comm_size) && (j < MPC_MAX_CONCURENT); )
+			for(j = 0; (i < comm_size) && (j < MPC_MAX_CONCURRENT); )
 			{
 				mpc_lowcomm_irecv(i, (( char * )recvbuf) + (i * size), size, MPC_GATHER_TAG, comm, &(recvrequest[j]) );
 				i++;

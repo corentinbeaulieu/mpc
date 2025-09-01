@@ -182,7 +182,7 @@ int sctk_accl_cuda_pop_context() {
  * This is done when a thread is restored, its context is pushed to the GPU
  *
  * @return
- *  - 0 if succeded
+ *  - 0 if succeeded
  *  - 1 otherwise
  */
 int sctk_accl_cuda_push_context() {
@@ -233,7 +233,7 @@ void sctk_accl_release_global_cuda_context()
 	// one primary context per gpu device
 	int num_devices = 1;
 	CUresult code = cuDeviceGetCount(&num_devices);
-	// Uknown Errors (if cuda driver is not started correctly).
+	// Unknown Errors (if cuda driver is not started correctly).
 	if (code == CUDA_ERROR_UNKNOWN)
 		return;
 	// Not initialized error if cuda is no cuinit.
@@ -241,7 +241,7 @@ void sctk_accl_release_global_cuda_context()
 		return;
 	if (code != CUDA_SUCCESS) {
 		const char *errorStr = NULL;
-		// CUDA API does not specify if the sring is user owned
+		// CUDA API does not specify if the string is user owned
 		// and should be free
 		cuGetErrorString(code, &errorStr);
 		mpc_common_debug_warning(

@@ -51,7 +51,7 @@ MPC relies on a number of dependencies (openpa, hwloc...) and some may be
 missing in the archive you downloaded (for archive size reasons). Considering
 the current installation process can have an internet connection, on might
 consider using the `--download-missing-deps` option. Any of the dependency can
-be overriden with a custom, already installed version, anywhere on the system.
+be overridden with a custom, already installed version, anywhere on the system.
 An option exist for each, similar to `--with-<dep>=/path`. In these cases, it is
 up to the user to ensure the compatibility between the external dependency and
 MPC's requirement. A complete list of dependency versions can be found in
@@ -59,7 +59,7 @@ MPC's requirement. A complete list of dependency versions can be found in
 dependencies, one can use `--<dep>-<arg>`. Here two examples for HWLOC support :
 
 	$ ./installmpc --with-hwloc=/app/hwloc/
-	$ ./installmpc --hwloc-disable-cuda #forwared to hwloc configure as
+	$ ./installmpc --hwloc-disable-cuda #forwarded to hwloc configure as
 --disable-cuda
 
 Beyond these basic options, some useful others are listed and detailed below :
@@ -99,7 +99,7 @@ MPC can build with the following REQUIRED dependencies:
    * PMI (requires libpmi.so --with-slurm / --with-pmi1)
    * PMIx (required libpmix.so --with-pmix)
 
-It is possible to choose between the followign "modules" with --enable/disable-X:
+It is possible to choose between the following "modules" with --enable/disable-X:
 
 - *lowcomm*: the base networking engine for MPC can be manipulated using the mpc_lowcomm.h header
 - *threads*: user-level thread support (provides posix thread interface pthread.h, semaphore.h, ..)

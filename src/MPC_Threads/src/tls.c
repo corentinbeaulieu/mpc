@@ -80,8 +80,8 @@ int sctk_locate_dynamic_initializers()
  * Call all dynamic initializers previously discovered.
  * This function erases current values and replaces with the initial value
  * For instance, for task-level initialization, this function should be called
- * during task instanciation, in order to have one init copy per task
- * @returns 1 if something's gone wrong, 0 othewise.
+ * during task instantiation, in order to have one init copy per task
+ * @returns 1 if something's gone wrong, 0 otherwise.
  */
 int sctk_call_dynamic_initializers()
 {

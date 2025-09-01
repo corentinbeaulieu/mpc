@@ -334,7 +334,7 @@ static int lcr_ptl_tk_process_event(lcr_ptl_rail_info_t *srail,
                 not_reachable();
                 break;
         default:
-                mpc_common_debug_error("LCR PTL: unkown event type.");
+                mpc_common_debug_error("LCR PTL: unknown event type.");
                 rc = MPC_LOWCOMM_ERROR;
                 break;
         }

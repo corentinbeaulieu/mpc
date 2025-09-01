@@ -872,7 +872,7 @@ int mpc_osc_accumulate(const void *origin_addr, int origin_count,
                                 }
                         } else {
                                 mpc_common_debug_error("MPI OSC: non contiguous predefined "
-                                                       "dataype not implemented.");
+                                                       "datatype not implemented.");
                                 not_implemented();
                         }
                 }
@@ -1040,7 +1040,7 @@ int mpc_osc_get_accumulate(const void *origin_addr, int origin_count,
                                         }
                                 } else {
                                         mpc_common_debug_error("MPI OSC: non contiguous predefined "
-                                                               "dataype not implemented.");
+                                                               "datatype not implemented.");
                                         not_implemented();
                                 }
                         }

@@ -52,7 +52,7 @@ void _mpc_lowcomm_monitor_name_release(void);
  ***********/
 
 /**
- * @brief Store name resoltion information
+ * @brief Store name resolution information
  *
  * @param name the service name
  * @param port_name the port information
@@ -64,7 +64,7 @@ int _mpc_lowcomm_monitor_name_publish(char * name,
                                       mpc_lowcomm_peer_uid_t hosting_peer);
 
 /**
- * @brief Remove name resoltion information
+ * @brief Remove name resolution information
  *
  * @param name the service name
  * @return int 0 if all OK

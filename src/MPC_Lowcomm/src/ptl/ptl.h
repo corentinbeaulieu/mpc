@@ -186,7 +186,7 @@ typedef enum lcr_ptl_mem_lifetime {
 
 typedef struct lcr_ptl_mem {
         uint64_t               start;
-        uint32_t               uid;            /* Memory Unique Idendifier (for RMA matching). */
+        uint32_t               uid;            /* Memory Unique Identifier (for RMA matching). */
         lcr_ptl_mem_lifetime_t lifetime;
         ptl_match_bits_t       match;
         mpc_list_elem_t        elem;           /* Element in list.                       */
@@ -308,7 +308,7 @@ typedef struct lcr_ptl_op {
 typedef struct lcr_ptl_ts_ctx {
         ptl_handle_md_t       mdh; /* Eager Memory Descriptor handle. */
         ptl_pt_index_t        pti; /* Portal Table Index. */
-        mpc_mempool_t        *block_mp; /* Pool of shaddow buffers. */
+        mpc_mempool_t        *block_mp; /* Pool of shadow buffers. */
         mpc_list_elem_t       bhead; /* Head of block list. */
         atomic_int_least64_t  op_sn;
         atomic_int_least64_t  rma_count;
@@ -330,7 +330,7 @@ typedef struct lcr_ptl_tk_rsc {
         lcr_ptl_addr_t        remote;    /* Full address of remote process. */
         uint16_t              ep_idx;    /* ID of the remote endpoint it is connected to. */
         mpc_queue_elem_t      elem;      /* Element in exhausted queue. */
-        int32_t               tk_chunk;  /* Chunck of tokens to grant each time. */
+        int32_t               tk_chunk;  /* Chunk of tokens to grant each time. */
         struct {
                 int32_t       requested; /* Number of requested tokens from remote. */
                 int32_t       granted;   /* Number of token distributed to remote.  */
@@ -347,7 +347,7 @@ typedef struct lcr_ptl_tk_config {
 typedef struct lcr_ptl_tk_module {
         lcr_ptl_tk_config_t         config;
         ptl_handle_eq_t             eqh; /* Event Queue. */
-        ptl_handle_md_t             mdh; /* Memory Decriptor handle. */
+        ptl_handle_md_t             mdh; /* Memory Descriptor handle. */
         ptl_pt_index_t              pti; /* Portal Table Index. */
         ptl_handle_me_t             meh; /* Memory Entry handle. */
         mpc_common_spinlock_t       lock;
@@ -381,7 +381,7 @@ typedef struct lcr_ptl_iface_config {
 	size_t          max_get;          /**< Max size of a get. */
         size_t          min_frag_size;    /* Minimum size of a fragment. */
 	ptl_ni_limits_t max_limits;       /**< container for Portals thresholds */
-        unsigned        features; /* Instanciated features. */
+        unsigned        features; /* Instantiated features. */
 } lcr_ptl_iface_config_t;
 
 typedef struct lcr_ptl_rail_info {
@@ -545,7 +545,7 @@ static inline const char *lcr_ptl_decode_atomic_op(ptl_op_t op_type) {
         case PTL_BAND: return "PTL_BAND"; break;
         case PTL_BOR: return "PTL_BOR"; break;
         case PTL_BXOR: return "PTL_BXOR"; break;
-        default: return "Unknwon PTL op."; break;
+        default: return "Unknown PTL op."; break;
         }
 
         return NULL;

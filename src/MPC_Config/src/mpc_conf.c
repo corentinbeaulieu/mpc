@@ -192,7 +192,7 @@ mpc_conf_config_type_t * mpc_conf_config_type_elem_update(mpc_conf_config_type_t
 		}
     }
 
-	/* Ensure new elemens are also inserted only when force content is <= 0 */
+	/* Ensure new elements are also inserted only when force content is <= 0 */
 	if(force_content <= 0)
 	{
 		/* We need a tmp as we cannot pop while iterating */
@@ -1214,7 +1214,7 @@ int mpc_conf_self_config_check_init(mpc_conf_self_config_t *config)
 	config->indent_count  = MPC_CONF_DEFAULT_INDENT;
 	config->verbose       = 0;
 
-	/* As envirnoment might be loaded later on
+	/* As environment might be loaded later on
 	   we make an exception to allow config to be debuged early */
 	char *env_conf_verb = getenv("CONF_SETTINGS_VERBOSE");
 	if(env_conf_verb)

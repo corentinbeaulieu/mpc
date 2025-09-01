@@ -94,7 +94,7 @@ void __kmpc_atomic_float8_add(__UNUSED__ ident_t *id_ref,__UNUSED__  int gtid, k
   __kmp_test_then_add_real64( lhs, rhs ) ;
 #endif
 
-/* TODO check how we can add this function to asssembly-dedicated module */
+/* TODO check how we can add this function to assembly-dedicated module */
 
 /* TODO use MPC_OMP_MIC */
 

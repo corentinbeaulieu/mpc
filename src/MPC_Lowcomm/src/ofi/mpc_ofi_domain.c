@@ -959,16 +959,16 @@ int __mpc_ofi_domain_request_complete(struct _mpc_ofi_request_t * req, __UNUSED_
 
 
 static struct _mpc_ofi_request_t * __acquire_request(struct _mpc_ofi_domain_t * domain,
-                                                    int (*comptetion_cb)(struct _mpc_ofi_request_t *, void *),
+                                                    int (*completion_cb)(struct _mpc_ofi_request_t *, void *),
                                                     void *arg,
-                                                    int (*comptetion_cb_ext)(struct _mpc_ofi_request_t *, void *),
+                                                    int (*completion_cb_ext)(struct _mpc_ofi_request_t *, void *),
                                                     void *arg_ext)
 {
    struct _mpc_ofi_request_t * ret = NULL;
 
    do
    {
-      ret = _mpc_ofi_request_acquire(&domain->rcache, comptetion_cb, arg, comptetion_cb_ext, arg_ext );
+      ret = _mpc_ofi_request_acquire(&domain->rcache, completion_cb, arg, completion_cb_ext, arg_ext );
 
       if(ret)
          break;
@@ -1058,7 +1058,7 @@ int _mpc_ofi_domain_sendv(struct _mpc_ofi_domain_t * domain,
                         const struct iovec *iov,
                         size_t iovcnt,
                         struct _mpc_ofi_request_t **preq,
-                        int (*comptetion_cb_ext)(struct _mpc_ofi_request_t *, void *),
+                        int (*completion_cb_ext)(struct _mpc_ofi_request_t *, void *),
                         void *arg_ext)
 {
    struct _mpc_ofi_request_t ** req = preq;
@@ -1074,7 +1074,7 @@ int _mpc_ofi_domain_sendv(struct _mpc_ofi_domain_t * domain,
    mpc_common_spinlock_lock(&domain->send_lock);
 
 
-   *req = __acquire_request(domain, __mpc_ofi_domain_request_complete, NULL, comptetion_cb_ext, arg_ext);
+   *req = __acquire_request(domain, __mpc_ofi_domain_request_complete, NULL, completion_cb_ext, arg_ext);
 
    unsigned int i = 0;
 
@@ -1142,7 +1142,7 @@ int _mpc_ofi_domain_get(struct _mpc_ofi_domain_t *domain,
                        uint64_t remote_addr,
                        uint64_t key,
                        struct _mpc_ofi_request_t **preq,
-                       int (*comptetion_cb_ext)(struct _mpc_ofi_request_t *, void *),
+                       int (*completion_cb_ext)(struct _mpc_ofi_request_t *, void *),
                        void *arg_ext)
 {
    struct _mpc_ofi_request_t ** req = preq;
@@ -1156,7 +1156,7 @@ int _mpc_ofi_domain_get(struct _mpc_ofi_domain_t *domain,
 
    mpc_common_spinlock_lock(&domain->send_lock);
 
-   *req = __acquire_request(domain, __mpc_ofi_domain_request_complete, NULL, comptetion_cb_ext, arg_ext);
+   *req = __acquire_request(domain, __mpc_ofi_domain_request_complete, NULL, completion_cb_ext, arg_ext);
 
    (*req)->mr_count = 0;
    (*req)->mr[0]    = NULL;
@@ -1245,7 +1245,7 @@ int _mpc_ofi_domain_put(struct _mpc_ofi_domain_t *domain,
                        uint64_t remote_addr,
                        uint64_t key,
                        struct _mpc_ofi_request_t **preq,
-                       int (*comptetion_cb_ext)(struct _mpc_ofi_request_t *, void *),
+                       int (*completion_cb_ext)(struct _mpc_ofi_request_t *, void *),
                        void *arg_ext)
 {
    struct _mpc_ofi_request_t ** req = preq;
@@ -1259,7 +1259,7 @@ int _mpc_ofi_domain_put(struct _mpc_ofi_domain_t *domain,
 
    mpc_common_spinlock_lock(&domain->send_lock);
 
-   *req = __acquire_request(domain, __mpc_ofi_domain_request_complete, NULL, comptetion_cb_ext, arg_ext);
+   *req = __acquire_request(domain, __mpc_ofi_domain_request_complete, NULL, completion_cb_ext, arg_ext);
 
    if( _mpc_ofi_domain_memory_register_no_lock(domain, buf, len, FI_READ, &(*req)->mr[0]) )
    {

@@ -43,10 +43,10 @@ PRIV_COMPILER="${CXX}"
 parse_cli_args "$@"
 
 #
-# NVCC additionnal blacklisting
+# NVCC additional blacklisting
 # (disable as it does not work and it does not seams to be an issue)
-# If necessary, fixe autopriv so that the 'sed' in the following block
-# is valide and reenable globals variables blacklisting.
+# If necessary, fix autopriv so that the 'sed' in the following block
+# is valid and reenable globals variables blacklisting.
 #
 
 #Used by nvcc to automatically blacklist some var patterns

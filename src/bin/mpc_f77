@@ -251,7 +251,7 @@ clean_tmp_obj_files()
 }
 
 #
-# This is the main to be potentially injected in the target progam
+# This is the main to be potentially injected in the target program
 # when MPC_DOING_LINK
 #
 

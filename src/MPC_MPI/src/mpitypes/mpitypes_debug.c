@@ -22,7 +22,7 @@
  */
 
 
-void MPIDI_Datatype_contents_printf(MPI_Datatype type, int depth, int acount);
+void MPIDI_Datatype_contents_printf(MPI_Datatype type, int depth, int account);
 static char *MPIDI_Datatype_depth_spacing(int depth);
 
 /* note: this isn't really "error handling" per se, but leave these comments
@@ -502,7 +502,7 @@ static char *MPIDI_Datatype_depth_spacing(int depth)
 
 void MPIDI_Datatype_contents_printf(MPI_Datatype type,
 				    int depth,
-				    int acount)
+				    int account)
 {
     int i;
     MPID_Datatype *dtp;
@@ -561,7 +561,7 @@ void MPIDI_Datatype_contents_printf(MPI_Datatype type,
 				       *ints));
 	    MPIDI_Datatype_contents_printf(*types,
 					   depth + 1,
-					   acount);
+					   account);
 	    __mpidi_datatype_free_and_return;
 	case MPI_COMBINER_VECTOR:
 	    MPIU_DBG_OUT_FMT(DATATYPE,(MPIU_DBG_FDEST,
@@ -572,7 +572,7 @@ void MPIDI_Datatype_contents_printf(MPI_Datatype type,
 			    ints[2]));
 	    MPIDI_Datatype_contents_printf(*types,
 					   depth + 1,
-					   acount);
+					   account);
 	    __mpidi_datatype_free_and_return;
         case MPI_COMBINER_HVECTOR:
 	    MPIU_DBG_OUT_FMT(DATATYPE,(MPIU_DBG_FDEST,
@@ -583,13 +583,13 @@ void MPIDI_Datatype_contents_printf(MPI_Datatype type,
 			    (MPI_Aint) aints[0]));
 	    MPIDI_Datatype_contents_printf(*types,
 					   depth + 1,
-					   acount);
+					   account);
 	    __mpidi_datatype_free_and_return;
 	case MPI_COMBINER_INDEXED:
 	    MPIU_DBG_OUT_FMT(DATATYPE,(MPIU_DBG_FDEST,"# %sindexed ct = %d:",
 			    MPIDI_Datatype_depth_spacing(depth),
 			    ints[0]));
-	    for (i=0; i < acount && i < ints[0]; i++) {
+	    for (i=0; i < account && i < ints[0]; i++) {
 		MPIU_DBG_OUT_FMT(DATATYPE,(MPIU_DBG_FDEST,
 		         "# %s  indexed [%d]: blk = %d, disp = %d\n",
 				MPIDI_Datatype_depth_spacing(depth),
@@ -598,14 +598,14 @@ void MPIDI_Datatype_contents_printf(MPI_Datatype type,
 				ints[i+(cp->nr_ints/2)+1]));
 		MPIDI_Datatype_contents_printf(*types,
 					       depth + 1,
-					       acount);
+					       account);
 	    }
 	    __mpidi_datatype_free_and_return;
 	case MPI_COMBINER_HINDEXED:
 	    MPIU_DBG_OUT_FMT(DATATYPE,(MPIU_DBG_FDEST,"# %shindexed ct = %d:",
 			    MPIDI_Datatype_depth_spacing(depth),
 			    ints[0]));
-	    for (i=0; i < acount && i < ints[0]; i++) {
+	    for (i=0; i < account && i < ints[0]; i++) {
 		MPIU_DBG_OUT_FMT(DATATYPE,(MPIU_DBG_FDEST,
 		            "# %s  hindexed [%d]: blk = %d, disp = " MPI_AINT_FMT_DEC_SPEC "\n",
 				MPIDI_Datatype_depth_spacing(depth),
@@ -614,14 +614,14 @@ void MPIDI_Datatype_contents_printf(MPI_Datatype type,
 				(MPI_Aint) aints[i]));
 		MPIDI_Datatype_contents_printf(*types,
 					       depth + 1,
-					       acount);
+					       account);
 	    }
 	    __mpidi_datatype_free_and_return;
 	case MPI_COMBINER_STRUCT:
 	    MPIU_DBG_OUT_FMT(DATATYPE,(MPIU_DBG_FDEST,"# %sstruct ct = %d:",
 			    MPIDI_Datatype_depth_spacing(depth),
 			    (int) ints[0]));
-	    for (i=0; i < acount && i < ints[0]; i++) {
+	    for (i=0; i < account && i < ints[0]; i++) {
 		MPIU_DBG_OUT_FMT(DATATYPE,(MPIU_DBG_FDEST,
 		           "# %s  struct[%d]: blk = %d, disp = " MPI_AINT_FMT_DEC_SPEC "\n",
 				MPIDI_Datatype_depth_spacing(depth),
@@ -630,7 +630,7 @@ void MPIDI_Datatype_contents_printf(MPI_Datatype type,
 				(MPI_Aint) aints[i]));
 		MPIDI_Datatype_contents_printf(types[i],
 					       depth + 1,
-					       acount);
+					       account);
 	    }
 	    __mpidi_datatype_free_and_return;
 	default:

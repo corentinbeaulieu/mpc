@@ -733,7 +733,7 @@ typedef struct mpc_hardware_split_info_s
 	mpc_lowcomm_communicator_t *hwcomm;            /* communicator of hardware split topological level */
 	mpc_lowcomm_communicator_t *rootcomm;          /* communicator of master node topological level */
 
-	int **                      childs_data_count; /* For each topological level, an array containing the number of ranks under each rank of the same hwcomm of this level in the topological tree. */
+	int **                      children_data_count; /* For each topological level, an array containing the number of ranks under each rank of the same hwcomm of this level in the topological tree. */
 	int *                       send_data_count;   /* For each topological level, the sum of the child_data_count_array. */
 
 	int                         topo_rank;

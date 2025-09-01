@@ -368,7 +368,7 @@ int lcr_tbsm_iface_init(sctk_rail_info_t *iface)
         struct _mpc_lowcomm_config_struct_net_driver_tbsm tbsm_info =
                 iface->runtime_config_driver_config->driver.value.tbsm;
 
-        /* Init queuing mecanism */
+        /* Init queuing mechanism */
         mpc_common_spinlock_init(&(tbsm_iface->conn_lock), 0);
 
         /* Init capabilities */

@@ -230,7 +230,7 @@ int lcr_tcp_get_attr(sctk_rail_info_t *rail,
 
 	attr->iface.cap.am.max_iovecs = 6; //FIXME: arbitrary value...
 	attr->iface.cap.am.max_bcopy  = 0; /* FIXME: send() return whenever data has been
-										* copied to kernel buf. So, potentiel benefit
+										* copied to kernel buf. So, potential benefit
 										* compared to zcopy...
 										* TCP socket are blocking, hence
 	                                    * no need for buffered copy.

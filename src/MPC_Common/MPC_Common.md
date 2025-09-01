@@ -32,10 +32,10 @@ Up to now, MPC needed to be compiled with the application, a macro was in charge
 or renaming `main` symbol to `mpc_user_main`. The idea is to provide a way to
 replace at runtime the `main` symbol with needing a recompilation.
 
-As the `main` symbol cannot be overriden because its address is hard-written in
+As the `main` symbol cannot be overridden because its address is hard-written in
 the `start` function, pre-compiled in `crt1.o`, file appended when the
 application is linked. the use of `LD_PRELOAD` is useless. But among other
-program loading sequence function, one can be overriden because not contained
+program loading sequence function, one can be overridden because not contained
 in the binary. `__libc_start_main` is a loader function (that is why it is not
 included in the binary) and holds as first argument, the pointer to the main
 function (actually transmitted by `_start`). The idea of

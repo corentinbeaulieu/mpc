@@ -1022,7 +1022,7 @@ void _mpc_topology_get_pu_neighborhood(hwloc_topology_t target_topo, int cpuid, 
 
 	assume(currentCPU!=NULL);
 
-	/* alloc size for retreiving objects. We could also use a static array */
+	/* alloc size for retrieving objects. We could also use a static array */
 	objs = sctk_malloc( nb_cpus * sizeof( hwloc_obj_t ) );
 	assert( objs != NULL );
 
@@ -1129,7 +1129,7 @@ int mpc_topology_unguided_compute_color(int *colors, int *cpuids, int size)
 				{
 					if(mpc_common_get_node_count() > 1)
 					{
-						/* create color with node id and pu id to be globaly unique */
+						/* create color with node id and pu id to be globally unique */
 						char str_logical_idx[512];
 						char str_node_idx[512];
 						sprintf(str_logical_idx, "%d", k);

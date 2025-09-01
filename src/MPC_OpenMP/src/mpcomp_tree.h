@@ -84,7 +84,7 @@ static inline void _mpc_omp_thread_infos_init( mpc_omp_thread_t *thread ) {
 int mpc_omp_tree_array_get_neighbor( int globalRank, int i );
 int mpc_omp_tree_array_ancestor_get( int globalRank, int depth );
 
-void _mpc_omp_tree_task_check_neigborhood( void );
+void _mpc_omp_tree_task_check_neighborhood( void );
 
 /**************
  * TREE ARRAY *

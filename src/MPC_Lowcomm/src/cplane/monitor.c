@@ -1414,7 +1414,7 @@ static inline _mpc_lowcomm_client_ctx_t *__get_closest_in_set(struct _mpc_lowcom
 {
 	/* First approach client scan */
 	_mpc_lowcomm_client_ctx_t *ctx          = NULL;
-	_mpc_lowcomm_client_ctx_t *ellected_ctx = NULL;
+	_mpc_lowcomm_client_ctx_t *elected_ctx = NULL;
 
 	int has_routes = 0;
 	mpc_lowcomm_peer_uid_t current_route_uid = 0;
@@ -1434,7 +1434,7 @@ static inline _mpc_lowcomm_client_ctx_t *__get_closest_in_set(struct _mpc_lowcom
 				{
 					/* We have one pick it if closer */
 					current_route_uid = ctx->uid;
-					ellected_ctx      = ctx;
+					elected_ctx      = ctx;
 					has_routes = 1;
 				}
 			}
@@ -1447,7 +1447,7 @@ static inline _mpc_lowcomm_client_ctx_t *__get_closest_in_set(struct _mpc_lowcom
 		if(!has_routes)
 		{
 			/* Peer is in my set do direct (case where all connections are not set or closed) */
-			ellected_ctx = _mpc_lowcomm_monitor_get_client(monitor, dest, _MPC_LOWCOMM_MONITOR_GET_CLIENT_DIRECT, retcode);
+			elected_ctx = _mpc_lowcomm_monitor_get_client(monitor, dest, _MPC_LOWCOMM_MONITOR_GET_CLIENT_DIRECT, retcode);
 		}
 
 	}
@@ -1455,7 +1455,7 @@ static inline _mpc_lowcomm_client_ctx_t *__get_closest_in_set(struct _mpc_lowcom
 
 	/* If we are here we must be from another set to we send to root rank if we are not root
 	   and if we are root we connect to remote root */
-	if(!ellected_ctx)
+	if(!elected_ctx)
 	{
 		if(mpc_lowcomm_peer_get_rank(mpc_lowcomm_monitor_get_uid()) == 0)
 		{
@@ -1472,11 +1472,11 @@ static inline _mpc_lowcomm_client_ctx_t *__get_closest_in_set(struct _mpc_lowcom
 		}
 	}
 
-	if(ellected_ctx != NULL)
+	if(elected_ctx != NULL)
 	{
 		*retcode = MPC_LOWCOMM_MONITOR_RET_SUCCESS;
 		/* We found a set member to route to */
-		return ellected_ctx;
+		return elected_ctx;
 	}
 
 	//mpc_common_debug_error("NO route");
@@ -1871,7 +1871,7 @@ static inline _mpc_lowcomm_peer_t * __gen_wrap_for_peer(mpc_lowcomm_peer_uid_t d
 * SET EXCHANGE *
 ****************/
 
-static inline _mpc_lowcomm_monitor_wrap_t *__generate_set_decription(mpc_lowcomm_peer_uid_t dest,
+static inline _mpc_lowcomm_monitor_wrap_t *__generate_set_description(mpc_lowcomm_peer_uid_t dest,
                                                                      mpc_lowcomm_set_uid_t requested_set,
                                                                      int is_response)
 {
@@ -1935,7 +1935,7 @@ static inline _mpc_lowcomm_monitor_wrap_t *__generate_set_decription(mpc_lowcomm
 _mpc_lowcomm_monitor_wrap_t *_mpc_lowcomm_monitor_command_request_set_info(mpc_lowcomm_peer_uid_t dest)
 {
 	/* This is a request for remote set info also sending our own data */
-	return __generate_set_decription(dest, __monitor.process_set->gid, 0);
+	return __generate_set_description(dest, __monitor.process_set->gid, 0);
 }
 
 mpc_lowcomm_monitor_response_t mpc_lowcomm_monitor_get_set_info(mpc_lowcomm_peer_uid_t target_peer,
@@ -1979,7 +1979,7 @@ _mpc_lowcomm_monitor_wrap_t *_mpc_lowcomm_monitor_command_return_set_info(mpc_lo
                                                                           uint64_t response_index,
                                                                           mpc_lowcomm_set_uid_t requested_set)
 {
-	_mpc_lowcomm_monitor_wrap_t *cmd = __generate_set_decription(dest, requested_set, 1);
+	_mpc_lowcomm_monitor_wrap_t *cmd = __generate_set_description(dest, requested_set, 1);
 
 	cmd->match_key = response_index;
 
@@ -2023,7 +2023,7 @@ mpc_lowcomm_monitor_response_t mpc_lowcomm_monitor_ping(mpc_lowcomm_peer_uid_t d
 	if(!resp)
 	{
         *ret = MPC_LOWCOMM_MONITOR_RET_NOT_REACHABLE;
-		mpc_common_debug_warning("_mpc_lowcomm_monitor_ping timed out when targetting %llu", dest);
+		mpc_common_debug_warning("_mpc_lowcomm_monitor_ping timed out when targeting %llu", dest);
 	}
 
 	return (mpc_lowcomm_monitor_response_t)resp;
@@ -2230,7 +2230,7 @@ mpc_lowcomm_monitor_response_t mpc_lowcomm_monitor_comm_info(mpc_lowcomm_peer_ui
 	if(!resp)
 	{
         *ret = MPC_LOWCOMM_MONITOR_RET_NOT_REACHABLE;
-		mpc_common_debug_warning("mpc_lowcomm_monitor_comm_info timed out when targetting %llu", dest);
+		mpc_common_debug_warning("mpc_lowcomm_monitor_comm_info timed out when targeting %llu", dest);
 	}
 
 	return (mpc_lowcomm_monitor_response_t)resp;
@@ -2475,7 +2475,7 @@ mpc_lowcomm_monitor_response_t mpc_lowcomm_monitor_connectivity(mpc_lowcomm_peer
 
 	if(!resp)
 	{
-		mpc_common_debug_warning("mpc_lowcomm_monitor_connectivity timed out when targetting %u", dest);
+		mpc_common_debug_warning("mpc_lowcomm_monitor_connectivity timed out when targeting %u", dest);
 	}
 
 	return (mpc_lowcomm_monitor_response_t)resp;
@@ -2502,7 +2502,7 @@ int _mpc_lowcomm_monitor_command_register_peer_info(mpc_lowcomm_monitor_args_t *
 	return 0;
 }
 
-static inline _mpc_lowcomm_monitor_wrap_t *__generate_peer_decription(mpc_lowcomm_peer_uid_t dest,
+static inline _mpc_lowcomm_monitor_wrap_t *__generate_peer_description(mpc_lowcomm_peer_uid_t dest,
                                                                       int is_response)
 {
 	_mpc_lowcomm_monitor_wrap_t * cmd = NULL;
@@ -2523,7 +2523,7 @@ static inline _mpc_lowcomm_monitor_wrap_t *__generate_peer_decription(mpc_lowcom
 _mpc_lowcomm_monitor_wrap_t *_mpc_lowcomm_monitor_command_return_peer_info(mpc_lowcomm_peer_uid_t dest,
                                                                            uint64_t response_index)
 {
-	_mpc_lowcomm_monitor_wrap_t *resp = __generate_peer_decription(dest, 1);
+	_mpc_lowcomm_monitor_wrap_t *resp = __generate_peer_description(dest, 1);
 
 	resp->match_key = response_index;
 
@@ -2535,7 +2535,7 @@ mpc_lowcomm_monitor_response_t mpc_lowcomm_monitor_command_get_peer_info(mpc_low
                                                                          mpc_lowcomm_monitor_retcode_t *ret)
 {
 	/* Add ourselves in peer content */
-	_mpc_lowcomm_monitor_wrap_t *peer_cmd = __generate_peer_decription(dest, 0);
+	_mpc_lowcomm_monitor_wrap_t *peer_cmd = __generate_peer_description(dest, 0);
 
 	/* Request for remote */
 	peer_cmd->content->peer.requested_peer = requested_peer;
@@ -2553,7 +2553,7 @@ mpc_lowcomm_monitor_response_t mpc_lowcomm_monitor_command_get_peer_info(mpc_low
 
 	if(!resp)
 	{
-		mpc_common_debug_warning("_mpc_lowcomm_monitor_command_request_peer_info timed out when targetting %u", dest);
+		mpc_common_debug_warning("_mpc_lowcomm_monitor_command_request_peer_info timed out when targeting %u", dest);
 	}
 	else
 	{

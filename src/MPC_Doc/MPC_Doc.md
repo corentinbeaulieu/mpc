@@ -14,7 +14,7 @@ The list of markdown files is as follows :
 * `GETTING-STARTED.md`: A quick guide to help users to step in to MPC and deploy
   a basic environment to build & run MPI/OpenMP applications in various
   combinations of thread-based/process-based modes.
-* `INSTALL.md`: will go deeper to detail all the possibilites of installing the
+* `INSTALL.md`: will go deeper to detail all the possibilities of installing the
   framework
 * `MAINTAINERS`: contains the whole list of constributors alongside with the
   people to contact in case of bugs/issues/feature-requests.
@@ -28,7 +28,7 @@ named after the module name (for instance `MPC_Doc.md` for the MPCi\_Doc module)
 and describes directories and main concepts provided at this location. You are
 free to open and edit them as necessary to make them as accurate as possible.
 
-Here a list of all Markdown files (to be upated):
+Here a list of all Markdown files (to be updated):
 - `MPC_MPI.md`
 - `MPC_Lowcomm.md`
 - `MPC_Tools.md`

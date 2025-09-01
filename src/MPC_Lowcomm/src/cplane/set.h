@@ -134,7 +134,7 @@ int _mpc_lowcomm_set_contains(_mpc_lowcomm_set_t * set, mpc_lowcomm_peer_uid_t p
 int _mpc_lowcomm_set_iterate(int (*set_cb)(mpc_lowcomm_monitor_set_t set, void *arg), void *arg);
 
 /**
- * @brief Retun a list of process set root UIDs (current is always first)
+ * @brief Return a list of process set root UIDs (current is always first)
  *
  * @param root_table_len the length of the returned table
  * @return mpc_lowcomm_peer_uid_t* the table of process root (current first)

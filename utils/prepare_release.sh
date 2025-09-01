@@ -313,7 +313,7 @@ Arguments :
     --target=X          Specify destination for rpm package. Set to release/pkgs by default
 
 Options :
-    --extract-only      Look for active image of specified distribution and retreives rpm package.
+    --extract-only      Look for active image of specified distribution and retrieves rpm package.
     --clean             Clean directories and docker, then exits.
     --help              Print this documentation string, then exits.
 EOF

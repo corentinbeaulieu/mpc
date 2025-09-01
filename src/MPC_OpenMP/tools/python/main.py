@@ -144,7 +144,7 @@ def main():
     passes_name = sorted(passes_name, key=lambda pass_name: PASSES_RANK[pass_name])
     print("Using passes in order: {}".format(passes_name))
 
-    # instanciate passes
+    # instantiate passes
     passes = []
     for pass_name in passes_name:
         passes.append(PASS_CLASSES_BY_NAME[pass_name]())

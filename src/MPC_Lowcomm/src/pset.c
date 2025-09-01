@@ -36,7 +36,7 @@
 struct _mpc_lowcomm_pset_list_entry
 {
 	int                                  is_comm_self;
-	struct mpc_lowcomm_proces_set_s      pset;
+	struct mpc_lowcomm_process_set_s      pset;
 	struct _mpc_lowcomm_pset_list_entry *next;
 };
 

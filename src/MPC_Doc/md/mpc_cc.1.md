@@ -32,7 +32,7 @@ $ mpc_cc my_mpi_code.c
 
 Here will be presented options allowed to be passed as argument to the wrapper
 command. All native options targeting the underlying compiler can be provided
-transparently, any unkown options from MPC's point of view is discretly
+transparently, any unknown options from MPC's point of view is discretly
 forwarded to the final compiler. There is only one collision in option name, for
 the **\-\-help**, which is caught by the wrapper to print its own help. To avoid
 long output, the help from the underlying compiler is not shown. To display the
@@ -77,7 +77,7 @@ the compilafion flags, it could be better to look for the **\-\-showme** option.
 compiler. The following values for *token* are accepted:
 
     - *compile* : displays compilation flags for a translation unit to be built.
-    - *link*: displays linking flags for the programm to be assembled.
+    - *link*: displays linking flags for the program to be assembled.
     - *command*: displays the absolute path to the underlying compiler. This
       last value is equivalent to what **mpc\_compiler\_manager** is able to do.
 
@@ -104,11 +104,11 @@ different copies for each MPI 'process' (becoming threads in a thread-based
 context). This flag will enable compilation optimisations, but does not limit
 the application to be run in thread-base mode only. the **\-\-fnompc-privatize**
 only as an 'explicit' interest. If specified multiples times, only the last
-occurence prevails.
+occurrence prevails.
 
 **-fmpc-tlsopt**, **-fnompc-tlsopt**
 : Because global/variables are translated into multi-level TLS variables
-(ExTLS), the overhead is higher. To reduce this overhead, the same methodoly
+(ExTLS), the overhead is higher. To reduce this overhead, the same methodology
 used for pthread TLS variables is applied to 'ExTLS' variables. Multiple
 approaches exist to access a TLS variable, depending the DSO it is coming from,
 the number of access in an instruction subset, etc. These approaches can be
@@ -124,10 +124,10 @@ One ont them is the way they can be initialized before the program starts. FOr
 example, such code below is allowed for global/static variable but clearly
 forbidden when initializing a TLS variables (ExTLS or not) : Because the value
 of *b* cannot be determined statically (as *a* is a TLS too and the value became
-dynamic), the C standard fordids the dynamic initialiation of variables before
+dynamic), the C standard fordids the dynamic initialization of variables before
 the call to the main() function -- while it is permitted in C++. As this code
 can be valid with global variables, the thread-based approach and the
-privatization of global variables cannot be limited by that. MPC provies a
+privatization of global variables cannot be limited by that. MPC provides a
 plugin to create such a dynamic initialization when necessary. the
 **-fnompc-plugin** explicitly disable such plugin, which might be useful in some
 situations. the **-fmpc-plugin** is implied by default for C code only and is
@@ -151,7 +151,7 @@ rewrite of the symbol afterwards, through the `objcopy \-\-redefine-sym` tool.
 : Enable of disable the support of OpenMP pragma directives. As the OpenMP
 semantics needs to be enlarged for MPC purposes (threadprivate variables need to
 be promoted for instance), is option is caught by the wrapper before being
-forwared to the underlying compiler. Furthermore, depending on the vendor (GCC,
+forwarded to the underlying compiler. Furthermore, depending on the vendor (GCC,
 Intel) the proper option is set (-fopenmp vs -openmp) without requiring any
 modification from the command-line.
 

@@ -408,16 +408,16 @@ int mqs_setup_operation_iterator(mqs_process *pprocess, int opclass)
 
 		if(do_recv_queue)
 		{
-			mpc_common_spinlock_lock(&ptp->incomming_recv.lock);
-			__walk_msg_list_to_process(ptp->incomming_recv.list, process, op, same_proc, 1);
-			mpc_common_spinlock_unlock(&ptp->incomming_recv.lock);
+			mpc_common_spinlock_lock(&ptp->incoming_recv.lock);
+			__walk_msg_list_to_process(ptp->incoming_recv.list, process, op, same_proc, 1);
+			mpc_common_spinlock_unlock(&ptp->incoming_recv.lock);
 		}
 
 		if(do_send_queue)
 		{
-			mpc_common_spinlock_lock(&ptp->incomming_send.lock);
-			__walk_msg_list_to_process(ptp->incomming_send.list, process, op, same_proc, 0);
-			mpc_common_spinlock_unlock(&ptp->incomming_send.lock);
+			mpc_common_spinlock_lock(&ptp->incoming_send.lock);
+			__walk_msg_list_to_process(ptp->incoming_send.list, process, op, same_proc, 0);
+			mpc_common_spinlock_unlock(&ptp->incoming_send.lock);
 		}
 	}
 

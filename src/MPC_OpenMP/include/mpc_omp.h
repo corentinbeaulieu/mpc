@@ -139,7 +139,7 @@ extern "C" {
 
     typedef enum    mpc_omp_callback_scope_s
     {
-        /* callbacks is thread-related (registerd and called for each threads) */
+        /* callbacks is thread-related (registered and called for each threads) */
         MPC_OMP_CALLBACK_SCOPE_THREAD,
 
         /* callback is instance-related (registered and called once per instance) */
@@ -177,7 +177,7 @@ extern "C" {
      *
      * The **repeat** clause defines how many times should the region run.
      *     - `repeat(until: event-handle)` will make the region run as long
-     *      as the event represented by `event-handle` is not fullfiled.
+     *      as the event represented by `event-handle` is not fulfilled.
      *     - `repeat(n > 0)` will make the region run `n` times.
      *
      *  Default value is `repeat(1)`

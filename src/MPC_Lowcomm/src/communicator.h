@@ -34,7 +34,7 @@
 #define MPC_INITIAL_TOPO_COMMS_SIZE    10
 
 /**
- * @brief This is the struct for the informations needed for topological collectives
+ * @brief This is the struct for the information needed for topological collectives
  */
 typedef struct mpc_lowcomm_topo_comms
 {

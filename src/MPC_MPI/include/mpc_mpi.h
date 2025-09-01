@@ -436,7 +436,7 @@ extern "C"
 #define MPIX_ERR_PROC_FAILED            101 /* Process failure */
 #define MPIX_ERR_PROC_FAILED_PENDING    102 /* A failure has caused this request
 	                                     * to be pending */
-#define MPIX_ERR_REVOKED                103 /* The communciation object has been revoked */
+#define MPIX_ERR_REVOKED                103 /* The communication object has been revoked */
 #define MPICH_ERR_LAST_MPIX             103
 
 
@@ -589,13 +589,13 @@ typedef enum
 {
 	MPC_T_PVAR_CLASS_NONE = -1,     /**<< Internal value to catch uninitialized */
 	MPI_T_PVAR_CLASS_STATE,         /**<< A set of discrete states */
-	MPI_T_PVAR_CLASS_LEVEL,         /**<< Utilization of a ressource */
-	MPI_T_PVAR_CLASS_SIZE,          /**<< The size of a ressource */
-	MPI_T_PVAR_CLASS_PERCENTAGE,    /**<< The percentage of a ressource use */
-	MPI_T_PVAR_CLASS_HIGHWATERMARK, /**<< High use of a ressource */
-	MPI_T_PVAR_CLASS_LOWWATERMARK,  /**<< Low use of a ressource */
-	MPI_T_PVAR_CLASS_COUNTER,       /**<< Number of occurences of an event */
-	MPI_T_PVAR_CLASS_AGGREGATE,     /**<< Aggregated value of ressource */
+	MPI_T_PVAR_CLASS_LEVEL,         /**<< Utilization of a resource */
+	MPI_T_PVAR_CLASS_SIZE,          /**<< The size of a resource */
+	MPI_T_PVAR_CLASS_PERCENTAGE,    /**<< The percentage of a resource use */
+	MPI_T_PVAR_CLASS_HIGHWATERMARK, /**<< High use of a resource */
+	MPI_T_PVAR_CLASS_LOWWATERMARK,  /**<< Low use of a resource */
+	MPI_T_PVAR_CLASS_COUNTER,       /**<< Number of occurrences of an event */
+	MPI_T_PVAR_CLASS_AGGREGATE,     /**<< Aggregated value of resource */
 	MPI_T_PVAR_CLASS_TIMER,         /**<< Aggregate time spent executing something */
 	MPI_T_PVAR_CLASS_GENERIC        /**<< A generic class */
 } MPC_T_pvar_class;
@@ -7210,7 +7210,7 @@ int PMPI_Session_call_errhandler(MPI_Session session, int error_code);
 /**
  * @brief MPI function MPI_Session_init
  *
- * @param info info object to specify thread support level and MPI implementation specific ressources
+ * @param info info object to specify thread support level and MPI implementation specific resources
  * @param errhandler error handler to invloke in the event that an error is encountered during this function call
  * @param session new session
  * @return int MPI_SUCCESS on success other MPI_* error code otherwise
@@ -7262,7 +7262,7 @@ int PMPI_Session_get_num_psets(MPI_Session session, MPI_Info info, int *npset_na
  * @param session session
  * @param info info object
  * @param n index of the desired process set name
- * @param pset_len lenght of the pset name argument
+ * @param pset_len length of the pset name argument
  * @param pset_name name of the nth process set
  * @return int MPI_SUCCESS on success other MPI_* error code otherwise
  */

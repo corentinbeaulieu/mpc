@@ -40,7 +40,7 @@
 struct _mpc_ht_cell * _mpc_ht_cell_new( uint64_t key, void * data, struct _mpc_ht_cell * next );
 
 /**
- * @brief Intialize the content of a cell
+ * @brief Initialize the content of a cell
  *
  * @param cell The cell to be initialized
  * @param key The key of this cell

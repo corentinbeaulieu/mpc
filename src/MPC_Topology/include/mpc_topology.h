@@ -48,7 +48,7 @@ extern "C" {
 
         /**
          * @defgroup topology_interface_init Init and Release
-         * These functions are the initalization and release points for
+         * These functions are the initialization and release points for
          * the topology interface
          */
 
@@ -155,7 +155,7 @@ void mpc_topology_bind_to_process_cpuset();
 void mpc_topology_print(FILE *fd);
 
 /** @brief get the number of processing units (PU) as seen by MPC
- * @return Number of PUs in curent MPC topology
+ * @return Number of PUs in current MPC topology
  */
 int mpc_topology_get_pu_count(void);
 

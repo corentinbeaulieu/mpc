@@ -274,7 +274,7 @@ Added
 - **PRIV**: Definition of new C and C++ keywords
 - **PRIV**: Outlining of the exTLS library separating TLS from MPC
 - **PRIV**: Full support for global variable privatization in C
-- **PRIV**: Support for dynamic intializers in C to handle some TLS edge cases
+- **PRIV**: Support for dynamic initializers in C to handle some TLS edge cases
 - **PRIV**: New compiler manager (from command line)
 
 --------------------
@@ -406,7 +406,7 @@ Added
 
 Changed
 '''''''
-- **PRIV**: automtic privatization improvements
+- **PRIV**: automatic privatization improvements
 - **MISC**: "Performance optimizations"
 
 Fixed

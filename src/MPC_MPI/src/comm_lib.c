@@ -235,7 +235,7 @@ static inline void __mpc_cl_request_progress(mpc_lowcomm_request_t *request)
 /* MPC per Thread context                                                   */
 /************************************************************************/
 
-/* Asyncronous Buffers Storage */
+/* Asynchronous Buffers Storage */
 
 #define MAX_MPC_BUFFERED_MSG    64
 
@@ -432,7 +432,7 @@ struct mpc_mpi_cl_per_mpi_process_ctx_s *___the_process_specific = NULL;
 
 static inline int __mpc_cl_egreq_progress_init(mpc_mpi_cl_per_mpi_process_ctx_t *tmp);
 
-/** \brief Initalizes a structure of type \ref mpc_mpi_cl_per_mpi_process_ctx_t
+/** \brief Initializes a structure of type \ref mpc_mpi_cl_per_mpi_process_ctx_t
  */
 static inline void ___mpc_cl_per_mpi_process_ctx_init(mpc_mpi_cl_per_mpi_process_ctx_t *tmp)
 {
@@ -456,7 +456,7 @@ static inline void ___mpc_cl_per_mpi_process_ctx_init(mpc_mpi_cl_per_mpi_process
 	__mpc_cl_per_communicator_set(tmp, per_comm_tmp, MPC_COMM_SELF);
 	/* Propagate initialization to the thread context */
 	mpc_mpi_cl_per_thread_ctx_init();
-	/* Set MPI status informations */
+	/* Set MPI status information */
 	tmp->init_done    = 0;
 	tmp->thread_level = -1;
 	/* Create the MPI_Info factory */
@@ -470,7 +470,7 @@ static inline void ___mpc_cl_per_mpi_process_ctx_init(mpc_mpi_cl_per_mpi_process
 #endif
 }
 
-/** \brief Relases a structure of type \ref mpc_mpi_cl_per_mpi_process_ctx_t
+/** \brief Releases a structure of type \ref mpc_mpi_cl_per_mpi_process_ctx_t
  */
 static inline void ___mpc_cl_per_mpi_process_ctx_release(mpc_mpi_cl_per_mpi_process_ctx_t *tmp)
 {
@@ -496,7 +496,7 @@ static inline void __mpc_cl_per_mpi_process_ctx_init()
 
 	/* If not allocate a new mpc_mpi_cl_per_mpi_process_ctx_t */
 	tmp = ( mpc_mpi_cl_per_mpi_process_ctx_t * )sctk_malloc(sizeof(mpc_mpi_cl_per_mpi_process_ctx_t) );
-	/* And initalize it */
+	/* And initialize it */
 	___mpc_cl_per_mpi_process_ctx_init(tmp);
 	/* Set the mpc_mpi_cl_per_mpi_process_ctx key in thread CTX */
 	__mpc_cl_per_thread_ctx_set_task_level(tmp);
@@ -627,7 +627,7 @@ struct mpc_mpi_cl_per_mpi_process_ctx_s *mpc_cl_per_mpi_process_ctx_get()
 /**
  * \brief Retrieves the pointer on the datatype array
  *
- * \return The adress of the datatype array
+ * \return The address of the datatype array
  */
 mpc_lowcomm_datatype_t _mpc_cl_per_mpi_process_ctx_user_datatype_array_get(void)
 {
@@ -1057,7 +1057,7 @@ int _mpc_cl_grequest_complete(mpc_lowcomm_request_t request)
 
 /* Utilities functions for this section are located in mpc_datatypes.[ch] */
 
-/** \brief This fuction releases a datatype
+/** \brief This function releases a datatype
  *
  *  This function call the right release function relatively to the
  *  datatype kind (contiguous or general) and then set the freed
@@ -1067,7 +1067,7 @@ int _mpc_cl_grequest_complete(mpc_lowcomm_request_t request)
 int _mpc_cl_type_free(mpc_lowcomm_datatype_t *datatype_p)
 {
 	SCTK_PROFIL_START(MPC_Type_free);
-	/* Dereference fo convenience */
+	/* Dereference for convenience */
 	mpc_lowcomm_datatype_t datatype = *datatype_p;
 	/* Retrieve task context */
 
@@ -1106,7 +1106,7 @@ int _mpc_cl_type_free(mpc_lowcomm_datatype_t *datatype_p)
 				                 "Tried to release an uninitialized datatype");
 			}
 
-			mpc_common_nodebug("Free general [%d] contructor %d", datatype,
+			mpc_common_nodebug("Free general [%d] constructor %d", datatype,
 			                   general_type_target->context.combiner);
 
 			/* Free it */
@@ -1238,7 +1238,7 @@ int _mpc_cl_type_get_contents(mpc_lowcomm_datatype_t datatype, const int max_int
 	if(mpc_lowcomm_datatype_is_common(datatype) )
 	{
 		MPC_ERROR_REPORT(MPC_COMM_SELF, MPC_ERR_ARG,
-		                 "Cannot call MPI_Type_get_contents on a defaut datatype");
+		                 "Cannot call MPI_Type_get_contents on a default datatype");
 	}
 
 	/* Retrieve the context */
@@ -1303,7 +1303,7 @@ int _mpc_cl_type_get_contents(mpc_lowcomm_datatype_t datatype, const int max_int
  */
 static inline size_t __mpc_cl_datatype_get_size(mpc_lowcomm_datatype_t datatype)
 {
-	/* Exeptions */
+	/* Exceptions */
 	if(datatype == MPC_DATATYPE_NULL || datatype == MPC_UB || datatype == MPC_LB)
 	{
 		return 0;
@@ -1624,7 +1624,7 @@ int _mpc_cl_type_commit(mpc_lowcomm_datatype_t *datatype_p)
 	ierr = _mpc_dt_general_optimize(*datatype_p);
 
 	/* Commit the datatype */
-	(*datatype_p)->is_commited = true;
+	(*datatype_p)->is_committed = true;
 
 	return ierr;
 }
@@ -1698,13 +1698,13 @@ int _mpc_cl_general_datatype(mpc_lowcomm_datatype_t *datatype,
 	return ierr;
 }
 
-/** \brief Extract general datatype informations
+/** \brief Extract general datatype information
  *  On non general datatypes res is set to 0
  *  and datatype contains garbage
  *
  *  \param datatype Datatype to analyze
  *  \param res set to 0 if not a general datatype, 1 if general
- *  \param output_datatype A general datatype filled with all the informations
+ *  \param output_datatype A general datatype filled with all the information
  *
  */
 int _mpc_cl_general_datatype_try_get_info(mpc_lowcomm_datatype_t datatype, int *res,
@@ -2186,7 +2186,7 @@ static inline void __mpc_cl_enter_tmp_directory()
 }
 
 /************************************************************************/
-/* Topology Informations                                                */
+/* Topology Information                                                */
 /************************************************************************/
 
 int _mpc_cl_comm_rank(mpc_lowcomm_communicator_t comm, int *rank)
@@ -2529,7 +2529,7 @@ static inline void wfv_waitall(void *arg)
  * the same type, to do so we check if they have the same wait_fn.
  *
  * We try not to be intrusive as we are in the waitall critical path
- * therefore we are progressivelly testing for our conditions
+ * therefore we are progressively testing for our conditions
  */
 static inline int _mpc_cl_waitall_Grequest(mpc_lowcomm_msg_count_t count,
                                            mpc_lowcomm_request_t *parray_of_requests[],
@@ -2587,7 +2587,7 @@ static inline int _mpc_cl_waitall_Grequest(mpc_lowcomm_msg_count_t count,
 
 		/* Here the timeout parameter is not obvious as for example
 		 *     ROMIO relies on Wtime which is not constrained by the norm
-		 *         is is just monotonous. Whe should have a scaling function
+		 *         is is just monotonous. We should have a scaling function
 		 *         which depends on the time source to be fair */
 		( ref_wait )(count, array_of_states, 1e9, &tmp_status);
 		sctk_free(array_of_states);
@@ -3257,7 +3257,7 @@ int _mpc_cl_checkpoint(mpc_lowcomm_checkpoint_state_t *state)
 		static OPA_int_t gen_current = OPA_INT_T_INITIALIZER(0);
 		static int *     task_generations;
 
-		/* init once the genration array */
+		/* init once the generation array */
 		if(OPA_cas_int(&init_once, 0, 1) == 0)
 		{
 			task_generations = ( int * )malloc(sizeof(int) * local_nbtasks);
@@ -3272,7 +3272,7 @@ int _mpc_cl_checkpoint(mpc_lowcomm_checkpoint_state_t *state)
 			}
 		}
 
-		/* ensure there won't be any overlapping betwen different MPC_Checkpoint() calls */
+		/* ensure there won't be any overlapping between different MPC_Checkpoint() calls */
 		while(OPA_load_int(&gen_current) < task_generations[local_tasknum])
 		{
 			mpc_thread_yield();
@@ -3310,7 +3310,7 @@ int _mpc_cl_checkpoint(mpc_lowcomm_checkpoint_state_t *state)
 			sctk_ft_checkpoint_finalize();
 			/* set gen_release to 0, prepare the end of current generation */
 			OPA_store_int(&gen_release, 0);
-			/* set gen_aquire to 0: unlock waiting tasks */
+			/* set gen_acquire to 0: unlock waiting tasks */
 			OPA_store_int(&gen_acquire, 0);
 		}
 		else
@@ -3330,7 +3330,7 @@ int _mpc_cl_checkpoint(mpc_lowcomm_checkpoint_state_t *state)
 
 		/* re-init the network at task level if necessary */
 		sctk_net_init_task_level(task_rank, mpc_topology_get_current_cpu() );
-		mpc_lowcomm_terminaison_barrier();
+		mpc_lowcomm_termination_barrier();
 
 		/* If I'm the last task to reach here, increment the global generation counter */
 		if(OPA_fetch_and_incr_int(&gen_release) == local_nbtasks - 1)
@@ -3383,7 +3383,7 @@ double _mpc_cl_wtick()
 }
 
 /************************************************************************/
-/* Pack managment                                                       */
+/* Pack management                                                       */
 /************************************************************************/
 
 int mpc_mpi_cl_open_pack(mpc_lowcomm_request_t *request)
@@ -3549,7 +3549,7 @@ int _mpc_cl_info_create(MPC_Info *info)
 	if(new_id < 0)
 	{
 		MPC_ERROR_REPORT(MPC_COMM_WORLD, MPC_ERR_INTERN,
-		                 "Failled to allocate new MPI_Info");
+		                 "Failed to allocate new MPI_Info");
 	}
 
 	/* Then set the new ID */
@@ -3569,7 +3569,7 @@ int _mpc_cl_info_free(MPC_Info *info)
 	{
 		/* Failed to delete no such info */
 		MPC_ERROR_REPORT(MPC_COMM_WORLD, MPC_ERR_INFO,
-		                 "Failled to delete MPI_Info");
+		                 "Failed to delete MPI_Info");
 	}
 
 			/* Delete was successful */
@@ -3589,10 +3589,10 @@ int _mpc_cl_info_set(MPC_Info info, const char *key, const char *value)
 	if(!cell)
 	{
 		/* We failed to locate the info */
-		MPC_ERROR_REPORT(MPC_COMM_WORLD, MPC_ERR_INFO, "Failled to get MPI_Info");
+		MPC_ERROR_REPORT(MPC_COMM_WORLD, MPC_ERR_INFO, "Failed to get MPI_Info");
 	}
 
-	/* Check for lenght boundaries */
+	/* Check for length boundaries */
 	size_t keylen   = strlen(key);
 	size_t valuelen = strlen(value);
 
@@ -3623,7 +3623,7 @@ int _mpc_cl_info_delete(MPC_Info info, const char *key)
 	{
 		/* We failed to locate the info */
 		MPC_ERROR_REPORT(MPC_COMM_WORLD, MPC_ERR_INFO,
-		                 "Failled to delete MPI_Info");
+		                 "Failed to delete MPI_Info");
 	}
 
 	int ret = MPC_Info_cell_delete(cell, ( char * )key);
@@ -3631,7 +3631,7 @@ int _mpc_cl_info_delete(MPC_Info info, const char *key)
 	if(ret)
 	{
 		MPC_ERROR_REPORT(MPC_COMM_WORLD, MPC_ERR_INFO_NOKEY,
-		                 " Failled to delete key");
+		                 " Failed to delete key");
 	}
 
 	MPC_ERROR_SUCCESS();
@@ -3650,7 +3650,7 @@ int _mpc_cl_info_get(MPC_Info info, const char *key, int valuelen, char *value,
 	{
 		/* We failed to locate the info */
 		MPC_ERROR_REPORT(MPC_COMM_WORLD, MPC_ERR_INFO,
-		                 "Failled to delete MPI_Info");
+		                 "Failed to delete MPI_Info");
 	}
 
 	MPC_Info_cell_get(cell, ( char * )key, value, valuelen, flag);
@@ -3671,7 +3671,7 @@ int _mpc_cl_info_get_nkeys(MPC_Info info, int *nkeys)
 	{
 		/* We failed to locate the info */
 		MPC_ERROR_REPORT(MPC_COMM_WORLD, MPC_ERR_INFO,
-		                 "Failled to get MPI_Info key count");
+		                 "Failed to get MPI_Info key count");
 	}
 
 	*nkeys = MPC_Info_key_count(cell->keys);
@@ -3690,7 +3690,7 @@ int _mpc_cl_info_get_count(MPC_Info info, int n, char *key)
 	{
 		/* We failed to locate the info */
 		MPC_ERROR_REPORT(MPC_COMM_WORLD, MPC_ERR_INFO,
-		                 "Failled to get MPI_Info key count");
+		                 "Failed to get MPI_Info key count");
 	}
 
 	/* Thry to get the nth entry */
@@ -3700,7 +3700,7 @@ int _mpc_cl_info_get_count(MPC_Info info, int n, char *key)
 	if(!keyEntry)
 	{
 		MPC_ERROR_REPORT(MPC_COMM_WORLD, MPC_ERR_INFO_NOKEY,
-		                 "Failled to retrieve an MPI_Info's key");
+		                 "Failed to retrieve an MPI_Info's key");
 	}
 
 			/* Found just snprintf the key */
@@ -3730,7 +3730,7 @@ int _mpc_cl_info_dup(MPC_Info info, MPC_Info *newinfo)
 	{
 		perror("sctk_alloc");
 		MPC_ERROR_REPORT(MPC_COMM_WORLD, MPC_ERR_INTERN,
-		                 "Failled to allocate temporary value buffer");
+		                 "Failed to allocate temporary value buffer");
 	}
 
 	int i = 0;
@@ -3774,7 +3774,7 @@ int _mpc_cl_info_get_valuelen(MPC_Info info, const char *key, int *valuelen, int
 	{
 		/* We failed to locate the info */
 		MPC_ERROR_REPORT(MPC_COMM_WORLD, MPC_ERR_INFO,
-		                 "Failled to get MPI_Info key count");
+		                 "Failed to get MPI_Info key count");
 	}
 
 	/* Retrieve the cell @ key */
@@ -3828,7 +3828,7 @@ int mpc_cl_move_to(int process, int cpuid)
 }
 
 /*****************************************
-* COMM LIB REGISTATION AND CONSTRUCTORS *
+* COMM LIB REGISTRATION AND CONSTRUCTORS *
 *****************************************/
 
 static void __init_basic_checks()

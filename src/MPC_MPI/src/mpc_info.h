@@ -31,7 +31,7 @@
 /**
  * \brief List of keys and values
  *
- *  This is the actual key container reffered to by \ref MPC_Info_cell which is a DL list
+ *  This is the actual key container referred to by \ref MPC_Info_cell which is a DL list
  * 	as it has to support deletion.
  */
 struct MPC_Info_key
@@ -61,7 +61,7 @@ struct MPC_Info_key * MPC_Info_key_init( char * key, char * value );
  */
 void MPC_Info_key_release( struct MPC_Info_key * tofree );
 
-/** \brief Frees a full list of key by calling \ref MPC_Info_key_release recursivelly
+/** \brief Frees a full list of key by calling \ref MPC_Info_key_release recursively
  *
  *  \param tofree HEAD of the list to be freed
  *
@@ -126,7 +126,7 @@ struct MPC_Info_key * MPC_Info_key_delete( struct MPC_Info_key * head, char * ke
  */
 struct MPC_Info_cell
 {
-	int rank; /**< Rank of the process which created the info just to make sure it is not passed arround */
+	int rank; /**< Rank of the process which created the info just to make sure it is not passed around */
 	int id;  /**< Identifier of the info in order to allow lookup by int */
 
 	struct MPC_Info_key * keys; /**< Here is the actual payload which is a list of keys */
@@ -143,9 +143,9 @@ struct MPC_Info_cell * MPC_Info_cell_init( int id );
 
 /** \brief Releases an info cell and all its keys
  *  \param cell pointer to the cell to be released
- *  \return a pointer to a newly initalized cell
+ *  \return a pointer to a newly initialized cell
  *
- * 	\warning Be carefull the cell is not freed (only its content)
+ * 	\warning Be careful the cell is not freed (only its content)
  */
 void MPC_Info_cell_release( struct MPC_Info_cell * cell );
 
@@ -170,7 +170,7 @@ int MPC_Info_cell_get( struct MPC_Info_cell * cell , char * key , char * dest, i
  * 	\param cell Cell where to store the data
  *  \param key Unique key of where to store the data
  *  \param value Buffer where the string to store is located (NULL terminated !)
- *  \param overwrite defines if the data must be overwriten or not if already present
+ *  \param overwrite defines if the data must be overwritten or not if already present
  *
  *  \warning The maximum length of the value parameter is set by the MPC_MAX_INFO_VAL value
  *
@@ -202,7 +202,7 @@ int MPC_Info_cell_delete( struct MPC_Info_cell * cell , char * key );
  *
  *  This structure is in charge of matching the
  *  opaque int (aka MPI_Info or MPC_Info) identifier
- *  usign this trick we do not have to do any conversion when
+ *  using this trick we do not have to do any conversion when
  *  going back and forth the fortran interface
  *
  *  This factory is placed in the \ref mpc_mpi_cl_per_mpi_process_ctx_s structure

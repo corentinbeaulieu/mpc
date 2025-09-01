@@ -167,7 +167,7 @@ td_err_e td_is_ta_initialized (const td_thragent_t *ta) ;
 td_err_e td_is_ta_ready (const td_thragent_t *ta) ;
 
 void tdb_log (const char *fmt, ...) ;
-void tdb_formated_assert_print (FILE * stream, const int line,
+void tdb_formatted_assert_print (FILE * stream, const int line,
                                  const char *file, const char *func,
                                  const char *fmt, ...) ;
 

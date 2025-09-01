@@ -107,7 +107,7 @@ typedef struct lcr_ptl_ep_info _mpc_lowcomm_endpoint_info_ptl_t;
 
 typedef struct lcr_ptl_mem {
         void                 *start;          /* Start address of the memory.           */
-        uint32_t              muid;           /* Memory Unique Idendifier.              */
+        uint32_t              muid;           /* Memory Unique Identifier.              */
         mpc_list_elem_t       elem;           /* Element in list.                       */
         ptl_handle_ct_t       cth;            /* Counter handle.                        */
         ptl_handle_md_t       mdh;            /* Memory Descriptor handle.              */
@@ -230,7 +230,7 @@ typedef struct lcr_ptl_rail_info {
         lcr_ptl_ts_ctx_t            am_ctx;
         lcr_ptl_ts_ctx_t            tag_ctx;
         lcr_ptl_os_ctx_t            os_ctx;
-        unsigned                    features; /* Instanciated features. */
+        unsigned                    features; /* Instantiated features. */
         mpc_mempool_t              *ops_pool;
 } lcr_ptl_rail_info_t;
 typedef struct lcr_ptl_rail_info _mpc_lowcomm_ptl_rail_info_t;

@@ -153,7 +153,7 @@ lcp_status_ptr_t lcp_tag_recv_nb(lcp_manager_h mngr, lcp_task_h task, void *buff
                 /* Data has been copied out, so container can be released */
                 lcp_container_put(match);
 	} else {
-                mpc_common_debug_error("LCP TAG: unkown match flag=%x.",
+                mpc_common_debug_error("LCP TAG: unknown match flag=%x.",
                                        match->flags);
 		rc = MPC_LOWCOMM_ERROR;
 	}

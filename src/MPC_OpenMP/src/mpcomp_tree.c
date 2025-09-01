@@ -136,7 +136,7 @@ int mpc_omp_tree_array_get_neighbor( const int globalRank, const int index )
 		assert( i <= thread->father_node->depth + 1 );
 		const int base = treeShape[currentDepth - i - 1];
 		const int level_size = treeNumNodePerDepth[i];
-		/* Somme de I avec le codage de 0 dans le vecteur de l'arbre */
+		/* Some de I avec le codage de 0 dans le vecteur de l'arbre */
 		v[i] = r % base;
 		r /= base;
 		/* Addition sans retenue avec le vecteur de n */
@@ -197,7 +197,7 @@ int mpc_omp_tree_array_ancestor_get( const int globalRank, const int depth )
 }
 
 /* Recursive call for checking neighbourhood from node n */
-static void ___tree_task_check_neigborhood( mpc_omp_node_t *node )
+static void ___tree_task_check_neighborhood( mpc_omp_node_t *node )
 {
 	int i;
 	mpc_omp_thread_t  __UNUSED__ *thread = NULL;
@@ -215,14 +215,14 @@ static void ___tree_task_check_neigborhood( mpc_omp_node_t *node )
 			/* Call recursively for all children nodes */
 			for ( i = 0; i < node->nb_children; i++ )
 			{
-				___tree_task_check_neigborhood( node->children.node[i] );
+				___tree_task_check_neighborhood( node->children.node[i] );
 			}
 
 			break;
 
 		case MPC_OMP_CHILDREN_LEAF:
 
-			/* All the children are leafs */
+			/* All the children are leaves */
 			for ( i = 0; i < node->nb_children; i++ )
 			{
 				mpc_omp_mvp_t *  __UNUSED__ mvp = node->children.leaf[i];
@@ -237,14 +237,14 @@ static void ___tree_task_check_neigborhood( mpc_omp_node_t *node )
 }
 
 /* Check all neighbour of all nodes */
-void _mpc_omp_tree_task_check_neigborhood( void )
+void _mpc_omp_tree_task_check_neighborhood( void )
 {
 	mpc_omp_thread_t *thread;
 	/* Retrieve the current thread information */
 	assert( mpc_omp_tls );
 	thread = ( mpc_omp_thread_t * ) mpc_omp_tls;
 	assert( thread->instance );
-	___tree_task_check_neigborhood( thread->instance->root );
+	___tree_task_check_neighborhood( thread->instance->root );
 }
 
 /**************
@@ -1146,7 +1146,7 @@ static inline void *__tree_mvp_init( void *args )
 	me->type = MPC_OMP_META_TREE_LEAF;
 	me->user_pointer = ( void * ) new_mvp;
 
-	// Transfert to slave_node_leaf function ...
+	// Transfer to slave_node_leaf function ...
 	current_depth = top_level - 1;
 	target_node_rank = me->fathers_array[current_depth];
 
@@ -1217,7 +1217,7 @@ mpc_omp_init_seq_region() {
     assert( new_mvp );
     memset( new_mvp, 0, sizeof(mpc_omp_mvp_t) );
 
-    /* Set PU on wich microvp is running */
+    /* Set PU on which microvp is running */
     new_mvp->pu_id = mpc_topology_get_pu();
 
     /* Create associated initial thread */

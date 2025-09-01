@@ -828,7 +828,7 @@ mpc_lowcomm_group_t *mpc_lowcomm_group_difference(mpc_lowcomm_group_t *grp, mpc_
 	return _mpc_lowcomm_group_create(new_size, descs, 1);
 }
 
-mpc_lowcomm_group_t *mpc_lowcomm_group_instersection(mpc_lowcomm_group_t *grp, mpc_lowcomm_group_t *grp2)
+mpc_lowcomm_group_t *mpc_lowcomm_group_intersection(mpc_lowcomm_group_t *grp, mpc_lowcomm_group_t *grp2)
 {
 	/* We know that at most all members of grp remain */
 	_mpc_lowcomm_group_rank_descriptor_t *descs = sctk_malloc(grp->size * sizeof(_mpc_lowcomm_group_rank_descriptor_t) );
@@ -1037,7 +1037,7 @@ mpc_lowcomm_group_t * mpc_lowcomm_group_create(unsigned int size, int *comm_worl
 	{
 		if(_mpc_lowcomm_group_rank_descriptor_set(&cw_desc[i], comm_world_ranks[i]) != MPC_LOWCOMM_SUCCESS)
 		{
-			mpc_common_debug_fatal("An error occured when creating descriptor for RANK %d in COMM_WORLD", i);
+			mpc_common_debug_fatal("An error occurred when creating descriptor for RANK %d in COMM_WORLD", i);
 		}
 	}
 
@@ -1380,7 +1380,7 @@ mpc_lowcomm_group_t *_mpc_lowcomm_group_create_from_world_ranks(int size, int *w
 	{
 		if(_mpc_lowcomm_group_rank_descriptor_set(&desc[i], world_ranks[i]) != MPC_LOWCOMM_SUCCESS)
 		{
-			mpc_common_debug_fatal("An error occured when creating descriptor for RANK %d", i);
+			mpc_common_debug_fatal("An error occurred when creating descriptor for RANK %d", i);
 		}
 	}
 

@@ -52,7 +52,7 @@ static inline void __ptl_set_limits(ptl_ni_limits_t* l)
 		.max_eqs = INT_MAX,                    /* Max number of EQ allocated at any time */
 		.max_pt_index = INT_MAX,               /* Max PT index */
 		.max_iovecs = INT_MAX,                 /* max number of iovecs for a single MD */
-		.max_list_size = INT_MAX,              /* Max number of entrie for one PT entry */
+		.max_list_size = INT_MAX,              /* Max number of entries for one PT entry */
 		.max_triggered_ops = INT_MAX,          /* Max number of triggered ops */
 		/*.max_cids = INT_MAX,                   [> max number of CID's (?) <]*/
 		.max_msg_size = PTL_SIZE_MAX,          /* max message's size */
@@ -464,7 +464,7 @@ int lcr_ptl_iface_progress(sctk_rail_info_t *rail)
                         } else if (op->pti == srail->net.rma.pti) {
                                 _lcr_ptl_iface_process_event_rma(rail, &ev);
                         } else {
-                                mpc_common_debug_fatal("LCR PTL: unkown PTE index.");
+                                mpc_common_debug_fatal("LCR PTL: unknown PTE index.");
                         }
                         continue;
                 } else if (ret == PTL_EQ_EMPTY) {
@@ -533,7 +533,7 @@ lcr_ptl_rail_info_t lcr_ptl_hardware_init(sctk_ptl_interface_t iface)
 {
 
 	/* BXI specific We first need to make sure we do not exhaust command queues on the BXI
-	   by settign a few internal variables for CQs sharing */
+	   by setting a few internal variables for CQs sharing */
 	int local_proc_count = mpc_common_get_local_process_count();
 
 	if(local_proc_count >= 62)
@@ -607,7 +607,7 @@ static inline void _lcr_ptl_iface_init_driver_config(lcr_ptl_rail_info_t *srail,
 
 /* Initialize ptl resources needed for Active Message interface. It requires
  * both two-sided and one-sided portals context. Also, the EQ is shared among
- * all context so that it will be instanciated except if the only feature
+ * all context so that it will be instantiated except if the only feature
  * required is RMA. */
 static int _lcr_ptl_iface_init_am(lcr_ptl_rail_info_t *srail)
 {

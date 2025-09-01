@@ -193,14 +193,14 @@ const char * mpc_common_debug_get_basename(const char * path)
 
 int MPC_check_compatibility_lib( int major, int minor, int patch, char *pre )
 {
-	static char errro_msg[4096];
+	static char error_msg[4096];
 
 	if ( ( major != MPC_VERSION_MAJOR ) || ( minor != MPC_VERSION_MINOR ) || (patch != MPC_VERSION_PATCH) )
 	{
-		sprintf( errro_msg,
+		sprintf( error_msg,
 		         "MPC version used for this file (%d.%d.%d%s) differs from the library used for the link (%d.%d.%d%s)\n",
 		         major, minor, patch, pre, MPC_VERSION_MAJOR, MPC_VERSION_MINOR, MPC_VERSION_PATCH, MPC_VERSION_PRE );
-		mpc_common_debug_warning( errro_msg );
+		mpc_common_debug_warning( error_msg );
 		return 1;
 	}
 
@@ -457,7 +457,7 @@ static inline void __parse_log_filter_rules(void)
 
 			char buff[FILTER_MAX_SIZE];
 			(void)snprintf(buff,FILTER_MAX_SIZE, "%s", token);
-			char * trimed_token = mpc_common_trim(buff);
+			char * trimmed_token = mpc_common_trim(buff);
 
 
 			regmatch_t match[2];
@@ -465,27 +465,27 @@ static inline void __parse_log_filter_rules(void)
 			__log_filter_type_t filter_type = FILTER_NONE;
 			char * smatch = NULL;
 
-			if(regexec(&re_file, trimed_token, 2, match, 0) == 0)
+			if(regexec(&re_file, trimmed_token, 2, match, 0) == 0)
 			{
-				*(trimed_token + match[1].rm_eo) = '\0';
-				smatch = trimed_token + match[1].rm_so;
+				*(trimmed_token + match[1].rm_eo) = '\0';
+				smatch = trimmed_token + match[1].rm_so;
 				filter_type = FILTER_FILE;
-			}else if (regexec(&re_module, trimed_token, 2, match, 0) == 0)
+			}else if (regexec(&re_module, trimmed_token, 2, match, 0) == 0)
 			{
-				*(trimed_token + match[1].rm_eo) = '\0';
-				smatch = trimed_token + match[1].rm_so;
+				*(trimmed_token + match[1].rm_eo) = '\0';
+				smatch = trimmed_token + match[1].rm_so;
 				filter_type = FILTER_MODULE;
 			}
-			else if (regexec(&re_function, trimed_token, 2, match, 0) == 0)
+			else if (regexec(&re_function, trimmed_token, 2, match, 0) == 0)
 			{
-				*(trimed_token + match[1].rm_eo) = '\0';
-				smatch = trimed_token + match[1].rm_so;
+				*(trimmed_token + match[1].rm_eo) = '\0';
+				smatch = trimmed_token + match[1].rm_so;
 				filter_type = FILTER_FUNCTION;
 			}
 			else
 			{
 				/* No match it is a module */
-				smatch = trimed_token;
+				smatch = trimmed_token;
 				filter_type = FILTER_MODULE;
 			}
 
@@ -699,7 +699,7 @@ int mpc_common_debug_is_stderr_tty(){
 }
 
 /***************************************
- * MPC COMMON DEBUG INITALIZATION CODE *
+ * MPC COMMON DEBUG INITIALIZATION CODE *
  ***************************************/
 
 

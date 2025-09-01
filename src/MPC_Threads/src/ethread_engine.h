@@ -203,8 +203,8 @@ typedef struct _mpc_thread_ethread_virtual_processor_s
 	_mpc_thread_ethread_per_thread_t *         zombie_queue;
 	_mpc_thread_ethread_per_thread_t *         zombie_queue_tail;
 
-	volatile _mpc_thread_ethread_per_thread_t *incomming_queue;
-	volatile _mpc_thread_ethread_per_thread_t *incomming_queue_tail;
+	volatile _mpc_thread_ethread_per_thread_t *incoming_queue;
+	volatile _mpc_thread_ethread_per_thread_t *incoming_queue_tail;
 
 	volatile _mpc_thread_ethread_per_thread_t *current;
 	volatile _mpc_thread_ethread_per_thread_t *migration;
@@ -411,19 +411,19 @@ _mpc_thread_ethread_dequeue_task_for_run(_mpc_thread_ethread_virtual_processor_t
 }
 
 static inline void
-_mpc_thread_ethread_get_incomming_tasks(_mpc_thread_ethread_virtual_processor_t *vp)
+_mpc_thread_ethread_get_incoming_tasks(_mpc_thread_ethread_virtual_processor_t *vp)
 {
-	if(vp->incomming_queue != NULL)
+	if(vp->incoming_queue != NULL)
 	{
 		_mpc_thread_ethread_per_thread_t *head;
 		_mpc_thread_ethread_per_thread_t *tail;
 		mpc_common_spinlock_lock(&vp->spinlock);
-		if(vp->incomming_queue != NULL)
+		if(vp->incoming_queue != NULL)
 		{
-			head = (_mpc_thread_ethread_per_thread_t *)vp->incomming_queue;
-			tail = (_mpc_thread_ethread_per_thread_t *)vp->incomming_queue_tail;
-			vp->incomming_queue      = NULL;
-			vp->incomming_queue_tail = NULL;
+			head = (_mpc_thread_ethread_per_thread_t *)vp->incoming_queue;
+			tail = (_mpc_thread_ethread_per_thread_t *)vp->incoming_queue_tail;
+			vp->incoming_queue      = NULL;
+			vp->incoming_queue_tail = NULL;
 
 			if(vp->ready_queue_used != NULL)
 			{

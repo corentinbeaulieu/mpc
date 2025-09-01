@@ -40,8 +40,8 @@ extern "C"
 #include "mpc_common_debug.h"
 
 /********************  MACRO  ***********************/
-/*Specify data_alignemnt */
-#define sctk_align SCTK_ALIGNEMENT
+/*Specify data_alignment */
+#define sctk_align SCTK_ALIGNMENT
 #define sctk_aligned_size(a) ((((a) / sctk_align) + 1) * sctk_align)
 #define sctk_aligned_sizeof(a) (sctk_aligned_size(sizeof(a)))
 

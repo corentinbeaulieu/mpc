@@ -46,7 +46,7 @@ struct _mpc_ofi_domain_buffer_manager_t;
 typedef struct _mpc_lowcomm_ofi_endpoint_info_s
 {
    mpc_mempool_t bsend;
-   mpc_mempool_t deffered;
+   mpc_mempool_t deferred;
 }_mpc_lowcomm_ofi_endpoint_info_t;
 
 

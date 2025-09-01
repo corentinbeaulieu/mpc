@@ -113,7 +113,7 @@ int PMPI_Comm_create_from_group(MPI_Group group, const char *stringtag, MPI_Info
 
 	/* NOTE: this is the only moment multiple contexts from
 	 * various places can join on a given communicator this is where
-	 * we "unify" these contextes to share their ID and parameters */
+	 * we "unify" these contexts to share their ID and parameters */
 	mpc_lowcomm_handle_ctx_t gctx = mpc_lowcomm_group_get_context_pointer(group);
 
 	/* First Make sure all handles have the same value */
@@ -131,7 +131,7 @@ int PMPI_Comm_create_from_group(MPI_Group group, const char *stringtag, MPI_Info
 
 		if(roots_id != my_id)
 		{
-			/* Here is a subtelty if the mismatching session has a NULL handle
+			/* Here is a subtlety if the mismatching session has a NULL handle
 			 * it means it wants to "join" this previously initialized session
 			 * and therefore it is not erroneous, what is are two already
 			 * diverged sessions trying to join */
@@ -258,7 +258,7 @@ int PMPI_Group_translate_ranks(MPI_Group group1, int n, const int ranks1[], MPI_
 
 	if(ret != MPC_LOWCOMM_SUCCESS)
 	{
-		MPI_ERROR_REPORT(MPI_COMM_WORLD, MPI_ERR_GROUP, "Could not tranlate ranks");
+		MPI_ERROR_REPORT(MPI_COMM_WORLD, MPI_ERR_GROUP, "Could not translate ranks");
 	}
 
 	MPI_ERROR_SUCCESS();
@@ -414,7 +414,7 @@ int PMPI_Group_difference(MPI_Group group1, MPI_Group group2, MPI_Group *newgrou
 
 	if(*newgroup == NULL)
 	{
-		MPI_ERROR_REPORT(MPI_COMM_WORLD, MPI_ERR_GROUP, "Could not substract ranks");
+		MPI_ERROR_REPORT(MPI_COMM_WORLD, MPI_ERR_GROUP, "Could not subtract ranks");
 	}
 	MPC_EMPTY_GROUP_FROM_LOWCOMM(*newgroup);
 
@@ -430,7 +430,7 @@ int PMPI_Group_intersection(MPI_Group group1, MPI_Group group2, MPI_Group *newgr
 	MPC_EMPTY_GROUP_TO_LOWCOMM(group1);
 	MPC_EMPTY_GROUP_TO_LOWCOMM(group2);
 
-	*newgroup = mpc_lowcomm_group_instersection(group1, group2);
+	*newgroup = mpc_lowcomm_group_intersection(group1, group2);
 
 	if(*newgroup == NULL)
 	{

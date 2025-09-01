@@ -28,7 +28,7 @@ mpc_omp_ompt_register_tool ( ompt_start_tool_result_t* tool_result,
         thread->tool_instance = tool_instance;
     }
 
-    /* Call tool intialize method */
+    /* Call tool initialize method */
     ret = tool_result->initialize( mpc_omp_ompt_get_lookup_fn(),
                                    0,
                                    &tool_result->tool_data );

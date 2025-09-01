@@ -96,13 +96,13 @@ static mpc_conf_config_type_t *__mpc_lowcomm_coll_conf_init(void)
 	                                                            NULL);
 
 	mpc_conf_config_type_t *bcast = mpc_conf_config_type_init("bcast",
-	                                                          PARAM("maxsize", &__coll_conf.bcast_max_size, MPC_CONF_LONG_INT, "Maximum outoing size per rank for a bcast defines arity (max_size / size)"),
+	                                                          PARAM("maxsize", &__coll_conf.bcast_max_size, MPC_CONF_LONG_INT, "Maximum outgoing size per rank for a bcast defines arity (max_size / size)"),
 	                                                          PARAM("arity", &__coll_conf.bcast_max_arity, MPC_CONF_INT, "Maximum arity  for a bcast"),
 	                                                          PARAM("check", &__coll_conf.bcast_check_threshold, MPC_CONF_LONG_INT, "Maximum size for checking messages immediately for copy"),
 	                                                          NULL);
 
 	mpc_conf_config_type_t *allreduce = mpc_conf_config_type_init("allreduce",
-	                                                              PARAM("maxsize", &__coll_conf.allreduce_max_size, MPC_CONF_LONG_INT, "Maximum outoing size per rank for allreduce defines arity (max_size / size)"),
+	                                                              PARAM("maxsize", &__coll_conf.allreduce_max_size, MPC_CONF_LONG_INT, "Maximum outgoing size per rank for allreduce defines arity (max_size / size)"),
 	                                                              PARAM("arity", &__coll_conf.allreduce_max_arity, MPC_CONF_INT, "Maximum arity  for allreduce"),
 	                                                              PARAM("check", &__coll_conf.allreduce_check_threshold, MPC_CONF_LONG_INT, "Maximum size for checking messages immediately for copy"),
 	                                                              PARAM("maxslots", &__coll_conf.allreduce_max_slots, MPC_CONF_INT, "Maximum number of of slots for allreduce"),
@@ -526,7 +526,7 @@ static inline mpc_conf_config_type_t *___mpc_lowcomm_driver_all(void)
 	return mpc_conf_config_type_elem_get_inner(eall_configs);
 }
 
-static inline mpc_conf_config_type_t *___mpc_lowcomm_driver_instanciate_from_default(mpc_conf_config_type_t *config)
+static inline mpc_conf_config_type_t *___mpc_lowcomm_driver_instantiate_from_default(mpc_conf_config_type_t *config)
 {
 	if(mpc_conf_config_type_count(config) != 1)
 	{
@@ -562,7 +562,7 @@ void ___mpc_lowcomm_driver_conf_validate()
 
 		if(!unfold)
 		{
-			mpc_conf_config_type_t *new_config = ___mpc_lowcomm_driver_instanciate_from_default(config);
+			mpc_conf_config_type_t *new_config = ___mpc_lowcomm_driver_instantiate_from_default(config);
 			mpc_conf_config_type_release( (mpc_conf_config_type_t **)&all_configs->elems[i]->addr);
 			all_configs->elems[i]->addr = new_config;
 			/* Reget new conf */
@@ -733,7 +733,7 @@ static inline mpc_conf_config_type_t *__mpc_lowcomm_rail_conf_init()
 {
 	__mpc_lowcomm_rail_conf_default();
 
-	/* Here we instanciate default rails */
+	/* Here we instantiate default rails */
 	mpc_conf_config_type_t *shm_mpi = __new_rail_conf_instance("shmmpi", 99, "any", 1, 0, 1, 1, 0, "shmconfigmpi");
 	mpc_conf_config_type_t *tcp_mpi = __new_rail_conf_instance("tcpmpi", 1, "any", 1, 0, 1, 0, 0, "tcpconfigmpi");
         mpc_conf_config_type_t *tbsm_mpi = __new_rail_conf_instance("tbsmmpi", 100, "any", 1, 1, 1, 1, 0, "tbsmconfigmpi");
@@ -791,7 +791,7 @@ static inline mpc_conf_config_type_t *___mpc_lowcomm_rail_all(void)
 	return mpc_conf_config_type_elem_get_inner(eall_rails);
 }
 
-static inline mpc_conf_config_type_t *___mpc_lowcomm_rail_instanciate_from_default(mpc_conf_config_type_elem_t *elem)
+static inline mpc_conf_config_type_t *___mpc_lowcomm_rail_instantiate_from_default(mpc_conf_config_type_elem_t *elem)
 {
 	mpc_conf_config_type_t *default_rail = ___new_default_rail(elem->name);
 
@@ -817,7 +817,7 @@ static inline void ___mpc_lowcomm_rail_conf_validate(void)
 		mpc_conf_config_type_elem_t *rail = mpc_conf_config_type_nth(all_rails, i);
 		if(!_mpc_lowcomm_conf_rail_unfolded_get(rail->name) )
 		{
-			mpc_conf_config_type_t *new_rail = ___mpc_lowcomm_rail_instanciate_from_default(rail);
+			mpc_conf_config_type_t *new_rail = ___mpc_lowcomm_rail_instantiate_from_default(rail);
 			mpc_conf_config_type_release( (mpc_conf_config_type_t **)&all_rails->elems[i]->addr);
 			all_rails->elems[i]->addr = new_rail;
 		}

@@ -99,7 +99,7 @@ short sctk_check_main(char *exe_name) {
     unsetenv("LD_PRELOAD");
 
     tmp = (char *)calloc(MAX_SIZE, sizeof(char));
-    /* an '\' is added before the grep command for using the native commmand (no
+    /* an '\' is added before the grep command for using the native command (no
      * aliasing) */
     snprintf(tmp, MAX_SIZE, "nm `which %s` 2>/dev/null | \\egrep -oi "
              "\"^[a-fA-F0-9 ]* [a-zA-Z] (%s)(_)?(@@.*)*$\" > "

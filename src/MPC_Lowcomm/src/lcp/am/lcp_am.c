@@ -49,7 +49,7 @@
 /* ============================================== */
 
 /* Memory layout for AM API after packing and just before sending message.
- * Unexpected messages are encapsulated with lcp_unexp_ctnr_t to shaddow buffers.
+ * Unexpected messages are encapsulated with lcp_unexp_ctnr_t to shadow buffers.
  *
  * Eager:
  *  ----------------------------------------------------------- -- - -

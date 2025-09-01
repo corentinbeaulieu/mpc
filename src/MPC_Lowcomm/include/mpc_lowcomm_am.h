@@ -40,7 +40,7 @@ struct mpc_lowcomm_am_ctx_s;
 typedef struct mpc_lowcomm_am_ctx_s * mpc_lowcomm_am_ctx_t;
 
 /**
- * @brief Initalize RPC engine
+ * @brief Initialize RPC engine
  * @warning Requires mpc_lowcomm_init to be called
  *
  * @return mpc_lowcomm_am_ctx_t Opaque context handle

@@ -40,7 +40,7 @@
 /********************************
  * ATOMIC_OPERATIONS
  *******************************/
-/* Decleration of assembly coded routines used in atomic operations */
+/* Declaration of assembly coded routines used in atomic operations */
 extern kmp_int32 __kmp_test_then_add32(volatile kmp_int32 *, kmp_int32);
 extern kmp_int64 __kmp_test_then_add64(volatile kmp_int64 *, kmp_int64);
 

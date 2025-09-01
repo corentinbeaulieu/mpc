@@ -39,8 +39,8 @@ typedef struct
 	unsigned long line; /*line number (out) */
 } mpc_addr2line_t;
 
-void mpc_common_debuger_print_backtrace( const char *format, ... );
-void mpc_common_debuger_resolve( mpc_addr2line_t *tab, int size );
+void mpc_common_debugger_print_backtrace( const char *format, ... );
+void mpc_common_debugger_resolve( mpc_addr2line_t *tab, int size );
 void mpc_common_debugger_install_sig_handlers();
 
 #ifdef __cplusplus

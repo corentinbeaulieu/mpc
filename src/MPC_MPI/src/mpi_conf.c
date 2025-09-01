@@ -553,7 +553,7 @@ static inline void _mpc_mpi_config_coll_override_topo_settings( int max_level, i
 /**
  * Handle the mpcframework.mpi.coll.intracomm.topo.full configuration entry.
  * If toggle is set to ("on", "off", "true", "false"),
- * all topological configuration entries are overriden.
+ * all topological configuration entries are overridden.
  */
 static inline void _mpc_mpi_config_coll_toggle_topo_full( char const* toggle )
 {
@@ -601,7 +601,7 @@ static inline void __coll_defaults( void )
 
 mpc_conf_config_type_t *__init_coll_config( void )
 {
-	/* Note the _mpc_mpi_config_coll_opts is split accross
+	/* Note the _mpc_mpi_config_coll_opts is split across
 	   collective types for readability */
 	struct _mpc_mpi_config_coll_opts *opts = &__mpc_mpi_config.coll_opts;
 

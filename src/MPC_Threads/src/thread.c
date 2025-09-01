@@ -201,7 +201,7 @@ static int sctk_first_local = 0;
 static int sctk_last_local  = 0;
 
 
-// default algorithme
+// default algorithm
 int mpc_thread_get_task_placement_and_count_default(int i, int *nbVp)
 {
 	/*   int rank_in_node; */
@@ -232,7 +232,7 @@ int mpc_thread_get_task_placement_and_count_default(int i, int *nbVp)
 	/* TODO: cpu_per_task=1 => put MPI tasks close */
 	// cpu_per_task = 1 ;
 
-	/* Normalize i if i the the global number insted of localnumber*/
+	/* Normalize i if i the the global number instead of localnumber*/
 	// hmt
 	if(i >= task_nb)
 	{
@@ -345,8 +345,8 @@ int mpc_thread_get_task_placement_and_count_numa_packed(int i, int *nbVp)
 
 			// printf("proc=%d, *nbVp=%d\n", k*(cpu_per_numa_node) + (i-tat),*nbVp);
 			// return numanode id * (C/N) + (i - tat)
-			//      fixe premier cpu du noeud numa     + difference de la tache en
-			//      cours
+			//      fix premier cpu du noeud numa     + difference de la tache en
+			//      course
 			return k * (cpu_per_numa_node) + (i - tat);
 		}
 
@@ -488,7 +488,7 @@ static inline void __vp_placement_init_data(int *vp_start_thread, int *vp_thread
 **********************/
 
 //FIXME excess elements in struct initializer
-static sctk_thread_data_t sctk_main_datas = SCTK_THREAD_DATA_INIT;
+static sctk_thread_data_t sctk_main_data = SCTK_THREAD_DATA_INIT;
 
 mpc_thread_keys_t stck_task_data;
 
@@ -496,7 +496,7 @@ void _mpc_thread_data_init()
 {
 	mpc_thread_keys_create(&stck_task_data, NULL);
 	mpc_common_nodebug("stck_task_data = %d", stck_task_data);
-	_mpc_thread_data_set(&sctk_main_datas);
+	_mpc_thread_data_set(&sctk_main_data);
 }
 
 static void _mpc_thread_data_reset()
@@ -507,7 +507,7 @@ static void _mpc_thread_data_reset()
 
 	if(tmp == NULL)
 	{
-		_mpc_thread_data_set(&sctk_main_datas);
+		_mpc_thread_data_set(&sctk_main_data);
 	}
 }
 
@@ -522,7 +522,7 @@ sctk_thread_data_t *mpc_thread_data_get_disg(int no_disguise)
 
 	if(sctk_multithreading_initialised == 0)
 	{
-		tmp = &sctk_main_datas;
+		tmp = &sctk_main_data;
 	}
 	else
 	{
@@ -743,7 +743,7 @@ void  MPC_Process_hook(void)
 
 #endif
 
-//TODO Je ne suis pas sur qu'on créé vraiment 4 page vides sur GH200 avec cet appel étant donnée qu'on fait des malloc de 16000
+//TODO Je ne suis pas sure qu'on créé vraiment 4 page vides sure GH200 avec cet appel étant donnée qu'on fait des malloc de 16000
 //L'autre question que je me pose est de savoir de combien de page on voulait vraiment avoir ?
 static inline void __prepare_free_pages(void)
 {
@@ -769,7 +769,7 @@ static inline void __init_brk_for_task(void)
 	sctk_enter_no_alloc_land();
 	size = ( size_t )(SCTK_MAX_MEMORY_SIZE);
 	tmp  = sctk_get_heap_start();
-	mpc_common_nodebug("INIT ADRESS %p", tmp);
+	mpc_common_nodebug("INIT ADDRESS %p", tmp);
 	s = ( size_t )tmp /*  + 1*1024*1024*1024 */;
 	mpc_common_nodebug("Max allocation %luMo %lu",
 	                   ( unsigned long )(size /
@@ -784,7 +784,7 @@ static inline void __init_brk_for_task(void)
 	}
 
 	tmp = ( void * )start;
-	mpc_common_nodebug("INIT ADRESS REALIGNED %p", tmp);
+	mpc_common_nodebug("INIT ADDRESS REALIGNED %p", tmp);
 
 	if(mpc_common_get_process_count() > 1)
 	{
@@ -830,7 +830,7 @@ void mpc_thread_spawn_mpi_tasks(void *(*mpi_task_start_func)(void *), void *arg)
 
 	/* Start Waiting for the end of  all VPs */
 
-  //FIXME il me semble qu'on preferait faire un semaphose pour pas garder le thread dans les listes d'ordonnancement
+  //FIXME il me semble qu'on preferait faire un semaphose pour pas garder le thread dans les listed d'ordonnancement
 	mpc_thread_wait_for_value_and_poll( ( int * )&sctk_current_local_tasks_nb, 0, NULL, NULL);
 
 	sctk_multithreading_initialised = 0;
@@ -838,8 +838,8 @@ void mpc_thread_spawn_mpi_tasks(void *(*mpi_task_start_func)(void *), void *arg)
 
 	mpc_common_init_trigger("After Ending VPs");
 
-	/* Make sure to call desctructors for main thread */
-	sctk_tls_dtors_free(sctk_main_datas.dtors_head);
+	/* Make sure to call destructors for main thread */
+	sctk_tls_dtors_free(sctk_main_data.dtors_head);
 	sctk_free(threads);
 }
 
@@ -885,7 +885,7 @@ static inline void __tbb_init_for_mpc()
 	 *    - __tbb_finalize_for_mpc (called around sctk_thread.c:658)
 	 *
 	 * These functions are set via #pragma weak, empty when TBB is not
-	 * loaded and bound to our patchs in TBB when loaded.
+	 * loaded and bound to our patches in TBB when loaded.
 	 *
 	 * TODO: due to some issues, weak functions are replaced by dlsym accesses for now
 	 */
@@ -962,7 +962,7 @@ static void *___vp_thread_start_routine(sctk_thread_data_t *__arg)
 
 
 #if defined(MPC_USE_EXTLS)
-	/* TLS INTIALIZATION */
+	/* TLS INITIALIZATION */
 	sctk_tls_init();
 	sctk_call_dynamic_initializers();
 #endif
@@ -1083,7 +1083,7 @@ static inline void __thread_base_init(void)
 	assert(mpc_thread_tls != NULL);
 #endif
 #ifdef SCTK_CHECK_CODE_RETURN
-	fprintf(stderr, "Thread librarie return code check enable!!\n");
+	fprintf(stderr, "Thread library return code check enable!!\n");
 #endif
 	_mpc_thread_futex_context_init();
 	/*Check all types */
@@ -1426,7 +1426,7 @@ static inline int __per_mpi_task_atexit(void (*func)(void) )
 int mpc_thread_atexit(void (*function)(void) )
 {
 	__check_mpc_initialized();
-	/* We may have a TASK context replacing the proces one */
+	/* We may have a TASK context replacing the process one */
 	mpc_common_debug("Calling the MPC atexit function");
 	int ret = __per_mpi_task_atexit(function);
 
@@ -1487,9 +1487,9 @@ void _mpc_thread_exit_cleanup()
 #ifdef MPC_Lowcomm
 		if(tmp->mpi_task.rank >= 0 && tmp->user_thread == 0)
 		{
-			//mpc_common_nodebug ( "mpc_lowcomm_terminaison_barrier" );
-			//mpc_lowcomm_terminaison_barrier ();
-			//mpc_common_nodebug ( "mpc_lowcomm_terminaison_barrier done" );
+			//mpc_common_nodebug ( "mpc_lowcomm_termination_barrier" );
+			//mpc_lowcomm_termination_barrier ();
+			//mpc_common_nodebug ( "mpc_lowcomm_termination_barrier done" );
 			sctk_unregister_task(tmp->mpi_task.rank);
 			sctk_net_send_task_end(tmp->mpi_task.rank, mpc_common_get_process_rank() );
 		}
@@ -3093,8 +3093,8 @@ int mpc_thread_usleep(unsigned int useconds)
 	return 0;
 }
 
-/*on ne prend pas en compte la precision en dessous de la micro-seconde
- * on ne gere pas les interruptions non plus*/
+/*on ne prend pas en compte la precision en dessous de la micro-second
+ * on ne gère pas les interruptions non plus*/
 int mpc_thread_nanosleep(const struct timespec *req, struct timespec *rem)
 {
 	__check_mpc_initialized();

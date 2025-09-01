@@ -266,7 +266,7 @@ int mpc_lowcomm_monitor_set_contains(mpc_lowcomm_set_uid_t gid, mpc_lowcomm_peer
 #define MPC_LOWCOMM_PEER_URI_SIZE    246
 
 /**
- * @brief This defines the informations for a given peer
+ * @brief This defines the information for a given peer
  *
  */
 typedef struct mpc_lowcomm_monitor_peer_info_s
@@ -522,7 +522,7 @@ int mpc_lowcomm_monitor_event_loop_push(mpc_lowcomm_monitor_worker_callback_t ca
 ****************/
 
 /**
- * @brief Get informations about a remote peer's set
+ * @brief Get information about a remote peer's set
  *
  * @param target_peer the target peer
  * @param ret return code
@@ -536,7 +536,7 @@ mpc_lowcomm_monitor_response_t mpc_lowcomm_monitor_get_set_info(mpc_lowcomm_peer
 *****************/
 
 /**
- * @brief Get informations about a remote peer as seen by another peer
+ * @brief Get information about a remote peer as seen by another peer
  *
  * @param dest the peer to query on
  * @param requested_peer the peer which information are requested

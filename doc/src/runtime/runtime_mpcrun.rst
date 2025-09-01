@@ -72,7 +72,7 @@ Launcher
 	:code:`--profiles=<p1,p2>`              List of profiles to enable in config.
 
 
-Informations
+Information
 ------------
 
 	:code:`-h, --help`                      Display this help

@@ -104,7 +104,7 @@ struct _mpc_dt_footprint
 
 	/* These three arrays are those returned by MPI_Type_get_contents
 	 * they are defined in the standard as a pack of the
-	 * parameters provided uppon type creation  */
+	 * parameters provided upon type creation  */
 	int *                   array_of_integers;  /** An array of integers */
 	size_t *                array_of_addresses; /* An array of addresses */
 	mpc_lowcomm_datatype_t *array_of_types;     /** An array of types */
@@ -112,8 +112,8 @@ struct _mpc_dt_footprint
 
 /** \brief This structure is used to pass the parameters to \ref _mpc_dt_context_set
  *
- *  We use a structure as we don't want to polute the calling context
- *  with all the variants comming from the shape of the callers.
+ *  We use a structure as we don't want to pollute the calling context
+ *  with all the variants coming from the shape of the callers.
  *  Here the calling type function just set what's needed and
  *  leave the rest NULL. To be sure that errors will be easy to check
  *  the called must call \ref _mpc_dt_context_clear to
@@ -185,7 +185,7 @@ void _mpc_dt_context_set(struct _mpc_dt_footprint *ctx, struct _mpc_dt_context *
  *
  *  \param ctx Source context
  *  \param num_integers Number of input integers [OUT]
- *  \param num_adresses Number of input addresses [OUT]
+ *  \param num_addresses Number of input addresses [OUT]
  *  \param num_datatypes Number of input datatypes [OUT]
  *  \param combiner Combiner used to build the datatype [OUT]
  *
@@ -283,7 +283,7 @@ mpc_lowcomm_datatype_t _mpc_dt_general_create(const unsigned int id,
  * The value pointed by type_p is set to MPC_DATATYPE_NULL after freeing the structure.
  * \param enable_refcounting Should the function release the embedded datatypes
  *
- * \return MPC_LOWCOMM_SUCCESS on succes
+ * \return MPC_LOWCOMM_SUCCESS on success
  *         the appropriate error code otherwise
  */
 int _mpc_dt_general_free(_mpc_lowcomm_general_datatype_t **type_p, const bool enable_refcounting);
@@ -307,7 +307,7 @@ int _mpc_dt_general_release(mpc_lowcomm_datatype_t *type);
  *  \warning This function holds a lock when performing the commit
  *
  *  \param datatype_p A pointer on the datatype to commit
- *                    At exit it contained a commited datatype
+ *                    At exit it contained a committed datatype
  *                    or MPC_DATATYPE_NULL on error
  */
 int _mpc_dt_general_on_slot(mpc_lowcomm_datatype_t *datatype_p);
@@ -333,7 +333,7 @@ void _mpc_dt_general_true_extend(const _mpc_lowcomm_general_datatype_t *type, lo
  */
 int _mpc_dt_general_optimize(_mpc_lowcomm_general_datatype_t *target_type);
 
-/** \brief Display debug informations about a general datatype
+/** \brief Display debug information about a general datatype
  *
  *  \param target_type Type to be displayed
  */
@@ -353,9 +353,9 @@ void _mpc_dt_general_display(mpc_lowcomm_datatype_t target_type);
  *  To check the type of a datatype, we look if its value is in the range of
  *  one of the arrays. It simplifies greatly checking if a pointer is valid or
  *  if a datatype can be released...
- *  The following are funtion to check the kind of datatype and its validness.
+ *  The following are function to check the kind of datatype and its validness.
  *
- *  Therefore we need some functions to check wether a datatype is of a
+ *  Therefore we need some functions to check whether a datatype is of a
  *  given type (meaning having an address in a given range).
  */
 
@@ -412,20 +412,20 @@ static inline bool mpc_dt_is_valid(mpc_lowcomm_datatype_t datatype)
 	return mpc_lowcomm_datatype_is_common(datatype) || _mpc_dt_is_user_defined(datatype);
 }
 
-/** \brief Checks whether a datatype has been commited or not
+/** \brief Checks whether a datatype has been committed or not
  *
- * This means if it is a common or a user defined one that have been commited
+ * This means if it is a common or a user defined one that have been committed
  *
  * \param datatype Datatype to test
- * \return true if datatype is commited, false otherwise
+ * \return true if datatype is committed, false otherwise
  * */
-static inline bool mpc_dt_is_commited(mpc_lowcomm_datatype_t datatype)
+static inline bool mpc_dt_is_committed(mpc_lowcomm_datatype_t datatype)
 {
 	if(!mpc_dt_is_valid(datatype) )
 	{
 		return false;
 	}
-	if(_mpc_dt_is_user_defined(datatype) && !datatype->is_commited)
+	if(_mpc_dt_is_user_defined(datatype) && !datatype->is_committed)
 	{
 		return false;
 	}
@@ -520,7 +520,7 @@ struct _mpc_dt_storage
  */
 struct _mpc_dt_storage *_mpc_dt_storage_init();
 
-/** \brief Helper funtion to release only allocated datatypes
+/** \brief Helper function to release only allocated datatypes
  *
  *  \param da       A pointer to the datatype array
  *  \param datatype The datatype to be freed

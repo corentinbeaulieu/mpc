@@ -65,7 +65,7 @@ INFO("MPC_COLL debugging is ENABLED this is incompatible with thread-based MPI")
 /*
   The __debug_indentation variable is global as shared between threads on the SAME vp
   leading to underflow and underflows when used in thread-based but still
-  usefull to debug the process-based collectives */
+  useful to debug the process-based collectives */
 
 #define MPC_COLL_EXTRA_DEBUG_ENABLED
 #endif
@@ -100,21 +100,21 @@ typedef enum MPC_COLL_TYPE {
 
 /**
   \struct Sched_info
-  \brief Hold schedule informations
+  \brief Hold schedule information
   */
 typedef struct {
-  int pos;                                      /**< Current offset from the starting adress of the schedule. */
+  int pos;                                      /**< Current offset from the starting address of the schedule. */
 
-  int round_start_pos;                          /**< Offset from the starting adress of the schedule to the starting adress of the current round. */
+  int round_start_pos;                          /**< Offset from the starting address of the schedule to the starting address of the current round. */
   int round_comm_count;                         /**< Number of operations in the current round. */
 
   int round_count;                              /**< Number of rounds in the schedule. */
   int comm_count;                               /**< Number of operations in the schedule. */
   int alloc_size;                               /**< Allocation size for the schedule. */
 
-  void *tmpbuf;                                 /**< Adress of the temporary buffer for the schedule. */
+  void *tmpbuf;                                 /**< Address of the temporary buffer for the schedule. */
   size_t tmpbuf_size;                              /**< Size of the temporary buffer for the schedule. */
-  size_t tmpbuf_pos;                               /**< Offset from the staring adress of the temporary buffer to the current position. */
+  size_t tmpbuf_pos;                               /**< Offset from the staring address of the temporary buffer to the current position. */
 
   int flag;                                     /**< flag used to store initialisation states. */
   //int is_topo_comm_creation_allowed;
@@ -341,7 +341,7 @@ static inline int ___collectives_move_type(const void *src, int srccount, MPI_Da
 
 static inline int ___collectives_create_hardware_comm_unguided(MPI_Comm comm, int vrank, int max_level, Sched_info *info);
 static inline int ___collectives_create_master_hardware_comm_unguided(int vrank, int level, Sched_info *info);
-static inline int ___collectives_create_childs_counts(MPI_Comm comm, Sched_info *info);
+static inline int ___collectives_create_children_counts(MPI_Comm comm, Sched_info *info);
 static inline int ___collectives_create_swap_array(MPI_Comm comm, Sched_info *info);
 static inline int ___collectives_topo_comm_init(MPI_Comm comm, int root, int max_level, Sched_info *info);
 
@@ -426,7 +426,7 @@ static inline void ___collectives_sched_info_init(Sched_info *info, MPC_COLL_TYP
 /**
   \brief Handle the allocation of the schedule and the temporary buffer
   \param handle Handle containing the temporary buffer to allocate
-  \param schedule Adress of the schedule to allocate
+  \param schedule Address of the schedule to allocate
   \param info Information about the function to schedule
   \return Error code
   */
@@ -455,13 +455,13 @@ static inline int ___collectives_sched_alloc_init(NBC_Handle *handle, NBC_Schedu
 
 /**
   \brief Add a Send in the schedule
-  \param buffer Adress of the buffer used to send data
+  \param buffer Address of the buffer used to send data
   \param count Number of element in the buffer
   \param datatype Type of the data elements in the buffer
   \param dest Target rank
   \param comm Target communicator
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return Error code
   */
 static inline int ___collectives_sched_send(const void *buffer, int count, MPI_Datatype datatype, int dest, MPI_Comm comm, NBC_Schedule *schedule, Sched_info *info) {
@@ -491,13 +491,13 @@ static inline int ___collectives_sched_send(const void *buffer, int count, MPI_D
 
 /**
   \brief Add a Recv in the schedule
-  \param buffer Adress of the buffer used to recv data
+  \param buffer Address of the buffer used to recv data
   \param count Number of element in the buffer
   \param datatype Type of the data elements in the buffer
   \param dest Target rank
   \param comm Target communicator
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return Error code
   */
 static inline int ___collectives_sched_recv(void *buffer, int count, MPI_Datatype datatype, int source, MPI_Comm comm, NBC_Schedule *schedule, Sched_info *info) {
@@ -527,8 +527,8 @@ static inline int ___collectives_sched_recv(void *buffer, int count, MPI_Datatyp
 
 /**
   \brief Add a Barrier in the schedule
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return Error code
   */
 static inline int ___collectives_sched_barrier(NBC_Schedule *schedule, Sched_info *info) {
@@ -548,8 +548,8 @@ static inline int ___collectives_sched_barrier(NBC_Schedule *schedule, Sched_inf
 
 /**
   \brief Commit a schedule
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return Error code
   */
 static inline int ___collectives_sched_commit(NBC_Schedule *schedule, Sched_info *info) {
@@ -565,14 +565,14 @@ static inline int ___collectives_sched_commit(NBC_Schedule *schedule, Sched_info
 
 /**
   \brief Add a the reduction between two elements in the schedule
-  \param resbuf Adress of the buffer used to store the result
-  \param left_op_buf Adress of the buffer used as left operand
-  \param right_op_buf Adress of the buffer used as right operand
+  \param resbuf Address of the buffer used to store the result
+  \param left_op_buf Address of the buffer used as left operand
+  \param right_op_buf Address of the buffer used as right operand
   \param count Number of element in the buffers
   \param datatype Type of the data elements in the buffers
   \param op Operator to use in the reduction operation
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return Error code
   */
 static inline int ___collectives_sched_op(void *res_buf, void* left_op_buf, void* right_op_buf, int count, MPI_Datatype datatype, MPI_Op op, NBC_Schedule *schedule, Sched_info *info) {
@@ -605,14 +605,14 @@ static inline int ___collectives_sched_op(void *res_buf, void* left_op_buf, void
 
 /**
   \brief Add a Copy in the schedule
-  \param src Adress of the source buffer used in the copy
+  \param src Address of the source buffer used in the copy
   \param srccount Number of element in the source buffer
   \param srctype Type of the data elements in the source buffer
-  \param tgt Adress of the destination buffer used in the copy
+  \param tgt Address of the destination buffer used in the copy
   \param tgtcount Number of element in the destination buffer
   \param tgttype Type of the data elements in the destination buffer
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return Error code
   */
 static inline int ___collectives_sched_copy(const void *src, int srccount, MPI_Datatype srctype, void *tgt, int tgtcount, MPI_Datatype tgttype, NBC_Schedule *schedule, Sched_info *info) {
@@ -643,14 +643,14 @@ static inline int ___collectives_sched_copy(const void *src, int srccount, MPI_D
 
 /**
   \brief Add a Move in the schedule
-  \param src Adress of the source buffer used in the move
+  \param src Address of the source buffer used in the move
   \param srccount Number of element in the source buffer
   \param srctype Type of the data elements in the source buffer
-  \param tgt Adress of the destination buffer used in the move
+  \param tgt Address of the destination buffer used in the move
   \param tgtcount Number of element in the destination buffer
   \param tgttype Type of the data elements in the destination buffer
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return Error code
   */
 static inline int ___collectives_sched_move(const void *src, int srccount, MPI_Datatype srctype, void *tgt, int tgtcount, MPI_Datatype tgttype, NBC_Schedule *schedule, Sched_info *info) {
@@ -682,17 +682,17 @@ static inline int ___collectives_sched_move(const void *src, int srccount, MPI_D
 
 
 /**
-  \brief Switch between blocking, non-blocking and persitent send
+  \brief Switch between blocking, non-blocking and persistent send
     Or increase the number of operation of the schedule in the Sched_info struct
-  \param buffer Adress of the buffer used to send data
+  \param buffer Address of the buffer used to send data
   \param count Number of element in the buffer
   \param datatype Type of the data elements in the buffer
   \param dest Target rank
   \param tag Tag of the communication
   \param comm Target communicator
   \param coll_type Type of the communication used for the switch
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return Error code
   */
 static inline int ___collectives_send_type(const void *buffer, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule *schedule, Sched_info *info) {
@@ -729,17 +729,17 @@ static inline int ___collectives_send_type(const void *buffer, int count, MPI_Da
 }
 
 /**
-  \brief Switch between blocking, non-blocking and persitent recv
+  \brief Switch between blocking, non-blocking and persistent recv
     Or increase the number of operation of the schedule in the Sched_info struct
-  \param buffer Adress of the buffer used to recv data
+  \param buffer Address of the buffer used to recv data
   \param count Number of element in the buffer
   \param datatype Type of the data elements in the buffer
   \param dest Target rank
   \param tag Tag of the communication
   \param comm Target communicator
   \param coll_type Type of the communication used for the switch
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return Error code
   */
 static inline int ___collectives_recv_type(void *buffer, int count, MPI_Datatype datatype, int source, int tag, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule *schedule, Sched_info *info) {
@@ -776,11 +776,11 @@ static inline int ___collectives_recv_type(void *buffer, int count, MPI_Datatype
 }
 
 /**
-  \brief Switch between blocking, non-blocking and persitent barrier
+  \brief Switch between blocking, non-blocking and persistent barrier
     Or increase the number of round of the schedule in the Sched_info struct
   \param coll_type Type of the communication used for the switch
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return Error code
   */
 static inline int ___collectives_barrier_type(MPC_COLL_TYPE coll_type, NBC_Schedule *schedule, Sched_info *info) {
@@ -810,18 +810,18 @@ static inline int ___collectives_barrier_type(MPC_COLL_TYPE coll_type, NBC_Sched
 }
 
 /**
-  \brief Switch between blocking, non-blocking and persitent reduction operation
+  \brief Switch between blocking, non-blocking and persistent reduction operation
     Or increase the number of operation of the schedule in the Sched_info struct
-  \param resbuf Adress of the buffer used to store the result
-  \param left_op_buf Adress of the buffer used as left operand
-  \param right_op_buf Adress of the buffer used as right operand
+  \param resbuf Address of the buffer used to store the result
+  \param left_op_buf Address of the buffer used as left operand
+  \param right_op_buf Address of the buffer used as right operand
   \param count Number of element in the buffers
   \param datatype Type of the data elements in the buffers
   \param op Operator to use in the reduction operation
   \param mpc_op sctk_op associated to op
   \param coll_type Type of the communication used for the switch
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return Error code
   */
 static inline int ___collectives_op_type( __UNUSED__ void *res_buf, const void* left_op_buf, void* right_op_buf, int count, MPI_Datatype datatype, MPI_Op op, sctk_Op mpc_op, MPC_COLL_TYPE coll_type, NBC_Schedule *schedule, Sched_info *info) {
@@ -861,18 +861,18 @@ static inline int ___collectives_op_type( __UNUSED__ void *res_buf, const void* 
 }
 
 /**
-  \brief Switch between blocking, non-blocking and persitent Copy
+  \brief Switch between blocking, non-blocking and persistent Copy
     Or increase the number of operation of the schedule in the Sched_info struct
-  \param src Adress of the source buffer used in the copy
+  \param src Address of the source buffer used in the copy
   \param srccount Number of element in the source buffer
   \param srctype Type of the data elements in the source buffer
-  \param tgt Adress of the destination buffer used in the copy
+  \param tgt Address of the destination buffer used in the copy
   \param tgtcount Number of element in the destination buffer
   \param tgttype Type of the data elements in the destination buffer
   \param comm Target communicator
   \param coll_type Type of the communication used for the switch
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return Error code
   */
 static inline int ___collectives_copy_type(const void *src, int srccount, MPI_Datatype srctype, void *tgt, int tgtcount, MPI_Datatype tgttype, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule *schedule, Sched_info *info) {
@@ -904,18 +904,18 @@ static inline int ___collectives_copy_type(const void *src, int srccount, MPI_Da
 }
 
 /**
-  \brief Switch between blocking, non-blocking and persitent Move
+  \brief Switch between blocking, non-blocking and persistent Move
     Or increase the number of operation of the schedule in the Sched_info struct
-  \param src Adress of the source buffer used in the move
+  \param src Address of the source buffer used in the move
   \param srccount Number of element in the source buffer
   \param srctype Type of the data elements in the source buffer
-  \param tgt Adress of the destination buffer used in the move
+  \param tgt Address of the destination buffer used in the move
   \param tgtcount Number of element in the destination buffer
   \param tgttype Type of the data elements in the destination buffer
   \param comm Target communicator
   \param coll_type Type of the communication used for the switch
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return Error code
   */
 static inline int ___collectives_move_type(const void *src, int srccount, MPI_Datatype srctype, void *tgt, int tgtcount, MPI_Datatype tgttype, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule *schedule, Sched_info *info) {
@@ -953,7 +953,7 @@ static inline int ___collectives_move_type(const void *src, int srccount, MPI_Da
   \param comm communicator of the collective
   \param vrank virtual rank for the algorithm
   \param max_level Max hardware topological level to split communicators
-  \param info Adress on the information structure about the schedule
+  \param info Address on the information structure about the schedule
   \return error code
  */
 static inline int ___collectives_create_hardware_comm_unguided(MPI_Comm comm, int vrank, int max_level, Sched_info *info) {
@@ -1003,7 +1003,7 @@ static inline int ___collectives_create_hardware_comm_unguided(MPI_Comm comm, in
   \brief Initialize hardware master communicators used for persistent hardware algorithms
   \param vrank virtual rank for the algorithm
   \param level Max hardware topological level to split communicators
-  \param info Adress on the information structure about the schedule
+  \param info Address on the information structure about the schedule
   \return error code
  */
 static inline int ___collectives_create_master_hardware_comm_unguided(int vrank, __UNUSED__ int level, Sched_info *info) {
@@ -1074,13 +1074,13 @@ static inline int ___collectives_create_master_hardware_comm_unguided(int vrank,
 /**
   \brief Create the array containing the number of processes bellow in the topological communicator tree for each height
   \param comm Target communicator
-  \param info Adress on the information structure about the schedule
+  \param info Address on the information structure about the schedule
   \return error code
  */
-static inline int ___collectives_create_childs_counts(MPI_Comm comm, Sched_info *info) {
+static inline int ___collectives_create_children_counts(MPI_Comm comm, Sched_info *info) {
 
 #ifdef MPC_COLL_EXTRA_DEBUG_ENABLED
-  mpc_common_debug("%sTOPO COMM INIT CHILDS COUNT", __debug_indentation);
+  mpc_common_debug("%sTOPO COMM INIT CHILDREN COUNT", __debug_indentation);
   strcat(__debug_indentation, "\t");
 #endif
 
@@ -1089,17 +1089,17 @@ static inline int ___collectives_create_childs_counts(MPI_Comm comm, Sched_info 
 
   int data_count = 0;
 
-  //info->hardware_info_ptr->childs_data_count = sctk_malloc(sizeof(int*) * (info->hardware_info_ptr->deepest_hardware_level));
-  info->hardware_info_ptr->childs_data_count = sctk_malloc(sizeof(int*) * (info->hardware_info_ptr->deepest_hardware_level + 1));
+  //info->hardware_info_ptr->children_data_count = sctk_malloc(sizeof(int*) * (info->hardware_info_ptr->deepest_hardware_level));
+  info->hardware_info_ptr->children_data_count = sctk_malloc(sizeof(int*) * (info->hardware_info_ptr->deepest_hardware_level + 1));
   info->hardware_info_ptr->send_data_count = sctk_malloc(sizeof(int) * (info->hardware_info_ptr->deepest_hardware_level));
 
   //TODO a remplacer par un allreduce pour gerer le cas du gatherv
   _mpc_cl_comm_size(info->hardware_info_ptr->hwcomm[info->hardware_info_ptr->deepest_hardware_level], &data_count);
   int i = 0;
 
-  info->hardware_info_ptr->childs_data_count[info->hardware_info_ptr->deepest_hardware_level] = sctk_malloc(sizeof(int) * data_count);
+  info->hardware_info_ptr->children_data_count[info->hardware_info_ptr->deepest_hardware_level] = sctk_malloc(sizeof(int) * data_count);
   for(i = 0; i < data_count; i++) {
-    info->hardware_info_ptr->childs_data_count[info->hardware_info_ptr->deepest_hardware_level][i] = 1;
+    info->hardware_info_ptr->children_data_count[info->hardware_info_ptr->deepest_hardware_level][i] = 1;
   }
 
   for(i = info->hardware_info_ptr->deepest_hardware_level - 1; i >= 0; i--) {
@@ -1123,8 +1123,8 @@ static inline int ___collectives_create_childs_counts(MPI_Comm comm, Sched_info 
 
        void *buf = NULL;
        if(rank_master == 0 || i == 0) {
-         info->hardware_info_ptr->childs_data_count[i] = sctk_malloc(sizeof(int) * size_master);
-         buf = info->hardware_info_ptr->childs_data_count[i];
+         info->hardware_info_ptr->children_data_count[i] = sctk_malloc(sizeof(int) * size_master);
+         buf = info->hardware_info_ptr->children_data_count[i];
        }
 
       if (i == 0) { // Every top-level process receives data_count (used for top-level allgather, alltoall, ...)
@@ -1137,15 +1137,15 @@ static inline int ___collectives_create_childs_counts(MPI_Comm comm, Sched_info 
       if(rank_master == 0 || i == 0) {
         data_count = 0;
         for(j = 0; j < size_master; j++) {
-          data_count += info->hardware_info_ptr->childs_data_count[i][j];
-          mpc_common_nodebug("RANK %d | CHILD DATA COUNT [%d] [%d] = %d\n", rank, i, j, info->hardware_info_ptr->childs_data_count[i][j]);
+          data_count += info->hardware_info_ptr->children_data_count[i][j];
+          mpc_common_nodebug("RANK %d | CHILD DATA COUNT [%d] [%d] = %d\n", rank, i, j, info->hardware_info_ptr->children_data_count[i][j]);
         }
 
 #ifdef MPC_COLL_EXTRA_DEBUG_ENABLED
         char dbg_str[1024];
-        sprintf(dbg_str, "RANK %d | CHILD DATA COUNT [%d] = [%d", rank, i, info->hardware_info_ptr->childs_data_count[i][0]);
+        sprintf(dbg_str, "RANK %d | CHILD DATA COUNT [%d] = [%d", rank, i, info->hardware_info_ptr->children_data_count[i][0]);
         for(j = 1; j < size_master; j++) {
-          sprintf(&(dbg_str[strlen(dbg_str)]), ", %d", info->hardware_info_ptr->childs_data_count[i][j]);
+          sprintf(&(dbg_str[strlen(dbg_str)]), ", %d", info->hardware_info_ptr->children_data_count[i][j]);
         }
         mpc_common_debug("%s%s", __debug_indentation, dbg_str);
 #endif
@@ -1171,7 +1171,7 @@ static inline int ___collectives_create_childs_counts(MPI_Comm comm, Sched_info 
          on top-level processes
   \param comm Target communicator
   \param root Rank of the root of the collective
-  \param info Adress on the information structure about the schedule
+  \param info Address on the information structure about the schedule
   \return error code
  */
 static inline int ___collectives_create_swap_array(MPI_Comm comm, Sched_info *info) {
@@ -1232,11 +1232,11 @@ static inline int ___collectives_create_swap_array(MPI_Comm comm, Sched_info *in
 }
 
 /**
-  \brief Initialise topological informations and create topological communicators
+  \brief Initialise topological information and create topological communicators
   \param comm Target communicator
   \param root Rank of the root of the collective
   \param level Max hardware topological level to split communicators
-  \param info Adress on the information structure about the schedule
+  \param info Address on the information structure about the schedule
   \return error code
  */
 static inline int ___collectives_topo_comm_init(MPI_Comm comm, int root, int max_level, Sched_info *info) {
@@ -1260,7 +1260,7 @@ static inline int ___collectives_topo_comm_init(MPI_Comm comm, int root, int max
   info->hardware_info_ptr->hwcomm = (MPI_Comm *)sctk_malloc(MAX_HARDWARE_LEVEL * sizeof(MPI_Comm));
   info->hardware_info_ptr->rootcomm = (MPI_Comm *)sctk_malloc(MAX_HARDWARE_LEVEL * sizeof(MPI_Comm));
 
-  info->hardware_info_ptr->childs_data_count = NULL;
+  info->hardware_info_ptr->children_data_count = NULL;
   info->hardware_info_ptr->send_data_count = NULL;
 
   info->hardware_info_ptr->topo_rank = -1;
@@ -1303,7 +1303,7 @@ static inline int __Get_topo_comm_allowed(MPC_COLL_TYPE coll_type, int operation
 
 /**
   \brief Initialize NBC structures used in call of non-blocking Broadcast
-  \param buffer Adress of the buffer used to send/recv data during the broadcast
+  \param buffer Address of the buffer used to send/recv data during the broadcast
   \param count Number of elements in the buffer
   \param datatype Type of the data elements in the buffer
   \param root Rank root of the broadcast
@@ -1346,7 +1346,7 @@ int PMPI_Ibcast (void *buffer, int count, MPI_Datatype datatype, int root, MPI_C
 
 /**
   \brief Initialize NBC structures used in call of non-blocking Broadcast
-  \param buffer Adress of the buffer used to send/recv data during the broadcast
+  \param buffer Address of the buffer used to send/recv data during the broadcast
   \param count Number of elements in buffer
   \param datatype Type of the data elements in the buffer
   \param root Rank root of the broadcast
@@ -1393,7 +1393,7 @@ static inline int ___collectives_ibcast( void *buffer, int count, MPI_Datatype d
 
 /**
   \brief Initialize NBC structures used in call of persistent Broadcast
-  \param buffer Adress of the buffer used to send/recv data during the broadcast
+  \param buffer Address of the buffer used to send/recv data during the broadcast
   \param count Number of elements in the buffer
   \param datatype Type of the data elements in the buffer
   \param root Rank root of the broadcast
@@ -1430,8 +1430,8 @@ int PMPI_Bcast_init(void *buffer, int count, MPI_Datatype datatype, int root, MP
   req->is_persistent = 1;
   mpc_req->request_type = REQUEST_GENERALIZED;
 
-  req->persistant.op = MPC_MPI_PERSISTENT_BCAST_INIT;
-  req->persistant.info = info;
+  req->persistent.op = MPC_MPI_PERSISTENT_BCAST_INIT;
+  req->persistent.info = info;
 
   ___collectives_bcast_init(buffer, count, datatype, root, comm, &(req->nbc_handle));
   req->nbc_handle.is_persistent = 1;
@@ -1440,7 +1440,7 @@ int PMPI_Bcast_init(void *buffer, int count, MPI_Datatype datatype, int root, MP
 
 /**
   \brief Initialize NBC structures used in call of persistent Broadcast
-  \param buffer Adress of the buffer used to send/recv data during the broadcast
+  \param buffer Address of the buffer used to send/recv data during the broadcast
   \param count Number of elements in buffer
   \param datatype Type of the data elements in the buffer
   \param root Rank root of the broadcast
@@ -1482,7 +1482,7 @@ static inline int ___collectives_bcast_init(void *buffer, int count, MPI_Datatyp
 
 /**
   \brief Blocking bcast
-  \param buffer Adress of the buffer used to send/recv data during the broadcast
+  \param buffer Address of the buffer used to send/recv data during the broadcast
   \param count Number of elements in buffer
   \param datatype Type of the data elements in the buffer
   \param root Rank root of the broadcast
@@ -1497,15 +1497,15 @@ int _mpc_mpi_collectives_bcast(void *buffer, int count, MPI_Datatype datatype, i
 }
 
 /**
-  \brief Swith between the different broadcast algorithms
-  \param buffer Adress of the buffer used to send/recv data during the broadcast
+  \brief Switch between the different broadcast algorithms
+  \param buffer Address of the buffer used to send/recv data during the broadcast
   \param count Number of elements in buffer
   \param datatype Type of the data elements in the buffer
   \param root Rank root of the broadcast
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_bcast_switch(void *buffer, int count, MPI_Datatype datatype, int root, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -1584,14 +1584,14 @@ int ___collectives_bcast_switch(void *buffer, int count, MPI_Datatype datatype, 
 /**
   \brief Execute or schedule a broadcast using the linear algorithm
     Or count the number of operations and rounds for the schedule
-  \param buffer Adress of the buffer used to send/recv data during the broadcast
+  \param buffer Address of the buffer used to send/recv data during the broadcast
   \param count Number of elements in buffer
   \param datatype Type of the data elements in the buffer
   \param root Rank root of the broadcast
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_bcast_linear(void *buffer, int count, MPI_Datatype datatype, int root, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -1646,14 +1646,14 @@ int ___collectives_bcast_linear(void *buffer, int count, MPI_Datatype datatype, 
 /**
   \brief Execute or schedule a broadcast using the binomial algorithm
     Or count the number of operations and rounds for the schedule
-  \param buffer Adress of the buffer used to send/recv data during the broadcast
+  \param buffer Address of the buffer used to send/recv data during the broadcast
   \param count Number of elements in buffer
   \param datatype Type of the data elements in the buffer
   \param root Rank root of the broadcast
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_bcast_binomial(void *buffer, int count, MPI_Datatype datatype, int root, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -1714,14 +1714,14 @@ int ___collectives_bcast_binomial(void *buffer, int count, MPI_Datatype datatype
 /**
   \brief Execute or schedule a broadcast using the scatter_allgather algorithm
     Or count the number of operations and rounds for the schedule
-  \param buffer Adress of the buffer used to send/recv data during the broadcast
+  \param buffer Address of the buffer used to send/recv data during the broadcast
   \param count Number of elements in buffer
   \param datatype Type of the data elements in the buffer
   \param root Rank root of the broadcast
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_bcast_scatter_allgather(__UNUSED__ void *buffer, __UNUSED__ int count, __UNUSED__ MPI_Datatype datatype, __UNUSED__ int root, __UNUSED__ MPI_Comm comm, __UNUSED__ MPC_COLL_TYPE coll_type, __UNUSED__ NBC_Schedule * schedule, __UNUSED__ Sched_info *info) {
@@ -1783,14 +1783,14 @@ int __INTERNAL__collectives_bcast_topo_depth(void *buffer, int count, MPI_Dataty
 /**
   \brief Execute or schedule a broadcast using the topological algorithm
     Or count the number of operations and rounds for the schedule
-  \param buffer Adress of the buffer used to send/recv data during the broadcast
+  \param buffer Address of the buffer used to send/recv data during the broadcast
   \param count Number of elements in buffer
   \param datatype Type of the data elements in the buffer
   \param root Rank root of the broadcast
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_bcast_topo(void *buffer, int count, MPI_Datatype datatype, int root, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -1846,8 +1846,8 @@ int ___collectives_bcast_topo(void *buffer, int count, MPI_Datatype datatype, in
 
 /**
   \brief Initialize NBC structures used in call of non-blocking Reduce
-  \param sendbuf Adress of the buffer used to send data during the reduce
-  \param recvbuf Adress of the buffer used to recv data during the reduce
+  \param sendbuf Address of the buffer used to send data during the reduce
+  \param recvbuf Address of the buffer used to recv data during the reduce
   \param count Number of elements in the buffers
   \param datatype Type of the data elements in the buffers
   \param op Operator to use in the reduction operation
@@ -1897,8 +1897,8 @@ int PMPI_Ireduce (const void *sendbuf, void* recvbuf, int count, MPI_Datatype da
 
 /**
   \brief Initialize NBC structures used in call of non-blocking Reduce
-  \param sendbuf Adress of the buffer used to send data during the reduce
-  \param recvbuf Adress of the buffer used to recv data during the reduce
+  \param sendbuf Address of the buffer used to send data during the reduce
+  \param recvbuf Address of the buffer used to recv data during the reduce
   \param count Number of elements in the buffers
   \param datatype Type of the data elements in the buffers
   \param op Operator to use in the reduction operation
@@ -1945,8 +1945,8 @@ static inline int ___collectives_ireduce(const void *sendbuf, void* recvbuf, int
 
 /**
   \brief Initialize NBC structures used in call of persistent Reduce
-  \param sendbuf Adress of the buffer used to send data during the reduce
-  \param recvbuf Adress of the buffer used to recv data during the reduce
+  \param sendbuf Address of the buffer used to send data during the reduce
+  \param recvbuf Address of the buffer used to recv data during the reduce
   \param count Number of elements in the buffers
   \param datatype Type of the data elements in the buffers
   \param op Operator to use in the reduction operation
@@ -1984,8 +1984,8 @@ int PMPI_Reduce_init(const void *sendbuf, void* recvbuf, int count, MPI_Datatype
   req->is_persistent = 1;
   mpc_req->request_type = REQUEST_GENERALIZED;
 
-  req->persistant.op = MPC_MPI_PERSISTENT_REDUCE_INIT;
-  req->persistant.info = info;
+  req->persistent.op = MPC_MPI_PERSISTENT_REDUCE_INIT;
+  req->persistent.info = info;
 
   /* Init metadat for nbc */
   ___collectives_reduce_init (sendbuf, recvbuf, count, datatype, op, root, comm, &(req->nbc_handle));
@@ -1995,8 +1995,8 @@ int PMPI_Reduce_init(const void *sendbuf, void* recvbuf, int count, MPI_Datatype
 
 /**
   \brief Initialize NBC structures used in call of persistent Reduce
-  \param sendbuf Adress of the buffer used to send data during the reduce
-  \param recvbuf Adress of the buffer used to recv data during the reduce
+  \param sendbuf Address of the buffer used to send data during the reduce
+  \param recvbuf Address of the buffer used to recv data during the reduce
   \param count Number of elements in the buffers
   \param datatype Type of the data elements in the buffers
   \param op Operator to use in the reduction operation
@@ -2040,8 +2040,8 @@ static inline int ___collectives_reduce_init(const void *sendbuf, void* recvbuf,
 
 /**
   \brief Blocking reduce
-  \param sendbuf Adress of the buffer used to send data during the reduce
-  \param recvbuf Adress of the buffer used to recv data during the reduce
+  \param sendbuf Address of the buffer used to send data during the reduce
+  \param recvbuf Address of the buffer used to recv data during the reduce
   \param count Number of elements in the buffers
   \param datatype Type of the data elements in the buffers
   \param op Operator to use in the reduction operation
@@ -2058,17 +2058,17 @@ int _mpc_mpi_collectives_reduce(const void *sendbuf, void* recvbuf, int count, M
 
 
 /**
-  \brief Swith between the different reduce algorithms
-  \param sendbuf Adress of the buffer used to send data during the reduce
-  \param recvbuf Adress of the buffer used to recv data during the reduce
+  \brief Switch between the different reduce algorithms
+  \param sendbuf Address of the buffer used to send data during the reduce
+  \param recvbuf Address of the buffer used to recv data during the reduce
   \param count Number of elements in the buffers
   \param datatype Type of the data elements in the buffers
   \param op Operator to use in the reduction operation
   \param root Rank root of the reduce
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_reduce_switch(const void *sendbuf, void* recvbuf, int count, MPI_Datatype datatype, MPI_Op op, int root, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -2155,16 +2155,16 @@ int ___collectives_reduce_switch(const void *sendbuf, void* recvbuf, int count, 
 /**
   \brief Execute or schedule a reduce using the linear algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the buffer used to send data during the reduce
-  \param recvbuf Adress of the buffer used to recv data during the reduce
+  \param sendbuf Address of the buffer used to send data during the reduce
+  \param recvbuf Address of the buffer used to recv data during the reduce
   \param count Number of elements in the buffers
   \param datatype Type of the data elements in the buffers
   \param op Operator to use in the reduction operation
   \param root Rank root of the reduce
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_reduce_linear(const void *sendbuf, void* recvbuf, int count, MPI_Datatype datatype, MPI_Op op, int root, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -2243,16 +2243,16 @@ int ___collectives_reduce_linear(const void *sendbuf, void* recvbuf, int count, 
 /**
   \brief Execute or schedule a reduce using the binomial algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the buffer used to send data during the reduce
-  \param recvbuf Adress of the buffer used to recv data during the reduce
+  \param sendbuf Address of the buffer used to send data during the reduce
+  \param recvbuf Address of the buffer used to recv data during the reduce
   \param count Number of elements in the buffers
   \param datatype Type of the data elements in the buffers
   \param op Operator to use in the reduction operation
   \param root Rank root of the reduce
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_reduce_binomial(const void *sendbuf, void* recvbuf, int count, MPI_Datatype datatype, MPI_Op op, int root, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -2377,16 +2377,16 @@ int ___collectives_reduce_binomial(const void *sendbuf, void* recvbuf, int count
 /**
   \brief Execute or schedule a reduce using the reduce_scatter allgather algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the buffer used to send data during the reduce
-  \param recvbuf Adress of the buffer used to recv data during the reduce
+  \param sendbuf Address of the buffer used to send data during the reduce
+  \param recvbuf Address of the buffer used to recv data during the reduce
   \param count Number of elements in the buffers
   \param datatype Type of the data elements in the buffers
   \param op Operator to use in the reduction operation
   \param root Rank root of the reduce
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_reduce_reduce_scatter_allgather(__UNUSED__ const void *sendbuf, __UNUSED__ void* recvbuf, __UNUSED__ int count, __UNUSED__ MPI_Datatype datatype, __UNUSED__ MPI_Op op, __UNUSED__ int root, __UNUSED__ MPI_Comm comm, __UNUSED__ MPC_COLL_TYPE coll_type, __UNUSED__ NBC_Schedule * schedule, __UNUSED__ Sched_info *info) {
@@ -2399,16 +2399,16 @@ int ___collectives_reduce_reduce_scatter_allgather(__UNUSED__ const void *sendbu
 /**
   \brief Execute or schedule a reduce using the topological algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the buffer used to send data during the reduce
-  \param recvbuf Adress of the buffer used to recv data during the reduce
+  \param sendbuf Address of the buffer used to send data during the reduce
+  \param recvbuf Address of the buffer used to recv data during the reduce
   \param count Number of elements in the buffers
   \param datatype Type of the data elements in the buffers
   \param op Operator to use in the reduction operation
   \param root Rank root of the reduce
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_reduce_topo(const void *sendbuf, void* recvbuf, int count, MPI_Datatype datatype, MPI_Op op, int root, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -2504,16 +2504,16 @@ int ___collectives_reduce_topo(const void *sendbuf, void* recvbuf, int count, MP
 /**
   \brief Execute or schedule a reduce using the topological algorithm for commutative operators
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the buffer used to send data during the reduce
-  \param recvbuf Adress of the buffer used to recv data during the reduce
+  \param sendbuf Address of the buffer used to send data during the reduce
+  \param recvbuf Address of the buffer used to recv data during the reduce
   \param count Number of elements in the buffers
   \param datatype Type of the data elements in the buffers
   \param op Operator to use in the reduction operation
   \param root Rank root of the reduce
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_reduce_topo_commute(const void *sendbuf, void* recvbuf, int count, MPI_Datatype datatype, MPI_Op op, int root, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -2604,8 +2604,8 @@ int ___collectives_reduce_topo_commute(const void *sendbuf, void* recvbuf, int c
 
 /**
   \brief Initialize NBC structures used in call of non-blocking Allreduce
-  \param sendbuf Adress of the buffer used to send data during the allreduce
-  \param recvbuf Adress of the buffer used to recv data during the allreduce
+  \param sendbuf Address of the buffer used to send data during the allreduce
+  \param recvbuf Address of the buffer used to recv data during the allreduce
   \param count Number of elements in the buffers
   \param datatype Type of the data elements in the buffers
   \param op Operator to use in the reduction operation
@@ -2647,8 +2647,8 @@ int PMPI_Iallreduce (const void *sendbuf, void* recvbuf, int count, MPI_Datatype
 
 /**
   \brief Initialize NBC structures used in call of non-blocking Allreduce
-  \param sendbuf Adress of the buffer used to send data during the allreduce
-  \param recvbuf Adress of the buffer used to recv data during the allreduce
+  \param sendbuf Address of the buffer used to send data during the allreduce
+  \param recvbuf Address of the buffer used to recv data during the allreduce
   \param count Number of elements in the buffers
   \param datatype Type of the data elements in the buffers
   \param op Operator to use in the reduction operation
@@ -2694,8 +2694,8 @@ static inline int ___collectives_iallreduce(const void *sendbuf, void* recvbuf, 
 
 /**
   \brief Initialize NBC structures used in call of persistent Allreduce
-  \param sendbuf Adress of the buffer used to send data during the allreduce
-  \param recvbuf Adress of the buffer used to recv data during the allreduce
+  \param sendbuf Address of the buffer used to send data during the allreduce
+  \param recvbuf Address of the buffer used to recv data during the allreduce
   \param count Number of elements in the buffers
   \param datatype Type of the data elements in the buffers
   \param op Operator to use in the reduction operation
@@ -2728,8 +2728,8 @@ int PMPI_Allreduce_init(const void *sendbuf, void* recvbuf, int count, MPI_Datat
   req->is_persistent = 1;
   mpc_req->request_type = REQUEST_GENERALIZED;
 
-  req->persistant.op = MPC_MPI_PERSISTENT_ALLREDUCE_INIT;
-  req->persistant.info = info;
+  req->persistent.op = MPC_MPI_PERSISTENT_ALLREDUCE_INIT;
+  req->persistent.info = info;
 
   /* Init metadat for nbc */
   ___collectives_allreduce_init (sendbuf, recvbuf, count, datatype, op, comm, &(req->nbc_handle));
@@ -2739,8 +2739,8 @@ int PMPI_Allreduce_init(const void *sendbuf, void* recvbuf, int count, MPI_Datat
 
 /**
   \brief Initialize NBC structures used in call of persistent Allreduce
-  \param sendbuf Adress of the buffer used to send data during the allreduce
-  \param recvbuf Adress of the buffer used to recv data during the allreduce
+  \param sendbuf Address of the buffer used to send data during the allreduce
+  \param recvbuf Address of the buffer used to recv data during the allreduce
   \param count Number of elements in the buffers
   \param datatype Type of the data elements in the buffers
   \param op Operator to use in the reduction operation
@@ -2783,8 +2783,8 @@ static inline int ___collectives_allreduce_init(const void *sendbuf, void* recvb
 
 /**
   \brief Blocking Allreduce
-  \param sendbuf Adress of the buffer used to send data during the allreduce
-  \param recvbuf Adress of the buffer used to recv data during the allreduce
+  \param sendbuf Address of the buffer used to send data during the allreduce
+  \param recvbuf Address of the buffer used to recv data during the allreduce
   \param count Number of elements in the buffers
   \param datatype Type of the data elements in the buffers
   \param op Operator to use in the reduction operation
@@ -2800,16 +2800,16 @@ int _mpc_mpi_collectives_allreduce(const void *sendbuf, void* recvbuf, int count
 
 
 /**
-  \brief Swith between the different allreduce algorithms
-  \param sendbuf Adress of the buffer used to send data during the allreduce
-  \param recvbuf Adress of the buffer used to recv data during the allreduce
+  \brief Switch between the different allreduce algorithms
+  \param sendbuf Address of the buffer used to send data during the allreduce
+  \param recvbuf Address of the buffer used to recv data during the allreduce
   \param count Number of elements in the buffers
   \param datatype Type of the data elements in the buffers
   \param op Operator to use in the reduction operation
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_allreduce_switch(const void *sendbuf, void* recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -2896,15 +2896,15 @@ int ___collectives_allreduce_switch(const void *sendbuf, void* recvbuf, int coun
 /**
   \brief Execute or schedule a allreduce using the reduce broadcast algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the buffer used to send data during the allreduce
-  \param recvbuf Adress of the buffer used to recv data during the allreduce
+  \param sendbuf Address of the buffer used to send data during the allreduce
+  \param recvbuf Address of the buffer used to recv data during the allreduce
   \param count Number of elements in the buffers
   \param datatype Type of the data elements in the buffers
   \param op Operator to use in the reduction operation
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_allreduce_reduce_broadcast(const void *sendbuf, void* recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -2920,15 +2920,15 @@ int ___collectives_allreduce_reduce_broadcast(const void *sendbuf, void* recvbuf
 /**
   \brief Execute or schedule a reduce using the distance doubling algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the buffer used to send data during the allreduce
-  \param recvbuf Adress of the buffer used to recv data during the allreduce
+  \param sendbuf Address of the buffer used to send data during the allreduce
+  \param recvbuf Address of the buffer used to recv data during the allreduce
   \param count Number of elements in the buffers
   \param datatype Type of the data elements in the buffers
   \param op Operator to use in the reduction operation
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_allreduce_distance_doubling(const void *sendbuf, void* recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -3287,15 +3287,15 @@ int ___collectives_allreduce_vector_halving_distance_doubling(const void *sendbu
 /**
   \brief Execute or schedule a reduce using the binary block algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the buffer used to send data during the allreduce
-  \param recvbuf Adress of the buffer used to recv data during the allreduce
+  \param sendbuf Address of the buffer used to send data during the allreduce
+  \param recvbuf Address of the buffer used to recv data during the allreduce
   \param count Number of elements in the buffers
   \param datatype Type of the data elements in the buffers
   \param op Operator to use in the reduction operation
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_allreduce_binary_block(const void *sendbuf, void* recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -3643,15 +3643,15 @@ int ___collectives_allreduce_binary_block(const void *sendbuf, void* recvbuf, in
 /**
   \brief Execute or schedule a reduce using the ring algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the buffer used to send data during the allreduce
-  \param recvbuf Adress of the buffer used to recv data during the allreduce
+  \param sendbuf Address of the buffer used to send data during the allreduce
+  \param recvbuf Address of the buffer used to recv data during the allreduce
   \param count Number of elements in the buffers
   \param datatype Type of the data elements in the buffers
   \param op Operator to use in the reduction operation
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_allreduce_ring(__UNUSED__ const void *sendbuf, __UNUSED__ void* recvbuf, __UNUSED__ int count, __UNUSED__ MPI_Datatype datatype, __UNUSED__ MPI_Op op, __UNUSED__ MPI_Comm comm, __UNUSED__ MPC_COLL_TYPE coll_type, __UNUSED__ NBC_Schedule * schedule, __UNUSED__ Sched_info *info) {
@@ -3664,15 +3664,15 @@ int ___collectives_allreduce_ring(__UNUSED__ const void *sendbuf, __UNUSED__ voi
 /**
   \brief Execute or schedule a reduce using the topological algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the buffer used to send data during the allreduce
-  \param recvbuf Adress of the buffer used to recv data during the allreduce
+  \param sendbuf Address of the buffer used to send data during the allreduce
+  \param recvbuf Address of the buffer used to recv data during the allreduce
   \param count Number of elements in the buffers
   \param datatype Type of the data elements in the buffers
   \param op Operator to use in the reduction operation
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_allreduce_topo(const void *sendbuf, void* recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -3690,10 +3690,10 @@ int ___collectives_allreduce_topo(const void *sendbuf, void* recvbuf, int count,
 
 /**
   \brief Initialize NBC structures used in call of non-blocking Scatter
-  \param sendbuf Adress of the buffer used to send data during the scatter
+  \param sendbuf Address of the buffer used to send data during the scatter
   \param sendcount Number of elements in the send buffer
   \param sendtype Type of the data elements in the send buffer
-  \param recvbuf Adress of the buffer used to send data during the scatter
+  \param recvbuf Address of the buffer used to send data during the scatter
   \param recvcount Number of elements in the recv buffer
   \param recvtype Type of the data elements in the recv buffer
   \param root Rank root of the Scatter
@@ -3742,10 +3742,10 @@ int PMPI_Iscatter (const void *sendbuf, int sendcount, MPI_Datatype sendtype, vo
 
 /**
   \brief Initialize NBC structures used in call of non-blocking Scatter
-  \param sendbuf Adress of the buffer used to send data during the scatter
+  \param sendbuf Address of the buffer used to send data during the scatter
   \param sendcount Number of elements in the send buffer
   \param sendtype Type of the data elements in the send buffer
-  \param recvbuf Adress of the buffer used to send data during the scatter
+  \param recvbuf Address of the buffer used to send data during the scatter
   \param recvcount Number of elements in the recv buffer
   \param recvtype Type of the data elements in the recv buffer
   \param root Rank root of the Scatter
@@ -3792,10 +3792,10 @@ static inline int ___collectives_iscatter(const void *sendbuf, int sendcount, MP
 
 /**
   \brief Initialize NBC structures used in call of persistent Scatter
-  \param sendbuf Adress of the buffer used to send data during the scatter
+  \param sendbuf Address of the buffer used to send data during the scatter
   \param sendcount Number of elements in the send buffer
   \param sendtype Type of the data elements in the send buffer
-  \param recvbuf Adress of the buffer used to send data during the scatter
+  \param recvbuf Address of the buffer used to send data during the scatter
   \param recvcount Number of elements in the recv buffer
   \param recvtype Type of the data elements in the recv buffer
   \param root Rank root of the Scatter
@@ -3830,8 +3830,8 @@ int PMPI_Scatter_init(const void *sendbuf, int sendcount, MPI_Datatype sendtype,
   req->is_persistent = 1;
   mpc_req->request_type = REQUEST_GENERALIZED;
 
-  req->persistant.op = MPC_MPI_PERSISTENT_SCATTER_INIT;
-  req->persistant.info = info;
+  req->persistent.op = MPC_MPI_PERSISTENT_SCATTER_INIT;
+  req->persistent.info = info;
 
   /* Init metadat for nbc */
   ___collectives_scatter_init(sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, root, comm, &(req->nbc_handle));
@@ -3841,10 +3841,10 @@ int PMPI_Scatter_init(const void *sendbuf, int sendcount, MPI_Datatype sendtype,
 
 /**
   \brief Initialize NBC structures used in call of persistent Scatter
-  \param sendbuf Adress of the buffer used to send data during the scatter
+  \param sendbuf Address of the buffer used to send data during the scatter
   \param sendcount Number of elements in the send buffer
   \param sendtype Type of the data elements in the send buffer
-  \param recvbuf Adress of the buffer used to send data during the scatter
+  \param recvbuf Address of the buffer used to send data during the scatter
   \param recvcount Number of elements in the recv buffer
   \param recvtype Type of the data elements in the recv buffer
   \param root Rank root of the Scatter
@@ -3887,10 +3887,10 @@ static inline int ___collectives_scatter_init(const void *sendbuf, int sendcount
 
 /**
   \brief Blocking Scatter
-  \param sendbuf Adress of the buffer used to send data during the scatter
+  \param sendbuf Address of the buffer used to send data during the scatter
   \param sendcount Number of elements in the send buffer
   \param sendtype Type of the data elements in the send buffer
-  \param recvbuf Adress of the buffer used to send data during the scatter
+  \param recvbuf Address of the buffer used to send data during the scatter
   \param recvcount Number of elements in the recv buffer
   \param recvtype Type of the data elements in the recv buffer
   \param root Rank root of the Scatter
@@ -3906,18 +3906,18 @@ int _mpc_mpi_collectives_scatter(const void *sendbuf, int sendcount, MPI_Datatyp
 
 
 /**
-  \brief Swith between the different Scatter algorithms
-  \param sendbuf Adress of the buffer used to send data during the scatter
+  \brief Switch between the different Scatter algorithms
+  \param sendbuf Address of the buffer used to send data during the scatter
   \param sendcount Number of elements in the send buffer
   \param sendtype Type of the data elements in the send buffer
-  \param recvbuf Adress of the buffer used to send data during the scatter
+  \param recvbuf Address of the buffer used to send data during the scatter
   \param recvcount Number of elements in the recv buffer
   \param recvtype Type of the data elements in the recv buffer
   \param root Rank root of the Scatter
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_scatter_switch(const void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, int root, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -3995,17 +3995,17 @@ int ___collectives_scatter_switch(const void *sendbuf, int sendcount, MPI_Dataty
 /**
   \brief Execute or schedule a Scatter using the linear algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the buffer used to send data during the scatter
+  \param sendbuf Address of the buffer used to send data during the scatter
   \param sendcount Number of elements in the send buffer
   \param sendtype Type of the data elements in the send buffer
-  \param recvbuf Adress of the buffer used to send data during the scatter
+  \param recvbuf Address of the buffer used to send data during the scatter
   \param recvcount Number of elements in the recv buffer
   \param recvtype Type of the data elements in the recv buffer
   \param root Rank root of the Scatter
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_scatter_linear(const void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, int root, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -4066,17 +4066,17 @@ int ___collectives_scatter_linear(const void *sendbuf, int sendcount, MPI_Dataty
 /**
   \brief Execute or schedule a Scatter using the binomial algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the buffer used to send data during the scatter
+  \param sendbuf Address of the buffer used to send data during the scatter
   \param sendcount Number of elements in the send buffer
   \param sendtype Type of the data elements in the send buffer
-  \param recvbuf Adress of the buffer used to send data during the scatter
+  \param recvbuf Address of the buffer used to send data during the scatter
   \param recvcount Number of elements in the recv buffer
   \param recvtype Type of the data elements in the recv buffer
   \param root Rank root of the Scatter
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_scatter_binomial(const void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, int root, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -4206,17 +4206,17 @@ int ___collectives_scatter_binomial(const void *sendbuf, int sendcount, MPI_Data
 /**
   \brief Execute or schedule a Scatter using the topological algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the buffer used to send data during the scatter
+  \param sendbuf Address of the buffer used to send data during the scatter
   \param sendcount Number of elements in the send buffer
   \param sendtype Type of the data elements in the send buffer
-  \param recvbuf Adress of the buffer used to send data during the scatter
+  \param recvbuf Address of the buffer used to send data during the scatter
   \param recvcount Number of elements in the recv buffer
   \param recvtype Type of the data elements in the recv buffer
   \param root Rank root of the Scatter
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_scatter_topo(const void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, int root, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -4280,8 +4280,8 @@ int ___collectives_scatter_topo(const void *sendbuf, int sendcount, MPI_Datatype
     ___collectives_topo_comm_init(comm, root, max_level, info);
   }
 
-  if(!(info->hardware_info_ptr->childs_data_count)) {
-    ___collectives_create_childs_counts(comm, info);
+  if(!(info->hardware_info_ptr->children_data_count)) {
+    ___collectives_create_children_counts(comm, info);
     ___collectives_create_swap_array(comm, info);
   }
 
@@ -4337,11 +4337,11 @@ int ___collectives_scatter_topo(const void *sendbuf, int sendcount, MPI_Datatype
 
       if(rank_master == 0) {
         displs[0] = 0;
-        counts[0] = info->hardware_info_ptr->childs_data_count[i][0] * recvcount;
+        counts[0] = info->hardware_info_ptr->children_data_count[i][0] * recvcount;
         int j;
         for(j = 1; j < size_master; j++) {
           displs[j] = displs[j-1] + counts[j-1];
-          counts[j] = info->hardware_info_ptr->childs_data_count[i][j] * recvcount;
+          counts[j] = info->hardware_info_ptr->children_data_count[i][j] * recvcount;
         }
 
         scatterv_buf = MPI_IN_PLACE;
@@ -4387,11 +4387,11 @@ int ___collectives_scatter_topo(const void *sendbuf, int sendcount, MPI_Datatype
 
 /**
   \brief Initialize NBC structures used in call of non-blocking Scatterv
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcounts Array (of length group size) containing the number of elements send to each process
   \param displs Array (of length group size) specifying at entry i the displacement relative to sendbuf from which to take the sent data for process i
   \param sendtype Type of the data elements in sendbuf
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcount Number of elements in recvbuf
   \param recvtype Type of the data elements in recvbuf
   \param root Rank root of the broadcast
@@ -4433,11 +4433,11 @@ int PMPI_Iscatterv (const void *sendbuf, const int *sendcounts, const int *displ
 
 /**
   \brief Initialize NBC structures used in call of non-blocking Scatterv
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcounts Array (of length group size) containing the number of elements send to each process
   \param displs Array (of length group size) specifying at entry i the displacement relative to sendbuf from which to take the sent data for process i
   \param sendtype Type of the data elements in sendbuf
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcount Number of elements in recvbuf
   \param recvtype Type of the data elements in recvbuf
   \param root Rank root of the broadcast
@@ -4484,11 +4484,11 @@ static inline int ___collectives_iscatterv(const void *sendbuf, const int *sendc
 
 /**
   \brief Initialize NBC structures used in call of persistent Scatterv
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcounts Array (of length group size) containing the number of elements send to each process
   \param displs Array (of length group size) specifying at entry i the displacement relative to sendbuf from which to take the sent data for process i
   \param sendtype Type of the data elements in sendbuf
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcount Number of elements in recvbuf
   \param recvtype Type of the data elements in recvbuf
   \param root Rank root of the broadcast
@@ -4534,8 +4534,8 @@ int PMPI_Scatterv_init(const void *sendbuf, const int *sendcounts, const int *di
   req->is_persistent = 1;
   mpc_req->request_type = REQUEST_GENERALIZED;
 
-  req->persistant.op = MPC_MPI_PERSISTENT_SCATTERV_INIT;
-  req->persistant.info = info;
+  req->persistent.op = MPC_MPI_PERSISTENT_SCATTERV_INIT;
+  req->persistent.info = info;
 
   /* Init metadata for nbc */
   ___collectives_scatterv_init (sendbuf, sendcounts, displs, sendtype, recvbuf, recvcount, recvtype, root, comm, &(req->nbc_handle));
@@ -4545,11 +4545,11 @@ int PMPI_Scatterv_init(const void *sendbuf, const int *sendcounts, const int *di
 
 /**
   \brief Initialize NBC structures used in call of persistent Scatterv
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcounts Array (of length group size) containing the number of elements send to each process
   \param displs Array (of length group size) specifying at entry i the displacement relative to sendbuf from which to take the sent data for process i
   \param sendtype Type of the data elements in sendbuf
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcount Number of elements in recvbuf
   \param recvtype Type of the data elements in recvbuf
   \param root Rank root of the broadcast
@@ -4593,11 +4593,11 @@ static inline int ___collectives_scatterv_init(const void *sendbuf, const int *s
 
 /**
   \brief Blocking Scatterv
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcounts Array (of length group size) containing the number of elements send to each process
   \param displs Array (of length group size) specifying at entry i the displacement relative to sendbuf from which to take the sent data for process i
   \param sendtype Type of the data elements in sendbuf
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcount Number of elements in recvbuf
   \param recvtype Type of the data elements in recvbuf
   \param root Rank root of the broadcast
@@ -4613,19 +4613,19 @@ int _mpc_mpi_collectives_scatterv(const void *sendbuf, const int *sendcounts, co
 
 
 /**
-  \brief Swith between the different Scatterv algorithms
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \brief Switch between the different Scatterv algorithms
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcounts Array (of length group size) containing the number of elements send to each process
   \param displs Array (of length group size) specifying at entry i the displacement relative to sendbuf from which to take the sent data for process i
   \param sendtype Type of the data elements in sendbuf
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcount Number of elements in recvbuf
   \param recvtype Type of the data elements in recvbuf
   \param root Rank root of the broadcast
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_scatterv_switch(const void *sendbuf, const int *sendcounts, const int *displs, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, int root, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -4670,18 +4670,18 @@ int ___collectives_scatterv_switch(const void *sendbuf, const int *sendcounts, c
 /**
   \brief Execute or schedule a Scatterv using the linear algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcounts Array (of length group size) containing the number of elements send to each process
   \param displs Array (of length group size) specifying at entry i the displacement relative to sendbuf from which to take the sent data for process i
   \param sendtype Type of the data elements in sendbuf
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcount Number of elements in recvbuf
   \param recvtype Type of the data elements in recvbuf
   \param root Rank root of the broadcast
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_scatterv_linear(const void *sendbuf, const int *sendcounts, const int *displs, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, int root, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -4743,18 +4743,18 @@ int ___collectives_scatterv_linear(const void *sendbuf, const int *sendcounts, c
 /**
   \brief Execute or schedule a Scatterv using the binomial algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcounts Array (of length group size) containing the number of elements send to each process
   \param displs Array (of length group size) specifying at entry i the displacement relative to sendbuf from which to take the sent data for process i
   \param sendtype Type of the data elements in sendbuf
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcount Number of elements in recvbuf
   \param recvtype Type of the data elements in recvbuf
   \param root Rank root of the broadcast
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_scatterv_binomial(__UNUSED__ const void *sendbuf, __UNUSED__ const int *sendcounts, __UNUSED__ const int *displs, __UNUSED__ MPI_Datatype sendtype, __UNUSED__ void *recvbuf, __UNUSED__ int recvcount, __UNUSED__ MPI_Datatype recvtype, __UNUSED__ int root, __UNUSED__ MPI_Comm comm, __UNUSED__ MPC_COLL_TYPE coll_type, __UNUSED__ NBC_Schedule * schedule, __UNUSED__ Sched_info *info) {
@@ -4774,10 +4774,10 @@ int ___collectives_scatterv_binomial(__UNUSED__ const void *sendbuf, __UNUSED__ 
 
 /**
   \brief Initialize NBC structures used in call of non-blocking Gather
-  \param sendbuf Adress of the buffer used to send data during the Gather
+  \param sendbuf Address of the buffer used to send data during the Gather
   \param sendcount Number of elements in the send buffer
   \param sendtype Type of the data elements in the send buffer
-  \param recvbuf Adress of the buffer used to send data during the Gather
+  \param recvbuf Address of the buffer used to send data during the Gather
   \param recvcount Number of elements in the recv buffer
   \param recvtype Type of the data elements in the recv buffer
   \param root Rank root of the Gather
@@ -4824,10 +4824,10 @@ int PMPI_Igather (const void *sendbuf, int sendcount, MPI_Datatype sendtype, voi
 
 /**
   \brief Initialize NBC structures used in call of non-blocking Gather
-  \param sendbuf Adress of the buffer used to send data during the Gather
+  \param sendbuf Address of the buffer used to send data during the Gather
   \param sendcount Number of elements in the send buffer
   \param sendtype Type of the data elements in the send buffer
-  \param recvbuf Adress of the buffer used to send data during the Gather
+  \param recvbuf Address of the buffer used to send data during the Gather
   \param recvcount Number of elements in the recv buffer
   \param recvtype Type of the data elements in the recv buffer
   \param root Rank root of the Gather
@@ -4873,10 +4873,10 @@ static inline int ___collectives_igather(const void *sendbuf, int sendcount, MPI
 
 /**
   \brief Initialize NBC structures used in call of persistent Gather
-  \param sendbuf Adress of the buffer used to send data during the Gather
+  \param sendbuf Address of the buffer used to send data during the Gather
   \param sendcount Number of elements in the send buffer
   \param sendtype Type of the data elements in the send buffer
-  \param recvbuf Adress of the buffer used to send data during the Gather
+  \param recvbuf Address of the buffer used to send data during the Gather
   \param recvcount Number of elements in the recv buffer
   \param recvtype Type of the data elements in the recv buffer
   \param root Rank root of the Gather
@@ -4916,8 +4916,8 @@ int PMPI_Gather_init(const void *sendbuf, int sendcount, MPI_Datatype sendtype, 
   req->is_persistent = 1;
   mpc_req->request_type = REQUEST_GENERALIZED;
 
-  req->persistant.op = MPC_MPI_PERSISTENT_GATHER_INIT;
-  req->persistant.info = info;
+  req->persistent.op = MPC_MPI_PERSISTENT_GATHER_INIT;
+  req->persistent.info = info;
 
   /* Init metadat for nbc */
   ___collectives_gather_init (sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, root, comm, &(req->nbc_handle));
@@ -4927,10 +4927,10 @@ int PMPI_Gather_init(const void *sendbuf, int sendcount, MPI_Datatype sendtype, 
 
 /**
   \brief Initialize NBC structures used in call of persistent Gather
-  \param sendbuf Adress of the buffer used to send data during the Gather
+  \param sendbuf Address of the buffer used to send data during the Gather
   \param sendcount Number of elements in the send buffer
   \param sendtype Type of the data elements in the send buffer
-  \param recvbuf Adress of the buffer used to send data during the Gather
+  \param recvbuf Address of the buffer used to send data during the Gather
   \param recvcount Number of elements in the recv buffer
   \param recvtype Type of the data elements in the recv buffer
   \param root Rank root of the Gather
@@ -4971,10 +4971,10 @@ static inline int ___collectives_gather_init(const void *sendbuf, int sendcount,
 
 /**
   \brief Blocking Gather
-  \param sendbuf Adress of the buffer used to send data during the Gather
+  \param sendbuf Address of the buffer used to send data during the Gather
   \param sendcount Number of elements in the send buffer
   \param sendtype Type of the data elements in the send buffer
-  \param recvbuf Adress of the buffer used to send data during the Gather
+  \param recvbuf Address of the buffer used to send data during the Gather
   \param recvcount Number of elements in the recv buffer
   \param recvtype Type of the data elements in the recv buffer
   \param root Rank root of the Gather
@@ -4990,18 +4990,18 @@ int _mpc_mpi_collectives_gather(const void *sendbuf, int sendcount, MPI_Datatype
 
 
 /**
-  \brief Swith between the different Gather algorithms
-  \param sendbuf Adress of the buffer used to send data during the Gather
+  \brief Switch between the different Gather algorithms
+  \param sendbuf Address of the buffer used to send data during the Gather
   \param sendcount Number of elements in the send buffer
   \param sendtype Type of the data elements in the send buffer
-  \param recvbuf Adress of the buffer used to send data during the Gather
+  \param recvbuf Address of the buffer used to send data during the Gather
   \param recvcount Number of elements in the recv buffer
   \param recvtype Type of the data elements in the recv buffer
   \param root Rank root of the Gather
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_gather_switch(const void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, int root, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -5079,17 +5079,17 @@ int ___collectives_gather_switch(const void *sendbuf, int sendcount, MPI_Datatyp
 /**
   \brief Execute or schedule a Gather using the linear algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the buffer used to send data during the Gather
+  \param sendbuf Address of the buffer used to send data during the Gather
   \param sendcount Number of elements in the send buffer
   \param sendtype Type of the data elements in the send buffer
-  \param recvbuf Adress of the buffer used to send data during the Gather
+  \param recvbuf Address of the buffer used to send data during the Gather
   \param recvcount Number of elements in the recv buffer
   \param recvtype Type of the data elements in the recv buffer
   \param root Rank root of the Gather
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_gather_linear(const void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, int root, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -5149,17 +5149,17 @@ int ___collectives_gather_linear(const void *sendbuf, int sendcount, MPI_Datatyp
 /**
   \brief Execute or schedule a Gather using the binomial algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the buffer used to send data during the Gather
+  \param sendbuf Address of the buffer used to send data during the Gather
   \param sendcount Number of elements in the send buffer
   \param sendtype Type of the data elements in the send buffer
-  \param recvbuf Adress of the buffer used to send data during the Gather
+  \param recvbuf Address of the buffer used to send data during the Gather
   \param recvcount Number of elements in the recv buffer
   \param recvtype Type of the data elements in the recv buffer
   \param root Rank root of the Gather
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_gather_binomial(const void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, int root, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -5255,7 +5255,7 @@ int ___collectives_gather_binomial(const void *sendbuf, int sendcount, MPI_Datat
       // => count = 2^i * recvcount = 2
       // => 0[d0 d1 d2 d3] 1 2 3
 
-      // other case, we are not power of 2 AND we are receving from a process at the end (peer + peer_range >= size)
+      // other case, we are not power of 2 AND we are receiving from a process at the end (peer + peer_range >= size)
       // EX: 0[d0 d1] 1 2[d2], second step, i = 1, size = 3, rank 0 recv from rank 2, range(2) = 3
       // => count = (size - range) * recvcount = 1
       // => 0[d0 d1 d2] 1 2
@@ -5343,11 +5343,11 @@ int __INTERNAL__collectives_gather_topo_depth(void *tmp_sendbuf, int tmp_sendcou
 
       if(rank_master == 0) {
         displs[0] = 0;
-        counts[0] = info->hardware_info_ptr->childs_data_count[i][0] * tmp_sendcount;
+        counts[0] = info->hardware_info_ptr->children_data_count[i][0] * tmp_sendcount;
         int j;
         for(j = 1; j < size_master; j++) {
           displs[j] = displs[j-1] + counts[j-1];
-          counts[j] = info->hardware_info_ptr->childs_data_count[i][j] * tmp_sendcount;
+          counts[j] = info->hardware_info_ptr->children_data_count[i][j] * tmp_sendcount;
         }
 
         gatherv_buf = MPI_IN_PLACE;
@@ -5384,17 +5384,17 @@ int __INTERNAL__collectives_gather_topo_depth(void *tmp_sendbuf, int tmp_sendcou
 /**
   \brief Execute or schedule a Gather using the topological algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the buffer used to send data during the Gather
+  \param sendbuf Address of the buffer used to send data during the Gather
   \param sendcount Number of elements in the send buffer
   \param sendtype Type of the data elements in the send buffer
-  \param recvbuf Adress of the buffer used to send data during the Gather
+  \param recvbuf Address of the buffer used to send data during the Gather
   \param recvcount Number of elements in the recv buffer
   \param recvtype Type of the data elements in the recv buffer
   \param root Rank root of the Gather
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_gather_topo(const void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, int root, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -5463,8 +5463,8 @@ int ___collectives_gather_topo(const void *sendbuf, int sendcount, MPI_Datatype 
     ___collectives_topo_comm_init(comm, root, max_level, info);
   }
 
-  if(!(info->hardware_info_ptr->childs_data_count)) {
-    ___collectives_create_childs_counts(comm, info);
+  if(!(info->hardware_info_ptr->children_data_count)) {
+    ___collectives_create_children_counts(comm, info);
     ___collectives_create_swap_array(comm, info);
   }
 
@@ -5487,10 +5487,10 @@ int ___collectives_gather_topo(const void *sendbuf, int sendcount, MPI_Datatype 
 
 /**
   \brief Initialize NBC structures used in call of non-blocking Gatherv
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcount Number of elements in sendbuf
   \param sendtype Type of the data elements in sendbuf
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param rdispls Array (of length group size) specifying at entry i the displacement relative to recvbuf at which to place the received data from process i
   \param recvtype Type of the data elements in recvbuf
@@ -5533,10 +5533,10 @@ int PMPI_Igatherv (const void *sendbuf, int sendcount, MPI_Datatype sendtype, vo
 
 /**
   \brief Initialize NBC structures used in call of non-blocking Gatherv
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcount Number of elements in sendbuf
   \param sendtype Type of the data elements in sendbuf
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param rdispls Array (of length group size) specifying at entry i the displacement relative to recvbuf at which to place the received data from process i
   \param recvtype Type of the data elements in recvbuf
@@ -5584,10 +5584,10 @@ static inline int ___collectives_igatherv(const void *sendbuf, int sendcount, MP
 
 /**
   \brief Initialize NBC structures used in call of persistent Gatherv
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcount Number of elements in sendbuf
   \param sendtype Type of the data elements in sendbuf
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param rdispls Array (of length group size) specifying at entry i the displacement relative to recvbuf at which to place the received data from process i
   \param recvtype Type of the data elements in recvbuf
@@ -5631,8 +5631,8 @@ int PMPI_Gatherv_init(const void *sendbuf, int sendcount, MPI_Datatype sendtype,
   req->is_persistent = 1;
   mpc_req->request_type = REQUEST_GENERALIZED;
 
-  req->persistant.op = MPC_MPI_PERSISTENT_GATHERV_INIT;
-  req->persistant.info = info;
+  req->persistent.op = MPC_MPI_PERSISTENT_GATHERV_INIT;
+  req->persistent.info = info;
 
   /* Init metadat for nbc */
   ___collectives_gatherv_init (sendbuf, sendcount, sendtype, recvbuf, recvcounts, displs, recvtype, root, comm, &(req->nbc_handle));
@@ -5642,10 +5642,10 @@ int PMPI_Gatherv_init(const void *sendbuf, int sendcount, MPI_Datatype sendtype,
 
 /**
   \brief Initialize NBC structures used in call of persistent Gatherv
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcount Number of elements in sendbuf
   \param sendtype Type of the data elements in sendbuf
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param rdispls Array (of length group size) specifying at entry i the displacement relative to recvbuf at which to place the received data from process i
   \param recvtype Type of the data elements in recvbuf
@@ -5690,10 +5690,10 @@ static inline int ___collectives_gatherv_init(const void *sendbuf, int sendcount
 
 /**
   \brief Blocking Gatherv
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcount Number of elements in sendbuf
   \param sendtype Type of the data elements in sendbuf
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param rdispls Array (of length group size) specifying at entry i the displacement relative to recvbuf at which to place the received data from process i
   \param recvtype Type of the data elements in recvbuf
@@ -5710,19 +5710,19 @@ int _mpc_mpi_collectives_gatherv(const void *sendbuf, int sendcount, MPI_Datatyp
 
 
 /**
-  \brief Swith between the different Gatherv algorithms
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \brief Switch between the different Gatherv algorithms
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcount Number of elements in sendbuf
   \param sendtype Type of the data elements in sendbuf
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param rdispls Array (of length group size) specifying at entry i the displacement relative to recvbuf at which to place the received data from process i
   \param recvtype Type of the data elements in recvbuf
   \param root Rank root of the gatherv
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_gatherv_switch(const void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, const int *recvcounts, const int *displs, MPI_Datatype recvtype, int root, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -5767,18 +5767,18 @@ int ___collectives_gatherv_switch(const void *sendbuf, int sendcount, MPI_Dataty
 /**
   \brief Execute or schedule a Gatherv using the linear algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcount Number of elements in sendbuf
   \param sendtype Type of the data elements in sendbuf
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param rdispls Array (of length group size) specifying at entry i the displacement relative to recvbuf at which to place the received data from process i
   \param recvtype Type of the data elements in recvbuf
   \param root Rank root of the gatherv
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_gatherv_linear(const void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, const int *recvcounts, const int *displs, MPI_Datatype recvtype, int root, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -5845,18 +5845,18 @@ int ___collectives_gatherv_linear(const void *sendbuf, int sendcount, MPI_Dataty
 /**
   \brief Execute or schedule a Gatherv using the binomial algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcount Number of elements in sendbuf
   \param sendtype Type of the data elements in sendbuf
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param rdispls Array (of length group size) specifying at entry i the displacement relative to recvbuf at which to place the received data from process i
   \param recvtype Type of the data elements in recvbuf
   \param root Rank root of the gatherv
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_gatherv_binomial(__UNUSED__ const void *sendbuf, __UNUSED__ int sendcount, __UNUSED__ MPI_Datatype sendtype, __UNUSED__ void *recvbuf, __UNUSED__ const int *recvcounts, __UNUSED__ const int *displs, __UNUSED__ MPI_Datatype recvtype, __UNUSED__ int root, __UNUSED__ MPI_Comm comm, __UNUSED__ MPC_COLL_TYPE coll_type, __UNUSED__ NBC_Schedule * schedule, __UNUSED__ Sched_info *info) {
@@ -5876,8 +5876,8 @@ int ___collectives_gatherv_binomial(__UNUSED__ const void *sendbuf, __UNUSED__ i
 
 /**
   \brief Initialize NBC structures used in call of non-blocking Reduce_scatter_block
-  \param sendbuf Adress of the buffer used to send data during the Reduce_scatter_block
-  \param recvbuf Adress of the buffer used to recv data during the Reduce_scatter_block
+  \param sendbuf Address of the buffer used to send data during the Reduce_scatter_block
+  \param recvbuf Address of the buffer used to recv data during the Reduce_scatter_block
   \param count Number of elements in the buffers
   \param datatype Type of the data elements in the buffers
   \param op Operator to use in the reduction operation
@@ -5918,8 +5918,8 @@ int PMPI_Ireduce_scatter_block (const void *sendbuf, void* recvbuf, int count, M
 
 /**
   \brief Initialize NBC structures used in call of non-blocking Reduce_scatter_block
-  \param sendbuf Adress of the buffer used to send data during the Reduce_scatter_block
-  \param recvbuf Adress of the buffer used to recv data during the Reduce_scatter_block
+  \param sendbuf Address of the buffer used to send data during the Reduce_scatter_block
+  \param recvbuf Address of the buffer used to recv data during the Reduce_scatter_block
   \param count Number of elements in the buffers
   \param datatype Type of the data elements in the buffers
   \param op Operator to use in the reduction operation
@@ -5966,8 +5966,8 @@ static inline int ___collectives_ireduce_scatter_block (const void *sendbuf, voi
 
 /**
   \brief Initialize NBC structures used in call of persistent Reduce_scatter_block
-  \param sendbuf Adress of the buffer used to send data during the Reduce_scatter_block
-  \param recvbuf Adress of the buffer used to recv data during the Reduce_scatter_block
+  \param sendbuf Address of the buffer used to send data during the Reduce_scatter_block
+  \param recvbuf Address of the buffer used to recv data during the Reduce_scatter_block
   \param count Number of elements in the buffers
   \param datatype Type of the data elements in the buffers
   \param op Operator to use in the reduction operation
@@ -5998,8 +5998,8 @@ int PMPI_Reduce_scatter_block_init(const void *sendbuf, void* recvbuf, int count
   req->is_persistent = 1;
   mpc_req->request_type = REQUEST_GENERALIZED;
 
-  req->persistant.op = MPC_MPI_PERSISTENT_REDUCE_SCATTER_BLOCK_INIT;
-  req->persistant.info = info;
+  req->persistent.op = MPC_MPI_PERSISTENT_REDUCE_SCATTER_BLOCK_INIT;
+  req->persistent.info = info;
 
   /* Init metadat for nbc */
   ___collectives_reduce_scatter_block_init (sendbuf,  recvbuf, count, datatype, op, comm, &(req->nbc_handle));
@@ -6009,8 +6009,8 @@ int PMPI_Reduce_scatter_block_init(const void *sendbuf, void* recvbuf, int count
 
 /**
   \brief Initialize NBC structures used in call of persistent Reduce_scatter_block
-  \param sendbuf Adress of the buffer used to send data during the Reduce_scatter_block
-  \param recvbuf Adress of the buffer used to recv data during the Reduce_scatter_block
+  \param sendbuf Address of the buffer used to send data during the Reduce_scatter_block
+  \param recvbuf Address of the buffer used to recv data during the Reduce_scatter_block
   \param count Number of elements in the buffers
   \param datatype Type of the data elements in the buffers
   \param op Operator to use in the reduction operation
@@ -6052,8 +6052,8 @@ static inline int ___collectives_reduce_scatter_block_init(const void *sendbuf, 
 
 /**
   \brief Blocking Reduce_scatter_block
-  \param sendbuf Adress of the buffer used to send data during the Reduce_scatter_block
-  \param recvbuf Adress of the buffer used to recv data during the Reduce_scatter_block
+  \param sendbuf Address of the buffer used to send data during the Reduce_scatter_block
+  \param recvbuf Address of the buffer used to recv data during the Reduce_scatter_block
   \param count Number of elements in the buffers
   \param datatype Type of the data elements in the buffers
   \param op Operator to use in the reduction operation
@@ -6069,16 +6069,16 @@ int _mpc_mpi_collectives_reduce_scatter_block(const void *sendbuf, void* recvbuf
 
 
 /**
-  \brief Swith between the different Reduce_scatter_block algorithms
-  \param sendbuf Adress of the buffer used to send data during the Reduce_scatter_block
-  \param recvbuf Adress of the buffer used to recv data during the Reduce_scatter_block
+  \brief Switch between the different Reduce_scatter_block algorithms
+  \param sendbuf Address of the buffer used to send data during the Reduce_scatter_block
+  \param recvbuf Address of the buffer used to recv data during the Reduce_scatter_block
   \param count Number of elements in the buffers
   \param datatype Type of the data elements in the buffers
   \param op Operator to use in the reduction operation
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_reduce_scatter_block_switch(const void *sendbuf, void* recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -6102,8 +6102,8 @@ int ___collectives_reduce_scatter_block_switch(const void *sendbuf, void* recvbu
   enum {
     NBC_REDUCE_SCATTER_BLOCK_REDUCE_SCATTER,
     NBC_REDUCE_SCATTER_BLOCK_DISTANCE_DOUBLING, // difficile a mettre en place
-    NBC_REDUCE_SCATTER_BLOCK_DISTANCE_HALVING, // necessite operateur commutatif & associatif
-    NBC_REDUCE_SCATTER_BLOCK_PAIRWISE // seulement en non bloquant & ne respecte pas l'associativité
+    NBC_REDUCE_SCATTER_BLOCK_DISTANCE_HALVING, // necessities operateur commutatif & associatif
+    NBC_REDUCE_SCATTER_BLOCK_PAIRWISE // seulement en non bloquant & ne respective pas l'associativité
   } alg;
 
   alg = NBC_REDUCE_SCATTER_BLOCK_REDUCE_SCATTER;
@@ -6135,15 +6135,15 @@ int ___collectives_reduce_scatter_block_switch(const void *sendbuf, void* recvbu
 /**
   \brief Execute or schedule a Reduce_scatter_block using the reduce scatter algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the buffer used to send data during the Reduce_scatter_block
-  \param recvbuf Adress of the buffer used to recv data during the Reduce_scatter_block
+  \param sendbuf Address of the buffer used to send data during the Reduce_scatter_block
+  \param recvbuf Address of the buffer used to recv data during the Reduce_scatter_block
   \param count Number of elements in the buffers
   \param datatype Type of the data elements in the buffers
   \param op Operator to use in the reduction operation
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_reduce_scatter_block_reduce_scatter(const void *sendbuf, void* recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -6199,15 +6199,15 @@ int ___collectives_reduce_scatter_block_reduce_scatter(const void *sendbuf, void
 /**
   \brief Execute or schedule a Reduce_scatter_block using the distance doubling algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the buffer used to send data during the Reduce_scatter_block
-  \param recvbuf Adress of the buffer used to recv data during the Reduce_scatter_block
+  \param sendbuf Address of the buffer used to send data during the Reduce_scatter_block
+  \param recvbuf Address of the buffer used to recv data during the Reduce_scatter_block
   \param count Number of elements in the buffers
   \param datatype Type of the data elements in the buffers
   \param op Operator to use in the reduction operation
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_reduce_scatter_block_distance_doubling(__UNUSED__ const void *sendbuf, __UNUSED__ void* recvbuf, __UNUSED__ int count, __UNUSED__ MPI_Datatype datatype, __UNUSED__ MPI_Op op, __UNUSED__ MPI_Comm comm, __UNUSED__ MPC_COLL_TYPE coll_type, __UNUSED__ NBC_Schedule * schedule, __UNUSED__ Sched_info *info) {
@@ -6220,15 +6220,15 @@ int ___collectives_reduce_scatter_block_distance_doubling(__UNUSED__ const void 
 /**
   \brief Execute or schedule a Reduce_scatter_block using the distance halving algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the buffer used to send data during the Reduce_scatter_block
-  \param recvbuf Adress of the buffer used to recv data during the Reduce_scatter_block
+  \param sendbuf Address of the buffer used to send data during the Reduce_scatter_block
+  \param recvbuf Address of the buffer used to recv data during the Reduce_scatter_block
   \param count Number of elements in the buffers
   \param datatype Type of the data elements in the buffers
   \param op Operator to use in the reduction operation
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_reduce_scatter_block_distance_halving(__UNUSED__ const void *sendbuf, __UNUSED__ void* recvbuf, __UNUSED__ int count, __UNUSED__ MPI_Datatype datatype, __UNUSED__ MPI_Op op, __UNUSED__ MPI_Comm comm, __UNUSED__ MPC_COLL_TYPE coll_type, __UNUSED__ NBC_Schedule * schedule, __UNUSED__ Sched_info *info) {
@@ -6241,15 +6241,15 @@ int ___collectives_reduce_scatter_block_distance_halving(__UNUSED__ const void *
 /**
   \brief Execute or schedule a Reduce_scatter_block using the pairwise algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the buffer used to send data during the Reduce_scatter_block
-  \param recvbuf Adress of the buffer used to recv data during the Reduce_scatter_block
+  \param sendbuf Address of the buffer used to send data during the Reduce_scatter_block
+  \param recvbuf Address of the buffer used to recv data during the Reduce_scatter_block
   \param count Number of elements in the buffers
   \param datatype Type of the data elements in the buffers
   \param op Operator to use in the reduction operation
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_reduce_scatter_block_pairwise(const void *sendbuf, void* recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -6301,7 +6301,7 @@ int ___collectives_reduce_scatter_block_pairwise(const void *sendbuf, void* recv
   int i;
   for(i = 1; i < size; i++) {
     // At each step receive from rank-i, & send to rank+i,
-    // This order is choosed to avoid swap buffer:
+    // This order is chosen to avoid swap buffer:
     // tmp_recvbuf OP tmp_resbuf will put the result in tmp_resbuf
     send_peer = (rank + i) % size;
     recv_peer = (rank - i + size) % size;
@@ -6350,8 +6350,8 @@ int ___collectives_reduce_scatter_block_pairwise(const void *sendbuf, void* recv
 
 /**
   \brief Initialize NBC structures used in call of non-blocking Reduce_scatter
-  \param sendbuf Adress of the pointer to the buffer used to send data
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param sendbuf Address of the pointer to the buffer used to send data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param datatype Type of the data elements in sendbuf
   \param op Reduction operation
@@ -6395,8 +6395,8 @@ int PMPI_Ireduce_scatter (const void *sendbuf, void* recvbuf, const int *recvcou
 
 /**
   \brief Initialize NBC structures used in call of non-blocking Reduce_scatter
-  \param sendbuf Adress of the pointer to the buffer used to send data
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param sendbuf Address of the pointer to the buffer used to send data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param datatype Type of the data elements in sendbuf
   \param op Reduction operation
@@ -6443,8 +6443,8 @@ static inline int ___collectives_ireduce_scatter (const void *sendbuf, void* rec
 
 /**
   \brief Initialize NBC structures used in call of persistent Reduce_scatter
-  \param sendbuf Adress of the pointer to the buffer used to send data
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param sendbuf Address of the pointer to the buffer used to send data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param datatype Type of the data elements in sendbuf
   \param op Reduction operation
@@ -6482,8 +6482,8 @@ int PMPI_Reduce_scatter_init(const void *sendbuf, void* recvbuf, const int *recv
   req->is_persistent = 1;
   mpc_req->request_type = REQUEST_GENERALIZED;
 
-  req->persistant.op = MPC_MPI_PERSISTENT_REDUCE_SCATTER_INIT;
-  req->persistant.info = info;
+  req->persistent.op = MPC_MPI_PERSISTENT_REDUCE_SCATTER_INIT;
+  req->persistent.info = info;
 
   /* Init metadat for nbc */
   ___collectives_reduce_scatter_init (sendbuf,  recvbuf, recvcounts, datatype, op, comm, &(req->nbc_handle));
@@ -6493,8 +6493,8 @@ int PMPI_Reduce_scatter_init(const void *sendbuf, void* recvbuf, const int *recv
 
 /**
   \brief Initialize NBC structures used in call of persistent Reduce_scatter
-  \param sendbuf Adress of the pointer to the buffer used to send data
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param sendbuf Address of the pointer to the buffer used to send data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param datatype Type of the data elements in sendbuf
   \param op Reduction operation
@@ -6536,8 +6536,8 @@ static inline int ___collectives_reduce_scatter_init(const void *sendbuf, void* 
 
 /**
   \brief Blocking Reduce_scatter
-  \param sendbuf Adress of the pointer to the buffer used to send data
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param sendbuf Address of the pointer to the buffer used to send data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param datatype Type of the data elements in sendbuf
   \param op Reduction operation
@@ -6553,16 +6553,16 @@ int _mpc_mpi_collectives_reduce_scatter(const void *sendbuf, void* recvbuf, cons
 
 
 /**
-  \brief Swith between the different Reduce_scatter algorithms
-  \param sendbuf Adress of the pointer to the buffer used to send data
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \brief Switch between the different Reduce_scatter algorithms
+  \param sendbuf Address of the pointer to the buffer used to send data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param datatype Type of the data elements in sendbuf
   \param op Reduction operation
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_reduce_scatter_switch(const void *sendbuf, void* recvbuf, const int *recvcounts, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -6582,7 +6582,7 @@ int ___collectives_reduce_scatter_switch(const void *sendbuf, void* recvbuf, con
   enum {
     NBC_REDUCE_SCATTER_REDUCE_SCATTERV,
     NBC_REDUCE_SCATTER_DISTANCE_DOUBLING, // difficile a mettre en place
-    NBC_REDUCE_SCATTER_DISTANCE_HALVING, // necessite operateur commutatif & associatif
+    NBC_REDUCE_SCATTER_DISTANCE_HALVING, // necessities operateur commutatif & associatif
     NBC_REDUCE_SCATTER_PAIRWISE // seulement en non bloquant
   } alg;
 
@@ -6615,15 +6615,15 @@ int ___collectives_reduce_scatter_switch(const void *sendbuf, void* recvbuf, con
 /**
   \brief Execute or schedule a Reduce_scatter using the reduce scatter algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the pointer to the buffer used to send data
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param sendbuf Address of the pointer to the buffer used to send data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param datatype Type of the data elements in sendbuf
   \param op Reduction operation
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_reduce_scatter_reduce_scatterv(const void *sendbuf, void* recvbuf, const int *recvcounts, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -6698,15 +6698,15 @@ int ___collectives_reduce_scatter_reduce_scatterv(const void *sendbuf, void* rec
 /**
   \brief Execute or schedule a Reduce_scatter using the distance doubling algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the pointer to the buffer used to send data
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param sendbuf Address of the pointer to the buffer used to send data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param datatype Type of the data elements in sendbuf
   \param op Reduction operation
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_reduce_scatter_distance_doubling(__UNUSED__ const void *sendbuf, __UNUSED__ void* recvbuf, __UNUSED__ const int *recvcounts, __UNUSED__ MPI_Datatype datatype, __UNUSED__ MPI_Op op, __UNUSED__ MPI_Comm comm, __UNUSED__ MPC_COLL_TYPE coll_type, __UNUSED__ NBC_Schedule * schedule, __UNUSED__ Sched_info *info) {
@@ -6719,15 +6719,15 @@ int ___collectives_reduce_scatter_distance_doubling(__UNUSED__ const void *sendb
 /**
   \brief Execute or schedule a Reduce_scatter using the distance halving algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the pointer to the buffer used to send data
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param sendbuf Address of the pointer to the buffer used to send data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param datatype Type of the data elements in sendbuf
   \param op Reduction operation
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_reduce_scatter_distance_halving(__UNUSED__ const void *sendbuf, __UNUSED__ void* recvbuf, __UNUSED__ const int *recvcounts, __UNUSED__ MPI_Datatype datatype, __UNUSED__ MPI_Op op, __UNUSED__ MPI_Comm comm, __UNUSED__ MPC_COLL_TYPE coll_type, __UNUSED__ NBC_Schedule * schedule, __UNUSED__ Sched_info *info) {
@@ -6740,15 +6740,15 @@ int ___collectives_reduce_scatter_distance_halving(__UNUSED__ const void *sendbu
 /**
   \brief Execute or schedule a Reduce_scatter using the pairwise algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the pointer to the buffer used to send data
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param sendbuf Address of the pointer to the buffer used to send data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param datatype Type of the data elements in sendbuf
   \param op Reduction operation
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_reduce_scatter_pairwise(__UNUSED__ const void *sendbuf, __UNUSED__ void* recvbuf, __UNUSED__ const int *recvcounts, __UNUSED__ MPI_Datatype datatype, __UNUSED__ MPI_Op op, __UNUSED__ MPI_Comm comm, __UNUSED__ MPC_COLL_TYPE coll_type, __UNUSED__ NBC_Schedule * schedule, __UNUSED__ Sched_info *info) {
@@ -6768,10 +6768,10 @@ int ___collectives_reduce_scatter_pairwise(__UNUSED__ const void *sendbuf, __UNU
 
 /**
   \brief Initialize NBC structures used in call of non-blocking Allgather
-  \param sendbuf Adress of the buffer used to send data during the Allgather
+  \param sendbuf Address of the buffer used to send data during the Allgather
   \param sendcount Number of elements in the send buffer
   \param sendtype Type of the data elements in the send buffer
-  \param recvbuf Adress of the buffer used to send data during the Allgather
+  \param recvbuf Address of the buffer used to send data during the Allgather
   \param recvcount Number of elements in the recv buffer
   \param recvtype Type of the data elements in the recv buffer
   \param comm Target communicator
@@ -6814,10 +6814,10 @@ int PMPI_Iallgather (const void *sendbuf, int sendcount, MPI_Datatype sendtype, 
 
 /**
   \brief Initialize NBC structures used in call of non-blocking Allgather
-  \param sendbuf Adress of the buffer used to send data during the Allgather
+  \param sendbuf Address of the buffer used to send data during the Allgather
   \param sendcount Number of elements in the send buffer
   \param sendtype Type of the data elements in the send buffer
-  \param recvbuf Adress of the buffer used to send data during the Allgather
+  \param recvbuf Address of the buffer used to send data during the Allgather
   \param recvcount Number of elements in the recv buffer
   \param recvtype Type of the data elements in the recv buffer
   \param comm Target communicator
@@ -6862,10 +6862,10 @@ static inline int ___collectives_iallgather(const void *sendbuf, int sendcount, 
 
 /**
   \brief Initialize NBC structures used in call of persistent Allgather
-  \param sendbuf Adress of the buffer used to send data during the Allgather
+  \param sendbuf Address of the buffer used to send data during the Allgather
   \param sendcount Number of elements in the send buffer
   \param sendtype Type of the data elements in the send buffer
-  \param recvbuf Adress of the buffer used to send data during the Allgather
+  \param recvbuf Address of the buffer used to send data during the Allgather
   \param recvcount Number of elements in the recv buffer
   \param recvtype Type of the data elements in the recv buffer
   \param comm Target communicator
@@ -6901,8 +6901,8 @@ int PMPI_Allgather_init(const void *sendbuf, int sendcount, MPI_Datatype sendtyp
   req->is_persistent = 1;
   mpc_req->request_type = REQUEST_GENERALIZED;
 
-  req->persistant.op = MPC_MPI_PERSISTENT_ALLGATHER_INIT;
-  req->persistant.info = info;
+  req->persistent.op = MPC_MPI_PERSISTENT_ALLGATHER_INIT;
+  req->persistent.info = info;
 
   /* Init metadata for nbc */
   ___collectives_allgather_init (sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, comm, &(req->nbc_handle));
@@ -6912,10 +6912,10 @@ int PMPI_Allgather_init(const void *sendbuf, int sendcount, MPI_Datatype sendtyp
 
 /**
   \brief Initialize NBC structures used in call of persistent Allgather
-  \param sendbuf Adress of the buffer used to send data during the Allgather
+  \param sendbuf Address of the buffer used to send data during the Allgather
   \param sendcount Number of elements in the send buffer
   \param sendtype Type of the data elements in the send buffer
-  \param recvbuf Adress of the buffer used to send data during the Allgather
+  \param recvbuf Address of the buffer used to send data during the Allgather
   \param recvcount Number of elements in the recv buffer
   \param recvtype Type of the data elements in the recv buffer
   \param comm Target communicator
@@ -6957,10 +6957,10 @@ static inline int ___collectives_allgather_init(const void *sendbuf, int sendcou
 
 /**
   \brief Blocking Allgather
-  \param sendbuf Adress of the buffer used to send data during the Allgather
+  \param sendbuf Address of the buffer used to send data during the Allgather
   \param sendcount Number of elements in the send buffer
   \param sendtype Type of the data elements in the send buffer
-  \param recvbuf Adress of the buffer used to send data during the Allgather
+  \param recvbuf Address of the buffer used to send data during the Allgather
   \param recvcount Number of elements in the recv buffer
   \param recvtype Type of the data elements in the recv buffer
   \param comm Target communicator
@@ -6975,17 +6975,17 @@ int _mpc_mpi_collectives_allgather(const void *sendbuf, int sendcount, MPI_Datat
 
 
 /**
-  \brief Swith between the different Allgather algorithms
-  \param sendbuf Adress of the buffer used to send data during the Allgather
+  \brief Switch between the different Allgather algorithms
+  \param sendbuf Address of the buffer used to send data during the Allgather
   \param sendcount Number of elements in the send buffer
   \param sendtype Type of the data elements in the send buffer
-  \param recvbuf Adress of the buffer used to send data during the Allgather
+  \param recvbuf Address of the buffer used to send data during the Allgather
   \param recvcount Number of elements in the recv buffer
   \param recvtype Type of the data elements in the recv buffer
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_allgather_switch(const void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -7073,16 +7073,16 @@ int ___collectives_allgather_switch(const void *sendbuf, int sendcount, MPI_Data
 /**
   \brief Execute or schedule a Allgather using the gather_broadcast algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the buffer used to send data during the Allgather
+  \param sendbuf Address of the buffer used to send data during the Allgather
   \param sendcount Number of elements in the send buffer
   \param sendtype Type of the data elements in the send buffer
-  \param recvbuf Adress of the buffer used to send data during the Allgather
+  \param recvbuf Address of the buffer used to send data during the Allgather
   \param recvcount Number of elements in the recv buffer
   \param recvtype Type of the data elements in the recv buffer
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_allgather_gather_broadcast(const void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -7101,16 +7101,16 @@ int ___collectives_allgather_gather_broadcast(const void *sendbuf, int sendcount
 /**
   \brief Execute or schedule a Allgather using the distance doubling algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the buffer used to send data during the Allgather
+  \param sendbuf Address of the buffer used to send data during the Allgather
   \param sendcount Number of elements in the send buffer
   \param sendtype Type of the data elements in the send buffer
-  \param recvbuf Adress of the buffer used to send data during the Allgather
+  \param recvbuf Address of the buffer used to send data during the Allgather
   \param recvcount Number of elements in the recv buffer
   \param recvtype Type of the data elements in the recv buffer
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_allgather_distance_doubling(const void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -7175,7 +7175,7 @@ int ___collectives_allgather_distance_doubling(const void *sendbuf, int sendcoun
   countbuf = (int*)tmpbuf2;
   prev_countbuf = (int*)countbuf + vsize;
 
-  // Initialyse the array containing the amount of data in possession of each processes
+  // Initialise the array containing the amount of data in possession of each processes
   if(coll_type != MPC_COLL_TYPE_COUNT) {
     int i;
     for(i = 0; i < vsize; i++) {
@@ -7236,7 +7236,7 @@ int ___collectives_allgather_distance_doubling(const void *sendbuf, int sendcoun
       ___collectives_barrier_type(coll_type, schedule, info);
 
       // Update of the array containing the amount of data in possession of each processes
-      // Could be replace by a formula to find the amound of data we need to receive from a specific process,
+      // Could be replace by a formula to find the amount of data we need to receive from a specific process,
       // but i didnt find it
       if(coll_type != MPC_COLL_TYPE_COUNT) {
         pointer_swap(countbuf, prev_countbuf, swap);
@@ -7364,16 +7364,16 @@ int ___collectives_allgather_bruck(const void *sendbuf, int sendcount, MPI_Datat
 /**
   \brief Execute or schedule a Allgather using the ring algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the buffer used to send data during the Allgather
+  \param sendbuf Address of the buffer used to send data during the Allgather
   \param sendcount Number of elements in the send buffer
   \param sendtype Type of the data elements in the send buffer
-  \param recvbuf Adress of the buffer used to send data during the Allgather
+  \param recvbuf Address of the buffer used to send data during the Allgather
   \param recvcount Number of elements in the recv buffer
   \param recvtype Type of the data elements in the recv buffer
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_allgather_ring(const void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -7423,16 +7423,16 @@ int ___collectives_allgather_ring(const void *sendbuf, int sendcount, MPI_Dataty
 /**
   \brief Execute or schedule a Allgather using the topological gather-broadcast algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the buffer used to send data during the Allgather
+  \param sendbuf Address of the buffer used to send data during the Allgather
   \param sendcount Number of elements in the send buffer
   \param sendtype Type of the data elements in the send buffer
-  \param recvbuf Adress of the buffer used to send data during the Allgather
+  \param recvbuf Address of the buffer used to send data during the Allgather
   \param recvcount Number of elements in the recv buffer
   \param recvtype Type of the data elements in the recv buffer
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_allgather_topo_gather_broadcast(const void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -7531,8 +7531,8 @@ int ___collectives_allgather_topo_gather_allgather_broadcast(const void *sendbuf
     ___collectives_topo_comm_init(comm, root, max_level, info);
   }
 
-  if(!(info->hardware_info_ptr->childs_data_count)) {
-    ___collectives_create_childs_counts(comm, info);
+  if(!(info->hardware_info_ptr->children_data_count)) {
+    ___collectives_create_children_counts(comm, info);
     ___collectives_create_swap_array(comm, info);
   }
 
@@ -7573,11 +7573,11 @@ int ___collectives_allgather_topo_gather_allgather_broadcast(const void *sendbuf
 
     // Every top-level process computes displs and counts, contrary to levels [deepest_level-1, 1]
     displs[0] = 0;
-    counts[0] = info->hardware_info_ptr->childs_data_count[i][0] * tmp_sendcount;
+    counts[0] = info->hardware_info_ptr->children_data_count[i][0] * tmp_sendcount;
     int j;
     for(j = 1; j < size_master; j++) {
       displs[j] = displs[j-1] + counts[j-1];
-      counts[j] = info->hardware_info_ptr->childs_data_count[i][j] * tmp_sendcount;
+      counts[j] = info->hardware_info_ptr->children_data_count[i][j] * tmp_sendcount;
     }
 
     res = _mpc_mpi_config()->coll_algorithm_intracomm.allgatherv(allgatherv_buf, info->hardware_info_ptr->send_data_count[i] * tmp_sendcount, sendtype, tmpbuf, counts, displs, sendtype, master_comm, coll_type, schedule, info);
@@ -7625,10 +7625,10 @@ int ___collectives_allgather_topo_gather_allgather_broadcast(const void *sendbuf
 
 /**
   \brief Initialize NBC structures used in call of non-blocking Allgatherv
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcount Number of elements in sendbuf
   \param sendtype Type of the data elements in sendbuf
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param displs Array (of length group size) specifying at entry i the the displacement relative to recvbuf at which to place the received data from process i
   \param recvtype Type of the data elements in recvbuf
@@ -7672,10 +7672,10 @@ int PMPI_Iallgatherv (const void *sendbuf, int sendcount, MPI_Datatype sendtype,
 
 /**
   \brief Initialize NBC structures used in call of non-blocking Allgatherv
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcount Number of elements in sendbuf
   \param sendtype Type of the data elements in sendbuf
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param displs Array (of length group size) specifying at entry i the the displacement relative to recvbuf at which to place the received data from process i
   \param recvtype Type of the data elements in recvbuf
@@ -7722,10 +7722,10 @@ static inline int ___collectives_iallgatherv(const void *sendbuf, int sendcount,
 
 /**
   \brief Initialize NBC structures used in call of persistent Allgatherv
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcount Number of elements in sendbuf
   \param sendtype Type of the data elements in sendbuf
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param displs Array (of length group size) specifying at entry i the the displacement relative to recvbuf at which to place the received data from process i
   \param recvtype Type of the data elements in recvbuf
@@ -7772,8 +7772,8 @@ int PMPI_Allgatherv_init(const void *sendbuf, int sendcount, MPI_Datatype sendty
   req->is_persistent = 1;
   mpc_req->request_type = REQUEST_GENERALIZED;
 
-  req->persistant.op = MPC_MPI_PERSISTENT_ALLGATHERV_INIT;
-  req->persistant.info = info;
+  req->persistent.op = MPC_MPI_PERSISTENT_ALLGATHERV_INIT;
+  req->persistent.info = info;
 
   /* Init metadata for nbc */
   ___collectives_allgatherv_init (sendbuf, sendcount, sendtype, recvbuf, recvcounts, displs, recvtype, comm, &(req->nbc_handle));
@@ -7783,10 +7783,10 @@ int PMPI_Allgatherv_init(const void *sendbuf, int sendcount, MPI_Datatype sendty
 
 /**
   \brief Initialize NBC structures used in call of persistent Allgatherv
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcount Number of elements in sendbuf
   \param sendtype Type of the data elements in sendbuf
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param displs Array (of length group size) specifying at entry i the the displacement relative to recvbuf at which to place the received data from process i
   \param recvtype Type of the data elements in recvbuf
@@ -7830,10 +7830,10 @@ static inline int ___collectives_allgatherv_init(const void *sendbuf, int sendco
 
 /**
   \brief Blocking Allgatherv
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcount Number of elements in sendbuf
   \param sendtype Type of the data elements in sendbuf
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param displs Array (of length group size) specifying at entry i the the displacement relative to recvbuf at which to place the received data from process i
   \param recvtype Type of the data elements in recvbuf
@@ -7849,18 +7849,18 @@ int _mpc_mpi_collectives_allgatherv(const void *sendbuf, int sendcount, MPI_Data
 
 
 /**
-  \brief Swith between the different Allgatherv algorithms
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \brief Switch between the different Allgatherv algorithms
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcount Number of elements in sendbuf
   \param sendtype Type of the data elements in sendbuf
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param displs Array (of length group size) specifying at entry i the the displacement relative to recvbuf at which to place the received data from process i
   \param recvtype Type of the data elements in recvbuf
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_allgatherv_switch(const void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, const int *recvcounts, const int *displs, MPI_Datatype recvtype, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -7913,17 +7913,17 @@ int ___collectives_allgatherv_switch(const void *sendbuf, int sendcount, MPI_Dat
 /**
   \brief Execute or schedule a Allgatherv using the gather_broadcast algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcount Number of elements in sendbuf
   \param sendtype Type of the data elements in sendbuf
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param displs Array (of length group size) specifying at entry i the the displacement relative to recvbuf at which to place the received data from process i
   \param recvtype Type of the data elements in recvbuf
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_allgatherv_gatherv_broadcast(const void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, const int *recvcounts, const int *displs, MPI_Datatype recvtype, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -7963,17 +7963,17 @@ int ___collectives_allgatherv_gatherv_broadcast(const void *sendbuf, int sendcou
 /**
   \brief Execute or schedule a Allgatherv using the distance doubling algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcount Number of elements in sendbuf
   \param sendtype Type of the data elements in sendbuf
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param displs Array (of length group size) specifying at entry i the the displacement relative to recvbuf at which to place the received data from process i
   \param recvtype Type of the data elements in recvbuf
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_allgatherv_distance_doubling(__UNUSED__ const void *sendbuf, __UNUSED__ int sendcount, __UNUSED__ MPI_Datatype sendtype, __UNUSED__ void *recvbuf, __UNUSED__ const int *recvcounts, __UNUSED__ const int *displs, __UNUSED__ MPI_Datatype recvtype, __UNUSED__ MPI_Comm comm, __UNUSED__ MPC_COLL_TYPE coll_type, __UNUSED__ NBC_Schedule * schedule, __UNUSED__ Sched_info *info) {
@@ -7986,17 +7986,17 @@ int ___collectives_allgatherv_distance_doubling(__UNUSED__ const void *sendbuf, 
 /**
   \brief Execute or schedule a Allgatherv using the bruck algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcount Number of elements in sendbuf
   \param sendtype Type of the data elements in sendbuf
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param displs Array (of length group size) specifying at entry i the the displacement relative to recvbuf at which to place the received data from process i
   \param recvtype Type of the data elements in recvbuf
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_allgatherv_bruck(__UNUSED__ const void *sendbuf, __UNUSED__ int sendcount, __UNUSED__ MPI_Datatype sendtype, __UNUSED__ void *recvbuf, __UNUSED__ const int *recvcounts, __UNUSED__ const int *displs, __UNUSED__ MPI_Datatype recvtype, __UNUSED__ MPI_Comm comm, __UNUSED__ MPC_COLL_TYPE coll_type, __UNUSED__ NBC_Schedule * schedule, __UNUSED__ Sched_info *info) {
@@ -8009,17 +8009,17 @@ int ___collectives_allgatherv_bruck(__UNUSED__ const void *sendbuf, __UNUSED__ i
 /**
   \brief Execute or schedule a Allgatherv using the ring algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcount Number of elements in sendbuf
   \param sendtype Type of the data elements in sendbuf
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param displs Array (of length group size) specifying at entry i the the displacement relative to recvbuf at which to place the received data from process i
   \param recvtype Type of the data elements in recvbuf
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_allgatherv_ring(__UNUSED__ const void *sendbuf, __UNUSED__ int sendcount, __UNUSED__ MPI_Datatype sendtype, __UNUSED__ void *recvbuf, __UNUSED__ const int *recvcounts, __UNUSED__ const int *displs, __UNUSED__ MPI_Datatype recvtype, __UNUSED__ MPI_Comm comm, __UNUSED__ MPC_COLL_TYPE coll_type, __UNUSED__ NBC_Schedule * schedule, __UNUSED__ Sched_info *info) {
@@ -8039,10 +8039,10 @@ int ___collectives_allgatherv_ring(__UNUSED__ const void *sendbuf, __UNUSED__ in
 
 /**
   \brief Initialize NBC structures used in call of non-blocking Alltoall
-  \param sendbuf Adress of the buffer used to send data during the Alltoall
+  \param sendbuf Address of the buffer used to send data during the Alltoall
   \param sendcount Number of elements in the send buffer
   \param sendtype Type of the data elements in the send buffer
-  \param recvbuf Adress of the buffer used to send data during the Alltoall
+  \param recvbuf Address of the buffer used to send data during the Alltoall
   \param recvcount Number of elements in the recv buffer
   \param recvtype Type of the data elements in the recv buffer
   \param comm Target communicator
@@ -8072,10 +8072,10 @@ int PMPI_Ialltoall(const void *sendbuf, int sendcount, MPI_Datatype sendtype, vo
 
 /**
   \brief Initialize NBC structures used in call of non-blocking Alltoall
-  \param sendbuf Adress of the buffer used to send data during the Alltoall
+  \param sendbuf Address of the buffer used to send data during the Alltoall
   \param sendcount Number of elements in the send buffer
   \param sendtype Type of the data elements in the send buffer
-  \param recvbuf Adress of the buffer used to send data during the Alltoall
+  \param recvbuf Address of the buffer used to send data during the Alltoall
   \param recvcount Number of elements in the recv buffer
   \param recvtype Type of the data elements in the recv buffer
   \param comm Target communicator
@@ -8121,10 +8121,10 @@ static inline int ___collectives_ialltoall(const void *sendbuf, int sendcount, M
 
 /**
   \brief Initialize NBC structures used in call of persistent Alltoall
-  \param sendbuf Adress of the buffer used to send data during the Alltoall
+  \param sendbuf Address of the buffer used to send data during the Alltoall
   \param sendcount Number of elements in the send buffer
   \param sendtype Type of the data elements in the send buffer
-  \param recvbuf Adress of the buffer used to send data during the Alltoall
+  \param recvbuf Address of the buffer used to send data during the Alltoall
   \param recvcount Number of elements in the recv buffer
   \param recvtype Type of the data elements in the recv buffer
   \param comm Target communicator
@@ -8158,8 +8158,8 @@ int PMPI_Alltoall_init(const void *sendbuf, int sendcount, MPI_Datatype sendtype
   req->is_persistent = 1;
   mpc_req->request_type = REQUEST_GENERALIZED;
 
-  req->persistant.op = MPC_MPI_PERSISTENT_ALLTOALL_INIT;
-  req->persistant.info = info;
+  req->persistent.op = MPC_MPI_PERSISTENT_ALLTOALL_INIT;
+  req->persistent.info = info;
 
   /* Init metadata for nbc */
   ___collectives_alltoall_init (sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, comm, &(req->nbc_handle));
@@ -8169,10 +8169,10 @@ int PMPI_Alltoall_init(const void *sendbuf, int sendcount, MPI_Datatype sendtype
 
 /**
   \brief Initialize NBC structures used in call of persistent Alltoall
-  \param sendbuf Adress of the buffer used to send data during the Alltoall
+  \param sendbuf Address of the buffer used to send data during the Alltoall
   \param sendcount Number of elements in the send buffer
   \param sendtype Type of the data elements in the send buffer
-  \param recvbuf Adress of the buffer used to send data during the Alltoall
+  \param recvbuf Address of the buffer used to send data during the Alltoall
   \param recvcount Number of elements in the recv buffer
   \param recvtype Type of the data elements in the recv buffer
   \param comm Target communicator
@@ -8215,10 +8215,10 @@ static inline int ___collectives_alltoall_init(const void *sendbuf, int sendcoun
 
 /**
   \brief Blocking Alltoall
-  \param sendbuf Adress of the buffer used to send data during the Alltoall
+  \param sendbuf Address of the buffer used to send data during the Alltoall
   \param sendcount Number of elements in the send buffer
   \param sendtype Type of the data elements in the send buffer
-  \param recvbuf Adress of the buffer used to send data during the Alltoall
+  \param recvbuf Address of the buffer used to send data during the Alltoall
   \param recvcount Number of elements in the recv buffer
   \param recvtype Type of the data elements in the recv buffer
   \param comm Target communicator
@@ -8241,17 +8241,17 @@ int _mpc_mpi_collectives_alltoall(const void *sendbuf, int sendcount, MPI_Dataty
 
 
 /**
-  \brief Swith between the different Allgather algorithms
-  \param sendbuf Adress of the buffer used to send data during the Alltoall
+  \brief Switch between the different Allgather algorithms
+  \param sendbuf Address of the buffer used to send data during the Alltoall
   \param sendcount Number of elements in the send buffer
   \param sendtype Type of the data elements in the send buffer
-  \param recvbuf Adress of the buffer used to send data during the Alltoall
+  \param recvbuf Address of the buffer used to send data during the Alltoall
   \param recvcount Number of elements in the recv buffer
   \param recvtype Type of the data elements in the recv buffer
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_alltoall_switch(const void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -8423,16 +8423,16 @@ int ___collectives_alltoall_cluster(const void *sendbuf, int sendcount, MPI_Data
 /**
   \brief Execute or schedule a Alltoall using the bruck algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the buffer used to send data during the Alltoall
+  \param sendbuf Address of the buffer used to send data during the Alltoall
   \param sendcount Number of elements in the send buffer
   \param sendtype Type of the data elements in the send buffer
-  \param recvbuf Adress of the buffer used to send data during the Alltoall
+  \param recvbuf Address of the buffer used to send data during the Alltoall
   \param recvcount Number of elements in the recv buffer
   \param recvtype Type of the data elements in the recv buffer
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_alltoall_bruck( const void *sendbuf,  int sendcount,  MPI_Datatype sendtype,  void *recvbuf,  int recvcount,  MPI_Datatype recvtype,  MPI_Comm comm,  MPC_COLL_TYPE coll_type,  NBC_Schedule * schedule,  Sched_info *info) {
@@ -8659,11 +8659,11 @@ int ___collectives_alltoall_pairwise(const void *sendbuf, int sendcount, MPI_Dat
     The following convention will be used: XY correspond to the data from the rank X destined to the rank Y
 
   DETAILED STEPS:
-    1: each rank start by removing (storing elsewere) the data destined to itself
+    1: each rank start by removing (storing elsewhere) the data destined to itself
       rank 3 data: [30, 31, 32, 34, 35]
     2: to ease the data reordering that will be done during the gather phase, each rank reorder it's data to correspond to the topological tree
       rank 3 data: [31, 30, 34, 32, 35]
-      See X1 to see why this is usefull
+      See X1 to see why this is useful
     3: We do a first gather on the lowest topological level
       gather(3,0,4): 0->3, 4->3:
         rank 3 data: [31, 30, 34, 32, 35, 01, 03, 04, 02, 05, 41, 43, 40, 42, 45]
@@ -8760,8 +8760,8 @@ int ___collectives_alltoall_topo(const void *sendbuf, int sendcount, MPI_Datatyp
     ___collectives_topo_comm_init(comm, root, max_level, info);
   }
 
-  if(!(info->hardware_info_ptr->childs_data_count)) {
-    ___collectives_create_childs_counts(comm, info);
+  if(!(info->hardware_info_ptr->children_data_count)) {
+    ___collectives_create_children_counts(comm, info);
     ___collectives_create_swap_array(comm, info);
   }
 
@@ -8806,7 +8806,7 @@ int ___collectives_alltoall_topo(const void *sendbuf, int sendcount, MPI_Datatyp
       int j = 0;
       unsigned long tmp = 0;
       for(j = 0; j < size_master; j++) {
-        tmp += (long)info->hardware_info_ptr->childs_data_count[i][j] * (size - info->hardware_info_ptr->childs_data_count[i][j]);
+        tmp += (long)info->hardware_info_ptr->children_data_count[i][j] * (size - info->hardware_info_ptr->children_data_count[i][j]);
       }
 
       tmpbuf_count = (tmpbuf_count > tmp)?tmpbuf_count:tmp;
@@ -8856,7 +8856,7 @@ int ___collectives_alltoall_topo(const void *sendbuf, int sendcount, MPI_Datatyp
 
   // STEP 1 & 2: remove own data & data swap
   // each consecutive data is copied in one go
-  // with the exemple tree:
+  // with the example tree:
   // rank 3 data: [30, 31, 32, 33, 34, 34] => [31, 30, 34, 32, 35]
   // We use the precomputed reverse swap array
   // As each rank doesn't need it's own data (XX, 33 with rank 3) in the buffer we need to skip it in the source buffer & to shift the following data in the destination buffer
@@ -9024,16 +9024,16 @@ int ___collectives_alltoall_topo(const void *sendbuf, int sendcount, MPI_Datatyp
         size_t current_displ = 0;
         // We loop through each group of send data & keep data block
         for(j = 0; j < size_master; j++) {
-          int packet_count = size - info->hardware_info_ptr->childs_data_count[i + 1][j];
+          int packet_count = size - info->hardware_info_ptr->children_data_count[i + 1][j];
           // We loop through every rank on the same branch, under the current topological level
-          for(k = 0; k < info->hardware_info_ptr->childs_data_count[i + 1][j]; k++) {
-            int keep_data_count = info->hardware_info_ptr->send_data_count[i] - info->hardware_info_ptr->childs_data_count[i + 1][j];
+          for(k = 0; k < info->hardware_info_ptr->children_data_count[i + 1][j]; k++) {
+            int keep_data_count = info->hardware_info_ptr->send_data_count[i] - info->hardware_info_ptr->children_data_count[i + 1][j];
 
             void *keep_data_start = tmpbuf + displs[j] * recvext + ((MPI_Aint)k * packet_count + info->hardware_info_ptr->topo_rank) * recvcount * recvext;
             void *keep_data_end = keep_data_start + (MPI_Aint)keep_data_count * recvcount * recvext;
 
             int move_data_count = 0;
-            if(j == size_master - 1 && k == info->hardware_info_ptr->childs_data_count[i + 1][j] - 1) {
+            if(j == size_master - 1 && k == info->hardware_info_ptr->children_data_count[i + 1][j] - 1) {
               move_data_count = packet_count - keep_data_count - info->hardware_info_ptr->topo_rank;
             } else {
               move_data_count = packet_count - keep_data_count;
@@ -9116,12 +9116,12 @@ int ___collectives_alltoall_topo(const void *sendbuf, int sendcount, MPI_Datatyp
 
       if(rank_master == 0) {
         displs[0] = 0;
-        counts[0] = info->hardware_info_ptr->childs_data_count[i][0] * (size - info->hardware_info_ptr->childs_data_count[i][0]) * recvcount;
+        counts[0] = info->hardware_info_ptr->children_data_count[i][0] * (size - info->hardware_info_ptr->children_data_count[i][0]) * recvcount;
 
         int j = 0;
         for(j = 1; j < size_master; j++) {
           displs[j] = displs[j-1] + counts[j-1];
-          counts[j] = info->hardware_info_ptr->childs_data_count[i][j] * (size - info->hardware_info_ptr->childs_data_count[i][j]) * recvcount;
+          counts[j] = info->hardware_info_ptr->children_data_count[i][j] * (size - info->hardware_info_ptr->children_data_count[i][j]) * recvcount;
         }
 
         gatherv_buf = MPI_IN_PLACE;
@@ -9169,7 +9169,7 @@ int ___collectives_alltoall_topo(const void *sendbuf, int sendcount, MPI_Datatyp
   }
 /*
   STEP 6: Highest level data reorder
-  In the exemple:
+  In the example:
   rank 1 data: [13, 10, 14, 12, 15, 31, 32, 35, 01, 02, 05, 41, 42, 45, 21, 23, 20, 24, 51, 53, 50, 54]
   We use 3 nested loop to go through this array:
     current master comm size (j):
@@ -9179,7 +9179,7 @@ int ___collectives_alltoall_topo(const void *sendbuf, int sendcount, MPI_Datatyp
     current master comm size minus 1 (we dont send data to ourselves) (l):
       [13, 10, 14 ||| 12, 15 | 31 ||| 32, 35 || 01 ||| 02, 05 || 41 ||| 42, 45 | 21 ||| 23, 20, 24 || 51 ||| 53, 50, 54]
 
-  These nested loop allow to minimse the number of copy to be done:
+  These nested loop allow to minimise the number of copy to be done:
    __________  ______  __  ______  __  ______  __  ______  __  __________  __  __________
   [13, 10, 14, 12, 15, 31, 32, 35, 01, 02, 05, 41, 42, 45, 21, 23, 20, 24, 51, 53, 50, 54]
   here 12 copies instead of 22 if done element by element
@@ -9195,7 +9195,7 @@ int ___collectives_alltoall_topo(const void *sendbuf, int sendcount, MPI_Datatyp
   1 (+5)  :  0           |           |           |           |           1               2
   2 (+14) :              0           1           2           3
   On the left we have the destination rank in the master communicator
-    in the exemple rank 0 (master comm) is rank 1 (main comm), 1 is 3 & 2 is 2
+    in the example rank 0 (master comm) is rank 1 (main comm), 1 is 3 & 2 is 2
   On each line are the packet order
   I added the displacement near the destination rank
     it represent the number of data packet written before in the destination buffer
@@ -9209,7 +9209,7 @@ int ___collectives_alltoall_topo(const void *sendbuf, int sendcount, MPI_Datatyp
     Here it's 3
   Data source pointer is also easy, we accumulate the data block size we already written, it's our start
   Data destination pointer is less trivial
-    We start by using the displacement mentionned above (which is pre-computed)
+    We start by using the displacement mentioned above (which is pre-computed)
     The only other information we need is how many previous rank already wrote data for this destination.
     Another way to see this information is the topological rank
 
@@ -9221,10 +9221,10 @@ int ___collectives_alltoall_topo(const void *sendbuf, int sendcount, MPI_Datatyp
   The tree is the same as before but it uses the topological rank instead of the rank on the main communicator
   Here rank 2 (topo rank 4, main comm rank 2) should be the 4rth to write its data blocks
   One last thing, rank 3 (main comm) doesn't have any data block for rank in the same branch (3, 0, 4)
-  To account for that we need to substract the size of the branch of the rank the destination rank
+  To account for that we need to subtract the size of the branch of the rank the destination rank
     IF the source topological rank is greater than the destination topological rank
 
-  In the exemple, the data block [23, 20, 24] should be the i-th written with:
+  In the example, the data block [23, 20, 24] should be the i-th written with:
     i = topo_rank(source) - (topo_rank(source) > topo_rank(dest))?branch_size(dest):0
     i = topo_rank(2) - (topo_rank(2) > topo_rank(3))?branch_size(3):0
     i = 4 - (4 > 1) 3 : 0
@@ -9245,25 +9245,25 @@ int ___collectives_alltoall_topo(const void *sendbuf, int sendcount, MPI_Datatyp
     // Precompute displacement
     displs[0] = 0;
     for(j = 1; j < size_master; j++) {
-      displs[j] = displs[j-1] + info->hardware_info_ptr->childs_data_count[0][j-1] * (size - info->hardware_info_ptr->childs_data_count[0][j-1]);
+      displs[j] = displs[j-1] + info->hardware_info_ptr->children_data_count[0][j-1] * (size - info->hardware_info_ptr->children_data_count[0][j-1]);
     }
 
     for(j = 0; j < size_master; j++) {
       int packets_count = size_master - 1;
       int k;
-      for(k = 0; k < info->hardware_info_ptr->childs_data_count[0][j]; k++) {
+      for(k = 0; k < info->hardware_info_ptr->children_data_count[0][j]; k++) {
         int l;
         for(l = 0; l < packets_count; l++) {
           // the inverse of the check for topo_rank(source) > topo_rank(dest)
           int offset = (l >= j)?1:0;
           // data block  size = number of rank on the same branch as the destination rank
-          int packet_count = info->hardware_info_ptr->childs_data_count[0][l + offset];
+          int packet_count = info->hardware_info_ptr->children_data_count[0][l + offset];
 
           void *packet_start = tmpbuf + current_count * recvcount * recvext;
           int tmp = (topo_rank + k - !offset * packet_count) * packet_count;
           void *packet_dest = tmpbuf_other + (tmp + displs[l + offset]) * recvcount * recvext;
 
-          mpc_common_nodebug ("j:%d, k:%d, l:%d, offset:%d, packet_count:%d, topo rank:%d, displ:%d, dest-displ:%d, dest: %d", j, k, l, offset, info->hardware_info_ptr->childs_data_count[0][l + offset], topo_rank, displs[l + offset], tmp, tmp + displs[l + offset]);
+          mpc_common_nodebug ("j:%d, k:%d, l:%d, offset:%d, packet_count:%d, topo rank:%d, displ:%d, dest-displ:%d, dest: %d", j, k, l, offset, info->hardware_info_ptr->children_data_count[0][l + offset], topo_rank, displs[l + offset], tmp, tmp + displs[l + offset]);
 
           ___collectives_copy_type(packet_start, packet_count * recvcount, recvtype,
               packet_dest, packet_count * recvcount, recvtype,
@@ -9272,7 +9272,7 @@ int ___collectives_alltoall_topo(const void *sendbuf, int sendcount, MPI_Datatyp
           current_count += packet_count;
         }
       }
-      topo_rank += info->hardware_info_ptr->childs_data_count[0][j];
+      topo_rank += info->hardware_info_ptr->children_data_count[0][j];
     }
 
     // For simplicity (maybe), we want to keep tmpbuf as the primary temporary buffer
@@ -9290,7 +9290,7 @@ int ___collectives_alltoall_topo(const void *sendbuf, int sendcount, MPI_Datatyp
 
       int j;
       for(j = 0; j < size_master; j++) {
-        int packets_count = info->hardware_info_ptr->childs_data_count[0][j] * (size - info->hardware_info_ptr->childs_data_count[0][j]);
+        int packets_count = info->hardware_info_ptr->children_data_count[0][j] * (size - info->hardware_info_ptr->children_data_count[0][j]);
         int k;
         for(k = 0; k < packets_count * recvcount / 3; k++, c++) {
           if(c != 0) {
@@ -9327,11 +9327,11 @@ int ___collectives_alltoall_topo(const void *sendbuf, int sendcount, MPI_Datatyp
 
       if(rank_master == 0) {
         displs[0] = 0;
-        counts[0] = info->hardware_info_ptr->childs_data_count[i][0] * (size - info->hardware_info_ptr->childs_data_count[i][0]) * recvcount;
+        counts[0] = info->hardware_info_ptr->children_data_count[i][0] * (size - info->hardware_info_ptr->children_data_count[i][0]) * recvcount;
         int j;
         for(j = 1; j < size_master; j++) {
           displs[j] = displs[j-1] + counts[j-1];
-          counts[j] = info->hardware_info_ptr->childs_data_count[i][j] * (size - info->hardware_info_ptr->childs_data_count[i][j]) * recvcount;
+          counts[j] = info->hardware_info_ptr->children_data_count[i][j] * (size - info->hardware_info_ptr->children_data_count[i][j]) * recvcount;
         }
       }
 
@@ -9369,7 +9369,7 @@ int ___collectives_alltoall_topo(const void *sendbuf, int sendcount, MPI_Datatyp
       STEP 8: data reorder
       reorder data + insert data
       Similar to the highest level reorder, with data insertion
-      In the exemple:
+      In the example:
       rank 3 data: [13, 10, 14, 23, 20, 24, 53, 50, 54], stored data: [30, 34, 03, 04, 43, 40]
       We use 2 nested for to loop through the data:
         global size minus number of rank under the current topological level (j):
@@ -9377,7 +9377,7 @@ int ___collectives_alltoall_topo(const void *sendbuf, int sendcount, MPI_Datatyp
         size of the current master comm:
           [13 || 10 || 14 | 23 || 20 || 24 | 53 || 50 || 54]
 
-      These nested loop allow to minimse the number of copy to be done but the exemple tree isn't deep enough to see that:
+      These nested loop allow to minimise the number of copy to be done but the example tree isn't deep enough to see that:
        __  __  __  __  __  __  __  __  __
       [13, 10, 14, 23, 20, 24, 53, 50, 54]
 
@@ -9389,7 +9389,7 @@ int ___collectives_alltoall_topo(const void *sendbuf, int sendcount, MPI_Datatyp
       1 (+5) :      0   |       3   |       4   |     1   |       |       2
       2 (+10):          0           3           4         1       2
       On the left we have the destination rank in the master communicator
-        in the exemple rank 0 (master comm) is rank 3 (main comm), 1 is 0 & 2 is 4
+        in the example rank 0 (master comm) is rank 3 (main comm), 1 is 0 & 2 is 4
       Displacement is also represented, see previous explanation
 
       Each data block size is easy to get:
@@ -9397,7 +9397,7 @@ int ___collectives_alltoall_topo(const void *sendbuf, int sendcount, MPI_Datatyp
         Here it's 1
       Data source pointer is also easy, we accumulate the data block size we already written, it's our start
       Data destination pointer is less trivial
-        We start by using the displacement mentionned above (which is pre-computed)
+        We start by using the displacement mentioned above (which is pre-computed)
         The only other information we need is how many previous rank already wrote data for this destination.
         Another way to see this information is the topological rank
 
@@ -9408,11 +9408,11 @@ int ___collectives_alltoall_topo(const void *sendbuf, int sendcount, MPI_Datatyp
         0 1 2 3 4 5
       The tree is the same as before but it uses the topological rank instead of the rank on the main communicator
       Here rank 2 (topo rank 4) should be the 4rth to write its data blocks
-      One last thing, rank 3 doesn't have any data block for rank in the same branch (only itself in the exemple)
-      to account for that we need to substract the size of the branch of the rank the destination rank
+      One last thing, rank 3 doesn't have any data block for rank in the same branch (only itself in the example)
+      to account for that we need to subtract the size of the branch of the rank the destination rank
         IF the source topological rank is greater than the destination topological rank
 
-      In the exemple, the data block [20] should be the i-th written with:
+      In the example, the data block [20] should be the i-th written with:
         i = topo_rank(source) - (topo_rank(source) > topo_rank(dest))?branch_size(dest):0
         i = topo_rank(2) - (topo_rank(2) > topo_rank(0))?branch_size(0):0
         i = 4 - (4 > 2) 1 : 0
@@ -9432,11 +9432,11 @@ int ___collectives_alltoall_topo(const void *sendbuf, int sendcount, MPI_Datatyp
       // preconputed displacement
       displs[0] = 0;
       for(j = 1; j < size_next_master; j++) {
-        displs[j] = displs[j-1] + info->hardware_info_ptr->childs_data_count[i + 1][j-1] * (size - info->hardware_info_ptr->childs_data_count[i + 1][j-1]);
+        displs[j] = displs[j-1] + info->hardware_info_ptr->children_data_count[i + 1][j-1] * (size - info->hardware_info_ptr->children_data_count[i + 1][j-1]);
       }
 
       // NOTE: debug purpose only, set the whole destination buffer to 0 to be able to clearly see which data has been added after the reorder phase before insertion phase
-      //memset(tmpbuf, 0, (displs[size_next_master-1] + info->hardware_info_ptr->childs_data_count[i + 1][size_next_master-1] * (size - info->hardware_info_ptr->childs_data_count[i + 1][size_next_master-1])) * recvcount * recvext);
+      //memset(tmpbuf, 0, (displs[size_next_master-1] + info->hardware_info_ptr->children_data_count[i + 1][size_next_master-1] * (size - info->hardware_info_ptr->children_data_count[i + 1][size_next_master-1])) * recvcount * recvext);
 
       // Reorder for data received from scatter
       int current_count = 0;
@@ -9446,13 +9446,13 @@ int ___collectives_alltoall_topo(const void *sendbuf, int sendcount, MPI_Datatyp
         // for every rank on the same branch in the topological tree (under the current level)
         for(k = 0; k < packets_count; k++) {
           int offset = (j >= info->hardware_info_ptr->topo_rank)?1:0;
-          int packet_count = info->hardware_info_ptr->childs_data_count[i + 1][k];
+          int packet_count = info->hardware_info_ptr->children_data_count[i + 1][k];
 
           void *packet_start = tmpbuf_other + current_count * recvcount * recvext;
           int tmp = j * packet_count + offset * (info->hardware_info_ptr->send_data_count[i] - packet_count) * packet_count;
           void *packet_dest = tmpbuf + (tmp + displs[k]) * recvcount * recvext;
 
-          mpc_common_nodebug ("j:%d, k:%d, offset:%d, packet_count:%d, displ:%d, send_count:%d, src offset: %d, dst offset: %d", j, k, offset, info->hardware_info_ptr->childs_data_count[i+1][k], displs[k], info->hardware_info_ptr->send_data_count[i], current_count, tmp + displs[k]);
+          mpc_common_nodebug ("j:%d, k:%d, offset:%d, packet_count:%d, displ:%d, send_count:%d, src offset: %d, dst offset: %d", j, k, offset, info->hardware_info_ptr->children_data_count[i+1][k], displs[k], info->hardware_info_ptr->send_data_count[i], current_count, tmp + displs[k]);
 
           ___collectives_copy_type(packet_start, packet_count * recvcount, recvtype,
               packet_dest, packet_count * recvcount, recvtype,
@@ -9469,7 +9469,7 @@ int ___collectives_alltoall_topo(const void *sendbuf, int sendcount, MPI_Datatyp
         int *data = (int*) tmpbuf;
 
         int j;
-        for(j = 0; j < (displs[size_next_master-1] + info->hardware_info_ptr->childs_data_count[i + 1][size_next_master-1] * (size - info->hardware_info_ptr->childs_data_count[i + 1][size_next_master-1])) * recvcount / 3; j++) {
+        for(j = 0; j < (displs[size_next_master-1] + info->hardware_info_ptr->children_data_count[i + 1][size_next_master-1] * (size - info->hardware_info_ptr->children_data_count[i + 1][size_next_master-1])) * recvcount / 3; j++) {
           if(j != 0) {
             sprintf(&(print_data[strlen(print_data)]), ", ");
           }
@@ -9492,11 +9492,11 @@ int ___collectives_alltoall_topo(const void *sendbuf, int sendcount, MPI_Datatyp
       current_count = 0;
       for(j = size_next_master-1; j >= 0; j--) {
         int k;
-        for(k = info->hardware_info_ptr->childs_data_count[i + 1][j] - 1; k >= 0 ; k--) {
+        for(k = info->hardware_info_ptr->children_data_count[i + 1][j] - 1; k >= 0 ; k--) {
           int l;
           for(l = size_next_master - 2; l >= 0; l--) {
             int offset = (l >= j)?1:0;
-            int packet_count = info->hardware_info_ptr->childs_data_count[i + 1][l + offset];
+            int packet_count = info->hardware_info_ptr->children_data_count[i + 1][l + offset];
 
             void *packet_start = keep_data_buf + (total_keep_data_count - current_count - packet_count) * recvcount * recvext;
 
@@ -9524,7 +9524,7 @@ int ___collectives_alltoall_topo(const void *sendbuf, int sendcount, MPI_Datatyp
         int *data = (int*) tmpbuf;
 
         int j;
-        for(j = 0; j < (displs[size_next_master-1] + info->hardware_info_ptr->childs_data_count[i + 1][size_next_master-1] * (size - info->hardware_info_ptr->childs_data_count[i + 1][size_next_master-1])) * recvcount / 3; j++) {
+        for(j = 0; j < (displs[size_next_master-1] + info->hardware_info_ptr->children_data_count[i + 1][size_next_master-1] * (size - info->hardware_info_ptr->children_data_count[i + 1][size_next_master-1])) * recvcount / 3; j++) {
           if(j != 0) {
             sprintf(&(print_data[strlen(print_data)]), ", ");
           }
@@ -9580,7 +9580,7 @@ int ___collectives_alltoall_topo(const void *sendbuf, int sendcount, MPI_Datatyp
 
   // STEP 10: data insertion & data swap
   // mostly the same than the first one.
-  // with the exemple tree:
+  // with the example tree:
   // rank 3 data: [13, 03, 43, 23, 53] => [03, 13, 23, XX, 43, 53]
   //   + insertion: [03, 13, 23, 33, 43, 53]
   // We use the precomputed swap & reverse swap array
@@ -9628,11 +9628,11 @@ int ___collectives_alltoall_topo(const void *sendbuf, int sendcount, MPI_Datatyp
 
 /**
   \brief Initialize NBC structures used in call of non-blocking Alltoallv
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcounts Array (of length group size) containing the number of elements send to each process
   \param sdispls Array (of length group size) specifying at entry i the the displacement relative to sendbuf from which to take the sent data for process i
   \param sendtype Type of the data elements in sendbuf
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param rdispls Array (of length group size) specifying at entry i the the displacement relative to recvbuf at which to place the received data from process i
   \param recvtype Type of the data elements in recvbuf
@@ -9665,11 +9665,11 @@ int PMPI_Ialltoallv(const void *sendbuf, const int *sendcounts, const int *sdisp
 
 /**
   \brief Initialize NBC structures used in call of non-blocking Alltoallv
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcounts Array (of length group size) containing the number of elements send to each process
   \param sdispls Array (of length group size) specifying at entry i the the displacement relative to sendbuf from which to take the sent data for process i
   \param sendtype Type of the data elements in sendbuf
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param rdispls Array (of length group size) specifying at entry i the the displacement relative to recvbuf at which to place the received data from process i
   \param recvtype Type of the data elements in recvbuf
@@ -9716,11 +9716,11 @@ static inline int ___collectives_ialltoallv(const void *sendbuf, const int *send
 
 /**
   \brief Initialize NBC structures used in call of persistent Alltoallv
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcounts Array (of length group size) containing the number of elements send to each process
   \param sdispls Array (of length group size) specifying at entry i the the displacement relative to sendbuf from which to take the sent data for process i
   \param sendtype Type of the data elements in sendbuf
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param rdispls Array (of length group size) specifying at entry i the the displacement relative to recvbuf at which to place the received data from process i
   \param recvtype Type of the data elements in recvbuf
@@ -9765,8 +9765,8 @@ int PMPI_Alltoallv_init(const void *sendbuf, const int *sendcounts, const int *s
   req->is_persistent = 1;
   mpc_req->request_type = REQUEST_GENERALIZED;
 
-  req->persistant.op = MPC_MPI_PERSISTENT_ALLTOALLV_INIT;
-  req->persistant.info = info;
+  req->persistent.op = MPC_MPI_PERSISTENT_ALLTOALLV_INIT;
+  req->persistent.info = info;
 
   /* Init metadata for nbc */
   ___collectives_alltoallv_init (sendbuf, sendcounts, sdispls, sendtype, recvbuf, recvcounts, rdispls, recvtype, comm, &(req->nbc_handle));
@@ -9776,11 +9776,11 @@ int PMPI_Alltoallv_init(const void *sendbuf, const int *sendcounts, const int *s
 
 /**
   \brief Initialize NBC structures used in call of persistent Alltoallv
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcounts Array (of length group size) containing the number of elements send to each process
   \param sdispls Array (of length group size) specifying at entry i the the displacement relative to sendbuf from which to take the sent data for process i
   \param sendtype Type of the data elements in sendbuf
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param rdispls Array (of length group size) specifying at entry i the the displacement relative to recvbuf at which to place the received data from process i
   \param recvtype Type of the data elements in recvbuf
@@ -9824,11 +9824,11 @@ static inline int ___collectives_alltoallv_init(const void *sendbuf, const int *
 
 /**
   \brief Blocking Alltoallv
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcounts Array (of length group size) containing the number of elements send to each process
   \param sdispls Array (of length group size) specifying at entry i the the displacement relative to sendbuf from which to take the sent data for process i
   \param sendtype Type of the data elements in sendbuf
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param rdispls Array (of length group size) specifying at entry i the the displacement relative to recvbuf at which to place the received data from process i
   \param recvtype Type of the data elements in recvbuf
@@ -9848,19 +9848,19 @@ int _mpc_mpi_collectives_alltoallv(const void *sendbuf, const int *sendcounts, c
 
 
 /**
-  \brief Swith between the different Alltoallv algorithms
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \brief Switch between the different Alltoallv algorithms
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcounts Array (of length group size) containing the number of elements send to each process
   \param sdispls Array (of length group size) specifying at entry i the the displacement relative to sendbuf from which to take the sent data for process i
   \param sendtype Type of the data elements in sendbuf
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param rdispls Array (of length group size) specifying at entry i the the displacement relative to recvbuf at which to place the received data from process i
   \param recvtype Type of the data elements in recvbuf
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_alltoallv_switch(const void *sendbuf, const int *sendcounts, const int *sdispls, MPI_Datatype sendtype, void *recvbuf, const int *recvcounts, const int *rdispls, MPI_Datatype recvtype, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -9912,18 +9912,18 @@ int ___collectives_alltoallv_switch(const void *sendbuf, const int *sendcounts, 
 /**
   \brief Execute or schedule a Alltoallv using the cluster algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcounts Array (of length group size) containing the number of elements send to each process
   \param sdispls Array (of length group size) specifying at entry i the the displacement relative to sendbuf from which to take the sent data for process i
   \param sendtype Type of the data elements in sendbuf
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param rdispls Array (of length group size) specifying at entry i the the displacement relative to recvbuf at which to place the received data from process i
   \param recvtype Type of the data elements in recvbuf
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_alltoallv_cluster(const void *sendbuf, const int *sendcounts, const int *sdispls, MPI_Datatype sendtype, void *recvbuf, const int *recvcounts, const int *rdispls, MPI_Datatype recvtype, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -10011,18 +10011,18 @@ int ___collectives_alltoallv_cluster(const void *sendbuf, const int *sendcounts,
 /**
   \brief Execute or schedule a Alltoallv using the bruck algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcounts Array (of length group size) containing the number of elements send to each process
   \param sdispls Array (of length group size) specifying at entry i the the displacement relative to sendbuf from which to take the sent data for process i
   \param sendtype Type of the data elements in sendbuf
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param rdispls Array (of length group size) specifying at entry i the the displacement relative to recvbuf at which to place the received data from process i
   \param recvtype Type of the data elements in recvbuf
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_alltoallv_bruck(__UNUSED__ const void *sendbuf, __UNUSED__ const int *sendcounts, __UNUSED__ const int *sdispls, __UNUSED__ MPI_Datatype sendtype, __UNUSED__ void *recvbuf, __UNUSED__ const int *recvcounts, __UNUSED__ const int *rdispls, __UNUSED__ MPI_Datatype recvtype, __UNUSED__ MPI_Comm comm, __UNUSED__ MPC_COLL_TYPE coll_type, __UNUSED__ NBC_Schedule * schedule, __UNUSED__ Sched_info *info) {
@@ -10035,18 +10035,18 @@ int ___collectives_alltoallv_bruck(__UNUSED__ const void *sendbuf, __UNUSED__ co
 /**
   \brief Execute or schedule a Alltoallv using the pairwise algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcounts Array (of length group size) containing the number of elements send to each process
   \param sdispls Array (of length group size) specifying at entry i the displacement relative to sendbuf from which to take the sent data for process i in terms of number of ELEMENTS
   \param sendtype Type of the data elements in sendbuf
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param rdispls Array (of length group size) specifying at entry i the the displacement relative to recvbuf at which to place the received data from process i in terms of number of ELEMENTS
   \param recvtype Type of the data elements in recvbuf
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_alltoallv_pairwise(const void *sendbuf, const int *sendcounts, const int *sdispls, MPI_Datatype sendtype, void *recvbuf, const int *recvcounts, const int *rdispls, MPI_Datatype recvtype, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -10192,11 +10192,11 @@ int ___collectives_alltoallv_pairwise(const void *sendbuf, const int *sendcounts
 
 /**
   \brief Initialize NBC structures used in call of non-blocking Alltoallw
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcounts Array (of length group size) containing the number of elements send to each process
   \param sdispls Array (of length group size) specifying at entry i the the displacement relative to sendbuf from which to take the sent data for process i
   \param sendtypes Array (of length group size) specifying at entry i the type of the data elements to send to process i
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param rdispls Array (of length group size) specifying at entry i the the displacement relative to recvbuf at which to place the received data from process i
   \param recvtypes Array (of length group size) specifying at entry i the type of the data elements to receive from process i
@@ -10229,11 +10229,11 @@ int PMPI_Ialltoallw(const void *sendbuf, const int *sendcounts, const int *sdisp
 
 /**
   \brief Initialize NBC structures used in call of non-blocking Alltoallw
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcounts Array (of length group size) containing the number of elements send to each process
   \param sdispls Array (of length group size) specifying at entry i the the displacement relative to sendbuf from which to take the sent data for process i
   \param sendtypes Array (of length group size) specifying at entry i the type of the data elements to send to process i
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param rdispls Array (of length group size) specifying at entry i the the displacement relative to recvbuf at which to place the received data from process i
   \param recvtypes Array (of length group size) specifying at entry i the type of the data elements to receive from process i
@@ -10280,11 +10280,11 @@ static inline int ___collectives_ialltoallw(const void *sendbuf, const int *send
 
 /**
   \brief Initialize NBC structures used in call of persistent Alltoallw
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcounts Array (of length group size) containing the number of elements send to each process
   \param sdispls Array (of length group size) specifying at entry i the the displacement relative to sendbuf from which to take the sent data for process i
   \param sendtypes Array (of length group size) specifying at entry i the type of the data elements to send to process i
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param rdispls Array (of length group size) specifying at entry i the the displacement relative to recvbuf at which to place the received data from process i
   \param recvtypes Array (of length group size) specifying at entry i the type of the data elements to receive from process i
@@ -10330,8 +10330,8 @@ int PMPI_Alltoallw_init(const void *sendbuf, const int *sendcounts, const int *s
   req->is_persistent = 1;
   mpc_req->request_type = REQUEST_GENERALIZED;
 
-  req->persistant.op = MPC_MPI_PERSISTENT_ALLTOALLW_INIT;
-  req->persistant.info = info;
+  req->persistent.op = MPC_MPI_PERSISTENT_ALLTOALLW_INIT;
+  req->persistent.info = info;
 
   /* Init metadata for nbc */
   ___collectives_alltoallw_init (sendbuf, sendcounts, sdispls, sendtypes, recvbuf, recvcounts, rdispls, recvtypes, comm, &(req->nbc_handle));
@@ -10341,11 +10341,11 @@ int PMPI_Alltoallw_init(const void *sendbuf, const int *sendcounts, const int *s
 
 /**
   \brief Initialize NBC structures used in call of persistent Alltoallw
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcounts Array (of length group size) containing the number of elements send to each process
   \param sdispls Array (of length group size) specifying at entry i the the displacement relative to sendbuf from which to take the sent data for process i
   \param sendtypes Array (of length group size) specifying at entry i the type of the data elements to send to process i
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param rdispls Array (of length group size) specifying at entry i the the displacement relative to recvbuf at which to place the received data from process i
   \param recvtypes Array (of length group size) specifying at entry i the type of the data elements to receive from process i
@@ -10389,11 +10389,11 @@ static inline int ___collectives_alltoallw_init(const void *sendbuf, const int *
 
 /**
   \brief Blocking Alltoallw
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcounts Array (of length group size) containing the number of elements send to each process
   \param sdispls Array (of length group size) specifying at entry i the the displacement relative to sendbuf from which to take the sent data for process i
   \param sendtypes Array (of length group size) specifying at entry i the type of the data elements to send to process i
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param rdispls Array (of length group size) specifying at entry i the the displacement relative to recvbuf at which to place the received data from process i
   \param recvtypes Array (of length group size) specifying at entry i the type of the data elements to receive from process i
@@ -10413,19 +10413,19 @@ int _mpc_mpi_collectives_alltoallw(const void *sendbuf, const int *sendcounts, c
 
 
 /**
-  \brief Swith between the different Alltoallw algorithms
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \brief Switch between the different Alltoallw algorithms
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcounts Array (of length group size) containing the number of elements send to each process
   \param sdispls Array (of length group size) specifying at entry i the the displacement relative to sendbuf from which to take the sent data for process i
   \param sendtypes Array (of length group size) specifying at entry i the type of the data elements to send to process i
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param rdispls Array (of length group size) specifying at entry i the the displacement relative to recvbuf at which to place the received data from process i
   \param recvtypes Array (of length group size) specifying at entry i the type of the data elements to receive from process i
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_alltoallw_switch(const void *sendbuf, const int *sendcounts, const int *sdispls, const MPI_Datatype *sendtypes, void *recvbuf, const int *recvcounts, const int *rdispls, const MPI_Datatype *recvtypes, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -10477,18 +10477,18 @@ int ___collectives_alltoallw_switch(const void *sendbuf, const int *sendcounts, 
 /**
   \brief Execute or schedule a Alltoallw using the cluster algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcounts Array (of length group size) containing the number of elements send to each process
   \param sdispls Array (of length group size) specifying at entry i the the displacement relative to sendbuf from which to take the sent data for process i
   \param sendtypes Array (of length group size) specifying at entry i the type of the data elements to send to process i
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param rdispls Array (of length group size) specifying at entry i the the displacement relative to recvbuf at which to place the received data from process i
   \param recvtypes Array (of length group size) specifying at entry i the type of the data elements to receive from process i
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_alltoallw_cluster(const void *sendbuf, const int *sendcounts, const int *sdispls, const MPI_Datatype *sendtypes, void *recvbuf, const int *recvcounts, const int *rdispls, const MPI_Datatype *recvtypes, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -10577,18 +10577,18 @@ int ___collectives_alltoallw_cluster(const void *sendbuf, const int *sendcounts,
 /**
   \brief Execute or schedule a Alltoallw using the bruck algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcounts Array (of length group size) containing the number of elements send to each process
   \param sdispls Array (of length group size) specifying at entry i the the displacement relative to sendbuf from which to take the sent data for process i
   \param sendtypes Array (of length group size) specifying at entry i the type of the data elements to send to process i
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param rdispls Array (of length group size) specifying at entry i the the displacement relative to recvbuf at which to place the received data from process i
   \param recvtypes Array (of length group size) specifying at entry i the type of the data elements to receive from process i
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_alltoallw_bruck(__UNUSED__ const void *sendbuf, __UNUSED__ const int *sendcounts, __UNUSED__ const int *sdispls, __UNUSED__ const MPI_Datatype *sendtypes, __UNUSED__ void *recvbuf, __UNUSED__ const int *recvcounts, __UNUSED__ const int *rdispls, __UNUSED__ const MPI_Datatype *recvtypes, __UNUSED__ MPI_Comm comm, __UNUSED__ MPC_COLL_TYPE coll_type, __UNUSED__ NBC_Schedule * schedule, __UNUSED__ Sched_info *info) {
@@ -10601,18 +10601,18 @@ int ___collectives_alltoallw_bruck(__UNUSED__ const void *sendbuf, __UNUSED__ co
 /**
   \brief Execute or schedule a Alltoallw using the pairwise algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the pointer to the buffer used to send data
+  \param sendbuf Address of the pointer to the buffer used to send data
   \param sendcounts Array (of length group size) containing the number of elements send to each process
   \param sdispls Array (of length group size) specifying at entry i the the displacement in bytes (relative to sendbuf) from which to take the sent data for process i
   \param sendtypes Array (of length group size) specifying at entry i the type of the data elements to send to process i
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param recvcounts Array (of length group size) containing the number of elements received from each process
   \param rdispls Array (of length group size) specifying at entry i the the displacement in bytes (relative to recvbuf) at which to place the received data from process i
   \param recvtypes Array (of length group size) specifying at entry i the type of the data elements to receive from process i
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_alltoallw_pairwise(const void *sendbuf, const int *sendcounts, const int *sdispls, const MPI_Datatype *sendtypes, void *recvbuf, const int *recvcounts, const int *rdispls, const MPI_Datatype *recvtypes, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -10724,8 +10724,8 @@ int ___collectives_alltoallw_pairwise(const void *sendbuf, const int *sendcounts
 
 /**
   \brief Initialize NBC structures used in call of non-blocking Scan
-  \param sendbuf Adress of the pointer to the buffer used to send data
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param sendbuf Address of the pointer to the buffer used to send data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param count Number of elements in sendbuf
   \param datatype Type of the data elements in sendbuf
   \param op Reduction operation
@@ -10770,8 +10770,8 @@ int PMPI_Iscan (const void *sendbuf, void *recvbuf, int count, MPI_Datatype data
 
 /**
   \brief Initialize NBC structures used in call of non-blocking Scan
-  \param sendbuf Adress of the pointer to the buffer used to send data
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param sendbuf Address of the pointer to the buffer used to send data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param count Number of elements in sendbuf
   \param datatype Type of the data elements in sendbuf
   \param op Reduction operation
@@ -10818,8 +10818,8 @@ static inline int ___collectives_iscan (const void *sendbuf, void *recvbuf, int 
 
 /**
   \brief Initialize NBC structures used in call of persistent Scan
-  \param sendbuf Adress of the pointer to the buffer used to send data
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param sendbuf Address of the pointer to the buffer used to send data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param count Number of elements in sendbuf
   \param datatype Type of the data elements in sendbuf
   \param op Reduction operation
@@ -10852,8 +10852,8 @@ int PMPI_Scan_init (const void *sendbuf, void *recvbuf, int count, MPI_Datatype 
   req->is_persistent = 1;
   mpc_req->request_type = REQUEST_GENERALIZED;
 
-  req->persistant.op = MPC_MPI_PERSISTENT_SCAN_INIT;
-  req->persistant.info = info;
+  req->persistent.op = MPC_MPI_PERSISTENT_SCAN_INIT;
+  req->persistent.info = info;
 
   /* Init metadata for nbc */
   ___collectives_scan_init (sendbuf, recvbuf, count, datatype, op, comm, &(req->nbc_handle));
@@ -10864,8 +10864,8 @@ int PMPI_Scan_init (const void *sendbuf, void *recvbuf, int count, MPI_Datatype 
 
 /**
   \brief Initialize NBC structures used in call of persistent Scan
-  \param sendbuf Adress of the pointer to the buffer used to send data
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param sendbuf Address of the pointer to the buffer used to send data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param count Number of elements in sendbuf
   \param datatype Type of the data elements in sendbuf
   \param op Reduction operation
@@ -10909,8 +10909,8 @@ static inline int ___collectives_scan_init (const void *sendbuf, void *recvbuf, 
 
 /**
   \brief Blocking Scan
-  \param sendbuf Adress of the pointer to the buffer used to send data
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param sendbuf Address of the pointer to the buffer used to send data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param count Number of elements in sendbuf
   \param datatype Type of the data elements in sendbuf
   \param op Reduction operation
@@ -10926,16 +10926,16 @@ int _mpc_mpi_collectives_scan (const void *sendbuf, void *recvbuf, int count, MP
 
 
 /**
-  \brief Swith between the different Scan algorithms
-  \param sendbuf Adress of the pointer to the buffer used to send data
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \brief Switch between the different Scan algorithms
+  \param sendbuf Address of the pointer to the buffer used to send data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param count Number of elements in sendbuf
   \param datatype Type of the data elements in sendbuf
   \param op Reduction operation
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_scan_switch (const void *sendbuf, void *recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -10987,15 +10987,15 @@ int ___collectives_scan_switch (const void *sendbuf, void *recvbuf, int count, M
 /**
   \brief Execute or schedule a Scan using the linear algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the pointer to the buffer used to send data
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param sendbuf Address of the pointer to the buffer used to send data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param count Number of elements in sendbuf
   \param datatype Type of the data elements in sendbuf
   \param op Reduction operation
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_scan_linear (const void *sendbuf, void *recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -11060,15 +11060,15 @@ int ___collectives_scan_linear (const void *sendbuf, void *recvbuf, int count, M
 /**
   \brief Execute or schedule a Scan using the allgather algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the pointer to the buffer used to send data
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param sendbuf Address of the pointer to the buffer used to send data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param count Number of elements in sendbuf
   \param datatype Type of the data elements in sendbuf
   \param op Reduction operation
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_scan_allgather (const void *sendbuf, void *recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -11131,8 +11131,8 @@ int ___collectives_scan_allgather (const void *sendbuf, void *recvbuf, int count
 
 /**
   \brief Initialize NBC structures used in call of non-blocking Exscan
-  \param sendbuf Adress of the pointer to the buffer used to send data
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param sendbuf Address of the pointer to the buffer used to send data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param count Number of elements in sendbuf
   \param datatype Type of the data elements in sendbuf
   \param op Reduction operation
@@ -11177,8 +11177,8 @@ int PMPI_Iexscan (const void *sendbuf, void *recvbuf, int count, MPI_Datatype da
 
 /**
   \brief Initialize NBC structures used in call of non-blocking Exscan
-  \param sendbuf Adress of the pointer to the buffer used to send data
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param sendbuf Address of the pointer to the buffer used to send data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param count Number of elements in sendbuf
   \param datatype Type of the data elements in sendbuf
   \param op Reduction operation
@@ -11225,8 +11225,8 @@ static inline int ___collectives_iexscan (const void *sendbuf, void *recvbuf, in
 
 /**
   \brief Initialize NBC structures used in call of persistent Exscan
-  \param sendbuf Adress of the pointer to the buffer used to send data
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param sendbuf Address of the pointer to the buffer used to send data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param count Number of elements in sendbuf
   \param datatype Type of the data elements in sendbuf
   \param op Reduction operation
@@ -11259,8 +11259,8 @@ int PMPI_Exscan_init (const void *sendbuf, void *recvbuf, int count, MPI_Datatyp
   req->is_persistent = 1;
   mpc_req->request_type = REQUEST_GENERALIZED;
 
-  req->persistant.op = MPC_MPI_PERSISTENT_EXSCAN_INIT;
-  req->persistant.info = info;
+  req->persistent.op = MPC_MPI_PERSISTENT_EXSCAN_INIT;
+  req->persistent.info = info;
 
   /* Init metadata for nbc */
   ___collectives_exscan_init (sendbuf, recvbuf, count, datatype, op, comm, &(req->nbc_handle));
@@ -11271,8 +11271,8 @@ int PMPI_Exscan_init (const void *sendbuf, void *recvbuf, int count, MPI_Datatyp
 
 /**
   \brief Initialize NBC structures used in call of persistent Exscan
-  \param sendbuf Adress of the pointer to the buffer used to send data
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param sendbuf Address of the pointer to the buffer used to send data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param count Number of elements in sendbuf
   \param datatype Type of the data elements in sendbuf
   \param op Reduction operation
@@ -11316,8 +11316,8 @@ static inline int ___collectives_exscan_init (const void *sendbuf, void *recvbuf
 
 /**
   \brief Blocking Exscan
-  \param sendbuf Adress of the pointer to the buffer used to send data
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param sendbuf Address of the pointer to the buffer used to send data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param count Number of elements in sendbuf
   \param datatype Type of the data elements in sendbuf
   \param op Reduction operation
@@ -11333,16 +11333,16 @@ int _mpc_mpi_collectives_exscan (const void *sendbuf, void *recvbuf, int count, 
 
 
 /**
-  \brief Swith between the different Exscan algorithms
-  \param sendbuf Adress of the pointer to the buffer used to send data
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \brief Switch between the different Exscan algorithms
+  \param sendbuf Address of the pointer to the buffer used to send data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param count Number of elements in sendbuf
   \param datatype Type of the data elements in sendbuf
   \param op Reduction operation
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_exscan_switch (const void *sendbuf, void *recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -11389,15 +11389,15 @@ int ___collectives_exscan_switch (const void *sendbuf, void *recvbuf, int count,
 /**
   \brief Execute or schedule a Exscan using the linear algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the pointer to the buffer used to send data
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param sendbuf Address of the pointer to the buffer used to send data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param count Number of elements in sendbuf
   \param datatype Type of the data elements in sendbuf
   \param op Reduction operation
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_exscan_linear (const void *sendbuf, void *recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -11473,15 +11473,15 @@ int ___collectives_exscan_linear (const void *sendbuf, void *recvbuf, int count,
 /**
   \brief Execute or schedule a Exscan using the allgather algorithm
     Or count the number of operations and rounds for the schedule
-  \param sendbuf Adress of the pointer to the buffer used to send data
-  \param recvbuf Adress of the pointer to the buffer used to receive data
+  \param sendbuf Address of the pointer to the buffer used to send data
+  \param recvbuf Address of the pointer to the buffer used to receive data
   \param count Number of elements in sendbuf
   \param datatype Type of the data elements in sendbuf
   \param op Reduction operation
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_exscan_allgather (const void *sendbuf, void *recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -11649,8 +11649,8 @@ int PMPI_Barrier_init (MPI_Comm comm, MPI_Info info, MPI_Request *request) {
   req->is_persistent = 1;
   mpc_req->request_type = REQUEST_GENERALIZED;
 
-  req->persistant.op = MPC_MPI_PERSISTENT_BARRIER_INIT;
-  req->persistant.info = info;
+  req->persistent.op = MPC_MPI_PERSISTENT_BARRIER_INIT;
+  req->persistent.info = info;
 
   /* Init metadata for nbc */
   ___collectives_barrier_init (comm, &(req->nbc_handle));
@@ -11713,11 +11713,11 @@ int _mpc_mpi_collectives_barrier (MPI_Comm comm) {
 
 
 /**
-  \brief Swith between the different Barrier algorithms
+  \brief Switch between the different Barrier algorithms
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_barrier_switch (MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {
@@ -11763,8 +11763,8 @@ int ___collectives_barrier_switch (MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_S
     Or count the number of operations and rounds for the schedule
   \param comm Target communicator
   \param coll_type Type of the communication
-  \param schedule Adress of the schedule
-  \param info Adress on the information structure about the schedule
+  \param schedule Address of the schedule
+  \param info Address on the information structure about the schedule
   \return error code
   */
 int ___collectives_barrier_reduce_broadcast (MPI_Comm comm, MPC_COLL_TYPE coll_type, NBC_Schedule * schedule, Sched_info *info) {

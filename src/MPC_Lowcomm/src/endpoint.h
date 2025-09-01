@@ -37,7 +37,7 @@
 
 /* Typedefs for this file are in the central
  * header to allow later references avoiding
- * circular refences */
+ * circular references */
 #include "lowcomm_types_internal.h"
 
 /* Driver definitions */
@@ -54,7 +54,7 @@ typedef enum
 	_MPC_LOWCOMM_ENDPOINT_STATIC  = 222  /**< Endpoint has been created statically */
 } _mpc_lowcomm_endpoint_type_t;
 
-/** @brief Network dependent ROUTE informations */
+/** @brief Network dependent ROUTE information */
 typedef union
 {
 	_mpc_lowcomm_endpoint_info_tcp_t     tcp;    /**< TCP route info */
@@ -133,7 +133,7 @@ void _mpc_lowcomm_endpoint_init(_mpc_lowcomm_endpoint_t *edp,
  * @brief Return true if the process is the one who initiated route connect
  *
  * @param edp endpoint
- * @return char 0 if not initator 1 otherwise
+ * @return char 0 if not initiator 1 otherwise
  */
 char _mpc_lowcomm_endpoint_is_initiator(_mpc_lowcomm_endpoint_t *edp);
 
@@ -205,7 +205,7 @@ _mpc_lowcomm_endpoint_table_t *_mpc_lowcomm_endpoint_table_new();
 /**
  * @brief Check if an endpoint table is empty
  *
- * @param table table to check for emptyness
+ * @param table table to check for emptiness
  * @return int 1 if table is empty
  */
 int _mpc_lowcomm_endpoint_table_has_routes(_mpc_lowcomm_endpoint_table_t *table);

@@ -203,7 +203,7 @@ int mpc_lowcomm_commit_status_from_request(mpc_lowcomm_request_t *request,
  * Initialize the 'incoming' list.
  */
 
-static inline void __mpc_comm_ptp_list_incoming_init(mpc_lowcomm_ptp_list_incomming_t *list)
+static inline void __mpc_comm_ptp_list_incoming_init(mpc_lowcomm_ptp_list_incoming_t *list)
 {
 	list->list = NULL;
 	mpc_common_spinlock_init(&list->lock, 0);
@@ -223,8 +223,8 @@ static inline void __mpc_comm_ptp_list_pending_init(mpc_lowcomm_ptp_list_pending
  */
 static inline void __mpc_comm_ptp_message_list_init(mpc_lowcomm_ptp_message_lists_t *lists)
 {
-	__mpc_comm_ptp_list_incoming_init(&(lists->incomming_send) );
-	__mpc_comm_ptp_list_incoming_init(&(lists->incomming_recv) );
+	__mpc_comm_ptp_list_incoming_init(&(lists->incoming_send) );
+	__mpc_comm_ptp_list_incoming_init(&(lists->incoming_recv) );
 	mpc_common_spinlock_init(&lists->pending_lock, 0);
 	__mpc_comm_ptp_list_pending_init(&(lists->pending_send) );
 	__mpc_comm_ptp_list_pending_init(&(lists->pending_recv) );
@@ -237,27 +237,27 @@ static inline void __mpc_comm_ptp_message_list_merge_pending(mpc_lowcomm_ptp_mes
 {
 	int flush = 0;
 
-	if(lists->incomming_send.list != NULL)
+	if(lists->incoming_send.list != NULL)
 	{
-		if(mpc_common_spinlock_trylock(&(lists->incomming_send.lock) ) == 0)
+		if(mpc_common_spinlock_trylock(&(lists->incoming_send.lock) ) == 0)
 		{
 			DL_CONCAT(lists->pending_send.list,
-			          ( mpc_lowcomm_msg_list_t * )lists->incomming_send.list);
-			lists->incomming_send.list = NULL;
+			          ( mpc_lowcomm_msg_list_t * )lists->incoming_send.list);
+			lists->incoming_send.list = NULL;
 			flush = 1;
-			mpc_common_spinlock_unlock(&(lists->incomming_send.lock) );
+			mpc_common_spinlock_unlock(&(lists->incoming_send.lock) );
 		}
 	}
 
-	if(lists->incomming_recv.list != NULL)
+	if(lists->incoming_recv.list != NULL)
 	{
-		if(mpc_common_spinlock_trylock(&(lists->incomming_recv.lock) ) == 0)
+		if(mpc_common_spinlock_trylock(&(lists->incoming_recv.lock) ) == 0)
 		{
 			DL_CONCAT(lists->pending_recv.list,
-			          ( mpc_lowcomm_msg_list_t * )lists->incomming_recv.list);
-			lists->incomming_recv.list = NULL;
+			          ( mpc_lowcomm_msg_list_t * )lists->incoming_recv.list);
+			lists->incoming_recv.list = NULL;
 			flush = 1;
-			mpc_common_spinlock_unlock(&(lists->incomming_recv.lock) );
+			mpc_common_spinlock_unlock(&(lists->incoming_recv.lock) );
 		}
 	}
 
@@ -290,9 +290,9 @@ static inline void __mpc_comm_ptp_message_list_add_incoming_recv(mpc_comm_ptp_t 
 {
 	assume(tmp != NULL);
 	msg->tail.distant_list.msg = msg;
-	mpc_common_spinlock_lock(&(tmp->lists.incomming_recv.lock) );
-	DL_APPEND(tmp->lists.incomming_recv.list, &(msg->tail.distant_list) );
-	mpc_common_spinlock_unlock(&(tmp->lists.incomming_recv.lock) );
+	mpc_common_spinlock_lock(&(tmp->lists.incoming_recv.lock) );
+	DL_APPEND(tmp->lists.incoming_recv.list, &(msg->tail.distant_list) );
+	mpc_common_spinlock_unlock(&(tmp->lists.incoming_recv.lock) );
 }
 
 /*
@@ -304,9 +304,9 @@ static inline void __mpc_comm_ptp_message_list_add_incoming_send(mpc_comm_ptp_t 
 	msg->tail.distant_list.msg = msg;
 
 	assume(tmp != NULL);
-	mpc_common_spinlock_lock(&(tmp->lists.incomming_send.lock) );
-	DL_APPEND(tmp->lists.incomming_send.list, &(msg->tail.distant_list) );
-	mpc_common_spinlock_unlock(&(tmp->lists.incomming_send.lock) );
+	mpc_common_spinlock_lock(&(tmp->lists.incoming_send.lock) );
+	DL_APPEND(tmp->lists.incoming_send.list, &(msg->tail.distant_list) );
+	mpc_common_spinlock_unlock(&(tmp->lists.incoming_send.lock) );
 }
 
 /************************************************************************/
@@ -516,7 +516,7 @@ int mpc_lowcomm_is_remote_rank(int dest)
 /********************************************************************/
 
 /* Messages in the '__mpc_ptp_task_list' have already been
- * matched and are wainting to be copied */
+ * matched and are waiting to be copied */
 
 static short          __mpc_comm_ptp_task_init_done = 0;
 mpc_common_spinlock_t __mpc_comm_ptp_task_init_lock = MPC_COMMON_SPINLOCK_INITIALIZER;
@@ -950,10 +950,10 @@ inline void mpc_lowcomm_ptp_message_copy(mpc_lowcomm_ptp_message_content_to_copy
 
 static inline void __mpc_comm_copy_buffer_pack_pack(unsigned long *restrict in_begins,
                                                     unsigned long *restrict in_ends, size_t in_sizes,
-                                                    void *restrict in_adress, size_t in_elem_size,
+                                                    void *restrict in_address, size_t in_elem_size,
                                                     unsigned long *restrict out_begins,
                                                     unsigned long *restrict out_ends,
-                                                    size_t out_sizes, void *restrict out_adress,
+                                                    size_t out_sizes, void *restrict out_address,
                                                     size_t out_elem_size)
 {
 	unsigned long tmp_begin[1];
@@ -962,9 +962,9 @@ static inline void __mpc_comm_copy_buffer_pack_pack(unsigned long *restrict in_b
 	if( (in_begins == NULL) && (out_begins == NULL) )
 	{
 		mpc_common_nodebug("__mpc_comm_copy_buffer_pack_pack no mpc_pack");
-		mpc_common_nodebug("%s == %s", out_adress, in_adress);
-		memcpy(out_adress, in_adress, in_sizes);
-		mpc_common_nodebug("%s == %s", out_adress, in_adress);
+		mpc_common_nodebug("%s == %s", out_address, in_address);
+		memcpy(out_address, in_address, in_sizes);
+		mpc_common_nodebug("%s == %s", out_address, in_address);
 	}
 	else
 	{
@@ -1019,11 +1019,11 @@ static inline void __mpc_comm_copy_buffer_pack_pack(unsigned long *restrict in_b
 				max_length =
 					mpc_common_min( (out_ends[i] * out_elem_size - j + out_elem_size),
 					                (in_ends[in_i] * in_elem_size - in_j + in_elem_size) );
-				memcpy(&( ( ( char * )out_adress)[j]), &( ( ( char * )in_adress)[in_j]),
+				memcpy(&( ( ( char * )out_address)[j]), &( ( ( char * )in_address)[in_j]),
 				       max_length);
 				mpc_common_nodebug("Copy out[%d-%d]%s == in[%d-%d]%s", j, j + max_length,
-				                   &( ( ( char * )out_adress)[j]), in_j, in_j + max_length,
-				                   &( ( ( char * )in_adress)[in_j]) );
+				                   &( ( ( char * )out_address)[j]), in_j, in_j + max_length,
+				                   &( ( ( char * )in_address)[in_j]) );
 				j    += max_length;
 				in_j += max_length;
 			}
@@ -1033,10 +1033,10 @@ static inline void __mpc_comm_copy_buffer_pack_pack(unsigned long *restrict in_b
 
 static inline void __mpc_comm_copy_buffer_absolute_pack(long *restrict in_begins,
                                                         long *restrict in_ends, size_t in_sizes,
-                                                        const void *restrict in_adress, size_t in_elem_size,
+                                                        const void *restrict in_address, size_t in_elem_size,
                                                         unsigned long *restrict out_begins,
                                                         unsigned long *restrict out_ends, size_t out_sizes,
-                                                        void *restrict out_adress, size_t out_elem_size)
+                                                        void *restrict out_address, size_t out_elem_size)
 {
 	unsigned long tmp_begin[1];
 	unsigned long tmp_end[1];
@@ -1046,9 +1046,9 @@ static inline void __mpc_comm_copy_buffer_absolute_pack(long *restrict in_begins
 	if( (in_begins == NULL) && (out_begins == NULL) )
 	{
 		mpc_common_nodebug("__mpc_comm_copy_buffer_pack_pack no mpc_pack");
-		mpc_common_nodebug("%s == %s", out_adress, in_adress);
-		memcpy(out_adress, in_adress, in_sizes);
-		mpc_common_nodebug("%s == %s", out_adress, in_adress);
+		mpc_common_nodebug("%s == %s", out_address, in_address);
+		memcpy(out_address, in_address, in_sizes);
+		mpc_common_nodebug("%s == %s", out_address, in_address);
 	}
 	else
 	{
@@ -1103,11 +1103,11 @@ static inline void __mpc_comm_copy_buffer_absolute_pack(long *restrict in_begins
 				max_length =
 					mpc_common_min( (out_ends[i] * out_elem_size - j + out_elem_size),
 					                (in_ends[in_i] * in_elem_size - in_j + in_elem_size) );
-				memcpy(&( ( ( char * )out_adress)[j]), &( ( ( char * )in_adress)[in_j]),
+				memcpy(&( ( ( char * )out_address)[j]), &( ( ( char * )in_address)[in_j]),
 				       max_length);
 				mpc_common_nodebug("Copy out[%d-%d]%s == in[%d-%d]%s", j, j + max_length,
-				                   &( ( ( char * )out_adress)[j]), in_j, in_j + max_length,
-				                   &( ( ( char * )in_adress)[in_j]) );
+				                   &( ( ( char * )out_address)[j]), in_j, in_j + max_length,
+				                   &( ( ( char * )in_address)[in_j]) );
 				j    += max_length;
 				in_j += max_length;
 			}
@@ -1121,10 +1121,10 @@ static inline void __mpc_comm_copy_buffer_absolute_pack(long *restrict in_begins
 static inline void __mpc_comm_copy_buffer_pack_absolute(
 	unsigned long *restrict in_begins,
 	unsigned long *restrict in_ends, size_t in_sizes,
-	void *restrict in_adress, size_t in_elem_size,
+	void *restrict in_address, size_t in_elem_size,
 	long *restrict out_begins,
 	long *restrict out_ends, size_t out_sizes,
-	const void *restrict out_adress, size_t out_elem_size)
+	const void *restrict out_address, size_t out_elem_size)
 {
 	unsigned long tmp_begin[1];
 	unsigned long tmp_end[1];
@@ -1134,9 +1134,9 @@ static inline void __mpc_comm_copy_buffer_pack_absolute(
 	if( (in_begins == NULL) && (out_begins == NULL) )
 	{
 		mpc_common_nodebug("__mpc_comm_copy_buffer_absolute_absolute no mpc_pack");
-		mpc_common_nodebug("%s == %s", out_adress, in_adress);
-		memcpy( (void *)out_adress, in_adress, in_sizes);
-		mpc_common_nodebug("%s == %s", out_adress, in_adress);
+		mpc_common_nodebug("%s == %s", out_address, in_address);
+		memcpy( (void *)out_address, in_address, in_sizes);
+		mpc_common_nodebug("%s == %s", out_address, in_address);
 	}
 	else
 	{
@@ -1192,13 +1192,13 @@ static inline void __mpc_comm_copy_buffer_pack_absolute(
 					mpc_common_min( (out_ends[i] * out_elem_size - j + out_elem_size),
 					                (in_ends[in_i] * in_elem_size - in_j + in_elem_size) );
 				mpc_common_nodebug("Copy out[%lu-%lu]%p == in[%lu-%lu]%p", j, j + max_length,
-				                   &( ( ( char * )out_adress)[j]), in_j, in_j + max_length,
-				                   &( ( ( char * )in_adress)[in_j]) );
-				memcpy(&( ( ( char * )out_adress)[j]), &( ( ( char * )in_adress)[in_j]),
+				                   &( ( ( char * )out_address)[j]), in_j, in_j + max_length,
+				                   &( ( ( char * )in_address)[in_j]) );
+				memcpy(&( ( ( char * )out_address)[j]), &( ( ( char * )in_address)[in_j]),
 				       max_length);
 				mpc_common_nodebug("Copy out[%d-%d]%d == in[%d-%d]%d", j, j + max_length,
-				                   ( ( ( char * )out_adress)[j]), in_j, in_j + max_length,
-				                   ( ( ( char * )in_adress)[in_j]) );
+				                   ( ( ( char * )out_address)[j]), in_j, in_j + max_length,
+				                   ( ( ( char * )in_address)[in_j]) );
 				j    += max_length;
 				in_j += max_length;
 			}
@@ -1212,10 +1212,10 @@ static inline void __mpc_comm_copy_buffer_pack_absolute(
 static inline void __mpc_comm_copy_buffer_absolute_absolute(
 	long *restrict in_begins,
 	long *restrict in_ends, size_t in_sizes,
-	const void *restrict in_adress, size_t in_elem_size,
+	const void *restrict in_address, size_t in_elem_size,
 	long *restrict out_begins,
 	long *restrict out_ends, size_t out_sizes,
-	const void *restrict out_adress, size_t out_elem_size)
+	const void *restrict out_address, size_t out_elem_size)
 {
 	long tmp_begin[1];
 	long tmp_end[1];
@@ -1223,9 +1223,9 @@ static inline void __mpc_comm_copy_buffer_absolute_absolute(
 	if( (in_begins == NULL) && (out_begins == NULL) )
 	{
 		mpc_common_nodebug("__mpc_comm_copy_buffer_absolute_absolute no mpc_pack");
-		mpc_common_nodebug("%s == %s", out_adress, in_adress);
-		memcpy( (void *)out_adress, in_adress, in_sizes);
-		mpc_common_nodebug("%s == %s", out_adress, in_adress);
+		mpc_common_nodebug("%s == %s", out_address, in_address);
+		memcpy( (void *)out_address, in_address, in_sizes);
+		mpc_common_nodebug("%s == %s", out_address, in_address);
 	}
 	else
 	{
@@ -1287,13 +1287,13 @@ static inline void __mpc_comm_copy_buffer_absolute_absolute(
 					mpc_common_min( (out_ends[i] * out_elem_size - j + out_elem_size),
 					                (in_ends[in_i] * in_elem_size - in_j + in_elem_size) );
 				mpc_common_nodebug("Copy out[%lu-%lu]%p == in[%lu-%lu]%p", j, j + max_length,
-				                   &( ( ( char * )out_adress)[j]), in_j, in_j + max_length,
-				                   &( ( ( char * )in_adress)[in_j]) );
-				memcpy(&( ( ( char * )out_adress)[j]), &( ( ( char * )in_adress)[in_j]),
+				                   &( ( ( char * )out_address)[j]), in_j, in_j + max_length,
+				                   &( ( ( char * )in_address)[in_j]) );
+				memcpy(&( ( ( char * )out_address)[j]), &( ( ( char * )in_address)[in_j]),
 				       max_length);
 				mpc_common_nodebug("Copy out[%d-%d]%d == in[%d-%d]%d", j, j + max_length,
-				                   ( ( ( char * )out_adress)[j]), in_j, in_j + max_length,
-				                   ( ( ( char * )in_adress)[in_j]) );
+				                   ( ( ( char * )out_address)[j]), in_j, in_j + max_length,
+				                   ( ( ( char * )in_address)[in_j]) );
 				j    += max_length;
 				in_j += max_length;
 			}
@@ -1759,7 +1759,7 @@ void mpc_lowcomm_ptp_message_header_init(mpc_lowcomm_ptp_message_t *msg,
 	/* PROCESS SPECIFIC MESSAGES */
 	if(_mpc_comm_ptp_message_is_for_process(message_class) )
 	{
-		/* Fill in Source and Dest Process Informations (NO conversion needed)
+		/* Fill in Source and Dest Process Information (NO conversion needed)
 		 */
 
 		/* Note ANY_SOURCE will use truncation in matching with mpc_lowcomm_peer_get_rank(source) */
@@ -2282,7 +2282,7 @@ static inline mpc_lowcomm_msg_list_t *__mpc_comm_pending_msg_list_search_matchin
 			(header->message_type == header_found->message_type) &&
 			/* Match source Process */
 			( (header->source == header_found->source) || (mpc_lowcomm_peer_get_rank(header->source) == MPC_ANY_SOURCE) ) &&
-			/* Match source task appart for process specific messages which are not matched at task level */
+			/* Match source task apart for process specific messages which are not matched at task level */
 			( (header->source_task == header_found->source_task) ||
 			  (header->source_task == MPC_ANY_SOURCE) ||
 			  _mpc_comm_ptp_message_is_for_process(header->message_type) ) &&
@@ -2424,10 +2424,10 @@ static inline int __mpc_comm_ptp_perform_msg_pair(mpc_comm_ptp_t *pair)
 
 
 	if( ( (pair->lists.pending_send.list != NULL) ||
-	      (pair->lists.incomming_send.list != NULL)
+	      (pair->lists.incoming_send.list != NULL)
 	      ) &&
 	    ( (pair->lists.pending_recv.list != NULL) ||
-	      (pair->lists.incomming_recv.list != NULL)
+	      (pair->lists.incoming_recv.list != NULL)
 	    ) )
 	{
 		if(__mpc_comm_ptp_message_list_trylock_pending(&(pair->lists) ) == 0)
@@ -3124,7 +3124,7 @@ void mpc_lowcomm_request_init_struct(mpc_lowcomm_request_t *request,
 	int src_task  = -1;
 	int dest_task = -1;
 
-	/* Fill in Source and Dest Process Informations (convert from task) */
+	/* Fill in Source and Dest Process Information (convert from task) */
 
 	/* SOURCE */
 	if(src != MPC_ANY_SOURCE)
@@ -3485,7 +3485,7 @@ static int mpc_lowcomm_init_request_header(const int tag,
 
 	int source_task = -1;
 	int dest_task   = -1;
-	/* Fill in Source and Dest Process Informations (convert from task) */
+	/* Fill in Source and Dest Process Information (convert from task) */
 
 	/* SOURCE */
 	int isource = src;
@@ -4305,7 +4305,7 @@ static void __lowcomm_init_per_task()
 	 * progress threads may need buffered headers */
 	if(task_rank >= 0)
 	{
-		mpc_lowcomm_terminaison_barrier();
+		mpc_lowcomm_termination_barrier();
 
 		//mpc_lowcomm_init_per_task(task_rank);
 
@@ -4326,7 +4326,7 @@ static void __lowcomm_init_per_task()
                 }
 
                 _mpc_lowcomm_communicator_init_task(task_rank);
-		mpc_lowcomm_terminaison_barrier();
+		mpc_lowcomm_termination_barrier();
 
 		_mpc_lowcomm_pset_bootstrap();
 
@@ -4341,8 +4341,8 @@ static void __lowcomm_release_per_task()
 
 	if(task_rank >= 0)
 	{
-		mpc_common_nodebug("mpc_lowcomm_terminaison_barrier");
-		mpc_lowcomm_terminaison_barrier();
+		mpc_common_nodebug("mpc_lowcomm_termination_barrier");
+		mpc_lowcomm_termination_barrier();
 		_mpc_lowcomm_release_psets();
 		//mpc_lowcomm_release_per_task(task_rank);
 
@@ -4354,7 +4354,7 @@ static void __lowcomm_release_per_task()
                 }
                 lcp_task_dissociate(task, lcp_mngr_loc);
 
-		mpc_common_nodebug("mpc_lowcomm_terminaison_barrier done");
+		mpc_common_nodebug("mpc_lowcomm_termination_barrier done");
 		_mpc_lowcomm_monitor_teardown_per_task();
 	}
 	else

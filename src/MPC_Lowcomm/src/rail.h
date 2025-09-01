@@ -45,7 +45,7 @@
 /* Rail Info                                                            */
 /************************************************************************/
 
-/** \brief Network dependent RAIL informations */
+/** \brief Network dependent RAIL information */
 typedef union
 {
 	_mpc_lowcomm_tcp_rail_info_t tcp; /**< TCP Rail Info */
@@ -123,7 +123,7 @@ enum {
 enum {
 	LCR_IFACE_TM_OVERFLOW       = MPC_BIT(0),
 	LCR_IFACE_TM_NOVERFLOW      = MPC_BIT(1),
-	LCR_IFACE_TM_PERSISTANT_MEM = MPC_BIT(2),
+	LCR_IFACE_TM_PERSISTENT_MEM = MPC_BIT(2),
 	LCR_IFACE_TM_SEARCH         = MPC_BIT(3),
 	LCR_IFACE_TM_ERROR          = MPC_BIT(4),
         LCR_IFACE_AM_LAYOUT_BUFFER  = MPC_BIT(5),
@@ -234,7 +234,7 @@ struct lcr_rail_attr {
 };
 
 
-/** This structure gathers all informations linked to a network rail
+/** This structure gathers all information linked to a network rail
  *
  *  All rail information is stored in the sctk_route file
  *  using the \ref sctk_route_set_rail_infos function

@@ -173,15 +173,15 @@ int mpc_conf_config_loader_push(char *conf_name, char *key, char *value, char *s
 			return 1;
 		}
 
-        mpc_conf_type_t infered_type = mpc_conf_type_infer_from_string(value);
+        mpc_conf_type_t inferred_type = mpc_conf_type_infer_from_string(value);
 
-        if(infered_type ==MPC_CONF_TYPE_NONE)
+        if(inferred_type ==MPC_CONF_TYPE_NONE)
         {
             _utils_verbose_output(0, "%s: could not infer type for %s = %s\n", conf_name, expanded_key, value);
             return 1;
         }
 
-        type_to_set = infered_type;
+        type_to_set = inferred_type;
 
 		/* Prepare new element storage if needed */
 
@@ -245,7 +245,7 @@ static inline int ___mpc_conf_config_load_eq_list(char *conf_name, char *data, c
 
 				if(!equal)
 				{
-					_utils_verbose_output(0, "%s:%d: mising '=' skipping '%s'\n", path, line, trimmed_line);
+					_utils_verbose_output(0, "%s:%d: missing '=' skipping '%s'\n", path, line, trimmed_line);
 				}
 				else
 				{

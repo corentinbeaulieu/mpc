@@ -57,7 +57,7 @@ extern "C"
         * Note that a TCP rail is required to bootstrap the comm ring
         * to enable on demand connections on high speed networks.
         *
-        * These function are the weak implementation to be overriden
+        * These function are the weak implementation to be overridden
         * by actual ones in the target implementation.
          */
 
@@ -100,14 +100,14 @@ int mpc_launch_pmi_finalize();
  ******************/
 
 /**
- * @brief Maximum lenght of a PMI key
+ * @brief Maximum length of a PMI key
  *
  * @return int max key len
  */
 int mpc_launch_pmi_get_max_key_len();
 
 /**
- * @brief Maximum lenght of a PMI value
+ * @brief Maximum length of a PMI value
  *
  * @return int max value len
  */

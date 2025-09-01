@@ -97,7 +97,7 @@ The \fIcount\fP argument indicates the maximum number of entries of type \fIdata
 .sp
 To receive messages of unknown length, use the MPI_Probe function. (For more information about MPI_Probe and MPI_Cancel, see their respective man pages; also, see Section 3.8 of the MPI-1 Standard, "Probe and Cancel.")
 .sp
-A message can be received by a receive operation only if it is addressed to the receiving process, and if its source, tag, and communicator (comm) values match the source, tag, and comm values specified by the receive operation. The receive operation may specify a wildcard value for source and/or tag, indicating that any source and/or tag are acceptable. The wildcard value for source is source = MPI_ANY_SOURCE. The wildcard value for tag is tag = MPI_ANY_TAG. There is no wildcard value for comm. The scope of these wildcards is limited to the proceses in the group of the specified communicator.
+A message can be received by a receive operation only if it is addressed to the receiving process, and if its source, tag, and communicator (comm) values match the source, tag, and comm values specified by the receive operation. The receive operation may specify a wildcard value for source and/or tag, indicating that any source and/or tag are acceptable. The wildcard value for source is source = MPI_ANY_SOURCE. The wildcard value for tag is tag = MPI_ANY_TAG. There is no wildcard value for comm. The scope of these wildcards is limited to the processes in the group of the specified communicator.
 .sp
 The message tag is specified by the tag argument of the receive operation.
 .sp

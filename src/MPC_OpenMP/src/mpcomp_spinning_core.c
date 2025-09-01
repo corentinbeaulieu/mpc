@@ -601,7 +601,7 @@ void __scatter_instance_post_init( mpc_omp_thread_t *thread )
 
 static OPA_int_t nb_teams = OPA_INT_T_INITIALIZER( 0 );
 
-/** Reset mpcomp_team informations */
+/** Reset mpcomp_team information */
 static inline void __team_reset( mpc_omp_team_t *team )
 {
 	assert( team );
@@ -685,7 +685,7 @@ mpc_omp_instance_t *_mpc_omp_tree_array_instance_init( mpc_omp_thread_t *thread,
     master->tool_status = thread->tool_status;
     master->tool_instance = thread->tool_instance;
 #if MPCOMPT_HAS_FRAME_SUPPORT
-    master->frame_infos.outter_caller = thread->frame_infos.outter_caller;
+    master->frame_infos.outer_caller = thread->frame_infos.outer_caller;
     master->frame_infos.ompt_return_addr = thread->frame_infos.ompt_return_addr;
 #endif
 #endif /* OMPT_SUPPORT */
@@ -724,8 +724,8 @@ mpc_omp_thread_t *__mvp_wakeup( mpc_omp_mvp_t *mvp )
 	new_thread->info = mvp->instance->team->info;
 #endif
 #if OMPT_SUPPORT && MPCOMPT_HAS_FRAME_SUPPORT
-    new_thread->frame_infos.outter_caller =
-        mvp->instance->team->frame_infos.outter_caller;
+    new_thread->frame_infos.outer_caller =
+        mvp->instance->team->frame_infos.outer_caller;
     new_thread->frame_infos.ompt_return_addr = mvp->instance->team->frame_infos.ompt_return_addr;
 #endif /* OMPT_SUPPORT */
 

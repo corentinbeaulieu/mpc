@@ -107,7 +107,7 @@ static inline int mpc_common_get_local_process_count( void )
 }
 
 /**
- * @brief Get the rank in local UNIX processses for current process
+ * @brief Get the rank in local UNIX processes for current process
  *
  * @return int rank for current process in local UNIX processes
  */
@@ -205,7 +205,7 @@ static inline int mpc_common_get_local_task_count( void )
 }
 
 /**
- * @brief Get the task rank of given thread in curent process
+ * @brief Get the task rank of given thread in current process
  *
  * @return int task rank on node
  */

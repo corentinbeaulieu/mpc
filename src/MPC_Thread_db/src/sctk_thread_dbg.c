@@ -121,7 +121,7 @@ int sctk_init_thread_debug(sctk_thread_data_t *item)
 
 	mpc_common_nodebug("refresh");
 
-	/*initialiaze variable parts of the data*/
+	/*initialize variable parts of the data*/
 	rtdb_update_thread_this_lid(thread);
 
 	return 0;
@@ -292,7 +292,7 @@ int sctk_init_idle_thread_dbg(void *tid, void *start_fct)
 
 	ttid->debug_p = (tdb_thread_debug_t *)thread;
 	mpc_common_nodebug("refresh idle");
-	/*initialiaze variable parts of the data*/
+	/*initialize variable parts of the data*/
 	rtdb_update_thread_this_lid(thread);
 
 	mpc_common_nodebug("creation of the idle task");

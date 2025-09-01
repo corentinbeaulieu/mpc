@@ -294,7 +294,7 @@ static inline int32_t __get_free_rank_slot(__set_uid_t *set_id, char *uri)
 
 	uint32_t i;
 
-	/* To limit concurency we spread
+	/* To limit concurrency we spread
 	 * on the id space first */
 	pid_t pid = getpid();
 

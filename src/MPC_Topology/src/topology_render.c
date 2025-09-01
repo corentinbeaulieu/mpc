@@ -238,17 +238,17 @@ static char *convert_rgb_to_string(int red, int green, int blue, char * rgb){
     return rgb;
 }
 
-/* fill thread placement informations in file to communicate between processes of the same node for text placement option */
+/* fill thread placement information in file to communicate between processes of the same node for text placement option */
 void mpc_topology_render_text(int os_pu, int os_master_pu, int task_id, int vp, __UNUSED__ int rank_open_mp, int* min_idex, int pid){
 
-    /*acces global topo*/
+    /*access global topo*/
     hwloc_topology_load(mpc_topology_get());
     /*add color info on pu*/
 
 
 
     if(os_pu == os_master_pu){
-            /* implemtation txt */
+            /* implementation txt */
             FILE *f_textual = fopen(textual_file, "a");
             if(f_textual != NULL){
                 fprintf(f_textual,"%d %d %d %d %d %d %d\n", os_master_pu, vp, task_id, min_idex[0], min_idex[1],min_idex[2] , pid);
@@ -256,7 +256,7 @@ void mpc_topology_render_text(int os_pu, int os_master_pu, int task_id, int vp, 
             }
     }
     else{
-            /* implemtation txt */
+            /* implementation txt */
             FILE *f_textual = fopen(textual_file, "a");
             if(f_textual != NULL){
                 fprintf(f_textual,"%d %d %d %d %d %d %d\n", os_pu, vp, task_id, min_idex[0], min_idex[1],min_idex[2], pid);
@@ -266,7 +266,7 @@ void mpc_topology_render_text(int os_pu, int os_master_pu, int task_id, int vp, 
     }
 }
 
-/* fill thread placement informations in file to communicate between processes of the same node for graphic placement option */
+/* fill thread placement information in file to communicate between processes of the same node for graphic placement option */
 void mpc_topology_render_create(int os_pu, int os_master_pu, int task_id){
     int red, green, blue;
     int red_m, green_m, blue_m;
@@ -279,7 +279,7 @@ void mpc_topology_render_create(int os_pu, int os_master_pu, int task_id){
     convert_rgb_to_string(red, green, blue, string_rgb_hexa);
     convert_rgb_to_string(red, green, blue, string_rgb_hexa_master);
 
-    /*acces global topo*/
+    /*access global topo*/
     hwloc_topology_load(mpc_topology_get());
     /*add color info on pu*/
 
@@ -293,7 +293,7 @@ void mpc_topology_render_create(int os_pu, int os_master_pu, int task_id){
 
         strcat( string_rgb_hexa_master, ";");
         strcat(string_rgb_hexa_master, "Text=#ffffff");
-            /* implemtation txt */
+            /* implementation txt */
             FILE *f = fopen(placement_txt, "a");
             if(f != NULL){
                 fprintf(f,"%d %s\n", os_master_pu, string_rgb_hexa_master);
@@ -309,7 +309,7 @@ void mpc_topology_render_create(int os_pu, int os_master_pu, int task_id){
 
             strcat( string_rgb_hexa, ";");
             strcat(string_rgb_hexa, "Text=#000000");
-            /* implemtation txt */
+            /* implementation txt */
             FILE *f = fopen(placement_txt, "a");
             if(f != NULL){
                 fprintf(f,"%d %s\n", os_pu, string_rgb_hexa);
@@ -363,7 +363,7 @@ static void read_char(char * buff, int *cpt, int *c, FILE *f){
 }
 
 /* used by graphic and text option */
-static void sctk_read_format_option_graphic_placement_and_complet_topo_infos(FILE *f, int length){
+static void sctk_read_format_option_graphic_placement_and_complete_topo_infos(FILE *f, int length){
 	char * os_indbuff = (char *)malloc(64*length);
 	char * infosbuff = (char *)malloc(64*length);
 
@@ -478,20 +478,20 @@ static void convert_char(char * buff,int cpt, int *tab, int cpt_line){
 }
 
 /* read file of the node for text placement option */
-static void sctk_read_format_option_text_placement(FILE *f_textual, struct sctk_text_option_s *tab_option, int lenght){
+static void sctk_read_format_option_text_placement(FILE *f_textual, struct sctk_text_option_s *tab_option, int length){
     /*! \brief Destroy the topology module
     */
 
     int cpt_ligne = 0;
     while(1){// one ligne per iteration
         //malloc buffer for infos of other ranks in the same processus
-        char * os_indbuff = (char *)sctk_malloc(64*lenght);
-        char * infosbuff = (char *)sctk_malloc(64*lenght);
-        char * infos_rank_mpibuff= (char *)sctk_malloc(64*lenght);
-        char * infos_compactbuff = (char *)sctk_malloc(64*lenght);
-        char * infos_scatterbuff = (char *)sctk_malloc(64*lenght);
-        char * infos_balancedbuff = (char *)sctk_malloc(64*lenght);
-        char * infos_pidbuff = (char *)sctk_malloc(64*lenght);
+        char * os_indbuff = (char *)sctk_malloc(64*length);
+        char * infosbuff = (char *)sctk_malloc(64*length);
+        char * infos_rank_mpibuff= (char *)sctk_malloc(64*length);
+        char * infos_compactbuff = (char *)sctk_malloc(64*length);
+        char * infos_scatterbuff = (char *)sctk_malloc(64*length);
+        char * infos_balancedbuff = (char *)sctk_malloc(64*length);
+        char * infos_pidbuff = (char *)sctk_malloc(64*length);
         /* read os ind infos */
         int c = getc(f_textual);
         int cpt = 0;
@@ -583,7 +583,7 @@ static void sctk_read_format_option_text_placement(FILE *f_textual, struct sctk_
 }
 
 
-/* Write in file as lstopo adding informations on the topology and thread placement (text option) */
+/* Write in file as lstopo adding information on the topology and thread placement (text option) */
 static void print_children(hwloc_topology_t hwtopology, hwloc_obj_t obj,
         int depth, struct sctk_text_option_s *tab_option, int num_os, unsigned int higher_logical , int lower_logical, const char* HostName, FILE* f, int __UNUSED__ ind_child, int last_arity)
 {
@@ -596,8 +596,8 @@ static void print_children(hwloc_topology_t hwtopology, hwloc_obj_t obj,
     type = HWLOC_OBJ_PU;
 
     hwloc_obj_type_snprintf(string, sizeof(string), obj, 0);
-    static int already_begining_done = 1;
-    if(already_begining_done){
+    static int already_beginning_done = 1;
+    if(already_beginning_done){
         hwloc_obj_t lower_index_obj_pu = hwloc_get_obj_by_type(hwtopology, HWLOC_OBJ_PU, lower_logical);
         /* if ancestor of the first pu booked */
 #if (HWLOC_API_VERSION < 0x00020000)
@@ -609,7 +609,7 @@ static void print_children(hwloc_topology_t hwtopology, hwloc_obj_t obj,
 #endif
         {
             fprintf(f,"\n\n|------------------------------BEGINNING RESERVATION HOST %s-------------------------|\n", HostName);
-            already_begining_done = 0;
+            already_beginning_done = 0;
         }
     }
 /* Check if os ind for pus and cores are always the same for the first pu of a core */
@@ -694,12 +694,12 @@ static hwloc_obj_t hwloc_get_core_by_os_index(hwloc_topology_t hwtopology, unsig
 
 
 /* determine the lower logical index pu used for text placement option */
-static int determine_lower_logical(int *os_index, int lenght){
+static int determine_lower_logical(int *os_index, int length){
     int i;
     int lower_logical = hwloc_get_nbobjs_by_type(topology_compute_node, HWLOC_OBJ_PU);
     int current_logical = 0;
     hwloc_obj_t pu;
-    for(i=0;i<lenght;i++){
+    for(i=0;i<length;i++){
         if(os_index[i] != -1){
                 if(mpc_common_get_flags()->enable_smt_capabilities){
                     pu = hwloc_get_pu_obj_by_os_index(topology_compute_node, os_index[i]);
@@ -721,12 +721,12 @@ static int determine_lower_logical(int *os_index, int lenght){
 }
 
 /* determine the higher logical index pu used for text placement option */
-static int sctk_determine_higher_logical(int *os_index, int lenght){
+static int sctk_determine_higher_logical(int *os_index, int length){
     int i;
     int higher_logical = -1;
     int current_logical = 0;
     hwloc_obj_t pu;
-    for(i=0;i<lenght;i++){
+    for(i=0;i<length;i++){
         if(os_index[i] != -1){
                 if(mpc_common_get_flags()->enable_smt_capabilities){
                     pu = hwloc_get_pu_obj_by_os_index(topology_compute_node, os_index[i]);
@@ -876,7 +876,7 @@ void topology_graph_enable_graphic_placement( void )
 		FILE *f = fopen( placement_txt, "r" );
 		if ( f != NULL )
 		{
-			sctk_read_format_option_graphic_placement_and_complet_topo_infos( f, max_length );
+			sctk_read_format_option_graphic_placement_and_complete_topo_infos( f, max_length );
 		}
 
 		name_and_date_file_text( file_placement );
@@ -888,7 +888,7 @@ void topology_graph_enable_graphic_placement( void )
 #endif
 		if ( 1 )
 		{ //TODO one among each nodes
-			fprintf( stdout, "/* --graphic-placement : \n.xml dated file has been generated for each compute node to vizualise topology and thread placement with their infos.\nYou can use the command \"lstopo -i file.xml\" to vizualise graphicaly */\n" );
+			fprintf( stdout, "/* --graphic-placement : \n.xml dated file has been generated for each compute node to visualise topology and thread placement with their infos.\nYou can use the command \"lstopo -i file.xml\" to visualise graphically */\n" );
 			fprintf( stdout, "\n/* .xml legend : one color per MPI task. White text policy means the thread is master of a MPI task in MPC */\n\n" );
 			fflush( stdout );
 			remove( placement_txt );
@@ -917,7 +917,7 @@ void topology_graph_enable_text_placement( void )
 	{
 		length = min_length;
 	}
-	/* read textual informations */
+	/* read textual information */
 	FILE *f_textual = fopen( textual_file, "r" );
 	if ( f_textual != NULL )
 	{
@@ -941,8 +941,8 @@ void topology_graph_enable_text_placement( void )
 			int higher_logical = sctk_determine_higher_logical( tab_option->os_index, length );
 			int lower_logical = determine_lower_logical( tab_option->os_index, length );
 			if ( 1 )
-			{ //TODO one proc amongs nodes
-				fprintf( stdout, "/* --text-placement : \n.txt dated file has been generated for each compute node to vizualise topology and thread placement with their infos. */\n" );
+			{ //TODO one proc among nodes
+				fprintf( stdout, "/* --text-placement : \n.txt dated file has been generated for each compute node to visualise topology and thread placement with their infos. */\n" );
 				fflush( stdout );
 			}
 			print_children( mpc_topology_get(), root, 0, tab_option, max_length, higher_logical, lower_logical, HostName, f, 0, 0 );

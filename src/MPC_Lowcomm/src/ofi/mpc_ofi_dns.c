@@ -239,7 +239,7 @@ struct fid * _mpc_ofi_domain_dns_av(struct _mpc_ofi_domain_dns_t *ddns)
 {
    if(ddns->is_passive)
    {
-      mpc_common_debug_fatal("No address vector in pasive endpoint mode");
+      mpc_common_debug_fatal("No address vector in passive endpoint mode");
    }
    return &ddns->av->fid;
 }

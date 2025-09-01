@@ -28,7 +28,7 @@
 tdb_err_e rtdb_report_event (
   volatile tdb_thread_debug_t *thread, td_event_e event, void (*bp) (void)) ;
 
-void tdb_formated_assert_print (FILE * stream, const int line,
+void tdb_formatted_assert_print (FILE * stream, const int line,
 				const char *file, const char *func,
 				const char *fmt, ...) ;
 volatile register_offsets_t rtdb_reg_offsets ;
@@ -285,7 +285,7 @@ void rtdb_log (const char *fmt, ...) {
   fflush(stderr);
 }
 
-void tdb_formated_assert_print (FILE * stream, const int line,
+void tdb_formatted_assert_print (FILE * stream, const int line,
 				const char *file, const char *func,
 				const char *fmt, ...)
 {

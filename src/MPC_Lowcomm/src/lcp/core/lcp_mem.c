@@ -502,7 +502,7 @@ static void lcp_mem_free(lcp_mem_h mem)
 
 //FIXME: A memory range described by lcp_mem_h is unique (same address, same
 //       length). As a consequence, transport memory key will be identical for
-//       homogenous tranports, so no need to pack it for all rail in case of
+//       homogenous transports, so no need to pack it for all rail in case of
 //       multirail.
 size_t lcp_mem_rkey_pack(lcp_manager_h mngr, lcp_mem_h mem, void *dest)
 {
@@ -833,7 +833,7 @@ int lcp_mem_post_from_map(lcp_manager_h mngr,
 
                 /* If memory is persistent, only one post per iface. */
                 if ((++nb_posted == nb_ifaces) &&
-                    (flags & LCR_IFACE_TM_PERSISTANT_MEM)) {
+                    (flags & LCR_IFACE_TM_PERSISTENT_MEM)) {
                         break;
                 }
                 i++;
@@ -851,7 +851,7 @@ int lcp_mem_unpost(lcp_manager_h mngr, lcp_mem_h mem, lcr_tag_t tag)
 
         /* Memory should be unposted only if it has been previously posted as
          * persistent */
-        if (!(mem->flags & LCR_IFACE_TM_PERSISTANT_MEM)) {
+        if (!(mem->flags & LCR_IFACE_TM_PERSISTENT_MEM)) {
                 return MPC_LOWCOMM_SUCCESS;
         }
 

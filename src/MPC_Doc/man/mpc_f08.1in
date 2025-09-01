@@ -35,7 +35,7 @@ $\ mpc_cc\ my_mpi_code.c
 Here will be presented options allowed to be passed as argument to the
 wrapper command.
 All native options targeting the underlying compiler can be provided
-transparently, any unkown options from MPC\[aq]s point of view is
+transparently, any unknown options from MPC\[aq]s point of view is
 discretly forwarded to the final compiler.
 There is only one collision in option name, for the \f[B]\-\-help\f[],
 which is caught by the wrapper to print its own help.
@@ -95,7 +95,7 @@ The following values for \f[I]token\f[] are accepted:
 \f[I]compile\f[] : displays compilation flags for a translation unit to
 be built.
 .IP \[bu] 2
-\f[I]link\f[]: displays linking flags for the programm to be assembled.
+\f[I]link\f[]: displays linking flags for the program to be assembled.
 .IP \[bu] 2
 \f[I]command\f[]: displays the absolute path to the underlying compiler.
 This last value is equivalent to what \f[B]mpc_compiler_manager\f[] is
@@ -133,14 +133,14 @@ This flag will enable compilation optimisations, but does not limit the
 application to be run in thread\-base mode only.
 the \f[B]\-\-fnompc\-privatize\f[] only as an \[aq]explicit\[aq]
 interest.
-If specified multiples times, only the last occurence prevails.
+If specified multiples times, only the last occurrence prevails.
 .RS
 .RE
 .TP
 .B \f[B]\-fmpc\-tlsopt\f[], \f[B]\-fnompc\-tlsopt\f[]
 Because global/variables are translated into multi\-level TLS variables
 (ExTLS), the overhead is higher.
-To reduce this overhead, the same methodoly used for pthread TLS
+To reduce this overhead, the same methodology used for pthread TLS
 variables is applied to \[aq]ExTLS\[aq] variables.
 Multiple approaches exist to access a TLS variable, depending the DSO it
 is coming from, the number of access in an instruction subset, etc.
@@ -164,12 +164,12 @@ FOr example, such code below is allowed for global/static variable but
 clearly forbidden when initializing a TLS variables (ExTLS or not) :
 Because the value of \f[I]b\f[] cannot be determined statically (as
 \f[I]a\f[] is a TLS too and the value became dynamic), the C standard
-fordids the dynamic initialiation of variables before the call to the
+fordids the dynamic initialization of variables before the call to the
 main() function \-\- while it is permitted in C++.
 As this code can be valid with global variables, the thread\-based
 approach and the privatization of global variables cannot be limited by
 that.
-MPC provies a plugin to create such a dynamic initialization when
+MPC provides a plugin to create such a dynamic initialization when
 necessary.
 the \f[B]\-fnompc\-plugin\f[] explicitly disable such plugin, which
 might be useful in some situations.
@@ -205,7 +205,7 @@ on a rewrite of the symbol afterwards, through the
 Enable of disable the support of OpenMP pragma directives.
 As the OpenMP semantics needs to be enlarged for MPC purposes
 (threadprivate variables need to be promoted for instance), is option is
-caught by the wrapper before being forwared to the underlying compiler.
+caught by the wrapper before being forwarded to the underlying compiler.
 Furthermore, depending on the vendor (GCC, Intel) the proper option is
 set (\-fopenmp vs \-openmp) without requiring any modification from the
 command\-line.

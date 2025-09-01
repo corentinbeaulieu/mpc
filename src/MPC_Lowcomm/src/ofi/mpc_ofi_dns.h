@@ -91,7 +91,7 @@ struct _mpc_ofi_domain_dns_t
    struct _mpc_ofi_dns_t * main_dns;
    /* Local fi_addr_t cache */
    struct mpc_common_hashtable cache;
-   /* The addess vector */
+   /* The address vector */
    struct fid_av *av;
    /* Is the DNS in passive endpoint mode */
    bool is_passive;

@@ -34,7 +34,7 @@
 #include <mpcomp_types.h>
 
 /**********************
- * SYMBOL VERSIONNING *
+ * SYMBOL VERSIONING *
  **********************/
 
 #define MPC_OMP_VERSION_SYMBOLS

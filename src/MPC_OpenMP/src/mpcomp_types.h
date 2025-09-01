@@ -396,9 +396,9 @@ typedef enum    mpc_omp_task_list_type_e
  * every states. It could help for runtime debugging purposes */
 typedef enum    mpc_omp_task_state_e
 {
-    MPC_OMP_TASK_STATE_UNITIALIZED          = 0,
-    MPC_OMP_TASK_STATE_NOT_QUEUABLE         = 1,
-    MPC_OMP_TASK_STATE_QUEUABLE             = 2,
+    MPC_OMP_TASK_STATE_UNINITIALIZED          = 0,
+    MPC_OMP_TASK_STATE_NOT_QUEUEABLE         = 1,
+    MPC_OMP_TASK_STATE_QUEUEABLE             = 2,
     MPC_OMP_TASK_STATE_QUEUED               = 3,
     MPC_OMP_TASK_STATE_SCHEDULED            = 4,
     MPC_OMP_TASK_STATE_SUSPENDED            = 5,
@@ -456,7 +456,7 @@ typedef struct mpc_omp_local_icv_s
 {
 	unsigned int nthreads_var; /**< Number of threads for the next team creation
                                 */
-	int dyn_var;			   /**< Is dynamic thread adjustement on?
+	int dyn_var;			   /**< Is dynamic thread adjustment on?
                                 */
 	int nest_var;			   /**< Is nested OpenMP handled/allowed?
                                 */
@@ -894,7 +894,7 @@ typedef struct  mpc_omp_task_s
     /* child persistent region */
     mpc_omp_persistent_region_t persistent_region;
 
-    /* persistent informations for this task */
+    /* persistent information for this task */
     mpc_omp_task_persistent_infos_t persistent_infos;
 #endif /* MPC_OMP_TASK_COMPILE_PERSISTENT */
 
@@ -1201,7 +1201,7 @@ typedef struct mpc_omp_new_parallel_region_info_s
 #if OMPT_SUPPORT
     /* Parallel region data */
     ompt_data_t ompt_parallel_data;
-    /* Single contruct fields specific to OMPT
+    /* Single construct fields specific to OMPT
      * Used to trigger work end event in barrier */
     int doing_single;
     int in_single;
@@ -1261,7 +1261,7 @@ typedef struct mpc_omp_team_s
 	struct mpc_omp_task_team_infos_s task_infos;
 
 #if OMPT_SUPPORT && MPCOMPT_HAS_FRAME_SUPPORT
-    /* Frame struct to transfert infos at parallel region */
+    /* Frame struct to transfer infos at parallel region */
     mpc_omp_ompt_frame_info_t frame_infos;
 #endif /* OMPT_SUPPORT */
 
@@ -1285,7 +1285,7 @@ typedef struct  mpc_omp_thread_callback_infos_s
 typedef struct mpc_omp_thread_s
 {
 
-	/* -- Internal specific informations -- */
+	/* -- Internal specific information -- */
 	unsigned int depth;
 	/** OpenMP rank (0 for master thread per team) */
 	long rank;
@@ -1343,7 +1343,7 @@ typedef struct mpc_omp_thread_s
 	int next_ordered_index;
 	struct mpc_omp_task_thread_infos_s task_infos;
 #ifdef MPC_OMP_USE_INTEL_ABI
-	/** Reduction methode index for Intel Runtim */
+	/** Reduction method index for Intel Runtim */
 	int reduction_method;
 	/** Thread private common pointer for Intel Runtime */
 	struct common_table *th_pri_common;
@@ -1407,7 +1407,7 @@ typedef struct mpc_omp_thread_s
 #endif /* OMPT_SUPPORT */
 
 # ifdef MPC_OMP_DEBUG_TASK_UTHASH
-    /* DEBUGING for task discovery */
+    /* DEBUGGING for task discovery */
     size_t hash_collision;
     size_t hash_resize;
     double t_hash;
@@ -1447,7 +1447,7 @@ typedef struct mpc_omp_instance_s
 	struct mpc_omp_generic_node_s *mvps;
 	int tree_array_size;
 	struct mpc_omp_generic_node_s *tree_array;
-	/*-- Tree array informations --*/
+	/*-- Tree array information --*/
 	/** Depth of the tree */
 	int tree_depth;
 	/** Degree per level of the tree */
@@ -1466,7 +1466,7 @@ typedef struct mpc_omp_instance_s
     /* asynchronous callbacks */
     mpc_omp_instance_callback_infos_t callback_infos;
 
-    /* mutex to dump thread debugging informations */
+    /* mutex to dump thread debugging information */
     mpc_common_spinlock_t debug_lock;
 
 } mpc_omp_instance_t;
@@ -1489,7 +1489,7 @@ typedef struct mpc_omp_mvp_s
 {
 	sctk_mctx_t vp_context; /* Context including registers, stack pointer, ... */
 	mpc_thread_t pid;
-	/* -- MVP Thread specific informations --                   */
+	/* -- MVP Thread specific information --                   */
 	/** VP on which microVP is executed                         */
 	int thread_vp_idx;
 	/** PU on which microVP is executed                         */
@@ -1501,7 +1501,7 @@ typedef struct mpc_omp_mvp_s
 	/** MVP spinning value in topology tree                     */
 	volatile int spin_status;
 	struct mpc_omp_node_s *spin_node;
-	/* -- MVP Tree related informations                         */
+	/* -- MVP Tree related information                         */
 	unsigned int depth;
 	/** Root of the topology tree                               */
 	struct mpc_omp_node_s *root;
@@ -1513,13 +1513,13 @@ typedef struct mpc_omp_mvp_s
 	struct mpc_omp_mvp_s *next_brother;
 	/** Which thread currently running over MVP                 */
 	struct mpc_omp_thread_s *threads;
-	/* -- Parallel Region Information Transfert --              */
-	/* Transfert OpenMP instance pointer to OpenMP thread       */
+	/* -- Parallel Region Information Transfer --              */
+	/* Transfer OpenMP instance pointer to OpenMP thread       */
 	struct mpc_omp_instance_s *instance;
 	/* Index in mvps instance array of last nested instance     */
 	int instance_mvps_index;
 #if MPC_OMP_TRANSFER_INFO_ON_NODES
-	/* Transfert OpenMP region information to OpenMP thread     */
+	/* Transfer OpenMP region information to OpenMP thread     */
 	mpc_omp_parallel_region_t info;
 #endif /* MPC_OMP_TRANSFER_INFO_ON_NODES */
 	mpc_omp_thread_t *buffered_threads;
@@ -1554,7 +1554,7 @@ typedef struct mpc_omp_mvp_s
 typedef struct mpc_omp_node_s
 {
 	int already_init;
-	/* -- MVP Thread specific informations --                   */
+	/* -- MVP Thread specific information --                   */
 	struct mpc_omp_meta_tree_node_s *tree_array;
 	int *tree_array_ancestor_path;
 	long tree_array_rank;
@@ -1572,9 +1572,9 @@ typedef struct mpc_omp_node_s
 	int mvp_first_id;
 	struct mpc_omp_node_s *father;
 	struct mpc_omp_node_s *prev_father;
-	/** Rigth brother node in the topology tree                 */
+	/** Right brother node in the topology tree                 */
 	struct mpc_omp_node_s *prev_brother;
-	/** Rigth brother node in the topology tree                 */
+	/** Right brother node in the topology tree                 */
 	struct mpc_omp_node_s *next_brother;
 	/* Kind of children (node or leaf)                          */
 	mpc_omp_children_t child_type;
@@ -1582,13 +1582,13 @@ typedef struct mpc_omp_node_s
 	int nb_children;
 	/* Children list                                            */
 	mpc_omp_node_or_leaf_t children;
-	/* -- Parallel Region Information Transfert --              */
-	/* Transfert OpenMP instance pointer to OpenMP thread       */
+	/* -- Parallel Region Information Transfer --              */
+	/* Transfer OpenMP instance pointer to OpenMP thread       */
 	struct mpc_omp_instance_s *instance;
 	/* Index in mvps instance array of last nested instance     */
 	int instance_mvps_index;
 #if MPC_OMP_TRANSFER_INFO_ON_NODES
-	/* Transfert OpenMP region information to OpenMP thread     */
+	/* Transfer OpenMP region information to OpenMP thread     */
 	mpc_omp_parallel_region_t info;
 #endif /* MPC_OMP_TRANSFER_INFO_ON_NODES */
 

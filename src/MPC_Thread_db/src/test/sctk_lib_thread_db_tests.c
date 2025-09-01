@@ -221,7 +221,7 @@ int test_td_consistency_callback (const td_thrhandle_t *th_p, void *cbdata_p) {
       td_event_fillset(&events_mask) ;
       td_thr_set_event(th_p, &events_mask) ;
       if (TD_OK != td_thr_get_info(th_p, &current)) {
-        tdb_log("Impossible to retreive thread info");
+        tdb_log("Impossible to retrieve thread info");
         assert(0);
       }
       /*ensure that all the events are enabled*/
@@ -242,7 +242,7 @@ int test_td_consistency_callback (const td_thrhandle_t *th_p, void *cbdata_p) {
       td_event_fillset(&events_mask) ;
       td_thr_clear_event(th_p, &events_mask) ;
       if (TD_OK != td_thr_get_info(th_p, &current)) {
-        tdb_log("Impossible to retreive thread info");
+        tdb_log("Impossible to retrieve thread info");
         assert(0);
       }
       /*ensure that all the events are disabled*/
@@ -288,7 +288,7 @@ int test_td_consistency_callback (const td_thrhandle_t *th_p, void *cbdata_p) {
     tdb_log("*****************************");
 
     if (TD_OK != td_thr_get_info(th_p, &original)) {
-      tdb_log("Impossible to retreive thread info");
+      tdb_log("Impossible to retrieve thread info");
       assert(0);
     }
     if (TD_OK != td_ta_map_id2thr(test_data.ta, original.ti_tid, &thrhandle)) {

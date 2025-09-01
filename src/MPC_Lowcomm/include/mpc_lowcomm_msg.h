@@ -55,7 +55,7 @@ typedef enum
 	MPC_LOWCOMM_P2P_ACK_MESSAGE,
 	MPC_LOWCOMM_P2P_TM_MESSAGE,
 	MPC_LOWCOMM_RDMA_MESSAGE,
-	MPC_LOWCOMM_RDMA_WINDOW_MESSAGES,  /**< These messages are used to exchange window  informations */
+	MPC_LOWCOMM_RDMA_WINDOW_MESSAGES,  /**< These messages are used to exchange window  information */
 	MPC_LOWCOMM_CONTROL_MESSAGE_FENCE, /**< This message is sent to create a fence on control messages */
 
 	MPC_LOWCOMM_RDV_MESSAGE,
@@ -291,7 +291,7 @@ typedef struct
 {
 	mpc_common_spinlock_t            lock;
 	mpc_lowcomm_msg_list_t *list;
-} mpc_lowcomm_ptp_list_incomming_t;
+} mpc_lowcomm_ptp_list_incoming_t;
 
 typedef struct
 {
@@ -303,8 +303,8 @@ typedef struct
 	mpc_common_spinlock_t         pending_lock;
 	char                          pad[256];
 	/* Messages are posted to the 'incoming' lists before being merged to the pending list. */
-	mpc_lowcomm_ptp_list_incomming_t incomming_send;
-	mpc_lowcomm_ptp_list_incomming_t incomming_recv;
+	mpc_lowcomm_ptp_list_incoming_t incoming_send;
+	mpc_lowcomm_ptp_list_incoming_t incoming_recv;
 	/* Messages in the 'pending' lists are waiting to be matched */
     mpc_lowcomm_ptp_list_pending_t   pending_send;
 	mpc_lowcomm_ptp_list_pending_t   pending_recv;
@@ -343,7 +343,7 @@ typedef struct
 struct mpc_buffered_msg_s;
 struct mpc_comm_ptp_s;
 
-/*Data not to tranfers in inter-process communications*/
+/*Data not to transfers in inter-process communications*/
 typedef struct
 {
 	volatile int *volatile                    completion_flag;
@@ -472,7 +472,7 @@ typedef struct mpc_buffered_msg_s
 } mpc_buffered_msg_t;
 
 /************************************************************************/
-/* Message Progess                                                      */
+/* Message Progress                                                      */
 /************************************************************************/
 
 typedef struct mpc_lowcomm_ptp_msg_progress_s

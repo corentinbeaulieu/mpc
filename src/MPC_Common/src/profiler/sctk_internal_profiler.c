@@ -81,7 +81,7 @@ void sctk_internal_profiler_init()
     /* Setup the TLS */
     mpc_profiler = (void *) sctk_profiler_array_new();
 
-    /* Fill in the meta informations */
+    /* Fill in the meta information */
     sctk_profile_meta_init(&sctk_internal_profiler_meta);
 
     //	__MPC_Barrier(MPC_COMM_WORLD);

@@ -774,7 +774,7 @@ void mpc_omp_sections_end(void)
 	mpc_omp_barrier(ompt_sync_region_barrier_implicit_workshare);
 }
 
-int _mpc_omp_sections_coherency_exiting_paralel_region(void) { return 0; }
+int _mpc_omp_sections_coherency_exiting_parallel_region(void) { return 0; }
 
 int _mpc_omp_sections_coherency_barrier(void) { return 0; }
 
@@ -821,7 +821,7 @@ void omp_init_lock_with_hint( omp_lock_t *lock, omp_lock_hint_t hint )
  *  \fn void omp_init_lock(omp_lock_t *lock)
  *  \brief The effect of these routines is to initialize the lock to the
  * unlocked state; that is, no task owns the lock. (OpenMP 4.5 p272)
- *  \param omp_lock_t adress of a lock address (\see mpc_omp.h)
+ *  \param omp_lock_t address of a lock address (\see mpc_omp.h)
  */
 void omp_init_lock( omp_lock_t *lock )
 {
@@ -886,7 +886,7 @@ int omp_test_lock( omp_lock_t *lock )
     }
 
 #if MPCOMPT_HAS_FRAME_SUPPORT
-    /* If outter call, unset it here */
+    /* If outer call, unset it here */
     _mpc_omp_ompt_frame_unset_no_reentrant();
 #endif /* MPCOMPT_HAS_FRAME_SUPPORT */
 #endif /* OMPT_SUPPORT */
@@ -918,7 +918,7 @@ static void __sync_nest_lock_init_with_hint( omp_nest_lock_t *lock, omp_lock_hin
  *  \fn void omp_init_nest_lock(omp_lock_t *lock)
  *  \brief The effect of these routines is to initialize the lock to the
  * unlocked state; that is, no task owns the lock. (OpenMP 4.5 p272)
- * \param omp_lock_t adress of a lock address (\see mpc_omp.h)
+ * \param omp_lock_t address of a lock address (\see mpc_omp.h)
  */
 void omp_init_nest_lock( omp_nest_lock_t *lock )
 {
@@ -1044,7 +1044,7 @@ int omp_test_nest_lock( omp_nest_lock_t *lock )
     }
 
 #if MPCOMPT_HAS_FRAME_SUPPORT
-    /* If outter call, unset it here */
+    /* If outer call, unset it here */
     _mpc_omp_ompt_frame_unset_no_reentrant();
 #endif
 #endif /* OMPT_SUPPORT */

@@ -27,7 +27,7 @@ ROOT_PACKAGE="$HOME/rpmbuild"
 ROOT_EXECUTION="$PWD"
 BUILD_MODE="-ba"
 AVAILABLES_DISTRIBUTIONS="RedHat Fedora CentOS Suse OpenSuse Mandriva"
-PATCHS_LIST=""
+PATCHES_LIST=""
 OUTPUT_DIR="${ROOT_TARBALL}"
 ##################################
 # READ_PARAM_VALUE:
@@ -54,7 +54,7 @@ print_help(){
 	echo "#   --source=sources         Generate the source archive from      #"
 	echo "#                            current source dir without using git. #"
 	echo "#   --source=auto            Generate the source archive from      #"
-	echo "#                            appriate method (git or source).      #"
+	echo "#                            appropriate method (git or source).      #"
 	echo "#   --sprm                   Only generate SRPM                    #"
 	echo "#   --output=<dir>           Define the output directory.          #"
 	echo "#   -j=<number>              Fix make -j value.                    #"
@@ -83,10 +83,10 @@ checking_paths(){
 }
 
 ##################################
-# CHECKING_SOFTWARES
+# CHECKING_SOFTWARE
 # Check if necessary programs are availables
 # - $* : program names
-checking_softwares(){
+checking_software(){
 	for soft in $*
 	do
 		hash $soft
@@ -131,7 +131,7 @@ gen_source_archive_from_sources()
 	extract_version_from_sources
 
 	#avoid to use this if git is present as we may export non distributed files due to lack of
-	#export blacklist used by git. With ditributed sources their is no issue as the filter was
+	#export blacklist used by git. With distributed sources their is no issue as the filter was
 	#already applied
 	if test -d '../../.git'; then
 		print_error "Caution, using -s=sources is deprecated on .git working directory, prefer -s=git."
@@ -212,7 +212,7 @@ done
 
 #Checking executables
 echo "Some Checking..."
-checking_softwares "gcc" "make" "rpmbuild"
+checking_software "gcc" "make" "rpmbuild"
 
 #checking git repo
 case "$SOURCES" in
@@ -253,7 +253,7 @@ if test -z "$MAKE_J" ; then
 	MAKE_J=""
 fi
 
-#Extract {MPC}/config file to get versions of embeded deps.
+#Extract {MPC}/config file to get versions of embedded deps.
 echo "tar --strip-components=1 -xzf '${SOURCES}' -C '${OUTPUT_DIR}' 'mpc-framework-${MPC_VERSION}/config'"
 tar --strip-components=1 -xzf "${SOURCES}" -C "${OUTPUT_DIR}" "mpc-framework-${MPC_VERSION}/config" || print_error "Cannot extract mpc-framework-${MPC_VERSION}/config from MPC archive !"
 if test ! -f "${OUTPUT_DIR}/config"; then print_error "Cannot read ${OUTPUT_DIR}/config file extracted from mpc-framework-${MPC_VERSION}/config in MPC archive !"; fi
@@ -264,13 +264,13 @@ mkdir -p $ROOT_PACKAGE/{BUILD,RPMS,SOURCES,SPECS,SRPMS} || print_error "Unable t
 echo "Remove previous mpc-framework $MPC_VERSION RPM files"
 rm -f $ROOT_PACKAGE/SRPMS/mpc-framework-*$MPC_VERSION*.src.rpm $ROOT_PACKAGE/RPMS/x86_64/mpc-framework-*$MPC_VERSION*.rpm
 cp $SOURCES $ROOT_PACKAGE/SOURCES/ || print_error "Tarball checked but impossible to copy her in SOURCES Folder !"
-cp $ROOT_TARBALL/patchs/* $ROOT_PACKAGE/SOURCES/ > /dev/null 2>&1
+cp $ROOT_TARBALL/patches/* $ROOT_PACKAGE/SOURCES/ > /dev/null 2>&1
 
-#patchs list to apply
-if [ -d "$ROOT_TARBALL/patchs/" ]; then
-	PATCHS_LIST="$(ls $ROOT_TARBALL/patchs/)"
+#patches list to apply
+if [ -d "$ROOT_TARBALL/patches/" ]; then
+	PATCHES_LIST="$(ls $ROOT_TARBALL/patches/)"
 else
-	PATCHS_LIST=''
+	PATCHES_LIST=''
 fi
 
 #SPEC File generation
@@ -278,7 +278,7 @@ export ROOT_TARBALL
 export MAKE_J
 
 echo "Spec File generation"
-$ROOT_TARBALL/spec_file_rpm_generator "--version=$MPC_VERSION" "--config=${OUTPUT_DIR}/config" $PATCHS_LIST > $ROOT_PACKAGE/SPECS/mpc-framework-$MPC_VERSION.spec || print_error "Error during spec file generation !"
+$ROOT_TARBALL/spec_file_rpm_generator "--version=$MPC_VERSION" "--config=${OUTPUT_DIR}/config" $PATCHES_LIST > $ROOT_PACKAGE/SPECS/mpc-framework-$MPC_VERSION.spec || print_error "Error during spec file generation !"
 
 #package generation
 echo "RPM Package generation"

@@ -364,7 +364,7 @@ void sctk_rail_dump_routes()
 	mpc_common_debug_error(" %d / %d ", rank, size);
 	char path[512];
 
-	/* Each Proces fill its local data */
+	/* Each Process fill its local data */
 	for(i = 0; i < sctk_rail_count(); i++)
 	{
 		sctk_rail_info_t *rail = sctk_rail_get_by_id(i);

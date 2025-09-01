@@ -258,7 +258,7 @@ static inline int mpc_common_is_powerof2(unsigned long val)
 long mpc_common_parse_long( char *input );
 
 /*!
- * Call read in loop to avoid problem with splitted messages.
+ * Call read in loop to avoid problem with split messages.
  * Also support EINTR error if interrupted.
  * @param fd File descriptor to read.
  * @param buf Buffer to read.
@@ -267,7 +267,7 @@ long mpc_common_parse_long( char *input );
 ssize_t mpc_common_io_safe_read( int fd, void *buf, size_t count );
 
 /*!
- * Call write in loop to avoid problem with splitted messages.
+ * Call write in loop to avoid problem with split messages.
  * Also support EINTR error if interrupted.
  * @param fd File descriptor to write.
  * @param buf Buffer to write.
@@ -367,19 +367,19 @@ int mpc_common_getaddr_interface(struct sockaddr_in *addr, char * ifname, int if
 int mpc_common_getsocket_interface(int socket, char * ifname, int ifname_len);
 
 /**
- * @brief This is a wrapper aroung getaddrinfo which reorders results with preffered interface
+ * @brief This is a wrapper around getaddrinfo which reorders results with preferred interface
  *
  * @param node see getaddrinfo
  * @param service see getaddrinfo
  * @param hints see getaddrinfo
  * @param res see getaddrinfo (NOTE !! free it with mpc_common_freeaddrinfo)
- * @param preffered_device Either the exact device name or part of it (nothing done if "")
+ * @param preferred_device Either the exact device name or part of it (nothing done if "")
  * @return int see getaddrinfo
  */
 int mpc_common_getaddrinfo(const char *node, const char *service,
                            const struct addrinfo *hints,
                            struct addrinfo **res,
-                           const char *preffered_device);
+                           const char *preferred_device);
 
 /**
  * @brief Free a list as returned by mpc_common_getaddrinfo
@@ -392,11 +392,11 @@ void mpc_common_freeaddrinfo(struct addrinfo *res);
  * @brief We want to save the DNS so provide a function to do the local resolution
  *
  * @param ip the output buffer where the ip is set
- * @param iplen the lenght of the output buffer (should be enough for ipv6)
- * @param preffered_device the device to look at first same rule as @mpc_common_getaddrinfo
+ * @param iplen the length of the output buffer (should be enough for ipv6)
+ * @param preferred_device the device to look at first same rule as @mpc_common_getaddrinfo
  * @return -1 on error
  */
-int mpc_common_resolve_local_ip_for_iface(char * ip, int iplen, char *preffered_device);
+int mpc_common_resolve_local_ip_for_iface(char * ip, int iplen, char *preferred_device);
 
 /**********************
  * NETWORKING HELPERS *
@@ -434,7 +434,7 @@ int mpc_common_getaddr_interface(struct sockaddr_in *addr, char * ifname, int if
 int mpc_common_getsocket_interface(int socket, char * ifname, int ifname_len);
 
 /**
- * @brief This is a wrapper aroung getaddrinfo which reorders results with preferred interface
+ * @brief This is a wrapper around getaddrinfo which reorders results with preferred interface
  *
  * @param node see getaddrinfo
  * @param service see getaddrinfo

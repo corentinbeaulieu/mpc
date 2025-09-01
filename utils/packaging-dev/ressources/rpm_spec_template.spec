@@ -20,9 +20,9 @@ Distribution:
 Packager:
 #if need, add new dependencies to build
 BuildRequires:
-#if nedd add new dependencies to execution
+#if need add new dependencies to execution
 Requires:
-#patchs declarations (if needed)
+#patches declarations (if needed)
 #patch${i}: patch_name.patch
 
 #sub-packages creation (if needed). You can do as much as you want
@@ -45,7 +45,7 @@ Requires:
 #Two lines required
 %prep
 %setup
-#patchs building (if needed). -p1 option means the patch is located in an adjacent folder to the current
+#patches building (if needed). -p1 option means the patch is located in an adjacent folder to the current
 #%patch${i} -p1
 
 #build directives
