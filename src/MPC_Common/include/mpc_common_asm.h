@@ -30,7 +30,7 @@
 #endif
 
 #ifdef __cplusplus
-extern "C" {
+	extern "C" {
 #endif
 
 /**********************
@@ -39,19 +39,19 @@ extern "C" {
 
 #include "opa_config.h"
 
-#if defined(OPA_USE_UNSAFE_PRIMITIVES)\
-        || defined(OPA_HAVE_GCC_AND_POWERPC_ASM)\
-        || defined(OPA_HAVE_GCC_X86_32_64) \
-        || defined(OPA_HAVE_GCC_X86_32_64_P3)\
-        || defined(OPA_HAVE_GCC_AND_IA64_ASM)\
-        || defined(OPA_HAVE_GCC_AND_SICORTEX_ASM) \
-        || defined(OPA_HAVE_GCC_INTRINSIC_ATOMICS)\
-        || defined(OPA_HAVE_SUN_ATOMIC_OPS)\
-        || defined(OPA_HAVE_NT_INTRINSICS) \
-        || defined(OPA_USE_LOCK_BASED_PRIMITIVES)
+#if defined(OPA_USE_UNSAFE_PRIMITIVES)         \
+	|| defined(OPA_HAVE_GCC_AND_POWERPC_ASM)   \
+	|| defined(OPA_HAVE_GCC_X86_32_64)         \
+	|| defined(OPA_HAVE_GCC_X86_32_64_P3)      \
+	|| defined(OPA_HAVE_GCC_AND_IA64_ASM)      \
+	|| defined(OPA_HAVE_GCC_AND_SICORTEX_ASM)  \
+	|| defined(OPA_HAVE_GCC_INTRINSIC_ATOMICS) \
+	|| defined(OPA_HAVE_SUN_ATOMIC_OPS)        \
+	|| defined(OPA_HAVE_NT_INTRINSICS)         \
+	|| defined(OPA_USE_LOCK_BASED_PRIMITIVES)
 #include "opa_primitives.h"
 #else /* OpenPA Test Variable */
-        #error Unsupported architecture. Cannot compile MPC
+		#error Unsupported architecture. Cannot compile MPC
 #endif
 
 
@@ -62,13 +62,12 @@ extern "C" {
 typedef volatile int sctk_atomic_test_t;
 
 // NOLINTNEXTLINE(clang-diagnostic-unused-function)
-static inline int sctk_test_and_set( OPA_int_t *atomic )
+static inline int sctk_test_and_set(OPA_int_t *atomic)
 {
-        return OPA_swap_int(atomic, 1 );
+	return OPA_swap_int(atomic, 1);
 }
-
 
 #ifdef __cplusplus
-}
+	}
 #endif
 #endif

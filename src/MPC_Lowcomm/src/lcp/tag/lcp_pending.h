@@ -43,16 +43,16 @@
  ******************************************************/
 typedef struct
 {
-	uint64_t               msg_key;
-	lcp_request_t         *req;
-	UT_hash_handle         hh;
+	uint64_t       msg_key;
+	lcp_request_t *req;
+	UT_hash_handle hh;
 } lcp_pending_entry_t;
 
 struct lcp_pending_table
 {
-	mpc_common_spinlock_t  table_lock;
-	mpc_mempool_t pending_pool;
-	lcp_pending_entry_t   *table;
+	mpc_common_spinlock_t table_lock;
+	mpc_mempool_t         pending_pool;
+	lcp_pending_entry_t * table;
 };
 
 
@@ -75,4 +75,5 @@ void lcp_pending_delete(lcp_pending_table_t *table,
 
 lcp_request_t *lcp_pending_get_request(lcp_pending_table_t *table,
                                        uint64_t msg_key);
+
 #endif

@@ -31,7 +31,7 @@ int _mpc_lowcomm_init_psets(void);
 
 int _mpc_lowcomm_release_psets(void);
 
-int _mpc_lowcomm_pset_push(char *name, mpc_lowcomm_group_t * group, int is_comm_self);
+int _mpc_lowcomm_pset_push(char *name, mpc_lowcomm_group_t *group, int is_comm_self);
 
 int _mpc_lowcomm_pset_register(void);
 

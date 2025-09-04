@@ -29,10 +29,10 @@
 #if OMPT_SUPPORT
 #include "mpc_omp.h"
 
-omp_control_tool_result_t
-_mpc_omp_ompt_callback_control_tool( uint64_t command,
-                                 uint64_t modifier,
-                                 void *arg );
+	omp_control_tool_result_t
+	_mpc_omp_ompt_callback_control_tool(uint64_t command,
+	                                    uint64_t modifier,
+	                                    void *arg);
 
 #endif /* OMPT_SUPPORT */
 #endif /* __MPCOMPT_CONTROL_TOOL_H__ */

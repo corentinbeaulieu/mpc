@@ -48,9 +48,12 @@ char _mpc_lowcomm_endpoint_is_initiator(_mpc_lowcomm_endpoint_t *edp)
 	return is_initiator;
 }
 
-void _mpc_lowcomm_endpoint_init(_mpc_lowcomm_endpoint_t *edp, mpc_lowcomm_peer_uid_t dest, sctk_rail_info_t *rail, _mpc_lowcomm_endpoint_type_t type)
+void _mpc_lowcomm_endpoint_init(_mpc_lowcomm_endpoint_t *edp,
+                                mpc_lowcomm_peer_uid_t dest,
+                                sctk_rail_info_t *rail,
+                                _mpc_lowcomm_endpoint_type_t type)
 {
-	memset(edp, 0, sizeof(_mpc_lowcomm_endpoint_t) );
+	memset(edp, 0, sizeof(_mpc_lowcomm_endpoint_t));
 	edp->dest        = dest;
 	edp->rail        = rail;
 	edp->parent_rail = NULL;
@@ -70,7 +73,7 @@ void _mpc_lowcomm_endpoint_init(_mpc_lowcomm_endpoint_t *edp, mpc_lowcomm_peer_u
 
 _mpc_lowcomm_endpoint_table_t *_mpc_lowcomm_endpoint_table_new()
 {
-	_mpc_lowcomm_endpoint_table_t *ret = sctk_malloc(sizeof(_mpc_lowcomm_endpoint_table_t) );
+	_mpc_lowcomm_endpoint_table_t *ret = sctk_malloc(sizeof(_mpc_lowcomm_endpoint_table_t));
 
 	assume(ret != NULL);
 
@@ -78,7 +81,7 @@ _mpc_lowcomm_endpoint_table_t *_mpc_lowcomm_endpoint_table_new()
 	ret->dynamic_route_table_lock = lck;
 
 	mpc_common_hashtable_init(&ret->dynamic_route_table, 128);
-	mpc_common_hashtable_init(&ret->static_route_table, 128);
+	mpc_common_hashtable_init(&ret->static_route_table,  128);
 
 
 	return ret;
@@ -103,7 +106,8 @@ void _mpc_lowcomm_endpoint_table_clear(_mpc_lowcomm_endpoint_table_t **table)
 
 int _mpc_lowcomm_endpoint_table_has_routes(_mpc_lowcomm_endpoint_table_t *table)
 {
-	return mpc_common_hashtable_empty(&table->dynamic_route_table) && mpc_common_hashtable_empty(&table->static_route_table);
+	return mpc_common_hashtable_empty(&table->dynamic_route_table)
+	       && mpc_common_hashtable_empty(&table->static_route_table);
 }
 
 /************************************************************************/
@@ -119,7 +123,8 @@ void _mpc_lowcomm_endpoint_table_add_static_route(_mpc_lowcomm_endpoint_table_t 
 	mpc_common_hashtable_set(&table->static_route_table, edp->dest, edp);
 }
 
-void _mpc_lowcomm_endpoint_table_add_dynamic_route_no_lock(_mpc_lowcomm_endpoint_table_t *table, _mpc_lowcomm_endpoint_t *edp)
+void _mpc_lowcomm_endpoint_table_add_dynamic_route_no_lock(_mpc_lowcomm_endpoint_table_t *table,
+                                                           _mpc_lowcomm_endpoint_t *edp)
 {
 	assume(edp->type == _MPC_LOWCOMM_ENDPOINT_DYNAMIC);
 	mpc_common_hashtable_set(&table->dynamic_route_table, edp->dest, edp);
@@ -138,7 +143,8 @@ void _mpc_lowcomm_endpoint_table_add_dynamic_route(_mpc_lowcomm_endpoint_table_t
 /* Route Table Getters                                                  */
 /************************************************************************/
 
-_mpc_lowcomm_endpoint_t *_mpc_lowcomm_endpoint_table_get_static_route(_mpc_lowcomm_endpoint_table_t *table, mpc_lowcomm_peer_uid_t dest)
+_mpc_lowcomm_endpoint_t *_mpc_lowcomm_endpoint_table_get_static_route(_mpc_lowcomm_endpoint_table_t *table,
+                                                                      mpc_lowcomm_peer_uid_t dest)
 {
 	_mpc_lowcomm_endpoint_t *tmp = NULL;
 
@@ -149,7 +155,8 @@ _mpc_lowcomm_endpoint_t *_mpc_lowcomm_endpoint_table_get_static_route(_mpc_lowco
 	return tmp;
 }
 
-_mpc_lowcomm_endpoint_t *_mpc_lowcomm_endpoint_table_get_dynamic_route_no_lock(_mpc_lowcomm_endpoint_table_t *table, mpc_lowcomm_peer_uid_t dest)
+_mpc_lowcomm_endpoint_t *_mpc_lowcomm_endpoint_table_get_dynamic_route_no_lock(_mpc_lowcomm_endpoint_table_t *table,
+                                                                               mpc_lowcomm_peer_uid_t dest)
 {
 	_mpc_lowcomm_endpoint_t *tmp = NULL;
 
@@ -158,7 +165,8 @@ _mpc_lowcomm_endpoint_t *_mpc_lowcomm_endpoint_table_get_dynamic_route_no_lock(_
 	return tmp;
 }
 
-_mpc_lowcomm_endpoint_t *_mpc_lowcomm_endpoint_table_get_dynamic_route(_mpc_lowcomm_endpoint_table_t *table, mpc_lowcomm_peer_uid_t dest)
+_mpc_lowcomm_endpoint_t *_mpc_lowcomm_endpoint_table_get_dynamic_route(_mpc_lowcomm_endpoint_table_t *table,
+                                                                       mpc_lowcomm_peer_uid_t dest)
 {
 	_mpc_lowcomm_endpoint_t *tmp;
 
@@ -175,11 +183,12 @@ _mpc_lowcomm_endpoint_t *_mpc_lowcomm_endpoint_table_get_dynamic_route(_mpc_lowc
 
 /* Walk through all registered routes and call the function 'func'.
  * Only dynamic routes are involved */
-void _mpc_lowcomm_endpoint_table_walk_dynamic(_mpc_lowcomm_endpoint_table_t *table, void (*func)(_mpc_lowcomm_endpoint_t *endpoint, void *arg), void *arg)
+void _mpc_lowcomm_endpoint_table_walk_dynamic(_mpc_lowcomm_endpoint_table_t *table,
+                                              void (*func)(_mpc_lowcomm_endpoint_t *endpoint, void *arg), void *arg)
 {
 	_mpc_lowcomm_endpoint_t *current_route;
 
-	if(table == NULL)
+	if (table == NULL)
 	{
 		return;           /* no routes */
 	}
@@ -192,11 +201,12 @@ void _mpc_lowcomm_endpoint_table_walk_dynamic(_mpc_lowcomm_endpoint_table_t *tab
 
 /* Walk through all registered routes and call the function 'func'.
  * Only dynamic routes are involved */
-void _mpc_lowcomm_endpoint_table_walk_static(_mpc_lowcomm_endpoint_table_t *table, void (*func)(_mpc_lowcomm_endpoint_t *endpoint, void *arg), void *arg)
+void _mpc_lowcomm_endpoint_table_walk_static(_mpc_lowcomm_endpoint_table_t *table,
+                                             void (*func)(_mpc_lowcomm_endpoint_t *endpoint, void *arg), void *arg)
 {
 	_mpc_lowcomm_endpoint_t *current_route;
 
-	if(table == NULL)
+	if (table == NULL)
 	{
 		return;          /* no route */
 	}

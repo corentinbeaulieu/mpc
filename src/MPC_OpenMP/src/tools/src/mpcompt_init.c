@@ -10,171 +10,200 @@
 #include "mpcomp_types.h"
 #include "mpc_omp_abi.h"
 
-/* Global vars */
-extern mpc_omp_global_icv_t mpcomp_global_icvs;
+	/* Global vars */
+	extern mpc_omp_global_icv_t mpcomp_global_icvs;
 
 #pragma weak ompt_start_tool
-ompt_start_tool_result_t*
-ompt_start_tool ( unsigned int omp_version,
-                  const char *runtime_version ) {
-    ompt_start_tool_result_t* ret = NULL;
-    ompt_start_tool_result_t* (*start_tool_ptr) ( unsigned int omp_version,
-                                                  const char *runtime_version ) = NULL;
+	ompt_start_tool_result_t *
+	ompt_start_tool(unsigned int omp_version,
+	                const char *runtime_version)
+	{
+		ompt_start_tool_result_t *ret = NULL;
 
-    mpc_common_debug( "(WEAK) %s: look for symbol in dynamically-linked tool",
-                      __func__ );
+		ompt_start_tool_result_t * (*start_tool_ptr)(unsigned int omp_version,
+		                                             const char *runtime_version) = NULL;
 
-    start_tool_ptr = dlsym( RTLD_NEXT, "ompt_start_tool");
+		mpc_common_debug("(WEAK) %s: look for symbol in dynamically-linked tool",
+			__func__);
 
-    if( start_tool_ptr )
-        ret = start_tool_ptr( omp_version, runtime_version );
+		start_tool_ptr = dlsym(RTLD_NEXT, "ompt_start_tool");
 
-    mpc_common_debug( "(WEAK) %s: %s (ret=%p)",
-                      __func__, ret ? "found" : "not found", ret );
+		if (start_tool_ptr)
+		{
+			ret = start_tool_ptr(omp_version, runtime_version);
+		}
 
-    return ret;
-}
+		mpc_common_debug("(WEAK) %s: %s (ret=%p)",
+			__func__, ret ? "found" : "not found", ret);
 
-static inline ompt_start_tool_result_t*
-__get_start_tool_result ( unsigned int omp_version,
-                                   const char *runtime_version,
-                                   char** tool_path ) {
-    char* save_ptr;
-    char* tool_libraries = NULL;
-    char* candidate_tool_path = NULL;
-    ompt_start_tool_result_t* ret = NULL;
-    ompt_start_tool_result_t* (*start_tool_ptr) ( unsigned int omp_version,
-                                                  const char *runtime_version ) = NULL;
+		return ret;
+	}
 
-    mpc_common_debug( "%s: omp version support \"%u\", omp runtime version \"%s\", %s (%p)",
-                      __func__, omp_version, runtime_version, tool_path ?
-                      "record tool path" : "no tool path record", tool_path );
+	static inline ompt_start_tool_result_t *
+	__get_start_tool_result(unsigned int omp_version,
+	                        const char *runtime_version,
+	                        char **tool_path)
+	{
+		char *save_ptr;
+		char *tool_libraries          = NULL;
+		char *candidate_tool_path     = NULL;
+		ompt_start_tool_result_t *ret = NULL;
 
-    /* Is omp_start_tool routine defined in address space? */
+		ompt_start_tool_result_t * (*start_tool_ptr)(unsigned int omp_version,
+		                                             const char *runtime_version) = NULL;
 
-    ret = ompt_start_tool( omp_version, runtime_version );
+		mpc_common_debug("%s: omp version support \"%u\", omp runtime version \"%s\", %s (%p)",
+			__func__, omp_version, runtime_version, tool_path
+			? "record tool path" : "no tool path record", tool_path);
 
-    /* Otherwise, try to find ompt_start_tool routine in one of candidate tools
-     * provided by user OMP_TOOL_LIBRARIES environment variable */
-    tool_libraries = mpcomp_global_icvs.tool_libraries;
-    if( !ret && tool_libraries ) {
-        candidate_tool_path = strtok_r( tool_libraries, ":", &save_ptr );
+		/* Is omp_start_tool routine defined in address space? */
 
-        while( !ret && candidate_tool_path ) {
-            void* handle = dlopen( candidate_tool_path, RTLD_LAZY );
+		ret = ompt_start_tool(omp_version, runtime_version);
 
-            if( handle ) {
-                start_tool_ptr = dlsym( handle, "ompt_start_tool");
+		/* Otherwise, try to find ompt_start_tool routine in one of candidate tools
+		 * provided by user OMP_TOOL_LIBRARIES environment variable */
+		tool_libraries = mpcomp_global_icvs.tool_libraries;
+		if (!ret && tool_libraries)
+		{
+			candidate_tool_path = strtok_r(tool_libraries, ":", &save_ptr);
 
-                mpc_common_debug( "%s: %s %s", __func__,
-                                  candidate_tool_path, start_tool_ptr ?
-                                  "process handle" : dlerror() );
+			while (!ret && candidate_tool_path)
+			{
+				void *handle = dlopen(candidate_tool_path, RTLD_LAZY);
 
-                if( start_tool_ptr )
-                    ret = start_tool_ptr( omp_version, runtime_version );
-            }
-            else
-                mpc_common_debug( "%s", dlerror() );
+				if (handle)
+				{
+					start_tool_ptr = dlsym(handle, "ompt_start_tool");
 
-            if( !ret )
-                candidate_tool_path = strtok_r( NULL, ":", &save_ptr );
-        }
+					mpc_common_debug("%s: %s %s", __func__,
+						candidate_tool_path, start_tool_ptr
+						? "process handle" : dlerror());
 
-        mpc_common_debug( "%s: (ret=%p) %s %s", __func__,
-                          ret, ret ? "found in" : "not found",
-                          candidate_tool_path ? candidate_tool_path : "" );
+					if (start_tool_ptr)
+					{
+						ret = start_tool_ptr(omp_version, runtime_version);
+					}
+				}
+				else
+				{
+					mpc_common_debug("%s", dlerror());
+				}
 
-        if( ret && tool_path )
-            *tool_path = strdup( candidate_tool_path );
+				if (!ret)
+				{
+					candidate_tool_path = strtok_r(NULL, ":", &save_ptr);
+				}
+			}
 
-        if( tool_libraries )
-            sctk_free( tool_libraries );
-    }
+			mpc_common_debug("%s: (ret=%p) %s %s", __func__,
+				ret, ret ? "found in" : "not found",
+				candidate_tool_path ? candidate_tool_path : "");
 
-    return ret;
-}
+			if (ret && tool_path)
+			{
+				*tool_path = strdup(candidate_tool_path);
+			}
 
-void
-_mpc_omp_ompt_init () {
-    char* tool_path = NULL;
-    mpc_omp_thread_t* thread;
-    ompt_start_tool_result_t* tool_res = NULL;
+			if (tool_libraries)
+			{
+				sctk_free(tool_libraries);
+			}
+		}
 
-    /* Get current thread */
-    thread = ( mpc_omp_thread_t* ) mpc_omp_tls;
-    assert( thread );
+		return ret;
+	}
 
-    mpc_common_debug( "%s: %s tool interface (OMP_TOOL)", __func__,
-                      mpcomp_global_icvs.tool == mpc_omp_tool_enabled ?
-                      "initialize" : "ignore" );
+	void
+	_mpc_omp_ompt_init()
+	{
+		char *                    tool_path = NULL;
+		mpc_omp_thread_t *        thread;
+		ompt_start_tool_result_t *tool_res = NULL;
 
-    /* Tool interface disabled by OMP_TOOL env variable */
-    if( mpcomp_global_icvs.tool != mpc_omp_tool_enabled ) {
-        thread->tool_status = inactive;
+		/* Get current thread */
+		thread = ( mpc_omp_thread_t * )mpc_omp_tls;
+		assert(thread);
 
-        return;
-    }
+		mpc_common_debug("%s: %s tool interface (OMP_TOOL)", __func__,
+			mpcomp_global_icvs.tool == mpc_omp_tool_enabled
+			? "initialize" : "ignore");
 
-    /* Already initialized */
-    if( thread->tool_status != uninitialized )
-        return;
+		/* Tool interface disabled by OMP_TOOL env variable */
+		if (mpcomp_global_icvs.tool != mpc_omp_tool_enabled)
+		{
+			thread->tool_status = inactive;
 
-    thread->tool_status = initialized;
+			return;
+		}
 
-    /* Try to find a tool */
-    tool_res = __get_start_tool_result( _OPENMP,
-                                                 "mpc-omp",
-                                                 &tool_path );
+		/* Already initialized */
+		if (thread->tool_status != uninitialized)
+		{
+			return;
+		}
 
-    thread->tool_status = active;
+		thread->tool_status = initialized;
 
-    /* Found a tool, call initialize method and register it */
-    if( tool_res
-        && mpc_omp_ompt_register_tool( tool_res, tool_path ? tool_path : NULL )) {
-        mpc_common_debug( "%s: Tool found! Tool interface active.\n"
-                          "(tool result = %p, tool instance = %p)",
-                          __func__, thread->tool_instance->start_result,
-                          thread->tool_instance );
-    }
-    else {
-        thread->tool_status = inactive;
+		/* Try to find a tool */
+		tool_res = __get_start_tool_result(_OPENMP,
+			"mpc-omp",
+			&tool_path);
 
-        mpc_common_debug( "%s: No tool found, tool interface inactive", __func__ );
-    }
-}
+		thread->tool_status = active;
 
-void
-_mpc_omp_ompt_finalize () {
-    mpc_omp_thread_t* thread;
-    OPA_int_t* nb_threads_exit;
+		/* Found a tool, call initialize method and register it */
+		if (tool_res
+		    && mpc_omp_ompt_register_tool(tool_res, tool_path ? tool_path : NULL))
+		{
+			mpc_common_debug("%s: Tool found! Tool interface active.\n"
+				             "(tool result = %p, tool instance = %p)",
+				__func__, thread->tool_instance->start_result,
+				thread->tool_instance);
+		}
+		else
+		{
+			thread->tool_status = inactive;
 
-    /* Get current thread */
-    thread = ( mpc_omp_thread_t* ) mpc_omp_tls;
-    assert( thread );
+			mpc_common_debug("%s: No tool found, tool interface inactive", __func__);
+		}
+	}
 
-    mpc_common_debug( "%s: tool state = %s", __func__,
-                      thread->tool_status == active ? "active" : "inactive" );
+	void
+	_mpc_omp_ompt_finalize()
+	{
+		mpc_omp_thread_t *thread;
+		OPA_int_t *       nb_threads_exit;
 
-    if( thread->tool_status == active ) {
-        nb_threads_exit = &thread->tool_instance->nb_native_threads_exited;
+		/* Get current thread */
+		thread = ( mpc_omp_thread_t * )mpc_omp_tls;
+		assert(thread);
 
-        OPA_incr_int( nb_threads_exit );
+		mpc_common_debug("%s: tool state = %s", __func__,
+			thread->tool_status == active ? "active" : "inactive");
 
-        /* Wait for all threads and their last events */
-        while( mpcomp_global_icvs.nmicrovps_var
-               != OPA_load_int( nb_threads_exit ))
-            mpc_thread_yield();
+		if (thread->tool_status == active)
+		{
+			nb_threads_exit = &thread->tool_instance->nb_native_threads_exited;
 
-        mpc_common_debug( "%s: unregister tool (tool result = %p, tool instance = %p)",
-                          __func__, thread->tool_instance->start_result,
-                          thread->tool_instance );
+			OPA_incr_int(nb_threads_exit);
 
-        /* Call tool finalize method, unregister callbacks and free tool infos */
-        mpc_omp_ompt_unregister_tool();
+			/* Wait for all threads and their last events */
+			while (mpcomp_global_icvs.nmicrovps_var
+			       != OPA_load_int(nb_threads_exit))
+			{
+				mpc_thread_yield();
+			}
 
-        /* No more active tool */
-        thread->tool_status = inactive;
-    }
-}
+			mpc_common_debug("%s: unregister tool (tool result = %p, tool instance = %p)",
+				__func__, thread->tool_instance->start_result,
+				thread->tool_instance);
+
+			/* Call tool finalize method, unregister callbacks and free tool infos */
+			mpc_omp_ompt_unregister_tool();
+
+			/* No more active tool */
+			thread->tool_status = inactive;
+		}
+	}
 
 #endif /* OMPT_SUPPORT */

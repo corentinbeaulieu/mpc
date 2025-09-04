@@ -28,35 +28,35 @@
 
 #if OMPT_SUPPORT
 
-void
-_mpc_omp_ompt_callback_target_data_op( ompt_id_t target_id,
-                                   ompt_id_t host_op_id,
-                                   ompt_target_data_op_t optype,
-                                   void *src_addr,
-                                   int src_device_num,
-                                   void *dest_addr,
-                                   int dest_device_num,
-                                   size_t bytes );
+	void
+	_mpc_omp_ompt_callback_target_data_op(ompt_id_t target_id,
+	                                      ompt_id_t host_op_id,
+	                                      ompt_target_data_op_t optype,
+	                                      void *src_addr,
+	                                      int src_device_num,
+	                                      void *dest_addr,
+	                                      int dest_device_num,
+	                                      size_t bytes);
 
-void
-_mpc_omp_ompt_callback_target( ompt_target_t kind,
-                           ompt_scope_endpoint_t endpoint,
-                           int device_num,
-                           ompt_data_t *task_data,
-                           ompt_id_t target_id );
+	void
+	_mpc_omp_ompt_callback_target(ompt_target_t kind,
+	                              ompt_scope_endpoint_t endpoint,
+	                              int device_num,
+	                              ompt_data_t *task_data,
+	                              ompt_id_t target_id);
 
-void
-_mpc_omp_ompt_callback_target_map( ompt_id_t target_id,
-                               unsigned int nitems,
-                               void **host_addr,
-                               void **device_addr,
-                               size_t *bytes,
-                               unsigned int *mapping_flags );
+	void
+	_mpc_omp_ompt_callback_target_map(ompt_id_t target_id,
+	                                  unsigned int nitems,
+	                                  void **host_addr,
+	                                  void **device_addr,
+	                                  size_t *bytes,
+	                                  unsigned int *mapping_flags);
 
-void
-_mpc_omp_ompt_callback_target_submit( ompt_id_t target_id,
-                                  ompt_id_t host_op_id,
-                                  unsigned int requested_num_teams );
+	void
+	_mpc_omp_ompt_callback_target_submit(ompt_id_t target_id,
+	                                     ompt_id_t host_op_id,
+	                                     unsigned int requested_num_teams);
 
 #endif /* OMPT_SUPPORT */
 #endif /* __MPCOMPT_TARGET_H__ */

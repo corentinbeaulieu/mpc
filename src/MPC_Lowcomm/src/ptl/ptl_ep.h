@@ -114,7 +114,7 @@ void lcr_ptl_connect_on_demand(struct sctk_rail_info_s *rail,
 
 void lcr_ptl_mem_register(struct sctk_rail_info_s *rail,
                           struct sctk_rail_pin_ctx_list *list,
-                          void * addr, size_t size);
+                          void *addr, size_t size);
 void lcr_ptl_mem_unregister(struct sctk_rail_info_s *rail,
                             struct sctk_rail_pin_ctx_list *list);
 int lcr_ptl_pack_rkey(sctk_rail_info_t *rail,

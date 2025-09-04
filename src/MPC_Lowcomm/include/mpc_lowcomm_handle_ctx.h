@@ -25,7 +25,7 @@
 #include <stdlib.h>
 
 #ifdef __cplusplus
-extern "C" {
+	extern "C" {
 #endif
 
 /************************
@@ -42,7 +42,7 @@ extern "C" {
  * @brief This defines the opaque context handle
  */
 struct mpc_lowcomm_handle_ctx_s;
-typedef struct mpc_lowcomm_handle_ctx_s * mpc_lowcomm_handle_ctx_t;
+typedef struct mpc_lowcomm_handle_ctx_s *mpc_lowcomm_handle_ctx_t;
 
 #define MPC_LOWCOMM_HANDLE_CTX_NULL NULL
 
@@ -60,10 +60,10 @@ mpc_lowcomm_handle_ctx_t mpc_lowcomm_handle_ctx_new();
 /**
  * @brief Free a previously allocated HANDLE Ctx
  *
- * @param hctx pointer to the handle ctx to be freed (will be set to MPC_LOWCOMM_HANDLE_CTX_NULL)
- * @return int 0 on success
+ * @param  hctx pointer to the handle ctx to be freed (will be set to MPC_LOWCOMM_HANDLE_CTX_NULL)
+ * @return      int 0 on success
  */
-int mpc_lowcomm_handle_ctx_free(mpc_lowcomm_handle_ctx_t * hctx);
+int mpc_lowcomm_handle_ctx_free(mpc_lowcomm_handle_ctx_t *hctx);
 
 /****************************
  * HANDLE CONTEXT ACCESSORS *
@@ -72,9 +72,9 @@ int mpc_lowcomm_handle_ctx_free(mpc_lowcomm_handle_ctx_t * hctx);
 /**
  * @brief Check if two contexes are equal
  *
- * @param a first context
- * @param b second context
- * @return int 1 if equal
+ * @param  a first context
+ * @param  b second context
+ * @return   int 1 if equal
  */
 int mpc_lowcomm_handle_ctx_equal(mpc_lowcomm_handle_ctx_t a, mpc_lowcomm_handle_ctx_t b);
 
@@ -82,22 +82,22 @@ int mpc_lowcomm_handle_ctx_equal(mpc_lowcomm_handle_ctx_t a, mpc_lowcomm_handle_
 /**
  * @brief Attach a session to the handle context
  *
- * @param hctx the handle context to enrich
- * @param session the session to attach (note we use opaque pointer)
- * @return int 0 on success
+ * @param  hctx    the handle context to enrich
+ * @param  session the session to attach (note we use opaque pointer)
+ * @return         int 0 on success
  */
-int mpc_lowcomm_handle_ctx_set_session(mpc_lowcomm_handle_ctx_t hctx, void * session);
+int mpc_lowcomm_handle_ctx_set_session(mpc_lowcomm_handle_ctx_t hctx, void *session);
 
 /**
  * @brief Get the session attached to an handle context
  *
- * @param hctx the handle context to query
- * @return void* the session handle context (opaque) NULL if none or error
+ * @param  hctx the handle context to query
+ * @return      void* the session handle context (opaque) NULL if none or error
  */
 void * mpc_lowcomm_handle_ctx_get_session(mpc_lowcomm_handle_ctx_t hctx);
 
 #ifdef __cplusplus
-}
+	}
 #endif
 
 #endif /* MPC_LOWCOMM_HANDLE_CTX */

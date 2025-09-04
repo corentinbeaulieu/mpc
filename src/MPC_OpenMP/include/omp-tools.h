@@ -34,13 +34,13 @@
 #define __MPC_OMP_OMP_TOOLS_H__
 
 #ifdef __cplusplus
-extern "C"
-{
+	extern "C"
+	{
 #endif
 
 #include <ompt.h>
 
 #ifdef __cplusplus
-}
+	}
 #endif
 #endif /* __MPC_OMP_OMP_TOOLS_H__ */

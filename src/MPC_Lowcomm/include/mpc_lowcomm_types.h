@@ -28,25 +28,25 @@
 
 
 #ifdef __cplusplus
-extern "C" {
+	extern "C" {
 #endif
 #include <lcp.h>
 
 /*************
-* DATATYPES *
-*************/
+ * DATATYPES *
+ *************/
 
-typedef struct MPI_ABI_Datatype *mpc_lowcomm_datatype_t;          /**< Datatype handle */
-#define MPC_LOWCOMM_DATATYPE_NULL    ( (mpc_lowcomm_datatype_t)0) /**< Null datatype handle */
+typedef struct MPI_ABI_Datatype *mpc_lowcomm_datatype_t;      /**< Datatype handle */
+#define MPC_LOWCOMM_DATATYPE_NULL ((mpc_lowcomm_datatype_t)0) /**< Null datatype handle */
 
 
 
-void mpc_lowcomm_register_type_is_common(int (*type_ptr)(mpc_lowcomm_datatype_t) );
+void mpc_lowcomm_register_type_is_common(int (*type_ptr)(mpc_lowcomm_datatype_t));
 
 
 /****************
-* MESSAGE INFO *
-****************/
+ * MESSAGE INFO *
+ ****************/
 
 /** Message count **/
 typedef int mpc_lowcomm_msg_count_t;
@@ -128,8 +128,8 @@ typedef union
 } mpc_lowcomm_request_content_t;
 
 /**********
-* STATUS *
-**********/
+ * STATUS *
+ **********/
 
 /** Status Definition **/
 typedef struct
@@ -142,22 +142,24 @@ typedef struct
 	int                     pad[3];     /**< ABI Compliant padding */
 } mpc_lowcomm_status_t;
 
-#define MPC_LOWCOMM_STATUS_NULL    NULL
-#define MPC_LOWCOMM_STATUS_INIT\
-	/* NOLINTNEXTLINE(clang-diagnostic-missing-field-initializers) */\
-	{ MPC_ANY_SOURCE, MPC_ANY_TAG, MPC_LOWCOMM_SUCCESS, 0, 0, {0} }
+#define MPC_LOWCOMM_STATUS_NULL NULL
+#define MPC_LOWCOMM_STATUS_INIT                                           \
+		/* NOLINTNEXTLINE(clang-diagnostic-missing-field-initializers) */ \
+		{ MPC_ANY_SOURCE, MPC_ANY_TAG, MPC_LOWCOMM_SUCCESS, 0, 0, { 0 } }
 
-//FIXME: flag hack to identify a request that has been allocated by the LCP
+// FIXME: flag hack to identify a request that has been allocated by the LCP
 //       layer, see is_allocated field of mpc_lowcomm_request_t
-#define MPC_LOWCOMM_REQUEST_ALLOC  0xDEADBEEF
+#define MPC_LOWCOMM_REQUEST_ALLOC 0xDEADBEEF
 
-enum {
-        MPC_LOWCOMM_REQUEST_PACKED   = 1,
-        MPC_LOWCOMM_REQUEST_CALLBACK = 1 << 1,
+enum
+{
+	MPC_LOWCOMM_REQUEST_PACKED   = 1,
+	MPC_LOWCOMM_REQUEST_CALLBACK = 1 << 1,
 };
+
 /************
-* REQUESTS *
-************/
+ * REQUESTS *
+ ************/
 
 /** Generalized requests functions **/
 typedef int sctk_Grequest_query_function(void *extra_state, mpc_lowcomm_status_t *status);
@@ -195,45 +197,46 @@ typedef struct mpc_lowcomm_request_s
 	sctk_Grequest_poll_fn *           poll_fn;
 	sctk_Grequest_wait_fn *           wait_fn;
 
-        int count;
-        mpc_lowcomm_datatype_t datatype;
-        void *buffer;
+	int                               count;
+	mpc_lowcomm_datatype_t            datatype;
+	void *                            buffer;
 
 	/* MPI_Grequest_complete takes a copy of the struct
 	 * not a reference however we have to change a value
 	 * in the source struct which is being pulled therefore
 	 * we have to do this hack by saving a pointer to the
 	 * request inside the request */
-	void *                            pointer_to_source_request;
+	void *                     pointer_to_source_request;
 	/* This is a pointer to the shadow request */
-	void *                            pointer_to_shadow_request;
+	void *                     pointer_to_shadow_request;
 
 	/* This is a pointer to the registered memory region
 	 * in order to unpin when request completes */
-	lcp_tag_recv_info_t               recv_info;
-	mpc_lowcomm_request_pack_t        dt;
-        int                               dt_magic;
-	mpc_lowcomm_rtype_t               dt_type;
-        unsigned int                      is_allocated;
-        void *                            packed_buf;
-        size_t packed_size;
-        unsigned                          flags;
-	void *                            ptr_to_pin_ctx;
+	lcp_tag_recv_info_t        recv_info;
+	mpc_lowcomm_request_pack_t dt;
+	int                        dt_magic;
+	mpc_lowcomm_rtype_t        dt_type;
+	unsigned int               is_allocated;
+	void *                     packed_buf;
+	size_t                     packed_size;
+	unsigned                   flags;
+	void *                     ptr_to_pin_ctx;
 	int (*request_completion_fn)(struct mpc_lowcomm_request_s *);
-        int (*request_complete)(struct mpc_lowcomm_request_s *);
+	int (*request_complete)(struct mpc_lowcomm_request_s *);
 	// force protocol in lowcomm
-	int                               synchronized;
+	int                        synchronized;
 }mpc_lowcomm_request_t;
 
 struct mpc_lowcomm_request_s *mpc_lowcomm_request_null(void);
-#define MPC_REQUEST_NULL    (*mpc_lowcomm_request_null() )
+
+#define MPC_REQUEST_NULL (*mpc_lowcomm_request_null())
 
 /*********************
-* REDUCE OPERATIONS *
-*********************/
+ * REDUCE OPERATIONS *
+ *********************/
 
-typedef void ( *sctk_Op_f ) (const void *, void *, size_t, mpc_lowcomm_datatype_t);
-typedef void ( sctk_Op_User_function ) (void *, void *, int *, mpc_lowcomm_datatype_t *);
+typedef void (*sctk_Op_f)(const void *, void *, size_t, mpc_lowcomm_datatype_t);
+typedef void (sctk_Op_User_function)(void *, void *, int *, mpc_lowcomm_datatype_t *);
 
 typedef struct
 {
@@ -241,11 +244,11 @@ typedef struct
 	sctk_Op_User_function *u_func;
 } sctk_Op;
 
-#define SCTK_OP_INIT    { NULL, NULL }
+#define SCTK_OP_INIT { NULL, NULL }
 
 /************
-* RDMA OPS *
-************/
+ * RDMA OPS *
+ ************/
 
 typedef int mpc_lowcomm_rdma_window_t;
 
@@ -291,18 +294,18 @@ typedef enum
 size_t RDMA_type_size(RDMA_type type);
 
 /*********
-* ERROR *
-*********/
+ * ERROR *
+ *********/
 
 enum
 {
-	MPC_LOWCOMM_ERR_TYPE     =      3, /* Invalid datatype argument */
-	MPC_LOWCOMM_ERR_TRUNCATE = 15,     /* Message truncated on receive */
+	MPC_LOWCOMM_ERR_TYPE     = 3,  /* Invalid datatype argument */
+	MPC_LOWCOMM_ERR_TRUNCATE = 15, /* Message truncated on receive */
 };
 
 /*******************
-* FAULT TOLERANCE *
-*******************/
+ * FAULT TOLERANCE *
+ *******************/
 
 typedef enum sctk_ft_state_e
 {
@@ -318,40 +321,40 @@ typedef enum sctk_ft_state_e
 
 /************************** MACROS *************************/
 
-#define MPC_ROOT                   -4
+#define MPC_ROOT -4
 
 /** Define the NULL error handler */
-#define SCTK_ERRHANDLER_NULL       0
+#define SCTK_ERRHANDLER_NULL 0
 /** Not using datatypes */
-#define MPC_DATATYPE_IGNORE        ( (mpc_lowcomm_datatype_t)-1)
+#define MPC_DATATYPE_IGNORE ((mpc_lowcomm_datatype_t)-1)
 /** In place collectives **/
-#define MPC_IN_PLACE               ( (void *)1)
+#define MPC_IN_PLACE ((void *)1)
 /** PROC_NULL **/
-#define MPC_PROC_NULL              -2
+#define MPC_PROC_NULL -2
 /** SUCCESS and ERROR **/
-#define MPC_LOWCOMM_SUCCESS        0
-#define MPC_LOWCOMM_ERROR          1
-#define MPC_LOWCOMM_NO_RESOURCE    -1
-#define MPC_LOWCOMM_IN_PROGRESS    -2
-#define MPC_LOWCOMM_NOT_SUPPORTED  -3
+#define MPC_LOWCOMM_SUCCESS       0
+#define MPC_LOWCOMM_ERROR         1
+#define MPC_LOWCOMM_NO_RESOURCE   -1
+#define MPC_LOWCOMM_IN_PROGRESS   -2
+#define MPC_LOWCOMM_NOT_SUPPORTED -3
 
 /** Wildcards **/
-#define MPC_ANY_TAG                -1
-#define MPC_ANY_SOURCE             -1
+#define MPC_ANY_TAG    -1
+#define MPC_ANY_SOURCE -1
 
 /****************************
-* SPECIALIZED MESSAGE TAGS *
-****************************/
+ * SPECIALIZED MESSAGE TAGS *
+ ****************************/
 
 /* Ensure sync with comm_lib.h */
-#define MPC_GATHER_TAG       -3
-#define MPC_BROADCAST_TAG    -9
-#define MPC_BARRIER_TAG      -10
-#define MPC_ALLGATHER_TAG    -11
+#define MPC_GATHER_TAG    -3
+#define MPC_BROADCAST_TAG -9
+#define MPC_BARRIER_TAG   -10
+#define MPC_ALLGATHER_TAG -11
 
 
 #ifdef __cplusplus
-}
+	}
 #endif
 
 #endif /* MPC_LOWCOMM_TYPES_H_ */

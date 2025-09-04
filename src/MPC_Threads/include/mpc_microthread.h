@@ -24,8 +24,8 @@
 #define __mpcmicrothread__H
 
 #ifdef __cplusplus
-extern "C"
-{
+	extern "C"
+	{
 #endif
 
 #include <stdlib.h>
@@ -33,11 +33,11 @@ extern "C"
 #include <mpc_thread.h>
 
 /* Definition of a function for microthread */
-#define MPC_MICROTHREAD_FUNC_T    (volatile void *(*)(void *) )
+#define MPC_MICROTHREAD_FUNC_T (volatile void *(*)(void *))
 
-//extern mpc_thread_keys_t sctk_microthread_key;
+// extern mpc_thread_keys_t sctk_microthread_key;
 
-typedef struct sctk_microthread_vp_s   sctk_microthread_vp_t;
+typedef struct sctk_microthread_vp_s sctk_microthread_vp_t;
 
 /* Structure handling the virtual processors */
 typedef struct sctk_microthread_s
@@ -65,6 +65,7 @@ static inline void sctk_microthread_init_microthread_t(sctk_microthread_t *self)
 	/* Ready to accept VPs and being scheduled */
 	self->enable = 1;
 }
+
 /* NOLINTEND(clang-diagnostic-unused-function) */
 
 /* Application Programming Interface for Microthreads */
@@ -72,8 +73,8 @@ static inline void sctk_microthread_init_microthread_t(sctk_microthread_t *self)
 /* Initialization of a microthread instance */
 int sctk_microthread_init(long nb_vp, sctk_microthread_t *self);
 
-#define MPC_MICROTHREAD_LAST_TASK       (-2)
-#define MPC_MICROTHREAD_NO_TASK_INFO    (-1)
+#define MPC_MICROTHREAD_LAST_TASK    (-2)
+#define MPC_MICROTHREAD_NO_TASK_INFO (-1)
 
 /* Enqueue an operation (func,arg) to a specific VP */
 
@@ -85,8 +86,8 @@ int sctk_microthread_add_task(void *(*func)(void *), void *arg,
                               long vp, long *step,
                               sctk_microthread_t *task, int val);
 
-#define MPC_MICROTHREAD_DONT_WAKE_VPS    (1)
-#define MPC_MICROTHREAD_WAKE_VPS         (-1)
+#define MPC_MICROTHREAD_DONT_WAKE_VPS (1)
+#define MPC_MICROTHREAD_WAKE_VPS      (-1)
 
 /* Launch the execution of this microthread instance */
 /* 'val' -> (MPC_MICROTHREAD_DONT_WAKE_VPS|MPC_MICROTHREAD_WAKE_VPS) */
@@ -98,7 +99,7 @@ int sctk_microthread_parallel_exec(sctk_microthread_t *task, int val);
 
 
 #ifdef __cplusplus
-}
+	}
 #endif
 
 #endif

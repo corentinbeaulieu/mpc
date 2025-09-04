@@ -31,8 +31,8 @@
 #include <mpc_lowcomm_monitor.h>
 
 /****************************************
-* _MPC_LOWCOMM_GROUP_RANK_DESCRIPTOR_S *
-****************************************/
+ * _MPC_LOWCOMM_GROUP_RANK_DESCRIPTOR_S *
+ ****************************************/
 
 typedef struct _mpc_lowcomm_group_rank_descriptor_s
 {
@@ -43,22 +43,21 @@ typedef struct _mpc_lowcomm_group_rank_descriptor_s
 int _mpc_lowcomm_group_rank_descriptor_equal(_mpc_lowcomm_group_rank_descriptor_t *a,
                                              _mpc_lowcomm_group_rank_descriptor_t *b);
 
-int _mpc_lowcomm_group_rank_descriptor_set(_mpc_lowcomm_group_rank_descriptor_t *rd,
-                                           int comm_world_rank);
+int _mpc_lowcomm_group_rank_descriptor_set(_mpc_lowcomm_group_rank_descriptor_t *rd, int comm_world_rank);
 
-int _mpc_lowcomm_group_rank_descriptor_set_uid(_mpc_lowcomm_group_rank_descriptor_t *rd,
-                                               mpc_lowcomm_peer_uid_t uid);
+int _mpc_lowcomm_group_rank_descriptor_set_uid(_mpc_lowcomm_group_rank_descriptor_t *rd, mpc_lowcomm_peer_uid_t uid);
 
 int _mpc_lowcomm_group_rank_descriptor_set_in_grp(_mpc_lowcomm_group_rank_descriptor_t *rd,
                                                   mpc_lowcomm_set_uid_t set,
                                                   int group_rank);
 
-int _mpc_lowcomm_group_rank_descriptor_all_from_local_set(unsigned int size, _mpc_lowcomm_group_rank_descriptor_t *ranks);
+int _mpc_lowcomm_group_rank_descriptor_all_from_local_set(unsigned int size,
+                                                          _mpc_lowcomm_group_rank_descriptor_t *ranks);
 
 
 /************************
-* _MPC_LOWCOMM_GROUP_T *
-************************/
+ * _MPC_LOWCOMM_GROUP_T *
+ ************************/
 
 typedef struct MPI_ABI_Group
 {
@@ -68,7 +67,7 @@ typedef struct MPI_ABI_Group
 
 	unsigned int                          size;
 	_mpc_lowcomm_group_rank_descriptor_t *ranks;
-        lcp_ep_h                             *eps;
+	lcp_ep_h *                            eps;
 
 	int *                                 global_to_local;
 
@@ -76,7 +75,7 @@ typedef struct MPI_ABI_Group
 	int                                   process_count;
 	int *                                 process_list;
 	int                                   tasks_count_in_process;
-        int                                  *my_rank;
+	int *                                 my_rank;
 
 	int                                   local_leader;
 
@@ -94,9 +93,12 @@ static inline void _mpc_lowcomm_group_relax(mpc_lowcomm_group_t *g)
 {
 	OPA_decr_int(&g->refcount);
 }
+
 /* NOLINTEND(clang-diagnostic-unused-function) */
 
-mpc_lowcomm_group_t *_mpc_lowcomm_group_create(unsigned int size, _mpc_lowcomm_group_rank_descriptor_t *ranks, int deduplicate);
+mpc_lowcomm_group_t *_mpc_lowcomm_group_create(unsigned int size,
+                                               _mpc_lowcomm_group_rank_descriptor_t *ranks,
+                                               int deduplicate);
 
 _mpc_lowcomm_group_rank_descriptor_t *mpc_lowcomm_group_descriptor(mpc_lowcomm_group_t *g, int rank);
 
@@ -105,15 +107,15 @@ int *_mpc_lowcomm_group_process_list(mpc_lowcomm_group_t *g);
 int _mpc_lowcomm_group_local_process_count(mpc_lowcomm_group_t *g);
 
 /*******************
-* LIST MANAGEMENT *
-*******************/
+ * LIST MANAGEMENT *
+ *******************/
 
 mpc_lowcomm_group_t *_mpc_lowcomm_group_list_register(mpc_lowcomm_group_t *group);
 int _mpc_lowcomm_group_list_pop(mpc_lowcomm_group_t *group);
 
 /*************
-* UTILITIES *
-*************/
+ * UTILITIES *
+ *************/
 
 void _mpc_lowcomm_group_create_world(void);
 void _mpc_lowcomm_group_release_world(void);

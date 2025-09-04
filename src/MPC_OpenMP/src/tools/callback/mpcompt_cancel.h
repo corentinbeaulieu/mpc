@@ -28,8 +28,8 @@
 
 #if OMPT_SUPPORT
 
-void
-_mpc_omp_ompt_callback_cancel( int flags );
+	void
+	_mpc_omp_ompt_callback_cancel(int flags);
 
 #endif /* OMPT_SUPPORT */
 #endif /* __MPCOMPT_CANCEL_H__ */

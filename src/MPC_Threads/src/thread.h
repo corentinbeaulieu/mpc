@@ -44,8 +44,8 @@
 #endif
 
 #ifdef __cplusplus
-extern "C"
-{
+	extern "C"
+	{
 #endif
 
 /************************
@@ -55,12 +55,12 @@ extern "C"
 struct mpc_thread_config
 {
 	/* Common */
-	char thread_layout[MPC_CONF_STRING_SIZE];
+	char     thread_layout[MPC_CONF_STRING_SIZE];
 
-    /* enable/disable timer kernel thread, that counts tick */
-    int thread_timer_enabled;
+	/* enable/disable timer kernel thread, that counts tick */
+	int      thread_timer_enabled;
 
-    int thread_timer_interval;
+	int      thread_timer_interval;
 
 	/* Kthread */
 	long int kthread_stack_size;
@@ -69,7 +69,7 @@ struct mpc_thread_config
 	long int ethread_spin_delay;
 };
 
-struct mpc_thread_config  * _mpc_thread_config_get(void);
+struct mpc_thread_config * _mpc_thread_config_get(void);
 
 
 int mpc_thread_dump(char *file);
@@ -84,20 +84,20 @@ int mpc_thread_usleep(unsigned int useconds);
 extern volatile int sctk_multithreading_initialised;
 
 #ifndef MPC_Thread_db
-typedef enum
-{
-	sctk_thread_running_status, sctk_thread_blocked_status,
-	mpc_thread_sleep_status, sctk_thread_undef_status,
-	sctk_thread_check_status
-} sctk_thread_status_t;
+	typedef enum
+	{
+		sctk_thread_running_status, sctk_thread_blocked_status,
+		mpc_thread_sleep_status, sctk_thread_undef_status,
+		sctk_thread_check_status
+	} sctk_thread_status_t;
 #else
 #include <tdb_remote.h>
-typedef td_thr_state_e   sctk_thread_status_t;
-#define sctk_thread_running_status    TD_THR_ACTIVE
-#define sctk_thread_blocked_status    TD_THR_RUN
-#define mpc_thread_sleep_status       TD_THR_RUN
-#define sctk_thread_undef_status      TD_THR_ZOMBIE
-#define sctk_thread_check_status      TD_THR_ACTIVE
+	typedef td_thr_state_e sctk_thread_status_t;
+	#define sctk_thread_running_status TD_THR_ACTIVE
+	#define sctk_thread_blocked_status TD_THR_RUN
+	#define mpc_thread_sleep_status    TD_THR_RUN
+	#define sctk_thread_undef_status   TD_THR_ZOMBIE
+	#define sctk_thread_check_status   TD_THR_ACTIVE
 #endif
 
 struct mpc_mpi_cl_per_mpi_process_ctx_s;
@@ -109,7 +109,7 @@ typedef struct sctk_thread_data_s
 	struct sctk_alloc_chain *                tls;
 	void *                                   __arg;
 	void *(*__start_routine)(void *);
-	mpc_thread_rank_info_t mpi_task;
+	mpc_thread_rank_info_t                   mpi_task;
 	int                                      virtual_processor;
 	int                                      user_thread;
 
@@ -122,45 +122,45 @@ typedef struct sctk_thread_data_s
 	struct sctk_tls_dtors_s *                dtors_head;
 	/* Where the thread must be bound */
 	unsigned int                             bind_to;
-  /* This is the MPI interface per th ctx */
-  void *                                   mpi_per_thread;
-  /* The thread disguisement if present */
-  mpc_thread_mpi_disguise_t disguise;
+	/* This is the MPI interface per th ctx */
+	void *                                   mpi_per_thread;
+	/* The thread disguisement if present */
+	mpc_thread_mpi_disguise_t                disguise;
 #ifdef MPC_Lowcomm
 #ifdef MPC_ENABLE_WORKSHARE
-  mpc_workshare *                          workshare;
+			mpc_workshare *                  workshare;
 #endif
-  int                                      is_in_collective;
+		int                                  is_in_collective;
 #endif
-
 } sctk_thread_data_t;
 
-#define SCTK_THREAD_DATA_INIT_STRUCT_START    { NULL, NULL, NULL, {-1, -1, -1}, -1, -1, NULL,           \
-		                   NULL, -1, (void *)NULL, sctk_thread_undef_status, \
-		                   NULL, NULL, -1, NULL, {NULL, NULL}
+#define SCTK_THREAD_DATA_INIT_STRUCT_START                  \
+		{ NULL, NULL, NULL, { -1, -1, -1 }, -1, -1, NULL,   \
+		  NULL, -1, (void *)NULL, sctk_thread_undef_status, \
+		  NULL, NULL, -1, NULL, { NULL, NULL }
 #define SCTK_THREAD_DATA_INIT_STRUCT_END }
 
 
 #ifdef MPC_Lowcomm
 #ifdef MPC_ENABLE_WORKSHARE
-/* Initialize workshare & is_in_collective */
-#define SCTK_THREAD_DATA_INIT\
-	SCTK_THREAD_DATA_INIT_STRUCT_START,\
-	NULL, /* workshare */\
-	0, /* is_in_collective */\
-	SCTK_THREAD_DATA_INIT_STRUCT_END
+		/* Initialize workshare & is_in_collective */
+		#define SCTK_THREAD_DATA_INIT               \
+				SCTK_THREAD_DATA_INIT_STRUCT_START, \
+				NULL, /* workshare */               \
+				0,    /* is_in_collective */        \
+				SCTK_THREAD_DATA_INIT_STRUCT_END
 #else /* is_in_collective */
-#define SCTK_THREAD_DATA_INIT\
-	SCTK_THREAD_DATA_INIT_STRUCT_START,\
-	0, /* is_in_collective */\
-	SCTK_THREAD_DATA_INIT_STRUCT_END
+		#define SCTK_THREAD_DATA_INIT               \
+				SCTK_THREAD_DATA_INIT_STRUCT_START, \
+				0, /* is_in_collective */           \
+				SCTK_THREAD_DATA_INIT_STRUCT_END
 #endif /* MPC_ENABLE_WORKSHARE */
 
 #else /* Neither workshare nor is_in_collective,
-		 only the base struct initialization */
-#define SCTK_THREAD_DATA_INIT\
-	SCTK_THREAD_DATA_INIT_STRUCT_START\
-	SCTK_THREAD_DATA_INIT_STRUCT_END
+       * only the base struct initialization */
+	#define SCTK_THREAD_DATA_INIT              \
+			SCTK_THREAD_DATA_INIT_STRUCT_START \
+			SCTK_THREAD_DATA_INIT_STRUCT_END
 #endif /* MPC_Lowcomm */
 
 void _mpc_thread_data_init(void);
@@ -178,17 +178,17 @@ extern struct sctk_alloc_chain *mpc_thread_tls;
 void _mpc_thread_exit_cleanup(void);
 void _mpc_thread_ethread_mxn_engine_init_kethread(void);
 
-int sctk_real_pthread_create(pthread_t *thread,
-                             __const pthread_attr_t *attr, void *(*start_routine)(void *), void *arg);
+int sctk_real_pthread_create(pthread_t *thread, __const pthread_attr_t *attr,
+                             void *(*start_routine)(void *), void *arg);
 
 /* At exit */
-int mpc_thread_atexit(void (*function)(void) );
+int mpc_thread_atexit(void (*function)(void));
 
 /* profiling (exec time & dataused) */
 double sctk_profiling_get_init_time();
 double sctk_profiling_get_dataused();
 
 #ifdef __cplusplus
-}
+	}
 #endif
 #endif

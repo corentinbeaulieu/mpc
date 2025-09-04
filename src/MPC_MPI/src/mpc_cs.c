@@ -24,102 +24,105 @@
 #include <mpc_common_debug.h>
 
 /*
-  This file contain the C# binding of MPC (deprecated)
-*/
+ * This file contain the C# binding of MPC (deprecated)
+ */
 
 #if 0
-int
-MPC_init (void)
-{
-  int n;
-  MPC_Comm_rank (MPC_COMM_WORLD, &n);
-  return n;
-}
+	int
+	MPC_init(void)
+	{
+		int n;
 
-int
-MPC_comm_size (void)
-{
-  int n;
-  MPC_Comm_size (MPC_COMM_WORLD, &n);
-  return n;
-}
+		MPC_Comm_rank(MPC_COMM_WORLD, &n);
+		return n;
+	}
 
-int
-MPC_get_task_count (void)
-{
-  int n;
-  MPC_Comm_rank (MPC_COMM_WORLD, &n);
-  return n;
-}
+	int
+	MPC_comm_size(void)
+	{
+		int n;
 
+		MPC_Comm_size(MPC_COMM_WORLD, &n);
+		return n;
+	}
 
-void
-MPC_barrier (void)
-{
-  mpc_common_nodebug ("barrier");
-  MPC_Barrier (MPC_COMM_WORLD);
-}
+	int
+	MPC_get_task_count(void)
+	{
+		int n;
 
-void
-MPC_wait (void)
-{
-  mpc_common_nodebug ("wait");
-  MPC_Wait_pending (MPC_COMM_WORLD);
-}
+		MPC_Comm_rank(MPC_COMM_WORLD, &n);
+		return n;
+	}
 
-void
-MPC_send (int dest, double DATA[], int start, int count)
-{
-  mpc_common_nodebug ("send : %d", dest);
-  MPC_Isend (DATA + start, count, MPC_DOUBLE, dest, 0, MPC_COMM_WORLD, NULL);
-}
+	void
+	MPC_barrier(void)
+	{
+		mpc_common_nodebug("barrier");
+		MPC_Barrier(MPC_COMM_WORLD);
+	}
 
-void
-MPC_receive (int src, double DATA[], int start, int count)
-{
-  mpc_common_nodebug ("rcv : %d", src);
-  MPC_Irecv (DATA + start, count, MPC_DOUBLE, src, 0, MPC_COMM_WORLD, NULL);
-}
+	void
+	MPC_wait(void)
+	{
+		mpc_common_nodebug("wait");
+		MPC_Wait_pending(MPC_COMM_WORLD);
+	}
 
-void
-MPC_allreduce_min (double DATAIN[], double DATAOUT[], int start_in,
-		   int start_out, int count)
-{
-  mpc_common_nodebug ("all reduce ");
-  MPC_Allreduce (DATAIN + start_in, DATAOUT + start_out, count,
-		 MPC_DOUBLE, MPC_MIN, MPC_COMM_WORLD);
-}
+	void
+	MPC_send(int dest, double DATA[], int start, int count)
+	{
+		mpc_common_nodebug("send : %d", dest);
+		MPC_Isend(DATA + start, count, MPC_DOUBLE, dest, 0, MPC_COMM_WORLD, NULL);
+	}
 
-void
-MPC_allreduce_max (double DATAIN[], double DATAOUT[], int start_in,
-		   int start_out, int count)
-{
-  mpc_common_nodebug ("all reduce ");
-  MPC_Allreduce (DATAIN + start_in, DATAOUT + start_out, count,
-		 MPC_DOUBLE, MPC_MAX, MPC_COMM_WORLD);
-}
+	void
+	MPC_receive(int src, double DATA[], int start, int count)
+	{
+		mpc_common_nodebug("rcv : %d", src);
+		MPC_Irecv(DATA + start, count, MPC_DOUBLE, src, 0, MPC_COMM_WORLD, NULL);
+	}
 
-void
-MPC_allreduce_sum (double DATAIN[], double DATAOUT[], int start_in,
-		   int start_out, int count)
-{
-  mpc_common_nodebug ("all reduce ");
-  MPC_Allreduce (DATAIN + start_in, DATAOUT + start_out, count,
-		 MPC_DOUBLE, MPC_SUM, MPC_COMM_WORLD);
-}
+	void
+	MPC_allreduce_min(double DATAIN[], double DATAOUT[], int start_in,
+	                  int start_out, int count)
+	{
+		mpc_common_nodebug("all reduce ");
+		MPC_Allreduce(DATAIN + start_in, DATAOUT + start_out, count,
+			MPC_DOUBLE, MPC_MIN, MPC_COMM_WORLD);
+	}
 
-void
-MPC_mpc_gettimeofday (int timestruct[])
-{
-  struct timeval tv;
-  gettimeofday (&tv, NULL);
-  timestruct[0] = tv.tv_sec;
-  timestruct[1] = tv.tv_usec;
-}
+	void
+	MPC_allreduce_max(double DATAIN[], double DATAOUT[], int start_in,
+	                  int start_out, int count)
+	{
+		mpc_common_nodebug("all reduce ");
+		MPC_Allreduce(DATAIN + start_in, DATAOUT + start_out, count,
+			MPC_DOUBLE, MPC_MAX, MPC_COMM_WORLD);
+	}
 
-void
-MPC_end (void)
-{
+	void
+	MPC_allreduce_sum(double DATAIN[], double DATAOUT[], int start_in,
+	                  int start_out, int count)
+	{
+		mpc_common_nodebug("all reduce ");
+		MPC_Allreduce(DATAIN + start_in, DATAOUT + start_out, count,
+			MPC_DOUBLE, MPC_SUM, MPC_COMM_WORLD);
+	}
 
-}
+	void
+	MPC_mpc_gettimeofday(int timestruct[])
+	{
+		struct timeval tv;
+
+		gettimeofday(&tv, NULL);
+		timestruct[0] = tv.tv_sec;
+		timestruct[1] = tv.tv_usec;
+	}
+
+	void
+	MPC_end(void)
+	{
+	}
+
 #endif

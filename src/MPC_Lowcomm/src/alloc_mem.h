@@ -32,16 +32,17 @@
 
 #include <stdlib.h>
 
-struct mpc_lowcomm_allocmem_pool {
-  void *_pool;
-  void *pool;
-  size_t size;
-  size_t size_left;
-  size_t mapped_size;
-  size_t space_per_bit;
-  mpc_common_spinlock_t *lock;
-  struct mpc_common_bit_array mask;
-  struct mpc_common_hashtable size_ht;
+struct mpc_lowcomm_allocmem_pool
+{
+	void *                      _pool;
+	void *                      pool;
+	size_t                      size;
+	size_t                      size_left;
+	size_t                      mapped_size;
+	size_t                      space_per_bit;
+	mpc_common_spinlock_t *     lock;
+	struct mpc_common_bit_array mask;
+	struct mpc_common_hashtable size_ht;
 };
 
 extern struct mpc_lowcomm_allocmem_pool __mpc_lowcomm_memory_pool;

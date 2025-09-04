@@ -31,45 +31,45 @@
 
 /* GOMP bit flags */
 /* https://github.com/gcc-mirror/gcc/blob/master/include/gomp-constants.h#L202 */
-# define GOMP_TASK_FLAG_UNTIED      (1 << 0)
-# define GOMP_TASK_FLAG_FINAL       (1 << 1)
-# define GOMP_TASK_FLAG_MERGEABLE   (1 << 2)
-# define GOMP_TASK_FLAG_DEPEND      (1 << 3)
-# define GOMP_TASK_FLAG_PRIORITY    (1 << 4)
-# define GOMP_TASK_FLAG_UP          (1 << 8)
-# define GOMP_TASK_FLAG_GRAINSIZE   (1 << 9)
-# define GOMP_TASK_FLAG_IF          (1 << 10)
-# define GOMP_TASK_FLAG_NOGROUP     (1 << 11)
-# define GOMP_TASK_FLAG_REDUCTION	(1 << 12)
-# define GOMP_TASK_FLAG_DETACH		(1 << 13)
-# define GOMP_TASK_FLAG_STRICT		(1 << 14)
+#define GOMP_TASK_FLAG_UNTIED    (1 << 0)
+#define GOMP_TASK_FLAG_FINAL     (1 << 1)
+#define GOMP_TASK_FLAG_MERGEABLE (1 << 2)
+#define GOMP_TASK_FLAG_DEPEND    (1 << 3)
+#define GOMP_TASK_FLAG_PRIORITY  (1 << 4)
+#define GOMP_TASK_FLAG_UP        (1 << 8)
+#define GOMP_TASK_FLAG_GRAINSIZE (1 << 9)
+#define GOMP_TASK_FLAG_IF        (1 << 10)
+#define GOMP_TASK_FLAG_NOGROUP   (1 << 11)
+#define GOMP_TASK_FLAG_REDUCTION (1 << 12)
+#define GOMP_TASK_FLAG_DETACH    (1 << 13)
+#define GOMP_TASK_FLAG_STRICT    (1 << 14)
 
 /* tasks dependencies flags */
 typedef enum    gomp_task_dep_type_e
 {
-  GOMP_OMP_TASK_DEP_NONE            = 0,
-  GOMP_OMP_TASK_DEP_IN              = 1,
-  GOMP_OMP_TASK_DEP_OUT             = 2,
-  GOMP_OMP_TASK_DEP_INOUT           = 3,
-  GOMP_OMP_TASK_DEP_MUTEXINOUTSET   = 4,
-  GOMP_OMP_TASK_DEP_INOUTSET        = 5,
-  GOMP_OMP_TASK_DEP_COUNT           = 6
+	GOMP_OMP_TASK_DEP_NONE          = 0,
+	GOMP_OMP_TASK_DEP_IN            = 1,
+	GOMP_OMP_TASK_DEP_OUT           = 2,
+	GOMP_OMP_TASK_DEP_INOUT         = 3,
+	GOMP_OMP_TASK_DEP_MUTEXINOUTSET = 4,
+	GOMP_OMP_TASK_DEP_INOUTSET      = 5,
+	GOMP_OMP_TASK_DEP_COUNT         = 6
 }               gomp_task_dep_type_t;
 
 typedef enum    gomp_cancel_kind_e
 {
-    GOMP_CANCEL_PARALLEL    = 1,
-    GOMP_CANCEL_LOOP        = 2,
-    GOMP_CANCEL_FOR         = GOMP_CANCEL_LOOP,
-    GOMP_CANCEL_DO          = GOMP_CANCEL_LOOP,
-    GOMP_CANCEL_SECTIONS    = 4,
-    GOMP_CANCEL_TASKGROUP   = 8
+	GOMP_CANCEL_PARALLEL  = 1,
+	GOMP_CANCEL_LOOP      = 2,
+	GOMP_CANCEL_FOR       = GOMP_CANCEL_LOOP,
+	GOMP_CANCEL_DO        = GOMP_CANCEL_LOOP,
+	GOMP_CANCEL_SECTIONS  = 4,
+	GOMP_CANCEL_TASKGROUP = 8
 }               gomp_cancel_kind_t;
 
 /** depobj */
 typedef struct  gomp_omp_depend_t
 {
-    char __omp_depend_t__[2 * sizeof (void *)];
+	char __omp_depend_t__[2 * sizeof(void *)];
 }               gomp_omp_depend_t;
 
 #endif /* OMP_GOMP_CONSTANTS_H_ */

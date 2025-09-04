@@ -32,47 +32,47 @@
 /**
  * @brief Allocate a new internal cell for the MPC HT
  *
- * @param key The key of this cell
- * @param data The pointer to be stored
- * @param next The pointer to the next cell to the chained
- * @return struct _mpc_ht_cell*  New cell
+ * @param  key  The key of this cell
+ * @param  data The pointer to be stored
+ * @param  next The pointer to the next cell to the chained
+ * @return      struct _mpc_ht_cell*  New cell
  */
-struct _mpc_ht_cell * _mpc_ht_cell_new( uint64_t key, void * data, struct _mpc_ht_cell * next );
+struct _mpc_ht_cell * _mpc_ht_cell_new(uint64_t key, void *data, struct _mpc_ht_cell *next);
 
 /**
  * @brief Initialize the content of a cell
  *
  * @param cell The cell to be initialized
- * @param key The key of this cell
+ * @param key  The key of this cell
  * @param data The pointer to be stored
  * @param next The pointer to the next cell to the chained
  */
-void _mpc_ht_cell_init( struct _mpc_ht_cell * cell , uint64_t key, void * data, struct _mpc_ht_cell * next );
+void _mpc_ht_cell_init(struct _mpc_ht_cell *cell, uint64_t key, void *data, struct _mpc_ht_cell *next);
 
 /**
  * @brief Release an internal hash-table cell
  *
  * @param cell The cell to be released
  */
-void _mpc_ht_cell_release( struct _mpc_ht_cell * cell );
+void _mpc_ht_cell_release(struct _mpc_ht_cell *cell);
 
 /**
  * @brief Get a cell from an internal HT cell
  *
- * @param cell The cell-list to be searched
- * @param key the key to be searched
- * @return struct _mpc_ht_cell* the resulting cell (or NULL if not found)
+ * @param  cell The cell-list to be searched
+ * @param  key  the key to be searched
+ * @return      struct _mpc_ht_cell* the resulting cell (or NULL if not found)
  */
-struct _mpc_ht_cell * _mpc_ht_cell_get( struct _mpc_ht_cell * cell, uint64_t key );
+struct _mpc_ht_cell * _mpc_ht_cell_get(struct _mpc_ht_cell *cell, uint64_t key);
 
 /**
  * @brief Remove a cell from an HT list
  *
- * @param head head of the cell-list
- * @param key the key to be removed
- * @return struct _mpc_ht_cell* the removed cell
+ * @param  head head of the cell-list
+ * @param  key  the key to be removed
+ * @return      struct _mpc_ht_cell* the removed cell
  */
-struct _mpc_ht_cell * _mpc_ht_cell_pop( struct _mpc_ht_cell * head, uint64_t key );
+struct _mpc_ht_cell * _mpc_ht_cell_pop(struct _mpc_ht_cell *head, uint64_t key);
 
 /**
  * @}

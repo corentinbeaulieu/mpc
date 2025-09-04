@@ -34,114 +34,118 @@
 
 #include "sctk_profiler_array.h"
 
-typedef enum
-{
-	SCTK_PROFILE_RENDER_FILE,
-	SCTK_PROFILE_RENDER_FILE_RAW,
-	SCTK_PROFILE_RENDER_FILE_NOINDENT,
-	SCTK_PROFILE_RENDER_STDOUT,
-	SCTK_PROFILE_RENDER_STDOUT_RAW,
-	SCTK_PROFILE_RENDER_STDOUT_NOINDENT,
-	SCTK_PROFILE_RENDER_TEX,
-	SCTK_PROFILE_RENDER_XML,
-	SCTK_PROFILE_RENDER_HTML,
-	SCTK_PROFILE_RENDER_COUNT
-}sctk_profile_render_type;
+	typedef enum
+	{
+		SCTK_PROFILE_RENDER_FILE,
+		SCTK_PROFILE_RENDER_FILE_RAW,
+		SCTK_PROFILE_RENDER_FILE_NOINDENT,
+		SCTK_PROFILE_RENDER_STDOUT,
+		SCTK_PROFILE_RENDER_STDOUT_RAW,
+		SCTK_PROFILE_RENDER_STDOUT_NOINDENT,
+		SCTK_PROFILE_RENDER_TEX,
+		SCTK_PROFILE_RENDER_XML,
+		SCTK_PROFILE_RENDER_HTML,
+		SCTK_PROFILE_RENDER_COUNT
+	}sctk_profile_render_type;
 
 
 
-static const char * const sctk_profile_render_keys[SCTK_PROFILE_RENDER_COUNT] =
+	static const char * const sctk_profile_render_keys[SCTK_PROFILE_RENDER_COUNT] =
 
-{
-	"file",
-	"file-raw",
-	"file-noindent",
-	"stdout",
-	"stdout-raw",
-	"stdout-noindent",
-	"latex",
-	"xml",
-	"html"
-};
-
-
-
-
-struct sctk_profile_renderer
-{
-	struct sctk_performance_tree ptree;
-	struct sctk_profiler_array *array;
-	char render_list[500];
-	sctk_profile_render_walk_mode walk_mode;
-
-	void (*setup)( struct sctk_profile_renderer *rd );
-	void (*teardown)( struct sctk_profile_renderer *rd );
-
-	void (*setup_meta)( struct sctk_profile_renderer *rd );
-	void (*teardown_meta)( struct sctk_profile_renderer *rd );
-	void (*render_meta)( struct sctk_profile_renderer *rd, struct sctk_profile_meta *meta );
-
-	void (*setup_profile)( struct sctk_profile_renderer *rd );
-	void (*teardown_profile)( struct sctk_profile_renderer *rd );
-	void (*render_profile)( struct sctk_profiler_array *array, int id, int parent_id, int depth, int going_up, struct sctk_profile_renderer *rd );
-
-	FILE *output_file;
-
-};
-
-static inline void sctk_profile_renderer_set_walk( struct sctk_profile_renderer *rd, sctk_profile_render_walk_mode mode )
-{
-	if( mode < SCTK_PROFILE_RENDER_WALK_COUNT )
-		rd->walk_mode = mode;
-}
+	{
+		"file",
+		"file-raw",
+		"file-noindent",
+		"stdout",
+		"stdout-raw",
+		"stdout-noindent",
+		"latex",
+		"xml",
+		"html"
+	};
 
 
 
-void sctk_profile_renderer_init( struct sctk_profile_renderer *rd, struct sctk_profiler_array *array, char *render_string);
+	struct sctk_profile_renderer
+	{
+		struct sctk_performance_tree  ptree;
+		struct sctk_profiler_array *  array;
+		char                          render_list[500];
+		sctk_profile_render_walk_mode walk_mode;
 
-void sctk_profile_renderer_render( struct sctk_profile_renderer *rd );
+		void                          (*setup)(struct sctk_profile_renderer *rd);
+		void                          (*teardown)(struct sctk_profile_renderer *rd);
 
-void sctk_profile_renderer_release( struct sctk_profile_renderer *rd );
+		void                          (*setup_meta)(struct sctk_profile_renderer *rd);
+		void                          (*teardown_meta)(struct sctk_profile_renderer *rd);
+		void                          (*render_meta)(struct sctk_profile_renderer *rd, struct sctk_profile_meta *meta);
 
-char *sctk_profile_renderer_convert_to_size( uint64_t size , char *to_size );
+		void                          (*setup_profile)(struct sctk_profile_renderer *rd);
+		void                          (*teardown_profile)(struct sctk_profile_renderer *rd);
+		void                          (*render_profile)(struct sctk_profiler_array *array,
+		                                                int id, int parent_id,
+		                                                int depth, int going_up,
+		                                                struct sctk_profile_renderer *rd);
 
-char *sctk_profile_renderer_convert_to_time( uint64_t duration , char *to_unit );
+		FILE *output_file;
+	};
 
-int sctk_profile_renderer_check_render_list( char *render_list );
+	static inline void sctk_profile_renderer_set_walk(struct sctk_profile_renderer *rd,
+	                                                  sctk_profile_render_walk_mode mode)
+	{
+		if (mode < SCTK_PROFILE_RENDER_WALK_COUNT)
+		{
+			rd->walk_mode = mode;
+		}
+	}
 
-/* Utility functions */
+	void sctk_profile_renderer_init(struct sctk_profile_renderer *rd,
+	                                struct sctk_profiler_array *array,
+	                                char *render_string);
 
-char * sctk_profile_renderer_date( char *buffer );
+	void sctk_profile_renderer_render(struct sctk_profile_renderer *rd);
 
-char * sctk_profile_renderer_date_clean( char *buffer );
+	void sctk_profile_renderer_release(struct sctk_profile_renderer *rd);
 
-void sctk_profile_renderer_write_ntabs( FILE *fd, int n );
+	char *sctk_profile_renderer_convert_to_size(uint64_t size, char *to_size);
 
-void sctk_profile_renderer_print_ntabs( int n );
+	char *sctk_profile_renderer_convert_to_time(uint64_t duration, char *to_unit);
 
-struct MPC_prof_color
-{
-	int r;
-	int g;
-	int b;
-};
+	int sctk_profile_renderer_check_render_list(char *render_list);
 
-struct MPC_prof_color sctk_profile_renderer_to_rgb( char *hex_col );
+	/* Utility functions */
 
-struct mpc_common_profiler_config
-{
-	int level_colors_size;
-	int append_date;
-	int color_stdout;
-	char * file_prefix;
-	char* level_colors[];
-};
+	char * sctk_profile_renderer_date(char *buffer);
 
-const struct mpc_common_profiler_config * sctk_profile_get_config();
+	char * sctk_profile_renderer_date_clean(char *buffer);
 
-void sctk_profile_render_filename( char *output_file, char *ext );
+	void sctk_profile_renderer_write_ntabs(FILE *fd, int n);
 
-char * sctk_profile_render_sanitize_string( char *string );
+	void sctk_profile_renderer_print_ntabs(int n);
+
+	struct MPC_prof_color
+	{
+		int r;
+		int g;
+		int b;
+	};
+
+	struct MPC_prof_color sctk_profile_renderer_to_rgb(char *hex_col);
+
+	struct mpc_common_profiler_config
+	{
+		int   level_colors_size;
+		int   append_date;
+		int   color_stdout;
+		char *file_prefix;
+		char *level_colors[];
+	};
+
+	const struct mpc_common_profiler_config * sctk_profile_get_config();
+
+	void sctk_profile_render_filename(char *output_file, char *ext);
+
+	char * sctk_profile_render_sanitize_string(char *string);
 
 #endif /* MPC_Profiler */
 

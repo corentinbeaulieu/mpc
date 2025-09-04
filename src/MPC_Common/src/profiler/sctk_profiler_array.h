@@ -28,67 +28,72 @@
 #include <mpc_common_profiler.h>
 
 
-extern uint64_t sctk_profile_has_child[ SCTK_PROFILE_KEY_COUNT ];
-extern uint64_t sctk_profile_parent_key[ SCTK_PROFILE_KEY_COUNT ];
-void sctk_profiler_array_init_parent_keys();
+	extern uint64_t sctk_profile_has_child[SCTK_PROFILE_KEY_COUNT];
+	extern uint64_t sctk_profile_parent_key[SCTK_PROFILE_KEY_COUNT];
+	void sctk_profiler_array_init_parent_keys();
 
-struct sctk_profiler_array * sctk_profiler_array_new();
+	struct sctk_profiler_array * sctk_profiler_array_new();
 
-void sctk_profiler_array_init(struct sctk_profiler_array *array);
-void sctk_profiler_array_release(struct sctk_profiler_array *array);
-void sctk_profiler_array_unify( struct sctk_profiler_array *array );
-void sctk_profiler_array_walk( struct sctk_profiler_array *array, void (*handler)( struct sctk_profiler_array *array, int id, int parent_id, int depth, void *arg, int going_up ), void *arg , sctk_profile_render_walk_mode DFS );
+	void sctk_profiler_array_init(struct sctk_profiler_array *array);
+	void sctk_profiler_array_release(struct sctk_profiler_array *array);
+	void sctk_profiler_array_unify(struct sctk_profiler_array *array);
+	void sctk_profiler_array_walk(struct sctk_profiler_array *array,
+	                              void (*handler)(struct sctk_profiler_array *array,
+	                                              int id, int parent_id,
+	                                              int depth, void *arg, int going_up),
+	                              void *arg,
+	                              sctk_profile_render_walk_mode DFS);
 
-/* GETTERS */
+	/* GETTERS */
 
-static inline uint64_t sctk_profiler_array_get_from_tab( struct sctk_profiler_array *array, uint64_t *tab , int id )
-{
-	uint64_t ret;
-
-	mpc_common_spinlock_lock( &array->lock );
+	static inline uint64_t sctk_profiler_array_get_from_tab(struct sctk_profiler_array *array, uint64_t *tab, int id)
 	{
-		ret = tab[id];
+		uint64_t ret;
+
+		mpc_common_spinlock_lock(&array->lock);
+		{
+			ret = tab[id];
+		}
+		mpc_common_spinlock_unlock(&array->lock);
+
+		return ret;
 	}
-	mpc_common_spinlock_unlock( &array->lock );
 
-	return ret;
-}
+	static inline uint64_t sctk_profiler_array_get_hits(struct sctk_profiler_array *array, int id)
+	{
+		return sctk_profiler_array_get_from_tab(array, array->sctk_profile_hits, id);
+	}
 
-static inline uint64_t sctk_profiler_array_get_hits( struct sctk_profiler_array *array, int id )
-{
-	return sctk_profiler_array_get_from_tab( array, array->sctk_profile_hits , id );
-}
+	static inline uint64_t sctk_profiler_array_get_value(struct sctk_profiler_array *array, int id)
+	{
+		return sctk_profiler_array_get_from_tab(array, array->sctk_profile_value, id);
+	}
 
-static inline uint64_t sctk_profiler_array_get_value( struct sctk_profiler_array *array, int id )
-{
-	return sctk_profiler_array_get_from_tab( array, array->sctk_profile_value , id );
-}
+	static inline uint64_t sctk_profiler_array_get_max(struct sctk_profiler_array *array, int id)
+	{
+		return sctk_profiler_array_get_from_tab(array, array->sctk_profile_max, id);
+	}
 
-static inline uint64_t sctk_profiler_array_get_max( struct sctk_profiler_array *array, int id )
-{
-	return sctk_profiler_array_get_from_tab( array, array->sctk_profile_max , id );
-}
+	static inline uint64_t sctk_profiler_array_get_min(struct sctk_profiler_array *array, int id)
+	{
+		return sctk_profiler_array_get_from_tab(array, array->sctk_profile_min, id);
+	}
 
-static inline uint64_t sctk_profiler_array_get_min( struct sctk_profiler_array *array, int id )
-{
-	return sctk_profiler_array_get_from_tab( array, array->sctk_profile_min , id );
-}
+	static inline uint64_t sctk_profiler_array_get_parent(int id)
+	{
+		return sctk_profile_parent_key[id];
+	}
 
-static inline uint64_t sctk_profiler_array_get_parent( int id )
-{
-	return sctk_profile_parent_key[ id ];
-}
+	static inline uint64_t sctk_profiler_array_has_child(int id)
+	{
+		return sctk_profile_has_child[id];
+	}
 
-static inline uint64_t sctk_profiler_array_has_child( int id )
-{
-	return sctk_profile_has_child[ id ];
-}
+	char * sctk_profiler_array_get_desc(int id);
 
-char * sctk_profiler_array_get_desc( int id );
+	char * sctk_profiler_array_get_name(int id);
 
-char * sctk_profiler_array_get_name( int id );
-
-/* ******** */
+	/* ******** */
 
 #endif /* MPC_Profiler */
 

@@ -41,27 +41,27 @@
 
 /* INTERNAL FOR NON-BLOCKING COLLECTIVES - CALL TO libNBC FUNCTIONS*/
 
-/********************************************************************* *
+/***********************************************************************
  * The Following code comes from the libNBC, a library for the support *
- * of MPI-3 Non-Blocking Collective. The code was modified to ensure	 *
- * compatibility with the MPC framework.															 *
- * *********************************************************************/
+ * of MPI-3 Non-Blocking Collective. The code was modified to ensure   *
+ * compatibility with the MPC framework.                               *
+ ***********************************************************************/
 
-static inline int NBC_Progress( NBC_Handle *handle );
-static inline int NBC_Start_round( NBC_Handle *handle );
-static inline int NBC_Start_round_persistent( NBC_Handle *handle );
-static inline int NBC_Free( NBC_Handle *handle );
+static inline int NBC_Progress(NBC_Handle *handle);
+static inline int NBC_Start_round(NBC_Handle *handle);
+static inline int NBC_Start_round_persistent(NBC_Handle *handle);
+static inline int NBC_Free(NBC_Handle *handle);
 
-#define NBC_HANDLE_ALLOC_REQ(_nbc_handle, _offset) \
-        ({ \
-                MPI_internal_request_t *__mpi_req; \
-                __mpi_req = (_nbc_handle)->req_array[_offset] = mpc_lowcomm_request_alloc(); \
-                __mpi_req; \
-         })
+#define NBC_HANDLE_ALLOC_REQ(_nbc_handle, _offset)                                   \
+		({                                                                           \
+		MPI_internal_request_t *__mpi_req;                                           \
+		__mpi_req = (_nbc_handle)->req_array[_offset] = mpc_lowcomm_request_alloc(); \
+		__mpi_req;                                                                   \
+	})
 
-/******* *
+/*********
  * NBC.C *
- * *******/
+ *********/
 
 /*
  * Copyright (c) 2006 The Trustees of Indiana University and Indiana
@@ -1437,21 +1437,21 @@ int NBC_Operation( void *buf3, void *buf1, void *buf2, MPI_Op op, MPI_Datatype t
 	return NBC_OK;
 }
 
-/********************************************************************* *
+/***********************************************************************
  * The previous code came from the libNBC, a library for the support   *
  * of MPI-3 Non-Blocking Collective. The code was modified to ensure   *
  * compatibility with the MPC framework.                               *
- * *********************************************************************/
+ ***********************************************************************/
 
-int NBC_Finalize( __UNUSED__ mpc_thread_t *NBC_thread )
+int NBC_Finalize(__UNUSED__ mpc_thread_t *NBC_thread)
 {
-	if ( _mpc_mpi_config()->nbc.progress_thread == 1 )
+	if (_mpc_mpi_config()->nbc.progress_thread == 1)
 	{
 		int ret = 0;
 		//  ret = mpc_thread_join( *NBC_thread, NULL);
-		if ( 0 != ret )
+		if (0 != ret)
 		{
-			printf( "Error in mpc_thread_join() (%i)\n", ret );
+			printf("Error in mpc_thread_join() (%i)\n", ret);
 			return NBC_OOR;
 		}
 	}

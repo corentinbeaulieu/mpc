@@ -24,8 +24,8 @@
 #define __mpcmicrothread_internal__H
 
 #ifdef __cplusplus
-extern "C"
-{
+	extern "C"
+	{
 #endif
 
 #include <mpc_microthread.h>
@@ -33,7 +33,7 @@ extern "C"
 #include "sctk_context.h"
 
 /* Max number of microthreads to be scheduled per microVP */
-#define MAX_OP_LIST    512
+#define MAX_OP_LIST 512
 
 /* An operation (or a microthread) */
 typedef struct
@@ -72,7 +72,7 @@ struct sctk_microthread_vp_s
 };
 
 #ifdef __cplusplus
-}
+	}
 #endif
 
 #endif

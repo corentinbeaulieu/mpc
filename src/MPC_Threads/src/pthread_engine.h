@@ -26,20 +26,19 @@
 #include <mpc_config.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+	extern "C"
+	{
 #endif
 
 
 #ifdef HAVE_PTHREAD_GETATTR_NP
-extern int pthread_getattr_np(pthread_t __th, pthread_attr_t *__attr);
+	extern int pthread_getattr_np(pthread_t __th, pthread_attr_t *__attr);
+
 #endif
 
 
 
-
-
 #ifdef __cplusplus
-}
+	}
 #endif
 #endif

@@ -23,27 +23,30 @@
 #include <mpc_arch.h>
 
 #if defined(MPC_I686_ARCH) || defined(MPC_X86_64_ARCH)
-static inline void __sctk_cpu_relax ()
+static inline void __sctk_cpu_relax()
 {
   #ifdef __MIC__
-    _mm_delay_32(400);
+		_mm_delay_32(400);
   #else
-    __asm__ __volatile__ ("rep;nop":::"memory");
+		__asm__ __volatile__ ("rep;nop" ::: "memory");
   #endif
 }
+
 #elif defined(MPC_IA64_ARCH)
-static inline void __sctk_cpu_relax ()
+static inline void __sctk_cpu_relax()
 {
-  __asm__ __volatile__ ("hint @pause":::"memory");
+	__asm__ __volatile__ ("hint @pause" ::: "memory");
 }
+
 #else
-static inline void __sctk_cpu_relax ()
+static inline void __sctk_cpu_relax()
 {
-  sched_yield ();
+	sched_yield();
 }
+
 #endif
 
-void sctk_cpu_relax ()
+void sctk_cpu_relax()
 {
-  __sctk_cpu_relax ();
+	__sctk_cpu_relax();
 }

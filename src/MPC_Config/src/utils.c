@@ -11,14 +11,14 @@
 #include <stdlib.h>
 
 /**********************
-* OUTPUT INDENTATION *
-**********************/
+ * OUTPUT INDENTATION *
+ **********************/
 
 static inline char *__gen_char(int count, char *buf, char pad, int len)
 {
 	int i = 0;
 
-	while( (i < count) && (i < (len - 1) ) )
+	while ((i < count) && (i < (len - 1)))
 	{
 		buf[i] = pad;
 		i++;
@@ -35,7 +35,7 @@ char *_utils_gen_indent(int count, char *buf, int len)
 
 	mpc_conf_self_config_t *conf = mpc_conf_self_config_get();
 
-	if(conf)
+	if (conf)
 	{
 		indent_count = conf->indent_count;
 	}
@@ -49,15 +49,15 @@ char *_utils_gen_spaces(int count, char *buf, int len)
 }
 
 /******************
-* STRING HELPERS *
-******************/
+ * STRING HELPERS *
+ ******************/
 
 void _utils_lower_string(char *string)
 {
 	int i;
 	int len = strlen(string);
 
-	for(i = 0; i < len; i++)
+	for (i = 0; i < len; i++)
 	{
 		string[i] = tolower(string[i]);
 	}
@@ -68,26 +68,24 @@ void _utils_upper_string(char *string)
 	int i;
 	int len = strlen(string);
 
-	for(i = 0; i < len; i++)
+	for (i = 0; i < len; i++)
 	{
 		string[i] = toupper(string[i]);
 	}
 }
 
-
-
-char * _utils_get_extension(char * path)
+char * _utils_get_extension(char *path)
 {
 	char *point = strrchr(path, '.');
 
-	if(!point)
+	if (!point)
 	{
 		return NULL;
 	}
 
-	char * ret = point + 1;
+	char *ret = point + 1;
 
-	if(!strlen(ret))
+	if (!strlen(ret))
 	{
 		return NULL;
 	}
@@ -95,12 +93,12 @@ char * _utils_get_extension(char * path)
 	return ret;
 }
 
-char * _utils_trim(char * path)
+char * _utils_trim(char *path)
 {
 	/* From start */
-	char * ret = path;
+	char *ret = path;
 
-	while( (*ret == ' ' || *ret == '\t') && (*ret != '\0') )
+	while ((*ret == ' ' || *ret == '\t') && (*ret != '\0'))
 	{
 		ret++;
 	}
@@ -108,14 +106,14 @@ char * _utils_trim(char * path)
 	/* From end */
 	int len = strlen(ret);
 
-	if(len == 0)
+	if (len == 0)
 	{
 		return ret;
 	}
 
 	int off = len - 1;
 
-	while( ( ret[off] == ' ' || ret[off] == '\t' || ret[off] == '\n' ) && (0 <= off) )
+	while ((ret[off] == ' ' || ret[off] == '\t' || ret[off] == '\n') && (0 <= off))
 	{
 		ret[off] = '\0';
 		off--;
@@ -124,12 +122,11 @@ char * _utils_trim(char * path)
 	return ret;
 }
 
-
-char * _utils_split_next_newline(char * string)
+char * _utils_split_next_newline(char *string)
 {
-	char * nl = strchr(string, '\n');
+	char *nl = strchr(string, '\n');
 
-	if(nl)
+	if (nl)
 	{
 		*nl = '\0';
 	}
@@ -137,16 +134,16 @@ char * _utils_split_next_newline(char * string)
 	return nl;
 }
 
-int _utils_strcasestarts_with(char * string, char * start)
+int _utils_strcasestarts_with(char *string, char *start)
 {
 	int lens = strlen(string);
 	int lenc = strlen(start);
 
 	int i = 0;
 
-	while( (i < lens) && (i < lenc) )
+	while ((i < lens) && (i < lenc))
 	{
-		if(tolower(string[i]) != tolower(start[i]))
+		if (tolower(string[i]) != tolower(start[i]))
 		{
 			return 0;
 		}
@@ -157,14 +154,14 @@ int _utils_strcasestarts_with(char * string, char * start)
 	return 1;
 }
 
-int _utils_string_check(char * string, int (*filter)(int c))
+int _utils_string_check(char *string, int (*filter)(int c))
 {
 	int i;
 	int len = strlen(string);
 
-	for( i = 0 ; i < len; i++)
+	for (i = 0 ; i < len; i++)
 	{
-		if(!(filter)(string[i]))
+		if (!(filter)(string[i]))
 		{
 			return 0;
 		}
@@ -174,8 +171,8 @@ int _utils_string_check(char * string, int (*filter)(int c))
 }
 
 /******************
-* CONFIG HELPERS *
-******************/
+ * CONFIG HELPERS *
+ ******************/
 
 int _utils_conf_can_do_color(FILE *fd)
 {
@@ -183,7 +180,7 @@ int _utils_conf_can_do_color(FILE *fd)
 
 	int color_in_conf = 0;
 
-	if(conf)
+	if (conf)
 	{
 		color_in_conf = conf->color_enabled;
 	}
@@ -191,10 +188,10 @@ int _utils_conf_can_do_color(FILE *fd)
 	static FILE *__prev_fd     = NULL;
 	static int   prev_was_atty = 0;
 
-	if(__prev_fd != fd)
+	if (__prev_fd != fd)
 	{
 		__prev_fd     = fd;
-		prev_was_atty = isatty(fileno(fd) );
+		prev_was_atty = isatty(fileno(fd));
 	}
 
 	return prev_was_atty && color_in_conf;
@@ -204,25 +201,25 @@ int _utils_verbose_output(int verbosity, char *format, ...)
 {
 	mpc_conf_self_config_t *conf = mpc_conf_self_config_get();
 
-	if(!conf)
+	if (!conf)
 	{
 		return 0;
 	}
 
-	if(conf->verbose < verbosity)
+	if (conf->verbose < verbosity)
 	{
 		return 0;
 	}
 
 
-    if(_utils_conf_can_do_color(stderr))
-    {
-        fprintf(stderr, RED("CONF[%d]: "), verbosity);
-    }
-    else
-    {
-        fprintf(stderr, "CONF[%d]: ", verbosity);
-    }
+	if (_utils_conf_can_do_color(stderr))
+	{
+		fprintf(stderr, RED("CONF[%d]: "), verbosity);
+	}
+	else
+	{
+		fprintf(stderr, "CONF[%d]: ", verbosity);
+	}
 
 
 	va_list ap;
@@ -241,50 +238,50 @@ int _utils_verbose_output(int verbosity, char *format, ...)
  ****************/
 
 
-static inline int __get_ftype(char * path)
+static inline int __get_ftype(char *path)
 {
-    struct stat st;
-    if(stat(path, &st) != 0)
-    {
+	struct stat st;
+
+	if (stat(path, &st) != 0)
+	{
 		_utils_verbose_output(3, "stat error for %s\n", path);
 
-        //perror("stat");
-        return -1;
-    }
+		// perror("stat");
+		return -1;
+	}
 
-    return st.st_mode & S_IFMT;
+	return st.st_mode & S_IFMT;
 }
 
-
-int _utils_is_file_or_dir(char * path)
+int _utils_is_file_or_dir(char *path)
 {
-	int ftype = __get_ftype( path);
+	int ftype = __get_ftype(path);
 
-	if(ftype < 0 )
+	if (ftype < 0)
 	{
 		return 0;
 	}
 
-    if((ftype != S_IFDIR) && (ftype != S_IFREG))
-    {
+	if ((ftype != S_IFDIR) && (ftype != S_IFREG))
+	{
 		printf("KK\n");
-        /* We only accept regular files and directories */
-        return 0;
-    }
+		/* We only accept regular files and directories */
+		return 0;
+	}
 
 	return 1;
 }
 
-int _utils_is_dir(char * path)
+int _utils_is_dir(char *path)
 {
-	int ftype = __get_ftype( path);
+	int ftype = __get_ftype(path);
 
-	if(ftype < 0 )
+	if (ftype < 0)
 	{
 		return 0;
 	}
 
-	if(ftype == S_IFDIR)
+	if (ftype == S_IFDIR)
 	{
 		return 1;
 	}
@@ -292,16 +289,16 @@ int _utils_is_dir(char * path)
 	return 0;
 }
 
-int _utils_is_file(char * path)
+int _utils_is_file(char *path)
 {
-	int ftype = __get_ftype( path);
+	int ftype = __get_ftype(path);
 
-	if(ftype < 0 )
+	if (ftype < 0)
 	{
 		return 0;
 	}
 
-	if(ftype == S_IFREG)
+	if (ftype == S_IFREG)
 	{
 		return 1;
 	}
@@ -309,60 +306,60 @@ int _utils_is_file(char * path)
 	return 0;
 }
 
-ssize_t _util_file_size(char * path)
+ssize_t _util_file_size(char *path)
 {
-    struct stat st;
-    if(stat(path, &st) != 0)
-    {
+	struct stat st;
+
+	if (stat(path, &st) != 0)
+	{
 		_utils_verbose_output(3, "stat error for %s\n", path);
 
-        //perror("stat");
-        return -1;
-    }
+		// perror("stat");
+		return -1;
+	}
 
 	return st.st_size;
 }
 
-
 #define MAX_READ_SIZE (100 * 1024 * 1024)
 
-char * _utils_read_whole_file(char * path, size_t * file_size)
+char * _utils_read_whole_file(char *path, size_t *file_size)
 {
-	if(!_utils_is_file(path))
+	if (!_utils_is_file(path))
 	{
 		return NULL;
 	}
 
-	if(file_size)
+	if (file_size)
 	{
 		*file_size = 0;
 	}
 
 	ssize_t size = _util_file_size(path);
 
-	if(size < 0)
+	if (size < 0)
 	{
 		return NULL;
 	}
 
-	if( MAX_READ_SIZE <= size )
+	if (MAX_READ_SIZE <= size)
 	{
-		_utils_verbose_output(0, "cannot read %s larger than %d MBytes\n", path, (MAX_READ_SIZE)/(1024*1024));
+		_utils_verbose_output(0, "cannot read %s larger than %d MBytes\n", path, (MAX_READ_SIZE) / (1024 * 1024));
 		return NULL;
 	}
 
-	FILE * file = fopen(path, "r");
+	FILE *file = fopen(path, "r");
 
-	if(!file)
+	if (!file)
 	{
 		perror("fopen");
 		return NULL;
 	}
 
 
-	char * ret = malloc(( size + 1 ) * sizeof(char));
+	char *ret = malloc((size + 1) * sizeof(char));
 
-	if(!ret)
+	if (!ret)
 	{
 		perror("malloc");
 		return NULL;
@@ -371,15 +368,14 @@ char * _utils_read_whole_file(char * path, size_t * file_size)
 
 	size_t fret = fread(ret, sizeof(char), size, file);
 
-	if(fret != (size_t)size)
+	if (fret != (size_t)size)
 	{
 		_utils_verbose_output(0, "fread was truncated for %s (expected %ld bytes)\n", path, size);
 		free(ret);
 		return NULL;
-
 	}
 
-	if(file_size)
+	if (file_size)
 	{
 		*file_size = size;
 	}

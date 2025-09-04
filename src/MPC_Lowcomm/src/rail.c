@@ -52,14 +52,14 @@ int lcr_rail_init(lcr_rail_config_t *rail_config,
 	int rc = MPC_LOWCOMM_SUCCESS;
 	sctk_rail_info_t *rail = NULL;
 
-	rail = sctk_malloc(sizeof(sctk_rail_info_t) );
-	if(rail == NULL)
+	rail = sctk_malloc(sizeof(sctk_rail_info_t));
+	if (rail == NULL)
 	{
 		mpc_common_debug_error("LCR: could not allocate rail");
 		rc = MPC_LOWCOMM_ERROR;
 		goto err;
 	}
-	memset(rail, 0, sizeof(sctk_rail_info_t) );
+	memset(rail, 0, sizeof(sctk_rail_info_t));
 
 	/* Load Config */
 	rail->runtime_config_rail          = rail_config;
@@ -71,9 +71,9 @@ int lcr_rail_init(lcr_rail_config_t *rail_config,
 	/* Load and save Rail Device (NULL if not found) */
 	rail->rail_device = mpc_topology_device_get_from_handle(rail_config->device);
 
-	if(!rail->rail_device)
+	if (!rail->rail_device)
 	{
-		if( (strcmp(rail_config->device, "any") != 0) && rail_config->device[0] != '!')
+		if ((strcmp(rail_config->device, "any") != 0) && rail_config->device[0] != '!')
 		{
 			mpc_common_debug_error("Device not found with hwloc %s", rail_config->device);
 		}
@@ -97,33 +97,32 @@ err:
 
 int lcr_rail_build_pmi_tag(int mngr_id, int rail_id)
 {
-    // Buffer to hold the concatenated result (adjust size as necessary)
-    char result[20];
+	// Buffer to hold the concatenated result (adjust size as necessary)
+	char result[20];
 
-    assert(mngr_id < UINT8_MAX && rail_id < UINT8_MAX);
-    // Convert integers to strings and concatenate
-    snprintf(result, 20, "%d%d", mngr_id, rail_id);
+	assert(mngr_id < UINT8_MAX && rail_id < UINT8_MAX);
+	// Convert integers to strings and concatenate
+	snprintf(result, 20, "%d%d", mngr_id, rail_id);
 
-    // Convert the concatenated string back to an integer
-    return atoi(result);
+	// Convert the concatenated string back to an integer
+	return atoi(result);
 }
 
 void sctk_rail_disable(sctk_rail_info_t *rail)
 {
-
 	/*TODO: We will have a race condition some day here
 	 */
 	rail->state = SCTK_RAIL_ST_DISABLED;
 
 	/* driver-specific call */
-	if(rail->driver_finalize)
+	if (rail->driver_finalize)
 	{
 		rail->driver_finalize(rail);
 	}
 
 	/* rail-generic call */
-	rail->connect_on_demand       = NULL;
-	rail->on_demand               = 0;
+	rail->connect_on_demand = NULL;
+	rail->on_demand         = 0;
 
 	_mpc_lowcomm_endpoint_table_free(&rail->route_table);
 }
@@ -131,7 +130,7 @@ void sctk_rail_disable(sctk_rail_info_t *rail)
 void sctk_rail_enable(sctk_rail_info_t *rail)
 {
 	assert(rail);
-	if(rail->state != SCTK_RAIL_ST_DISABLED)
+	if (rail->state != SCTK_RAIL_ST_DISABLED)
 	{
 		return;
 	}
@@ -156,7 +155,7 @@ sctk_rail_info_t *sctk_rail_get_rdma()
 {
 	int rdma_id = sctk_rail_get_rdma_id();
 
-	if(rdma_id < 0)
+	if (rdma_id < 0)
 	{
 		return NULL;
 	}
@@ -166,7 +165,7 @@ sctk_rail_info_t *sctk_rail_get_rdma()
 
 void rdma_rail_ellection()
 {
-	int *rails_to_skip = sctk_calloc(sctk_rail_count(), sizeof(int) );
+	int *rails_to_skip = sctk_calloc(sctk_rail_count(), sizeof(int));
 
 	assume(rails_to_skip);
 
@@ -174,17 +173,17 @@ void rdma_rail_ellection()
 	 * a TOPOLOGICAL rail with the RDMA flag */
 	int i = 0;
 
-	for(i = 0; i < sctk_rail_count(); i++)
+	for (i = 0; i < sctk_rail_count(); i++)
 	{
 		sctk_rail_info_t *rail = sctk_rail_get_by_id(i);
 
 		/* Do not process rail if already flagged */
-		if(rails_to_skip[rail->rail_number])
+		if (rails_to_skip[rail->rail_number])
 		{
 			continue;
 		}
 
-		if(!rail->is_rdma)
+		if (!rail->is_rdma)
 		{
 			continue;
 		}
@@ -194,23 +193,23 @@ void rdma_rail_ellection()
 	 * we check that only a single TOPO rail has been flagged */
 	int rdma_rail_id = -1;
 
-	for(i = 0; i < sctk_rail_count(); i++)
+	for (i = 0; i < sctk_rail_count(); i++)
 	{
 		sctk_rail_info_t *rail = sctk_rail_get_by_id(i);
 
 		/* Do not process rail if flagged */
-		if(rails_to_skip[rail->rail_number])
+		if (rails_to_skip[rail->rail_number])
 		{
 			continue;
 		}
 
-		if(!rail->is_rdma)
+		if (!rail->is_rdma)
 		{
 			continue;
 		}
 
 		/* If we are here the RAIL is RDMA and not skipped */
-		if(rdma_rail_id < 0)
+		if (rdma_rail_id < 0)
 		{
 			rdma_rail_id = rail->rail_number;
 		}
@@ -221,12 +220,12 @@ void rdma_rail_ellection()
 			sctk_rail_info_t *previous = sctk_rail_get_by_id(rdma_rail_id);
 
 			mpc_common_debug_fatal("Found two rails with the RDMA flag up (%s and %s)\n"
-			                       "this is not allowed, please make sure that only one is set",
-			                       rail->network_name, previous->network_name);
+				                   "this is not allowed, please make sure that only one is set",
+				rail->network_name, previous->network_name);
 		}
 	}
 
-	if(0 <= rdma_rail_id)
+	if (0 <= rdma_rail_id)
 	{
 		/* We found a RDMA rail set by the flag
 		 * save it as the RDMA one */
@@ -244,7 +243,7 @@ void rdma_rail_ellection()
 	}
 }
 
-#define SCTK_RAIL_TYPE_STR(u)    rail_type_str[SCTK_RAIL_TYPE(u)]
+#define SCTK_RAIL_TYPE_STR(u) rail_type_str[SCTK_RAIL_TYPE(u)]
 const char *rail_type_str[] =
 {
 	"None",
@@ -262,32 +261,44 @@ static inline size_t sctk_rail_print_infos(sctk_rail_info_t *rail, char *start, 
 	assert(rail);
 	assert(start);
 
-	int    i = 0;
+	int    i      = 0;
 	size_t cur_sz = 0;
 
 	cur_sz += snprintf(start, sz, "\n");
 	/* indent */
-	for(i = 0; i < depth; ++i)
+	for (i = 0; i < depth; ++i)
 	{
-		cur_sz += snprintf(start + cur_sz, sz - cur_sz, "|  ");
+		cur_sz += snprintf(start + cur_sz,
+			sz - cur_sz,
+			"|  ");
 	}
 
-	cur_sz += snprintf(start + cur_sz, sz - cur_sz, "%s Rail %d: \"%s\" (Type: %s) (Device: %s) (Priority: %d) %s%s", (rail->state == SCTK_RAIL_ST_ENABLED) ? "+":"-", rail->rail_number, rail->network_name, SCTK_RAIL_TYPE_STR(rail), rail->runtime_config_rail->device, rail->priority, rail->is_rdma?"+rdma":"", rail->on_demand?"+od":"");
+	cur_sz += snprintf(start + cur_sz,
+		sz - cur_sz,
+		"%s Rail %d: \"%s\" (Type: %s) (Device: %s) (Priority: %d) %s%s",
+		(rail->state == SCTK_RAIL_ST_ENABLED) ? "+" : "-",
+		rail->rail_number,
+		rail->network_name,
+		SCTK_RAIL_TYPE_STR(rail),
+		rail->runtime_config_rail->device,
+		rail->priority,
+		rail->is_rdma ? "+rdma" : "",
+		rail->on_demand ? "+od" : "");
 
 	return cur_sz;
 }
 
 size_t sctk_rail_print_topology(char *start, size_t sz)
 {
-	int               i = 0;
+	int               i        = 0;
 	int               nb_rails = sctk_rail_count();
-	size_t            cur_sz = 0;
-	char *            cursor = start;
-	sctk_rail_info_t *rail = NULL;
+	size_t            cur_sz   = 0;
+	char *            cursor   = start;
+	sctk_rail_info_t *rail     = NULL;
 
-	for(i = 0; i < nb_rails; ++i)
+	for (i = 0; i < nb_rails; ++i)
 	{
-		rail = sctk_rail_get_by_id(i);
+		rail    = sctk_rail_get_by_id(i);
 		cur_sz += sctk_rail_print_infos(rail, cursor, sz - cur_sz, 0);
 		assert(cur_sz > 0);
 		assert(sz > cur_sz);
@@ -296,7 +307,6 @@ size_t sctk_rail_print_topology(char *start, size_t sz)
 	}
 	return cur_sz;
 }
-
 
 struct sctk_rail_dump_context
 {
@@ -314,7 +324,7 @@ void __sctk_rail_dump_routes(_mpc_lowcomm_endpoint_t *table, void *arg)
 	struct sctk_rail_dump_context *ctx = (struct sctk_rail_dump_context *)arg;
 
 
-	if(ctx->is_static)
+	if (ctx->is_static)
 	{
 		(void)fprintf(ctx->file, "%lu -> %lu [color=\"red\"]\n", src, dest);
 	}
@@ -328,20 +338,20 @@ void __sctk_rail_dump_routes_append_file_to_fd(FILE *fd, char *path_of_file_to_a
 {
 	FILE *to_append = fopen(path_of_file_to_append, "r");
 
-	if(!to_append)
+	if (!to_append)
 	{
 		perror("fopen");
 		return;
 	}
 
-	char c = ' ';
-	size_t  ret = 0;
+	char   c   = ' ';
+	size_t ret = 0;
 
 	do
 	{
 		ret = fread(&c, sizeof(char), 1, to_append);
 		(void)fprintf(fd, "%c", c);
-	}while(ret == 1);
+	}while (ret == 1);
 
 
 	(void)fclose(to_append);
@@ -356,7 +366,7 @@ void sctk_rail_dump_routes()
 	int size            = mpc_common_get_process_count();
 	int local_task_rank = mpc_common_get_local_task_rank();
 
-	if(local_task_rank)
+	if (local_task_rank)
 	{
 		return;
 	}
@@ -365,7 +375,7 @@ void sctk_rail_dump_routes()
 	char path[512];
 
 	/* Each Process fill its local data */
-	for(i = 0; i < sctk_rail_count(); i++)
+	for (i = 0; i < sctk_rail_count(); i++)
 	{
 		sctk_rail_info_t *rail = sctk_rail_get_by_id(i);
 
@@ -373,7 +383,7 @@ void sctk_rail_dump_routes()
 
 		FILE *f = fopen(path, "w");
 
-		if(!f)
+		if (!f)
 		{
 			perror("fopen");
 			return;
@@ -397,20 +407,20 @@ void sctk_rail_dump_routes()
 	mpc_launch_pmi_barrier();
 
 	/* Now process 0 unifies in a single .dot file */
-	if(!rank)
+	if (!rank)
 	{
-		for(i = 0; i < sctk_rail_count(); i++)
+		for (i = 0; i < sctk_rail_count(); i++)
 		{
 			sctk_rail_info_t *rail = sctk_rail_get_by_id(i);
 			printf("Dumping '%s', priority: %d\n", rail->network_name, rail->priority);
 
-			printf("Merging %s\n", rail->network_name);
+			printf("Merging %s\n",                 rail->network_name);
 
 			(void)snprintf(path, 512, "./%d.%s.dot", i, rail->network_name);
 
 			FILE *global_f = fopen(path, "w");
 
-			if(!global_f)
+			if (!global_f)
 			{
 				perror("fopen");
 				return;
@@ -420,7 +430,7 @@ void sctk_rail_dump_routes()
 
 			int j = 0;
 
-			for(j = 0; j < size; j++)
+			for (j = 0; j < size; j++)
 			{
 				(void)fprintf(global_f, "%d\n", j);
 				char tmp_path[512];
@@ -447,7 +457,7 @@ int lcr_iface_set_am_handler(sctk_rail_info_t *rail, uint8_t id,
 {
 	int rc;
 
-	if(id >= LCR_AM_ID_MAX)
+	if (id >= LCR_AM_ID_MAX)
 	{
 		mpc_common_debug_error("LCP: active message out of range: \
 				       id=%d, id max=%d.", id, LCR_AM_ID_MAX);
@@ -501,7 +511,7 @@ _mpc_lowcomm_endpoint_t *sctk_rail_get_any_route_to_process(sctk_rail_info_t *ra
 	tmp = _mpc_lowcomm_endpoint_table_get_static_route(rail->route_table, dest);
 
 	/* It it fails look for dynamic routes on current rail */
-	if(tmp == NULL)
+	if (tmp == NULL)
 	{
 		tmp = _mpc_lowcomm_endpoint_table_get_dynamic_route(rail->route_table, dest);
 	}
@@ -518,7 +528,15 @@ _mpc_lowcomm_endpoint_t *sctk_rail_get_any_route_to_process(sctk_rail_info_t *ra
  *  - added: if the entry has been created
  *  - is_initiator: if the current process is the initiator of the entry creation.
  */
-_mpc_lowcomm_endpoint_t *sctk_rail_add_or_reuse_route_dynamic(sctk_rail_info_t *rail, mpc_lowcomm_peer_uid_t dest, _mpc_lowcomm_endpoint_t *(*create_func)(), void (*init_func)(mpc_lowcomm_peer_uid_t dest, sctk_rail_info_t *rail, _mpc_lowcomm_endpoint_t *route_table, int ondemand), int *added, char is_initiator)
+_mpc_lowcomm_endpoint_t *sctk_rail_add_or_reuse_route_dynamic(sctk_rail_info_t *rail,
+                                                              mpc_lowcomm_peer_uid_t dest,
+                                                              _mpc_lowcomm_endpoint_t *(*create_func)(),
+                                                              void (*init_func)(mpc_lowcomm_peer_uid_t dest,
+                                                                                sctk_rail_info_t *rail,
+                                                                                _mpc_lowcomm_endpoint_t *route_table,
+                                                                                int ondemand),
+                                                              int *added,
+                                                              char is_initiator)
 {
 	*added = 0;
 
@@ -527,7 +545,7 @@ _mpc_lowcomm_endpoint_t *sctk_rail_add_or_reuse_route_dynamic(sctk_rail_info_t *
 	_mpc_lowcomm_endpoint_t *tmp = _mpc_lowcomm_endpoint_table_get_dynamic_route_no_lock(rail->route_table, dest);
 
 	/* Entry not found, we create it */
-	if(tmp == NULL)
+	if (tmp == NULL)
 	{
 		/* QP added on demand */
 		tmp = create_func();
@@ -540,7 +558,7 @@ _mpc_lowcomm_endpoint_t *sctk_rail_add_or_reuse_route_dynamic(sctk_rail_info_t *
 	}
 	else
 	{
-		if(_mpc_lowcomm_endpoint_get_state(tmp) == _MPC_LOWCOMM_ENDPOINT_RECONNECTING)
+		if (_mpc_lowcomm_endpoint_get_state(tmp) == _MPC_LOWCOMM_ENDPOINT_RECONNECTING)
 		{
 			_MPC_LOWCOMM_ENDPOINT_LOCK(tmp);
 			_mpc_lowcomm_endpoint_set_state(tmp, _MPC_LOWCOMM_ENDPOINT_DECONNECTED);
@@ -572,19 +590,20 @@ _mpc_lowcomm_endpoint_t *sctk_rail_get_any_route_to_task_or_on_demand(sctk_rail_
 }
 
 /* Get a route to process, creating the route if not present */
-_mpc_lowcomm_endpoint_t *sctk_rail_get_any_route_to_process_or_on_demand(sctk_rail_info_t *rail, mpc_lowcomm_peer_uid_t dest)
+_mpc_lowcomm_endpoint_t *sctk_rail_get_any_route_to_process_or_on_demand(sctk_rail_info_t *rail,
+                                                                         mpc_lowcomm_peer_uid_t dest)
 {
 	_mpc_lowcomm_endpoint_t *tmp = NULL;
 
 	/* Try to find a direct route with no routing */
 	tmp = sctk_rail_get_any_route_to_process(rail, dest);
 
-	if(tmp == NULL)
+	if (tmp == NULL)
 	{
 		/* Here we did not find a route therefore we instantiate it */
 
 		/* On demand enabled and provided */
-		if(rail->on_demand && rail->connect_on_demand)
+		if (rail->on_demand && rail->connect_on_demand)
 		{
 			/* Network has an on-demand function */
 			(rail->connect_on_demand)(rail, dest);

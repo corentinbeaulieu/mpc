@@ -28,40 +28,41 @@
 #include <cuda.h>
 #include <mpc_common_debug.h>
 
-/** in debug mode, check all CUDA APIs return codes */
+	/** in debug mode, check all CUDA APIs return codes */
 #ifndef NDEBUG
-#define safe_cudart(u) \
-	assume_m( ( (u) == cudaSuccess), "Runtime CUDA call failed with value %d", u)
-#define safe_cudadv(u) \
-	assume_m( ( (u) == CUDA_SUCCESS), "Driver CUDA call failed with value %d", u)
+		#define safe_cudart(u) \
+				assume_m(((u) == cudaSuccess),  "Runtime CUDA call failed with value %d", u)
+		#define safe_cudadv(u) \
+				assume_m(((u) == CUDA_SUCCESS), "Driver CUDA call failed with value %d",  u)
 #else
-#define safe_cudart(u)    u
-#define safe_cudadv(u)    u
+		#define safe_cudart(u) u
+		#define safe_cudadv(u) u
 #endif
 
-/**
- * The CUDA context structure as handled by MPC.
- *
- * This structure is part of TLS bundle handled internally by thread context.
- */
-typedef struct cuda_ctx_s
-{
-	char      pushed;  /**< Set to 1 when the ctx is currently pushed */
-	int       cpu_id;  /**< Register the cpu_id associated to the CUDA ctx */
-	CUcontext context; /**< THE CUDA ctx */
-} cuda_ctx_t;
+	/**
+	 * The CUDA context structure as handled by MPC.
+	 *
+	 * This structure is part of TLS bundle handled internally by thread context.
+	 */
+	typedef struct cuda_ctx_s
+	{
+		char      pushed;  /**< Set to 1 when the ctx is currently pushed */
+		int       cpu_id;  /**< Register the cpu_id associated to the CUDA ctx */
+		CUcontext context; /**< THE CUDA ctx */
+	} cuda_ctx_t;
 
-/* CUDA libs init */
-int sctk_accl_cuda_init();
+	/* CUDA libs init */
+	int sctk_accl_cuda_init();
 
-/** create a new CUDA context for the current thread */
-void sctk_accl_cuda_init_context();
+	/** create a new CUDA context for the current thread */
+	void sctk_accl_cuda_init_context();
 
-/** Push the CUDA context of the current thread on the elected GPU */
-int sctk_accl_cuda_push_context();
+	/** Push the CUDA context of the current thread on the elected GPU */
+	int sctk_accl_cuda_push_context();
 
-/** Remove the current CUDA context from the GPU */
-int sctk_accl_cuda_pop_context();
+	/** Remove the current CUDA context from the GPU */
+	int sctk_accl_cuda_pop_context();
+
 #endif
 
 #endif

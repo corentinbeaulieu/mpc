@@ -33,8 +33,8 @@
 
 
 #ifdef __cplusplus
-extern "C"
-{
+	extern "C"
+	{
 #endif
 
 typedef struct mpc_thread_rank_info_s
@@ -48,7 +48,7 @@ static inline int ___get_task_rank()
 {
 	mpc_thread_rank_info_t *data = mpc_thread_rank_info_get();
 
-	if(!data)
+	if (!data)
 	{
 		return -1;
 	}
@@ -56,25 +56,24 @@ static inline int ___get_task_rank()
 	return ( int )(data->rank);
 }
 
-
 /* From manually switched TLSs */
 extern __thread int __mpc_task_rank;
-extern int __process_rank;
+extern int          __process_rank;
 
 /* NOLINTBEGIN(clang-diagnostic-unused-function) */
 
 static inline int mpc_common_get_task_rank(void)
 {
 #if defined(MPC_IN_PROCESS_MODE)
-	return __process_rank;
+		return __process_rank;
 #endif
 	int can_be_disguised = 0;
 #ifdef MPC_MPI
-	can_be_disguised = mpc_common_flags_disguised_get();
+		can_be_disguised = mpc_common_flags_disguised_get();
 #endif
 	int ret = -1;
 
-	if(can_be_disguised == 0)
+	if (can_be_disguised == 0)
 	{
 		/* __mpc_task_rank is a manually switched
 		 * TLS entry. It is initialized at -2,
@@ -85,7 +84,7 @@ static inline int mpc_common_get_task_rank(void)
 		ret = __mpc_task_rank;
 
 		/* Was it initialized ? Yes then we are done */
-		if(ret != -2)
+		if (ret != -2)
 		{
 			return ret;
 		}
@@ -103,23 +102,28 @@ static inline int mpc_common_get_task_rank(void)
 	return ret;
 }
 
-static inline int mpc_common_get_app_rank(){
+static inline int mpc_common_get_app_rank()
+{
 	return mpc_thread_rank_info_get()->app_rank;
 }
 
-static inline void mpc_common_set_app_rank(int app_rank){
+static inline void mpc_common_set_app_rank(int app_rank)
+{
 	mpc_thread_rank_info_get()->app_rank = app_rank;
 }
 
-static inline int mpc_common_get_app_size(){
+static inline int mpc_common_get_app_size()
+{
 	return mpc_common_get_flags()->appsize;
 }
 
-static inline int mpc_common_get_app_num(){
+static inline int mpc_common_get_app_num()
+{
 	return mpc_common_get_flags()->appnum;
 }
 
-static inline int mpc_common_get_app_count(){
+static inline int mpc_common_get_app_count()
+{
 	return mpc_common_get_flags()->appcount;
 }
 
@@ -131,11 +135,11 @@ static inline unsigned int mpc_common_get_task_count(void)
 static inline int mpc_common_get_local_task_rank(void)
 {
 #ifdef MPC_IN_PROCESS_MODE
-	return 0;
+		return 0;
 #endif
 	mpc_thread_rank_info_t *data = mpc_thread_rank_info_get();
 
-	if(!data)
+	if (!data)
 	{
 		return -1;
 	}
@@ -146,7 +150,7 @@ static inline int mpc_common_get_local_task_rank(void)
 static inline int mpc_common_get_local_task_count(void)
 {
 #ifdef MPC_IN_PROCESS_MODE
-	return 1;
+		return 1;
 #endif
 	return mpc_thread_get_current_local_tasks_nb();
 }
@@ -159,6 +163,6 @@ static inline int mpc_common_get_thread_id(void)
 /* NOLINTEND(clang-diagnostic-unused-function) */
 
 #ifdef __cplusplus
-}
+	}
 #endif
-#endif //MPC_THREADS_SCTK_THREAD_SCTK_ACCESSOR_H_
+#endif // MPC_THREADS_SCTK_THREAD_SCTK_ACCESSOR_H_

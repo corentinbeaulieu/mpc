@@ -59,10 +59,10 @@ void sctk_net_init_task_level(int taskid, int vp)
 {
 	int i = 0;
 
-	for(i = 0; i < sctk_rail_count(); i++)
+	for (i = 0; i < sctk_rail_count(); i++)
 	{
 		sctk_rail_info_t *rail = sctk_rail_get_by_id(i);
-		if(rail->initialize_task)
+		if (rail->initialize_task)
 		{
 			rail->initialize_task(rail, taskid, vp);
 		}
@@ -73,17 +73,15 @@ void sctk_net_finalize_task_level(int taskid, int vp)
 {
 	int i = 0;
 
-	for(i = 0; i < sctk_rail_count(); i++)
+	for (i = 0; i < sctk_rail_count(); i++)
 	{
 		sctk_rail_info_t *rail = sctk_rail_get_by_id(i);
-		if(rail->finalize_task)
+		if (rail->finalize_task)
 		{
 			rail->finalize_task(rail, taskid, vp);
 		}
 	}
 }
-
-
 
 /********************************************************************/
 /* Hybrid MPI+X                                                     */

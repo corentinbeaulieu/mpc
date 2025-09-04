@@ -27,41 +27,43 @@
 
 typedef struct MPCX_GRequest_class_s
 {
-	int class_id; /**< Unique identifier of this request class */
+	int                            class_id; /**< Unique identifier of this request class */
 
 	/* Request context */
 	sctk_Grequest_query_function * query_fn;
-	sctk_Grequest_cancel_function * cancel_fn;
-	sctk_Grequest_free_function * free_fn;
-	sctk_Grequest_poll_fn * poll_fn;
-	sctk_Grequest_wait_fn * wait_fn;
+	sctk_Grequest_cancel_function *cancel_fn;
+	sctk_Grequest_free_function *  free_fn;
+	sctk_Grequest_poll_fn *        poll_fn;
+	sctk_Grequest_wait_fn *        wait_fn;
 
-	UT_hash_handle hh; /**< This dummy data structure is required by UTHash is order to make this data structure hashable */
+	UT_hash_handle                 hh; /**< This dummy data structure is required by UTHash is order to make this data
+	                                    * structure hashable */
 }MPCX_GRequest_class_t;
 
 
 
 struct _mpc_egreq_classes_storage
 {
-	MPCX_GRequest_class_t * classes;
-	int current_id;
+	MPCX_GRequest_class_t *classes;
+	int                    current_id;
 };
 
 
 
-void _mpc_egreq_classes_storage_init( struct _mpc_egreq_classes_storage * ctx );
-void _mpc_egreq_classes_storage_release( struct _mpc_egreq_classes_storage * ctx );
+void _mpc_egreq_classes_storage_init(struct _mpc_egreq_classes_storage *ctx);
+void _mpc_egreq_classes_storage_release(struct _mpc_egreq_classes_storage *ctx);
 
-int _mpc_egreq_classes_storage_add_class( struct _mpc_egreq_classes_storage *ctx,
-				     sctk_Grequest_query_function * query_fn,
-				     sctk_Grequest_cancel_function * cancel_fn,
-				     sctk_Grequest_free_function * free_fn,
-				     sctk_Grequest_poll_fn * poll_fn,
-				     sctk_Grequest_wait_fn * wait_fn,
-				     sctk_Request_class * new_class );
+int _mpc_egreq_classes_storage_add_class(struct _mpc_egreq_classes_storage *ctx,
+                                         sctk_Grequest_query_function *query_fn,
+                                         sctk_Grequest_cancel_function *cancel_fn,
+                                         sctk_Grequest_free_function *free_fn,
+                                         sctk_Grequest_poll_fn *poll_fn,
+                                         sctk_Grequest_wait_fn *wait_fn,
+                                         sctk_Request_class *new_class);
 
 
-MPCX_GRequest_class_t * _mpc_egreq_classes_storage_get_class( struct _mpc_egreq_classes_storage *ctx, sctk_Request_class requested_class );
+MPCX_GRequest_class_t * _mpc_egreq_classes_storage_get_class(struct _mpc_egreq_classes_storage *ctx,
+                                                             sctk_Request_class requested_class);
 
 
 #endif /* MPC_MPI_EGREQ_CLASSES_H_ */

@@ -33,7 +33,7 @@
 #include <mpc_common_progress.h>
 #include <mpc_common_spinlock.h>
 
-#define COMMON_PROGRESS_CALLBACK_MAX 32
+#define COMMON_PROGRESS_CALLBACK_MAX  32
 #define COMMON_PROGRESS_FUNC_NOTFOUND -1
 
 static mpc_common_spinlock_t progress_lock = MPC_COMMON_SPINLOCK_INITIALIZER;
@@ -44,68 +44,76 @@ static progress_callback_func_t callbacks[COMMON_PROGRESS_CALLBACK_MAX];
 
 static int _mpc_common_find_callback(progress_callback_func_t func)
 {
-        int i;
-        for (i = 0; i < num_callbacks; i++) {
-                if (callbacks[i] == func) {
-                        return i;
-                }
-        }
-        return COMMON_PROGRESS_FUNC_NOTFOUND;
+	int i;
+
+	for (i = 0; i < num_callbacks; i++)
+	{
+		if (callbacks[i] == func)
+		{
+			return i;
+		}
+	}
+	return COMMON_PROGRESS_FUNC_NOTFOUND;
 }
 
 int mpc_common_progress_register(progress_callback_func_t func)
 {
-        mpc_common_spinlock_lock(&progress_lock);
-        if (_mpc_common_find_callback(func) != COMMON_PROGRESS_FUNC_NOTFOUND) {
-                goto unlock;
-        }
+	mpc_common_spinlock_lock(&progress_lock);
+	if (_mpc_common_find_callback(func) != COMMON_PROGRESS_FUNC_NOTFOUND)
+	{
+		goto unlock;
+	}
 
-        if (num_callbacks >= COMMON_PROGRESS_CALLBACK_MAX) {
-                mpc_common_debug_fatal("COMMON PROGRESS: reach progress "
-                                       "callback limit.");
-                goto unlock;
-        }
+	if (num_callbacks >= COMMON_PROGRESS_CALLBACK_MAX)
+	{
+		mpc_common_debug_fatal("COMMON PROGRESS: reach progress "
+			                   "callback limit.");
+		goto unlock;
+	}
 
-        callbacks[num_callbacks++] = func;
+	callbacks[num_callbacks++] = func;
 
 unlock:
-        mpc_common_spinlock_unlock(&progress_lock);
+	mpc_common_spinlock_unlock(&progress_lock);
 
-        return 0;
+	return 0;
 }
 
 int mpc_common_progress_unregister(progress_callback_func_t func)
 {
-        int i, callback_idx;
+	int i, callback_idx;
 
-        callback_idx = _mpc_common_find_callback(func);
-        if (callback_idx == COMMON_PROGRESS_FUNC_NOTFOUND) {
-                mpc_common_debug_error("COMMON PROGRESS: unregister unknown callback");
-                return 1;
-        }
+	callback_idx = _mpc_common_find_callback(func);
+	if (callback_idx == COMMON_PROGRESS_FUNC_NOTFOUND)
+	{
+		mpc_common_debug_error("COMMON PROGRESS: unregister unknown callback");
+		return 1;
+	}
 
-        mpc_common_spinlock_lock(&progress_lock);
+	mpc_common_spinlock_lock(&progress_lock);
 
-        //FIXME: there is a vulnerability here since another thread might be
-        //       polling at the same time. Callback pointer should be loaded
-        //       atomically.
-        for (i = callback_idx; i < num_callbacks - 1; i++) {
-                callbacks[i] = callbacks[i + 1];
-        }
-        num_callbacks--;
+	// FIXME: there is a vulnerability here since another thread might be
+	//       polling at the same time. Callback pointer should be loaded
+	//       atomically.
+	for (i = callback_idx; i < num_callbacks - 1; i++)
+	{
+		callbacks[i] = callbacks[i + 1];
+	}
+	num_callbacks--;
 
-        mpc_common_spinlock_unlock(&progress_lock);
+	mpc_common_spinlock_unlock(&progress_lock);
 
-        return 0;
+	return 0;
 }
 
 int mpc_common_progress()
 {
-        int i, rc = 0;
+	int i, rc = 0;
 
-        for (i = 0; i < num_callbacks; i++) {
-                rc |= callbacks[i]();
-        }
+	for (i = 0; i < num_callbacks; i++)
+	{
+		rc |= callbacks[i]();
+	}
 
-        return rc;
+	return rc;
 }

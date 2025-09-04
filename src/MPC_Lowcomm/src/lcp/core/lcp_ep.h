@@ -39,7 +39,8 @@
 
 typedef uint16_t lcp_ep_flags_t;
 
-enum {
+enum
+{
 	LCP_EP_FLAG_CONNECTED = 0,
 	LCP_EP_FLAG_CONNECTING,
 	LCP_EP_FLAG_USED,
@@ -50,7 +51,8 @@ enum {
  * @brief configuration of rendez-vous for a given endpoint (specifies fragmentation threshold)
  *
  */
-typedef struct lcp_ep_rndv_config {
+typedef struct lcp_ep_rndv_config
+{
 	size_t frag_thresh;
 } lcp_ep_rndv_config_t;
 
@@ -58,69 +60,75 @@ typedef struct lcp_ep_rndv_config {
  * @brief configuration of endpoint
  *
  */
-typedef struct lcp_ep_config {
-        struct {
-                size_t max_bcopy;
-                size_t max_zcopy;
-                size_t max_iovecs;
-        } am;
+typedef struct lcp_ep_config
+{
+	struct
+	{
+		size_t max_bcopy;
+		size_t max_zcopy;
+		size_t max_iovecs;
+	} am;
 
-        struct {
-                size_t max_bcopy;
-                size_t max_zcopy;
-                size_t max_iovecs;
-        } tag;
-        int offload;
+	struct
+	{
+		size_t max_bcopy;
+		size_t max_zcopy;
+		size_t max_iovecs;
+	}   tag;
+	int offload;
 
-        struct {
-                size_t max_put_zcopy;
-                size_t max_get_zcopy;
-        } rndv;
+	struct
+	{
+		size_t max_put_zcopy;
+		size_t max_get_zcopy;
+	} rndv;
 
-        struct {
-                size_t max_put_bcopy;
-                size_t max_put_zcopy;
-                size_t max_get_bcopy;
-                size_t max_get_zcopy;
-        } rma;
+	struct
+	{
+		size_t max_put_bcopy;
+		size_t max_put_zcopy;
+		size_t max_get_bcopy;
+		size_t max_get_zcopy;
+	} rma;
 
-        struct {
-                size_t max_fetch_size;
-                size_t max_post_size;
-        } ato;
+	struct
+	{
+		size_t max_fetch_size;
+		size_t max_post_size;
+	}      ato;
 
-        size_t rndv_threshold;
-
+	size_t rndv_threshold;
 } lcp_ep_config_t;
 
-struct lcp_ep {
-        lcp_ep_config_t config;
-        unsigned cap; /* Endpoint capabilities. */
+struct lcp_ep
+{
+	lcp_ep_config_t           config;
+	unsigned                  cap;      /* Endpoint capabilities. */
 
-        lcp_chnl_idx_t am_chnl; /* Priority channel for AM. */
-        bmap_t         am_bmap; /* Send map for AM. */
-        lcp_chnl_idx_t tag_chnl; /* Priority channel for tag offload */
-        bmap_t         tag_bmap; /* Send map for TAG. */
-        lcp_chnl_idx_t rma_chnl; /* Channel for RMA operations */
-        bmap_t         rma_bmap; /* Send map for RMA. */
-        lcp_chnl_idx_t ato_chnl; /* Channel for Atomic operations */
+	lcp_chnl_idx_t            am_chnl;  /* Priority channel for AM. */
+	bmap_t                    am_bmap;  /* Send map for AM. */
+	lcp_chnl_idx_t            tag_chnl; /* Priority channel for tag offload */
+	bmap_t                    tag_bmap; /* Send map for TAG. */
+	lcp_chnl_idx_t            rma_chnl; /* Channel for RMA operations */
+	bmap_t                    rma_bmap; /* Send map for RMA. */
+	lcp_chnl_idx_t            ato_chnl; /* Channel for Atomic operations */
 
-        lcp_ep_flags_t flags;
-        int state;
+	lcp_ep_flags_t            flags;
+	int                       state;
 
-        lcp_manager_h mngr; /* Back reference to manager */
+	lcp_manager_h             mngr;      /* Back reference to manager */
 
-        uint64_t  uid; /* Remote peer uid */
+	uint64_t                  uid;       /* Remote peer uid */
 
-        int num_chnls; /* Number of channels */
-        _mpc_lowcomm_endpoint_t **lct_eps; //FIXME: rename (lct not ok)
-        bmap_t avail_map; /* Bitmap of usable transport endpoints */
-        bmap_t conn_map;  /* Bitmap of connected transport endpoints */
+	int                       num_chnls; /* Number of channels */
+	_mpc_lowcomm_endpoint_t **lct_eps;   // FIXME: rename (lct not ok)
+	bmap_t                    avail_map; /* Bitmap of usable transport endpoints */
+	bmap_t                    conn_map;  /* Bitmap of connected transport endpoints */
 };
 
 
 int lcp_context_ep_create(lcp_manager_h ctx, lcp_ep_h *ep_p,
-			  uint64_t uid, unsigned flags);
+                          uint64_t uid, unsigned flags);
 int lcp_ep_progress_conn(lcp_manager_h ctx, lcp_ep_h ep);
 void lcp_ep_delete(lcp_ep_h ep);
 int lcp_ep_get_next_cc(lcp_ep_h ep, lcp_chnl_idx_t cc, bmap_t send_map);

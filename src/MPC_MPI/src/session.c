@@ -31,8 +31,8 @@
 #include <sctk_alloc.h>
 
 /****************
-* WEAK SYMBOLS *
-****************/
+ * WEAK SYMBOLS *
+ ****************/
 
 #pragma weak MPI_Session_create_errhandler = PMPI_Session_create_errhandler
 #pragma weak MPI_Session_set_errhandler = PMPI_Session_set_errhandler
@@ -47,8 +47,8 @@
 #pragma weak MPI_Group_from_session_pset = PMPI_Group_from_session_pset
 
 /*************************
-* IDENTIFIER GENERATION *
-*************************/
+ * IDENTIFIER GENERATION *
+ *************************/
 
 static mpc_common_spinlock_t __factory_lock = MPC_COMMON_SPINLOCK_INITIALIZER;
 static int __factory_initialization_counter = 0;
@@ -62,7 +62,7 @@ static inline void __init_id_factory()
 
 	__factory_initialization_counter++;
 
-	if(__factory_initialization_counter > 1)
+	if (__factory_initialization_counter > 1)
 	{
 		mpc_common_spinlock_unlock(&__factory_lock);
 		return;
@@ -81,7 +81,7 @@ static inline void __release_id_factory()
 
 	__factory_initialization_counter--;
 
-	if(__factory_initialization_counter > 0)
+	if (__factory_initialization_counter > 0)
 	{
 		mpc_common_spinlock_unlock(&__factory_lock);
 		return;
@@ -124,7 +124,7 @@ MPI_Session mpc_mpi_session_f2c(int session_id)
 {
 	MPI_Session ret = MPI_SESSION_NULL;
 
-	if(session_id == 0)
+	if (session_id == 0)
 	{
 		return ret;
 	}
@@ -140,7 +140,7 @@ MPI_Session mpc_mpi_session_f2c(int session_id)
 
 int mpc_mpi_session_c2f(MPI_Session session)
 {
-	if(session == MPI_SESSION_NULL)
+	if (session == MPI_SESSION_NULL)
 	{
 		return 0;
 	}
@@ -149,20 +149,20 @@ int mpc_mpi_session_c2f(MPI_Session session)
 }
 
 /******************
-* ERROR HANDLING *
-******************/
+ * ERROR HANDLING *
+ ******************/
 
 int PMPI_Session_create_errhandler(MPI_Session_errhandler_function *session_errhandler_fn,
                                    MPI_Errhandler *errhandler)
 {
 	*errhandler = MPI_ERRHANDLER_NULL;
 
-	if(session_errhandler_fn == NULL)
+	if (session_errhandler_fn == NULL)
 	{
 		MPI_ERROR_REPORT(MPI_COMM_SELF, MPI_ERR_ARG, "Cannot pass null errhandler");
 	}
 
-	_mpc_mpi_errhandler_register( (_mpc_mpi_generic_errhandler_func_t)session_errhandler_fn, errhandler);
+	_mpc_mpi_errhandler_register((_mpc_mpi_generic_errhandler_func_t)session_errhandler_fn, errhandler);
 
 	assume(*errhandler != MPI_ERRHANDLER_NULL);
 
@@ -171,7 +171,7 @@ int PMPI_Session_create_errhandler(MPI_Session_errhandler_function *session_errh
 
 int PMPI_Session_set_errhandler(MPI_Session session, MPI_Errhandler errhandler)
 {
-	if(session == MPI_SESSION_NULL)
+	if (session == MPI_SESSION_NULL)
 	{
 		MPI_ERROR_REPORT(MPI_COMM_SELF, MPI_ERR_ARG, "Cannot set errhandler to null session");
 	}
@@ -183,7 +183,7 @@ int PMPI_Session_set_errhandler(MPI_Session session, MPI_Errhandler errhandler)
 
 int PMPI_Session_get_errhandler(MPI_Session session, MPI_Errhandler *errhandler)
 {
-	if(session == MPI_SESSION_NULL)
+	if (session == MPI_SESSION_NULL)
 	{
 		MPI_ERROR_REPORT(MPI_COMM_SELF, MPI_ERR_ARG, "Cannot set errhandler to null session");
 	}
@@ -195,24 +195,24 @@ int PMPI_Session_get_errhandler(MPI_Session session, MPI_Errhandler *errhandler)
 
 int PMPI_Session_call_errhandler(MPI_Session session, int error_code)
 {
-	if(session == MPI_SESSION_NULL)
+	if (session == MPI_SESSION_NULL)
 	{
 		MPI_ERROR_REPORT(MPI_COMM_SELF, MPI_ERR_ARG, "Cannot set errhandler to null session");
 	}
 
-	if(session->errh == MPI_ERRHANDLER_NULL)
+	if (session->errh == MPI_ERRHANDLER_NULL)
 	{
 		MPI_ERROR_REPORT(MPI_COMM_SELF, MPI_ERR_ARG, "Cannot call NULL errhandler");
 	}
 
 	_mpc_mpi_generic_errhandler_func_t errh = _mpc_mpi_errhandler_resolve(session->errh);
 
-	if(errh == NULL)
+	if (errh == NULL)
 	{
 		MPI_ERROR_REPORT(MPI_COMM_SELF, MPI_ERR_ARG, "Failed to resolve errhandler");
 	}
 
-	( (MPI_Session_errhandler_function *)errh)(&session, &error_code);
+	((MPI_Session_errhandler_function *)errh)(&session, &error_code);
 
 	MPI_ERROR_SUCCESS();
 }
@@ -223,7 +223,7 @@ static inline int __session_report_error(MPI_Session session, int error_code, ch
 
 	PMPI_Session_get_errhandler(session, &errh);
 
-	if(errh != MPI_ERRHANDLER_NULL)
+	if (errh != MPI_ERRHANDLER_NULL)
 	{
 		mpc_common_debug_error("MPI_SESSION : code %d : %s", error_code, desc);
 		PMPI_Session_call_errhandler(session, error_code);
@@ -237,14 +237,14 @@ static inline int __session_report_error(MPI_Session session, int error_code, ch
 }
 
 /*********************
-* INIT AND FINALIZE *
-*********************/
+ * INIT AND FINALIZE *
+ *********************/
 
 mpc_mpi_session_t *__session_new(void)
 {
-	mpc_mpi_session_t *ret = sctk_malloc(sizeof(mpc_mpi_session_t) );
+	mpc_mpi_session_t *ret = sctk_malloc(sizeof(mpc_mpi_session_t));
 
-	memset(ret, 0, sizeof(mpc_mpi_session_t) );
+	memset(ret, 0, sizeof(mpc_mpi_session_t));
 	return ret;
 }
 
@@ -262,7 +262,7 @@ int PMPI_Session_init(MPI_Info info, MPI_Errhandler errhandler, MPI_Session *ses
 
 	PMPI_Session_set_errhandler(*session, errhandler);
 
-	if(info == MPI_INFO_NULL)
+	if (info == MPI_INFO_NULL)
 	{
 		/* Store empty info */
 		res = MPI_Info_create(&(*session)->infos);
@@ -272,15 +272,15 @@ int PMPI_Session_init(MPI_Info info, MPI_Errhandler errhandler, MPI_Session *ses
 		res = PMPI_Info_dup(info, &(*session)->infos);
 	}
 
-	if(res != MPI_SUCCESS)
+	if (res != MPI_SUCCESS)
 	{
 		return __session_report_error(*session, res, "Could not duplicate info object");
 	}
 
 	/* Now as MPC is always thread multiple set the thread_support level accordingly */
-	res = PMPI_Info_set( (*session)->infos, "mpi_thread_support_level", "MPI_THREAD_MULTIPLE");
+	res = PMPI_Info_set((*session)->infos, "mpi_thread_support_level", "MPI_THREAD_MULTIPLE");
 
-	if(res != MPI_SUCCESS)
+	if (res != MPI_SUCCESS)
 	{
 		/* Call errhandler */
 		return __session_report_error(*session, res, "Could not set mpi_thread_support_level in info object ");
@@ -300,19 +300,19 @@ int PMPI_Session_finalize(MPI_Session *session)
 {
 	int res = MPI_SUCCESS;
 
-	if(*session == MPI_SESSION_NULL)
+	if (*session == MPI_SESSION_NULL)
 	{
 		return __session_report_error(*session, MPI_ERR_ARG, "Cannot Free a NULL session");
 	}
 
 	res = PMPI_Info_free(&(*session)->infos);
 
-	if(res != MPI_SUCCESS)
+	if (res != MPI_SUCCESS)
 	{
 		return __session_report_error(*session, res, "Cannot Free Session Info Object");
 	}
 
-	__session_free_id( (*session)->id);
+	__session_free_id((*session)->id);
 
 	__session_free(*session);
 
@@ -327,8 +327,8 @@ int PMPI_Session_finalize(MPI_Session *session)
 }
 
 /*****************
-* SESSION QUERY *
-*****************/
+ * SESSION QUERY *
+ *****************/
 
 int PMPI_Session_get_info(MPI_Session session, MPI_Info *info_used)
 {
@@ -345,12 +345,12 @@ int PMPI_Session_get_nth_pset(MPI_Session session, MPI_Info info __UNUSED__, int
 {
 	mpc_lowcomm_process_set_t *pset = mpc_lowcomm_group_pset_get_nth(n);
 
-	if(!pset)
+	if (!pset)
 	{
 		return __session_report_error(session, MPI_ERR_ARG, "Could not retrieve this pset at rank n");
 	}
 
-	if(*pset_len)
+	if (*pset_len)
 	{
 		(void)snprintf(pset_name, *pset_len + 1, "%s", pset->name);
 	}
@@ -366,7 +366,7 @@ int PMPI_Session_get_pset_info(MPI_Session session, const char *pset_name, MPI_I
 {
 	mpc_lowcomm_process_set_t *pset = mpc_lowcomm_group_pset_get_by_name(pset_name);
 
-	if(!pset)
+	if (!pset)
 	{
 		mpc_common_debug_error("No such PSET %s", pset_name);
 		return __session_report_error(session, MPI_ERR_ARG, "Could not retrieve PSET");
@@ -374,7 +374,7 @@ int PMPI_Session_get_pset_info(MPI_Session session, const char *pset_name, MPI_I
 
 	int res = PMPI_Info_create(info);
 
-	if(res != MPI_SUCCESS)
+	if (res != MPI_SUCCESS)
 	{
 		return __session_report_error(session, res, "Could not create pset info object");
 	}
@@ -386,7 +386,7 @@ int PMPI_Session_get_pset_info(MPI_Session session, const char *pset_name, MPI_I
 	(void)snprintf(sname, MPC_LOWCOMM_GROUP_MAX_PSET_NAME_LEN, "%s", pset->name);
 
 	PMPI_Info_set(*info, "mpi_size", smpi_size);
-	PMPI_Info_set(*info, "name", sname);
+	PMPI_Info_set(*info, "name",     sname);
 
 	mpc_lowcomm_group_pset_free(pset);
 
@@ -397,13 +397,13 @@ int PMPI_Group_from_session_pset(MPI_Session session, const char *pset_name, MPI
 {
 	mpc_lowcomm_process_set_t *pset = mpc_lowcomm_group_pset_get_by_name(pset_name);
 
-	if(!pset)
+	if (!pset)
 	{
 		mpc_common_debug_error("No such PSET %s", pset_name);
 		return __session_report_error(session, MPI_ERR_ARG, "Could not retrieve PSET");
 	}
 
-	if(*newgroup == MPI_GROUP_NULL)
+	if (*newgroup == MPI_GROUP_NULL)
 	{
 		return __session_report_error(session, MPI_ERR_ARG, "Cannot create group on MPI_GROUP_NULL");
 	}

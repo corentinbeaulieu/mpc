@@ -30,23 +30,25 @@
 #include "opa_primitives.h"
 #include "mpc_common_spinlock.h"
 
-typedef enum {
-    uninitialized         = 0,
-    initialized           = 1,
-    inactive              = 2,
-    active                = 3,
-    pending               = 4,
-    e_tool_status_count   = 5
-} mpc_omp_ompt_tool_status_t;
+	typedef enum
+	{
+		uninitialized       = 0,
+		initialized         = 1,
+		inactive            = 2,
+		active              = 3,
+		pending             = 4,
+		e_tool_status_count = 5
+	} mpc_omp_ompt_tool_status_t;
 
-typedef struct mpc_omp_ompt_tool_instance_s {
-    char *path;
-    ompt_start_tool_result_t *start_result;
-    ompt_callback_t *callbacks;
-    ompt_wait_id_t wait_id;
-    mpc_common_spinlock_t wait_id_lock;
-    OPA_int_t nb_native_threads_exited;
-} mpc_omp_ompt_tool_instance_t;
+	typedef struct mpc_omp_ompt_tool_instance_s
+	{
+		char *                    path;
+		ompt_start_tool_result_t *start_result;
+		ompt_callback_t *         callbacks;
+		ompt_wait_id_t            wait_id;
+		mpc_common_spinlock_t     wait_id_lock;
+		OPA_int_t                 nb_native_threads_exited;
+	} mpc_omp_ompt_tool_instance_t;
 
 #endif /* OMPT_SUPPORT */
 #endif /* __MPCOMPT_INSTANCE_H__ */

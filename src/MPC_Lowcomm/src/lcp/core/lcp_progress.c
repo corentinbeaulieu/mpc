@@ -38,29 +38,29 @@
 
 #define MPC_MODULE "Lowcomm/LCP/Progress"
 int lcp_progress(lcp_manager_h mngr)
-
 {
-        sctk_rail_info_t *iface;
+	sctk_rail_info_t *iface;
 
-        mpc_list_for_each(iface, &mngr->progress_head, sctk_rail_info_t, progress) {
-                lcp_iface_do_progress(iface);
-        }
+	mpc_list_for_each(iface, &mngr->progress_head, sctk_rail_info_t, progress)
+	{
+		lcp_iface_do_progress(iface);
+	}
 
-        ///* Loop to try sending requests within the pending queue only once. */
-        //size_t nb_pending = mpc_queue_length(&ctx->pending_queue);
-        //while (nb_pending > 0) {
-        //        LCP_CONTEXT_LOCK(ctx);
-        //        /* One request is pulled from pending queue. */
-        //        lcp_request_t *req = mpc_queue_pull_elem(&ctx->pending_queue,
-        //                                                 lcp_request_t, queue);
-        //        LCP_CONTEXT_UNLOCK(ctx);
+	///* Loop to try sending requests within the pending queue only once. */
+	// size_t nb_pending = mpc_queue_length(&ctx->pending_queue);
+	// while (nb_pending > 0) {
+	//        LCP_CONTEXT_LOCK(ctx);
+	//        /* One request is pulled from pending queue. */
+	//        lcp_request_t *req = mpc_queue_pull_elem(&ctx->pending_queue,
+	//                                                 lcp_request_t, queue);
+	//        LCP_CONTEXT_UNLOCK(ctx);
 
-        //        /* Send request which will be pushed back in pending queue if
-        //         * it could not be sent */
-        //        lcp_request_send(req);
+	//        /* Send request which will be pushed back in pending queue if
+	//         * it could not be sent */
+	//        lcp_request_send(req);
 
-        //        nb_pending--;
-        //}
+	//        nb_pending--;
+	// }
 
 	return MPC_LOWCOMM_SUCCESS;
 }

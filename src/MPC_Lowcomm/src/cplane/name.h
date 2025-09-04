@@ -54,22 +54,22 @@ void _mpc_lowcomm_monitor_name_release(void);
 /**
  * @brief Store name resolution information
  *
- * @param name the service name
- * @param port_name the port information
- * @param hosting_peer who is providing these information
- * @return int 0 if all OK
+ * @param  name         the service name
+ * @param  port_name    the port information
+ * @param  hosting_peer who is providing these information
+ * @return              int 0 if all OK
  */
-int _mpc_lowcomm_monitor_name_publish(char * name,
-                                      char * port_name,
+int _mpc_lowcomm_monitor_name_publish(char *name,
+                                      char *port_name,
                                       mpc_lowcomm_peer_uid_t hosting_peer);
 
 /**
  * @brief Remove name resolution information
  *
- * @param name the service name
- * @return int 0 if all OK
+ * @param  name the service name
+ * @return      int 0 if all OK
  */
-int _mpc_lowcomm_monitor_name_unpublish(char * name );
+int _mpc_lowcomm_monitor_name_unpublish(char *name);
 
 /***********
  * RESOLVE *
@@ -78,11 +78,11 @@ int _mpc_lowcomm_monitor_name_unpublish(char * name );
 /**
  * @brief Extract information from a stored service name
  *
- * @param name the service name to retrieve
- * @param hosting_peer (out) the hosting peer
- * @return char* NULL if not found, port information otherwise
+ * @param  name         the service name to retrieve
+ * @param  hosting_peer (out) the hosting peer
+ * @return              char* NULL if not found, port information otherwise
  */
-char * _mpc_lowcomm_monitor_name_get_port(char * name, mpc_lowcomm_peer_uid_t *hosting_peer);
+char * _mpc_lowcomm_monitor_name_get_port(char *name, mpc_lowcomm_peer_uid_t *hosting_peer);
 
 /********
  * LIST *

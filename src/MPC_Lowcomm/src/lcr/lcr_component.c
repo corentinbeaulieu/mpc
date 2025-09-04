@@ -41,57 +41,61 @@
 lcr_component_t *lcr_component_list = NULL;
 
 
-lcr_component_t * lcr_query_component_by_name(const char * name)
+lcr_component_t * lcr_query_component_by_name(const char *name)
 {
-        lcr_component_t * tmp = NULL;
-        LL_FOREACH(lcr_component_list, tmp) {
-                if(!strcmp(name, tmp->name))
-                {
-                        return tmp;
-                }
-        }
+	lcr_component_t *tmp = NULL;
 
-        return NULL;
+	LL_FOREACH(lcr_component_list, tmp)
+	{
+		if (!strcmp(name, tmp->name))
+		{
+			return tmp;
+		}
+	}
+
+	return NULL;
 }
 
-
-
-int lcr_query_components(lcr_component_h **components_p,
-                         unsigned *num_components_p)
+int lcr_query_components(lcr_component_h **components_p, unsigned *num_components_p)
 {
-        int rc = MPC_LOWCOMM_SUCCESS;
-        lcr_component_h *components;
-        lcr_component_t  *component;
-        unsigned num_components;
+	int rc = MPC_LOWCOMM_SUCCESS;
+	lcr_component_h *components;
+	lcr_component_t *component;
+	unsigned         num_components;
 
-        LL_COUNT(lcr_component_list, component, num_components);
+	LL_COUNT(lcr_component_list, component, num_components);
 
-        components = sctk_malloc(num_components*sizeof(lcr_component_h));
-        if (components == NULL) {
-                mpc_common_debug_error("LCR: could not allocate components");
-                rc = MPC_LOWCOMM_ERROR;
-                goto err;
-        }
+	components = sctk_malloc(num_components * sizeof(lcr_component_h));
+	if (components == NULL)
+	{
+		mpc_common_debug_error("LCR: could not allocate components");
+		rc = MPC_LOWCOMM_ERROR;
+		goto err;
+	}
 
-        *num_components_p = num_components;
-        *components_p     = components;
+	*num_components_p = num_components;
+	*components_p     = components;
 
-        LL_FOREACH(lcr_component_list, component) {
-                *(components++) = component;
-        }
+	LL_FOREACH(lcr_component_list, component)
+	{
+		*(components++) = component;
+	}
 
 err:
-        return rc;
+	return rc;
 }
 
 int lcr_free_components(lcr_component_h *components, unsigned num_components, int devices)
 {
-        int i;
-        if (devices) {
-                for (i=0; i<(int)num_components; i++) {
-                        sctk_free(components[i]->devices);
-                }
-        }
-        sctk_free(components);
-        return MPC_LOWCOMM_SUCCESS;
+	int i;
+
+	if (devices)
+	{
+		for (i = 0; i < (int)num_components; i++)
+		{
+			sctk_free(components[i]->devices);
+		}
+	}
+	sctk_free(components);
+	return MPC_LOWCOMM_SUCCESS;
 }

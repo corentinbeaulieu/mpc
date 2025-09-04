@@ -26,17 +26,28 @@
 #include "tdb_remote.h"
 #include <thread_db.h>
 
-volatile int rtdb_lib_state = TDB_LIB_TO_START ;
-/* static structure for enabled event, always reachable */
-volatile struct td_thr_events rtdb_ta_events ;
-volatile tdb_thread_debug_t *rtdb_thread_list = NULL ;
+	volatile int rtdb_lib_state = TDB_LIB_TO_START;
+	/* static structure for enabled event, always reachable */
+	volatile struct td_thr_events rtdb_ta_events;
+	volatile tdb_thread_debug_t * rtdb_thread_list = NULL;
 
-void rtdb_bp_creation (void) {}
-void rtdb_bp_death (void) {}
+	void rtdb_bp_creation(void)
+	{
+	}
+
+	void rtdb_bp_death(void)
+	{
+	}
 
 #else
 #ifndef MPC_Thread_db
-void rtdb_bp_creation (void) {}
-void rtdb_bp_death (void) {}
+	void rtdb_bp_creation(void)
+	{
+	}
+
+	void rtdb_bp_death(void)
+	{
+	}
+
 #endif
 #endif

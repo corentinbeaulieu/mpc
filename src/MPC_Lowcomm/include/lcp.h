@@ -66,12 +66,13 @@
  * been specified in @ref lcp_context_param_t.
  */
 
-enum {
-        LCP_CONTEXT_DATATYPE_OPS  = MPC_BIT(0), /**< datatype mask */
-        LCP_CONTEXT_PROCESS_UID   = MPC_BIT(1), /**< process uid mask */
-        LCP_CONTEXT_NUM_TASKS     = MPC_BIT(2), /**< task number mask */
-        LCP_CONTEXT_REQUEST_SIZE  = MPC_BIT(3), /**< upper layer request size */
-        LCP_CONTEXT_REQUEST_CB    = MPC_BIT(4), /**< request init callback */
+enum
+{
+	LCP_CONTEXT_DATATYPE_OPS = MPC_BIT(0),      /**< datatype mask */
+	LCP_CONTEXT_PROCESS_UID  = MPC_BIT(1),      /**< process uid mask */
+	LCP_CONTEXT_NUM_TASKS    = MPC_BIT(2),      /**< task number mask */
+	LCP_CONTEXT_REQUEST_SIZE = MPC_BIT(3),      /**< upper layer request size */
+	LCP_CONTEXT_REQUEST_CB   = MPC_BIT(4),      /**< request init callback */
 };
 
 /**
@@ -79,9 +80,10 @@ enum {
  * @brief Datatype operations. There used to support packing/unpacking of
  * derived MPI datatypes.
  */
-typedef struct lcp_dt_ops {
-        void (*pack)(void *context, void *buffer);
-        void (*unpack)(void *context, void *buffer);
+typedef struct lcp_dt_ops
+{
+	void (*pack)(void *context, void *buffer);
+	void (*unpack)(void *context, void *buffer);
 } lcp_dt_ops_t;
 
 /**
@@ -89,13 +91,14 @@ typedef struct lcp_dt_ops {
  * @brief LCP context parameters. It is passed to the \ref lcp_context_create
  * routine to configure communication context initialization.
  */
-typedef struct lcp_context_param {
-        uint32_t     field_mask;  /**< context field mask */
-        uint64_t     process_uid; /**< local process UID */
-        int          num_tasks;   /**< local process UID */
-        lcp_dt_ops_t dt_ops; /** datatype operations (pack/unpack) */
-        int          request_size;
-        lcp_request_init_callback_func_t request_init;
+typedef struct lcp_context_param
+{
+	uint32_t                         field_mask;  /**< context field mask */
+	uint64_t                         process_uid; /**< local process UID */
+	int                              num_tasks;   /**< local process UID */
+	lcp_dt_ops_t                     dt_ops;      /** datatype operations (pack/unpack) */
+	int                              request_size;
+	lcp_request_init_callback_func_t request_init;
 } lcp_context_param_t;
 
 /**
@@ -106,11 +109,11 @@ typedef struct lcp_context_param {
  * components (tcp, ptl, ofi,...), list available devices, open interfaces based
  * on user configuration.
  *
- * @param [in] param   \ref lcp_context_param_t Parameters for context
+ * @param[in]  param \ref lcp_context_param_t Parameters for context
  *                     creation.
- * @param [out] ctx_p  Pointer to context handle that will be allocated by the
+ * @param[out] ctx_p Pointer to context handle that will be allocated by the
  *                     routine.
- * @return Error code returned.
+ * @return           Error code returned.
  */
 int lcp_context_create(lcp_context_h *ctx_p, lcp_context_param_t *param);
 
@@ -121,8 +124,8 @@ int lcp_context_create(lcp_context_h *ctx_p, lcp_context_param_t *param);
  * Release and deallocate all the communication interface. Call at the end of
  * the execution when no more communication are needed.
  *
- * @param [in] ctx   Context handle to release.
- * @return Error code returned.
+ * @param[in] ctx Context handle to release.
+ * @return        Error code returned.
  */
 int lcp_context_fini(lcp_context_h ctx);
 
@@ -134,11 +137,11 @@ int lcp_context_fini(lcp_context_h ctx);
  * information that should be own by a MPI task. There are as many tasks as MPI
  * ranks, each task is identified by its global MPI rank.
  *
- * @param [in] ctx  Context handle.
- * @param [in] tid  Task identifier or MPI comm world rank.
- * @param [out] task_p  Pointer to task handle that will be allocated by the
+ * @param[in]  ctx    Context handle.
+ * @param[in]  tid    Task identifier or MPI comm world rank.
+ * @param[out] task_p Pointer to task handle that will be allocated by the
  *                     routine.
- * @return Error code returned.
+ * @return            Error code returned.
  */
 
 int lcp_task_create(lcp_context_h ctx, int tid, lcp_task_h *task_p);
@@ -153,9 +156,9 @@ int lcp_task_create(lcp_context_h ctx, int tid, lcp_task_h *task_p);
  * model of the manager. For example, matching queues are only created for
  * two-sided communication model.
  *
- * @param [in] task  Task to be associated.
- * @param [in] mngr  Manager handle to be associated to.
- * @return Error code returned.
+ * @param[in] task Task to be associated.
+ * @param[in] mngr Manager handle to be associated to.
+ * @return         Error code returned.
  */
 int lcp_task_associate(lcp_task_h task, lcp_manager_h mngr);
 
@@ -166,9 +169,9 @@ int lcp_task_associate(lcp_task_h task, lcp_manager_h mngr);
  * Remove all data structure used within the communication context, or \ref
  * lcp_manager_h.
  *
- * @param [in] task  Task to be dissociated.
- * @param [in] mngr  Manager handle to be dissociated to.
- * @return Error code returned.
+ * @param[in] task Task to be dissociated.
+ * @param[in] mngr Manager handle to be dissociated to.
+ * @return         Error code returned.
  */
 int lcp_task_dissociate(lcp_task_h task, lcp_manager_h mngr);
 
@@ -179,9 +182,9 @@ int lcp_task_dissociate(lcp_task_h task, lcp_manager_h mngr);
  * Get the task handle based on the task identifier (TID). The TID is the MPI
  * rank in the MPI_COMM_WORLD communicator.
  *
- * @param [in] ctx  Context handle.
- * @param [in] tid  Task identifier or MPI comm world rank.
- * @return \ref lcp_task_h task handle for the specified tid.
+ * @param[in] ctx Context handle.
+ * @param[in] tid Task identifier or MPI comm world rank.
+ * @return        \ref lcp_task_h task handle for the specified tid.
  */
 lcp_task_h lcp_context_task_get(lcp_context_h ctx, int tid);
 
@@ -191,9 +194,10 @@ lcp_task_h lcp_context_task_get(lcp_context_h ctx, int tid);
  *
  * Specifies fields present in \ref lcp_manager_param_t during manager creation.
  */
-enum {
-        LCP_MANAGER_ESTIMATED_EPS = MPC_BIT(0),
-        LCP_MANAGER_COMM_MODEL    = MPC_BIT(1),
+enum
+{
+	LCP_MANAGER_ESTIMATED_EPS = MPC_BIT(0),
+	LCP_MANAGER_COMM_MODEL    = MPC_BIT(1),
 };
 
 /**
@@ -203,9 +207,10 @@ enum {
  * Specifies a set of flags that are proposed to improve performances in some
  * situation.
  */
-enum {
-        LCP_MANAGER_TSC_MODEL = MPC_BIT(0),  /**< Init interface Two-Sided Communication capabilities. */
-        LCP_MANAGER_OSC_MODEL = MPC_BIT(1),  /**< Init interface One-Sided Communication capabilities. */
+enum
+{
+	LCP_MANAGER_TSC_MODEL = MPC_BIT(0),      /**< Init interface Two-Sided Communication capabilities. */
+	LCP_MANAGER_OSC_MODEL = MPC_BIT(1),      /**< Init interface One-Sided Communication capabilities. */
 };
 
 /**
@@ -216,10 +221,11 @@ enum {
  * lcp_manager_param_t.
  */
 
-typedef struct lcp_manager_param {
-        unsigned field_mask;
-        int      estimated_eps; /**< Estimated number of endpoints. */
-        unsigned flags;         /**< communication model. */
+typedef struct lcp_manager_param
+{
+	unsigned field_mask;
+	int      estimated_eps;     /**< Estimated number of endpoints. */
+	unsigned flags;             /**< communication model. */
 } lcp_manager_param_t;
 
 /**
@@ -233,11 +239,11 @@ typedef struct lcp_manager_param {
  * Endpoints \ref lcp_ep_h are local to managers. An LCP manager is shared
  * between a group of LCP Tasks.
  *
- * @param [in] ctx  Context handle.
- * @param [out] mngr_p  Pointer to manager handle that will be allocated by the
+ * @param[in]  ctx    Context handle.
+ * @param[out] mngr_p Pointer to manager handle that will be allocated by the
  *                     routine.
- * @param [in] params  Manager parameters.
- * @return Error code returned.
+ * @param[in]  params Manager parameters.
+ * @return            Error code returned.
  */
 int lcp_manager_create(lcp_context_h ctx, lcp_manager_h *mngr_p,
                        lcp_manager_param_t *params);
@@ -248,8 +254,8 @@ int lcp_manager_create(lcp_context_h ctx, lcp_manager_h *mngr_p,
  *
  * Deletes resources associated to a LCP manager.
  *
- * @param [in] mngr  Manager handle to be deleted.
- * @return Error code returned.
+ * @param[in] mngr Manager handle to be deleted.
+ * @return         Error code returned.
  */
 int lcp_manager_fini(lcp_manager_h mngr);
 
@@ -259,10 +265,10 @@ int lcp_manager_fini(lcp_manager_h mngr);
  *
  * Progress all outstanding communications.
  *
- * @param [in] ctx  Context handle.
- * @return Error code returned.
+ * @param[in] ctx Context handle.
+ * @return        Error code returned.
  */
-//FIXME: change to lcp_manager_progress
+// FIXME: change to lcp_manager_progress
 int lcp_progress(lcp_manager_h mngr);
 
 /**
@@ -272,16 +278,16 @@ int lcp_progress(lcp_manager_h mngr);
  * Instantiate a protocol endpoint. Upon return, connection will have been
  * started and the endpoint can be used directly with communication primitives.
  *
- * @param [in] ctx  Manager handle.
- * @param [out] ep_p  Pointer to endpoint handle that will be allocated by the
+ * @param[in]  ctx   Manager handle.
+ * @param[out] ep_p  Pointer to endpoint handle that will be allocated by the
  *                     routine.
- * @param [in] uid  Process identifier or MPC UNIX identifier.
- * @param [in] flags Flags to configure creation (unused for now).
- * @return Error code returned.
+ * @param[in]  uid   Process identifier or MPC UNIX identifier.
+ * @param[in]  flags Flags to configure creation (unused for now).
+ * @return           Error code returned.
  */
 int lcp_ep_create(lcp_manager_h mngr,
                   lcp_ep_h *ep_p,
-		  uint64_t uid,
+                  uint64_t uid,
                   unsigned flags);
 
 /**
@@ -290,12 +296,12 @@ int lcp_ep_create(lcp_manager_h mngr,
  *
  * Get a protocol endpoint based on UNIX process identifier (UID).
  *
- * @param [in] ctx  Manager handle.
- * @param [in] uid  Process identifier or MPC UNIX identifier.
- * @return \ref lcp_ep_h endpoint handle for the specified UID.
+ * @param[in] ctx Manager handle.
+ * @param[in] uid Process identifier or MPC UNIX identifier.
+ * @return        \ref lcp_ep_h endpoint handle for the specified UID.
  */
 lcp_ep_h lcp_ep_get(lcp_manager_h mngr,
-                uint64_t uid);
+                    uint64_t uid);
 
 /**
  * @ingroup LCP_EP
@@ -304,16 +310,16 @@ lcp_ep_h lcp_ep_get(lcp_manager_h mngr,
  * Get a protocol endpoint based on UNIX process identifier (UID), creates it if
  * it to does exist yet.
  *
- * @param [in] ctx  Manager handle.
- * @param [in] uid  Process identifier or MPC UNIX identifier.
- * @param [out] ep_p  Pointer to endpoint handle that will be allocated by the
+ * @param[in]  ctx   Manager handle.
+ * @param[in]  uid   Process identifier or MPC UNIX identifier.
+ * @param[out] ep_p  Pointer to endpoint handle that will be allocated by the
  *                     routine.
- * @param [in] flags Flags to configure creation (unused for now).
- * @return Error code returned.
+ * @param[in]  flags Flags to configure creation (unused for now).
+ * @return           Error code returned.
  */
 int lcp_ep_get_or_create(lcp_manager_h mngr,
-                uint64_t uid, lcp_ep_h *ep_p,
-                unsigned flags);
+                         uint64_t uid, lcp_ep_h *ep_p,
+                         unsigned flags);
 
 /**
  * @ingroup LCP_COMM
@@ -322,21 +328,22 @@ int lcp_ep_get_or_create(lcp_manager_h mngr,
  * Specifies the parameters that have been specified in \ref
  * lcp_request_param_t.
  */
-enum {
-//FIXME: Some flags does not specify any field within lcp_request_param_t but
-//       just a functionality (eg LCP_REQUEST_TRY_OFFLOAD or
-//       LCP_REQUEST_TAG_SYNC).
-//TODO: add a flags field in lcp_request_param_t
-        LCP_REQUEST_TRY_OFFLOAD     = MPC_BIT(0),  /**< Try offload send mask */
-        LCP_REQUEST_USER_DATA       = MPC_BIT(1),  /**< User data mask */
-        LCP_REQUEST_USER_REQUEST    = MPC_BIT(2),  /**< User request mask */
-        LCP_REQUEST_TAG_SYNC        = MPC_BIT(3),  /**< Sync request mask */
-        LCP_REQUEST_AM_SYNC         = MPC_BIT(4),  /**< AM sync request mask */
-        LCP_REQUEST_SEND_CALLBACK   = MPC_BIT(5),  /**< Send callback mask */
-        LCP_REQUEST_RECV_CALLBACK   = MPC_BIT(6),  /**< Recv callback mask */
-        LCP_REQUEST_REPLY_BUFFER    = MPC_BIT(7),  /**< Result buffer for Atomics */
-        LCP_REQUEST_USER_MEMH       = MPC_BIT(8),  /**< User-provided local Memory handle */
-        LCP_REQUEST_USER_EPH        = MPC_BIT(9),  /**< User-provided Endpoint handle */
+enum
+{
+	// FIXME: Some flags does not specify any field within lcp_request_param_t but
+	//       just a functionality (eg LCP_REQUEST_TRY_OFFLOAD or
+	//       LCP_REQUEST_TAG_SYNC).
+	// TODO: add a flags field in lcp_request_param_t
+	LCP_REQUEST_TRY_OFFLOAD   = MPC_BIT(0),        /**< Try offload send mask */
+	LCP_REQUEST_USER_DATA     = MPC_BIT(1),        /**< User data mask */
+	LCP_REQUEST_USER_REQUEST  = MPC_BIT(2),        /**< User request mask */
+	LCP_REQUEST_TAG_SYNC      = MPC_BIT(3),        /**< Sync request mask */
+	LCP_REQUEST_AM_SYNC       = MPC_BIT(4),        /**< AM sync request mask */
+	LCP_REQUEST_SEND_CALLBACK = MPC_BIT(5),        /**< Send callback mask */
+	LCP_REQUEST_RECV_CALLBACK = MPC_BIT(6),        /**< Recv callback mask */
+	LCP_REQUEST_REPLY_BUFFER  = MPC_BIT(7),        /**< Result buffer for Atomics */
+	LCP_REQUEST_USER_MEMH     = MPC_BIT(8),        /**< User-provided local Memory handle */
+	LCP_REQUEST_USER_EPH      = MPC_BIT(9),        /**< User-provided Endpoint handle */
 };
 
 /**
@@ -348,12 +355,13 @@ enum {
  * (length, tag, source and found in case of probing).
  * For example, this can be used in MPI_Status.
  */
-typedef struct lcp_tag_recv_info {
-        size_t length; /**< Length of the data received by the matched request */
-        int32_t tag; /**< Tag of the matched request */
-        int32_t src; /**< Source of the matched request */
-        unsigned found; /**< Has request been found in matching list or not */
-        unsigned flags; /**< Flags containing info from LCP (truncation, ...) */
+typedef struct lcp_tag_recv_info
+{
+	size_t   length; /**< Length of the data received by the matched request */
+	int32_t  tag;    /**< Tag of the matched request */
+	int32_t  src;    /**< Source of the matched request */
+	unsigned found;  /**< Has request been found in matching list or not */
+	unsigned flags;  /**< Flags containing info from LCP (truncation, ...) */
 } lcp_tag_recv_info_t;
 
 /**
@@ -365,14 +373,15 @@ typedef struct lcp_tag_recv_info {
  * (length, tag, source and found in case of probing).
  * For example, this can be used in MPI_Status.
  */
-typedef struct lcp_tag_info {
-        int32_t tag; /**< Tag of the matched request */
-        int32_t src; /**< Source of the matched request */
-        int32_t dest; /**< Source of the matched request */
-        uint64_t src_uid; /**< Source UID */
-        uint64_t dest_uid; /**< Destination UID */
-        uint16_t comm_id; /**< Communicator ID */
-        unsigned found; /**< Has request been found in matching list or not */
+typedef struct lcp_tag_info
+{
+	int32_t  tag;      /**< Tag of the matched request */
+	int32_t  src;      /**< Source of the matched request */
+	int32_t  dest;     /**< Source of the matched request */
+	uint64_t src_uid;  /**< Source UID */
+	uint64_t dest_uid; /**< Destination UID */
+	uint16_t comm_id;  /**< Communicator ID */
+	unsigned found;    /**< Has request been found in matching list or not */
 } lcp_tag_info_t;
 
 /**
@@ -381,10 +390,11 @@ typedef struct lcp_tag_info {
  *
  * Specifies if the datat in the request is contiguous or not (derived)
  */
-//FIXME: defined as a flags while it should be just an integer
-enum lcp_dt_type {
-        LCP_DATATYPE_CONTIGUOUS = MPC_BIT(0),
-        LCP_DATATYPE_DERIVED    = MPC_BIT(1),
+// FIXME: defined as a flags while it should be just an integer
+enum lcp_dt_type
+{
+	LCP_DATATYPE_CONTIGUOUS = MPC_BIT(0),
+	LCP_DATATYPE_DERIVED    = MPC_BIT(1),
 };
 
 /**
@@ -395,16 +405,17 @@ enum lcp_dt_type {
  * handled by the communication primitives. It is primarily used to specify user
  * callback and to pass tag receive information (\ref lcp_tag_recv_info_t).
  */
-//FIXME: union the callbacks.
-typedef struct lcp_request_param {
-        uint32_t                     field_mask; /**< Flags to indicate which parameter is used */
-        lcp_send_callback_func_t     send_cb; /**< Completion callback for send requests */
-        lcp_tag_recv_callback_func_t recv_cb; /**< Completion callback for recv requests */
-        void                        *reply_buffer; /**< Location for returned value with atomic operations */
-        lcp_datatype_t               datatype; /**< Contiguous or non-contiguous data */
-        void                        *request; /**< Pointer to mpc_lowcomm_request for completion. */
-        lcp_mem_h                    mem; /**< Memory handle for RMA requests */
-        lcp_ep_h                     ep; /**< Endpoint to be flushed. */
+// FIXME: union the callbacks.
+typedef struct lcp_request_param
+{
+	uint32_t                     field_mask;   /**< Flags to indicate which parameter is used */
+	lcp_send_callback_func_t     send_cb;      /**< Completion callback for send requests */
+	lcp_tag_recv_callback_func_t recv_cb;      /**< Completion callback for recv requests */
+	void *                       reply_buffer; /**< Location for returned value with atomic operations */
+	lcp_datatype_t               datatype;     /**< Contiguous or non-contiguous data */
+	void *                       request;      /**< Pointer to mpc_lowcomm_request for completion. */
+	lcp_mem_h                    mem;          /**< Memory handle for RMA requests */
+	lcp_ep_h                     ep;           /**< Endpoint to be flushed. */
 } lcp_request_param_t;
 
 /**
@@ -416,9 +427,9 @@ typedef struct lcp_request_param {
  * actually sending the request.
  * The user is then responsible to free the request using \ref lcp_request_free
  *
- * @param [in]  task  Task handle of the task allocating the request.
- * @param [out] request Request handle containing the upper layer request.
- * @return Error code returned.
+ * @param[in]  task    Task handle of the task allocating the request.
+ * @param[out] request Request handle containing the upper layer request.
+ * @return             Error code returned.
  */
 void *lcp_request_alloc(lcp_task_h task);
 
@@ -428,8 +439,8 @@ void *lcp_request_alloc(lcp_task_h task);
  *
  * Free a previously allocated request from \ref lcp_request_alloc
  *
- * @param [in] request Request handle to be freed.
- * @return Error code returned.
+ * @param[in] request Request handle to be freed.
+ * @return            Error code returned.
  */
 void lcp_request_free(void *request);
 
@@ -439,8 +450,8 @@ void lcp_request_free(void *request);
  *
  * Check the status of an LCP request.
  *
- * @param [in] request Request handle to be checked.
- * @return Error code returned.
+ * @param[in] request Request handle to be checked.
+ * @return            Error code returned.
  */
 int lcp_request_check_status(void *request);
 
@@ -456,13 +467,13 @@ int lcp_request_check_status(void *request);
  * Actual completion is performed by setting the \ref mpc_lowcomm_request_t
  * COMPLETION_FLAG.
  *
- * @param [in] ep  Endpoint handle to the destination.
- * @param [in] task  Task handle of the source task.
- * @param [in] buffer  Address of source buffer.
- * @param [in] count  Size of source buffer.
- * @param [in] request  Lowcomm request.
- * @param [in] param  Request parameters \ref lcp_request_param_t.
- * @return Error code returned or pointer to request. Use \ref
+ * @param[in] ep      Endpoint handle to the destination.
+ * @param[in] task    Task handle of the source task.
+ * @param[in] buffer  Address of source buffer.
+ * @param[in] count   Size of source buffer.
+ * @param[in] request Lowcomm request.
+ * @param[in] param   Request parameters \ref lcp_request_param_t.
+ * @return            Error code returned or pointer to request. Use \ref
  *         lcp_request_check_status to check completion.
  */
 lcp_status_ptr_t lcp_tag_send_nb(lcp_ep_h ep, lcp_task_h task, void *buffer,
@@ -480,12 +491,12 @@ lcp_status_ptr_t lcp_tag_send_nb(lcp_ep_h ep, lcp_task_h task, void *buffer,
  * COMPLETION_FLAG, it can be done directly within the routine or later by
  * a call to \ref lcp_progress().
  *
- * @param [in] task  Task handle of the source task.
- * @param [in] buffer  Address of buffer where data is copied.
- * @param [in] count  Size of source buffer.
- * @param [in] request  Lowcomm request.
- * @param [in] param  Request parameters \ref lcp_request_param_t.
- * @return Error code returned or pointer to request. Use \ref
+ * @param[in] task    Task handle of the source task.
+ * @param[in] buffer  Address of buffer where data is copied.
+ * @param[in] count   Size of source buffer.
+ * @param[in] request Lowcomm request.
+ * @param[in] param   Request parameters \ref lcp_request_param_t.
+ * @return            Error code returned or pointer to request. Use \ref
  *         lcp_request_check_status to check completion.
  */
 lcp_status_ptr_t lcp_tag_recv_nb(lcp_manager_h mngr, lcp_task_h task, void *buffer,
@@ -500,15 +511,15 @@ lcp_status_ptr_t lcp_tag_recv_nb(lcp_manager_h mngr, lcp_task_h task, void *buff
  * a message has been received.
  * Information is filled within @a recv_info.
  *
- * @param [in] task  Task handle of the source task.
- * @param [in] src  MPI rank.
- * @param [in] tag  MPI tag.
- * @param [in] comm  Communicator identifier.
- * @param [in] recv_info  Receive information container that will be filled in
+ * @param[in] task      Task handle of the source task.
+ * @param[in] src       MPI rank.
+ * @param[in] tag       MPI tag.
+ * @param[in] comm      Communicator identifier.
+ * @param[in] recv_info Receive information container that will be filled in
  *                        case a match is found.
- * @return Error code returned.
+ * @return              Error code returned.
  */
-//FIXME: comm should be a const uint16_t
+// FIXME: comm should be a const uint16_t
 int lcp_tag_probe_nb(lcp_manager_h mngr, lcp_task_h task, const int src,
                      const int tag, const uint64_t comm,
                      lcp_tag_recv_info_t *recv_info);
@@ -520,9 +531,10 @@ int lcp_tag_probe_nb(lcp_manager_h mngr, lcp_task_h task, const int src,
  * Flags identifying the type of message returned by the callback \ref
  * lcp_am_callback_t.
  */
-enum {
-        LCP_AM_EAGER = MPC_BIT(0), /**< Message received is of type eager. */
-        LCP_AM_RNDV  = MPC_BIT(1), /**< Message received is of type rendez-vous. */
+enum
+{
+	LCP_AM_EAGER = MPC_BIT(0),     /**< Message received is of type eager. */
+	LCP_AM_RNDV  = MPC_BIT(1),     /**< Message received is of type rendez-vous. */
 };
 
 /**
@@ -533,9 +545,10 @@ enum {
  * lcp_am_callback_t user callback. The callback has previously been defined by
  * the user and set to the local task through \ref lcp_am_set_handler_callback.
  */
-typedef struct lcp_am_recv_param {
-        uint32_t flags;
-        lcp_ep_h reply_ep;
+typedef struct lcp_am_recv_param
+{
+	uint32_t flags;
+	lcp_ep_h reply_ep;
 } lcp_am_recv_param_t;
 
 /**
@@ -547,12 +560,12 @@ typedef struct lcp_am_recv_param {
  * specified AM ID, has been received. The user may use the opaque @a arg
  * pointer to pass custom data.
  *
- * @param [in] task  Task handle of the source task.
- * @param [in] am_id  Unique handler identifier.
- * @param [in] arg Opaque pointer to user data.
- * @param [in] cb  User-defined handler callback.
- * @param [in] flags  Flags (unused).
- * @return Error code returned.
+ * @param[in] task  Task handle of the source task.
+ * @param[in] am_id Unique handler identifier.
+ * @param[in] arg   Opaque pointer to user data.
+ * @param[in] cb    User-defined handler callback.
+ * @param[in] flags Flags (unused).
+ * @return          Error code returned.
  */
 int lcp_am_set_handler_callback(lcp_manager_h mngr, lcp_task_h task, uint8_t am_id,
                                 void *arg, lcp_am_callback_t cb,
@@ -568,16 +581,16 @@ int lcp_am_set_handler_callback(lcp_manager_h mngr, lcp_task_h task, uint8_t am_
  * In case of thread-based communication, we must specify the destination rank
  * through @a dest_tid.
  *
- * @param [in] ep  Endpoint to destination.
- * @param [in] task  Task handle of the local task.
- * @param [in] dest_tid  Unique handler identifier.
- * @param [in] am_id  Unique handler identifier.
- * @param [in] hdr  Pointer to user-defined header.
- * @param [in] hdr_size  Size of user-defined header.
- * @param [in] buffer  Pointer to buffer.
- * @param [in] count Size of buffer.
- * @param [in] param  Request parameters \ref lcp_request_param_t.
- * @return Error code returned or pointer to request. Use \ref
+ * @param[in] ep       Endpoint to destination.
+ * @param[in] task     Task handle of the local task.
+ * @param[in] dest_tid Unique handler identifier.
+ * @param[in] am_id    Unique handler identifier.
+ * @param[in] hdr      Pointer to user-defined header.
+ * @param[in] hdr_size Size of user-defined header.
+ * @param[in] buffer   Pointer to buffer.
+ * @param[in] count    Size of buffer.
+ * @param[in] param    Request parameters \ref lcp_request_param_t.
+ * @return             Error code returned or pointer to request. Use \ref
  *         lcp_request_check_status to check completion.
  */
 lcp_status_ptr_t lcp_am_send_nb(lcp_ep_h ep, lcp_task_h task, int32_t dest_tid,
@@ -597,13 +610,13 @@ lcp_status_ptr_t lcp_am_send_nb(lcp_ep_h ep, lcp_task_h task, int32_t dest_tid,
  * To be notified for completion, user must set the completion callback
  * in \ref lcp_request_param_t.
  *
- * @param [in] task  Task handle of the source task.
- * @param [in] data_ctnr  Opaque pointer that must be @a data from \ref
+ * @param[in] task      Task handle of the source task.
+ * @param[in] data_ctnr Opaque pointer that must be @a data from \ref
  *                        lcp_am_callback_t.
- * @param [in] buffer  Buffer on which received data will be written.
- * @param [in] count  Size of buffer.
- * @param [in] param  Request parameters \ref lcp_request_param_t.
- * @return Error code returned.
+ * @param[in] buffer    Buffer on which received data will be written.
+ * @param[in] count     Size of buffer.
+ * @param[in] param     Request parameters \ref lcp_request_param_t.
+ * @return              Error code returned.
  */
 lcp_status_ptr_t lcp_am_recv_nb(lcp_manager_h mngr, lcp_task_h task, void
                                 *data_ctnr, void *buffer, size_t count,
@@ -620,14 +633,14 @@ lcp_status_ptr_t lcp_am_recv_nb(lcp_manager_h mngr, lcp_task_h task, void
  * As a return value, a pointer to the upper layer is provided which can be used
  * to check progression of the communication.
  *
- * @param [in] ep  Endpoint to destination.
- * @param [in] task  Task handle of the source task.
- * @param [in] buffer  Buffer from which data will be sent.
- * @param [in] length  Length of data in buffer.
- * @param [in] remote_addr  remote address to put the data.
- * @param [in] rkey  Remote memory key handle.
- * @param [in] param  Request parameters \ref lcp_request_param_t.
- * @return Pointer to upper layer request.
+ * @param[in] ep          Endpoint to destination.
+ * @param[in] task        Task handle of the source task.
+ * @param[in] buffer      Buffer from which data will be sent.
+ * @param[in] length      Length of data in buffer.
+ * @param[in] remote_addr remote address to put the data.
+ * @param[in] rkey        Remote memory key handle.
+ * @param[in] param       Request parameters \ref lcp_request_param_t.
+ * @return                Pointer to upper layer request.
  */
 lcp_status_ptr_t lcp_put_nb(lcp_ep_h ep, lcp_task_h task, void *buffer,
                             size_t length, uint64_t remote_addr, lcp_mem_h rkey,
@@ -644,14 +657,14 @@ lcp_status_ptr_t lcp_put_nb(lcp_ep_h ep, lcp_task_h task, void *buffer,
  * As a return value, a pointer to the upper layer is provided which can be used
  * to check progression of the communication.
  *
- * @param [in] ep  Endpoint to destination.
- * @param [in] task  Task handle of the source task.
- * @param [in] buffer  Buffer from which data will be sent.
- * @param [in] length  Length of data in buffer.
- * @param [in] remote_addr  Remote address from which data is read.
- * @param [in] rkey  Remote memory key handle.
- * @param [in] param  Request parameters \ref lcp_request_param_t.
- * @return Error code returned or pointer to pending request.
+ * @param[in] ep          Endpoint to destination.
+ * @param[in] task        Task handle of the source task.
+ * @param[in] buffer      Buffer from which data will be sent.
+ * @param[in] length      Length of data in buffer.
+ * @param[in] remote_addr Remote address from which data is read.
+ * @param[in] rkey        Remote memory key handle.
+ * @param[in] param       Request parameters \ref lcp_request_param_t.
+ * @return                Error code returned or pointer to pending request.
  */
 lcp_status_ptr_t lcp_get_nb(lcp_ep_h ep, lcp_task_h task, void *buffer,
                             size_t length, uint64_t remote_addr, lcp_mem_h rkey,
@@ -668,21 +681,22 @@ lcp_status_ptr_t lcp_get_nb(lcp_ep_h ep, lcp_task_h task, void *buffer,
  * User may provide a callback through \ref lcp_request_param_t so that it can
  * be notified when the request has completed.
  *
- * @param [in] mngr  Communication manager.
- * @param [in] task  Task handle of the source task.
- * @param [in] param  Request parameters \ref lcp_request_param_t.
- * @return Error code returned or pointer to pending request.
+ * @param[in] mngr  Communication manager.
+ * @param[in] task  Task handle of the source task.
+ * @param[in] param Request parameters \ref lcp_request_param_t.
+ * @return          Error code returned or pointer to pending request.
  */
 lcp_status_ptr_t lcp_flush_nb(lcp_manager_h mngr, lcp_task_h task,
                               const lcp_request_param_t *param);
 
-typedef enum {
-        LCP_ATOMIC_OP_ADD,
-        LCP_ATOMIC_OP_AND,
-        LCP_ATOMIC_OP_OR,
-        LCP_ATOMIC_OP_XOR,
-        LCP_ATOMIC_OP_SWAP,
-        LCP_ATOMIC_OP_CSWAP,
+typedef enum
+{
+	LCP_ATOMIC_OP_ADD,
+	LCP_ATOMIC_OP_AND,
+	LCP_ATOMIC_OP_OR,
+	LCP_ATOMIC_OP_XOR,
+	LCP_ATOMIC_OP_SWAP,
+	LCP_ATOMIC_OP_CSWAP,
 } lcp_atomic_op_t;
 
 lcp_status_ptr_t lcp_atomic_op_nb(lcp_ep_h ep, lcp_task_h task, const void *buffer,
@@ -697,11 +711,12 @@ lcp_status_ptr_t lcp_atomic_op_nb(lcp_ep_h ep, lcp_task_h task, const void *buff
  *
  */
 
-enum {
-        LCP_MEM_REGISTER_ALLOCATE = MPC_BIT(0), /**< Memory allocated and registered. */
-        LCP_MEM_REGISTER_CREATE   = MPC_BIT(1), /**< Memory only registered. */
-        LCP_MEM_REGISTER_DYNAMIC  = MPC_BIT(2), /**< Dynamic memory type, see \ref lcp_mem. */
-        LCP_MEM_REGISTER_STATIC   = MPC_BIT(3), /**< Static memory type, see \ref lcp_mem. */
+enum
+{
+	LCP_MEM_REGISTER_ALLOCATE = MPC_BIT(0),     /**< Memory allocated and registered. */
+	LCP_MEM_REGISTER_CREATE   = MPC_BIT(1),     /**< Memory only registered. */
+	LCP_MEM_REGISTER_DYNAMIC  = MPC_BIT(2),     /**< Dynamic memory type, see \ref lcp_mem. */
+	LCP_MEM_REGISTER_STATIC   = MPC_BIT(3),     /**< Static memory type, see \ref lcp_mem. */
 };
 
 /**
@@ -714,11 +729,12 @@ enum {
  *
  */
 
-typedef struct lcp_mem_param {
-        uint32_t    field_mask;
-        unsigned    flags;
-        const void *address;
-        size_t      size;
+typedef struct lcp_mem_param
+{
+	uint32_t    field_mask;
+	unsigned    flags;
+	const void *address;
+	size_t      size;
 } lcp_mem_param_t;
 
 /**
@@ -729,12 +745,12 @@ typedef struct lcp_mem_param {
  * registering to a transport and get a memory handle from it. This call be used
  * for MPI 3 Windows allocation calls for example.
  *
- * @param [in] mngr  Manager handle.
- * @param [in] mem_p  Pointer handle to registered memory.
- * @param [in] buffer  Buffer from which data will be registered.
- * @param [in] length  Length of data in buffer.
- * @param [in] flags  Flags to specify kind of registration.
- * @return Error code returned.
+ * @param[in] mngr   Manager handle.
+ * @param[in] mem_p  Pointer handle to registered memory.
+ * @param[in] buffer Buffer from which data will be registered.
+ * @param[in] length Length of data in buffer.
+ * @param[in] flags  Flags to specify kind of registration.
+ * @return           Error code returned.
  */
 int lcp_mem_provision(lcp_manager_h mngr, lcp_mem_h *mem_p,
                       lcp_mem_param_t *params);
@@ -745,9 +761,9 @@ int lcp_mem_provision(lcp_manager_h mngr, lcp_mem_h *mem_p,
  *
  * Deregister memory from a NIC.
  *
- * @param [in] mngr  Manager handle.
- * @param [in] mem  Memory handle to be deregistered.
- * @return Error code returned.
+ * @param[in] mngr Manager handle.
+ * @param[in] mem  Memory handle to be deregistered.
+ * @return         Error code returned.
  */
 int lcp_mem_deprovision(lcp_manager_h mngr, lcp_mem_h mem);
 
@@ -757,9 +773,9 @@ int lcp_mem_deprovision(lcp_manager_h mngr, lcp_mem_h mem);
  *
  * Query attributes of memory that has been registered.
  *
- * @param [in] ctx  Context handle.
- * @param [in] mem  Memory handle to be deregistered.
- * @return Error code returned.
+ * @param[in] ctx Context handle.
+ * @param[in] mem Memory handle to be deregistered.
+ * @return        Error code returned.
  */
 int lcp_mem_query(lcp_mem_h mem, lcp_mem_attr_t *mem_attr);
 
@@ -772,15 +788,15 @@ int lcp_mem_query(lcp_mem_h mem, lcp_mem_attr_t *mem_attr);
  * It is allocated by LCP and must be released appriopriately, see \ref
  * lcp_mem_release_rkey_buf.
  *
- * @param [in] mngr  Manager handle.
- * @param [in] mem  Memory handle to be packed.
- * @param [in] rkey_buf_p  Buffer where memory key data will be packed
+ * @param[in] mngr       Manager handle.
+ * @param[in] mem        Memory handle to be packed.
+ * @param[in] rkey_buf_p Buffer where memory key data will be packed
  *                         (allocated by LCP).
- * @param [in] rkey_len  Length of packed memory key in bytes.
- * @return Error code returned.
+ * @param[in] rkey_len   Length of packed memory key in bytes.
+ * @return               Error code returned.
  */
 int lcp_mem_pack(lcp_manager_h mngr, lcp_mem_h mem,
-                    void **rkey_buf_p, int *rkey_len);
+                 void **rkey_buf_p, int *rkey_len);
 
 /**
  * @ingroup LCP_MEM
@@ -790,11 +806,11 @@ int lcp_mem_pack(lcp_manager_h mngr, lcp_mem_h mem,
  * communication.
  *
  *
- * @param [in] mngr  Manager handle.
- * @param [in] mem_p  Pointer where memory key will be unpacked.
- * @param [in] src  Buffer where memory key data has been packed
- * @param [in] size  Size of the packed key in bytes.
- * @return Error code returned.
+ * @param[in] mngr  Manager handle.
+ * @param[in] mem_p Pointer where memory key will be unpacked.
+ * @param[in] src   Buffer where memory key data has been packed
+ * @param[in] size  Size of the packed key in bytes.
+ * @return          Error code returned.
  */
 int lcp_mem_unpack(lcp_manager_h mngr, lcp_mem_h *mem_p,
                    void *src, size_t size);
@@ -806,8 +822,8 @@ int lcp_mem_unpack(lcp_manager_h mngr, lcp_mem_h *mem_p,
  * Release packed memory key created through \ref lcp_mem_pack.
  *
  *
- * @param [in] rkey_buffer Pointer to packed memory key.
- * @return Error code returned.
+ * @param[in] rkey_buffer Pointer to packed memory key.
+ * @return                Error code returned.
  */
 void lcp_mem_release_rkey_buf(void *rkey_buffer);
 

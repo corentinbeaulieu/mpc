@@ -31,20 +31,20 @@
 
 struct sctk_profile_meta
 {
-	int task_count;
-	int process_count;
-	int node_count;
+	int                   task_count;
+	int                   process_count;
+	int                   node_count;
 
-	uint64_t walltime;
-	double ticks_per_second;
+	uint64_t              walltime;
+	double                ticks_per_second;
 
-	char command[1000];
+	char                  command[1000];
 
-	uint64_t begin_ts;
-	struct timeval calibration_time;
+	uint64_t              begin_ts;
+	struct timeval        calibration_time;
 
 	mpc_common_spinlock_t lock;
-	int status;
+	int                   status;
 };
 
 

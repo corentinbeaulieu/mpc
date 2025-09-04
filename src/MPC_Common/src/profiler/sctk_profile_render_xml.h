@@ -27,18 +27,21 @@
 #include "sctk_profile_render.h"
 
 
-	void sctk_profile_render_xml_register( struct sctk_profile_renderer *rd );
-	void sctk_profile_render_xml_setup( struct sctk_profile_renderer *rd );
-	void sctk_profile_render_xml_teardown( struct sctk_profile_renderer *rd );
+	void sctk_profile_render_xml_register(struct sctk_profile_renderer *rd);
+	void sctk_profile_render_xml_setup(struct sctk_profile_renderer *rd);
+	void sctk_profile_render_xml_teardown(struct sctk_profile_renderer *rd);
 
-	void sctk_profile_render_xml_setup_meta( struct sctk_profile_renderer *rd );
-	void sctk_profile_render_xml_render_meta( struct sctk_profile_renderer *rd, struct sctk_profile_meta *meta );
-	void sctk_profile_render_xml_teardown_meta( struct sctk_profile_renderer *rd );
+	void sctk_profile_render_xml_setup_meta(struct sctk_profile_renderer *rd);
+	void sctk_profile_render_xml_render_meta(struct sctk_profile_renderer *rd, struct sctk_profile_meta *meta);
+	void sctk_profile_render_xml_teardown_meta(struct sctk_profile_renderer *rd);
 
 
-	void sctk_profile_render_xml_setup_profile( struct sctk_profile_renderer *rd );
-	void sctk_profile_render_xml_render_profile( struct sctk_profiler_array *array, int id, int parent_id, int depth,  int going_up, struct sctk_profile_renderer *rd );
-	void sctk_profile_render_xml_teardown_profile( struct sctk_profile_renderer *rd );
+	void sctk_profile_render_xml_setup_profile(struct sctk_profile_renderer *rd);
+	void sctk_profile_render_xml_render_profile(struct sctk_profiler_array *array,
+	                                            int id, int parent_id,
+	                                            int depth, int going_up,
+	                                            struct sctk_profile_renderer *rd);
+	void sctk_profile_render_xml_teardown_profile(struct sctk_profile_renderer *rd);
 
 
 #endif /* MPC_Profiler */

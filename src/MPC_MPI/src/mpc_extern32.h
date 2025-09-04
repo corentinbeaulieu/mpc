@@ -40,7 +40,7 @@
 
 
 /** Macro to detect endianness */
-#define IS_BIG_ENDIAN    (*(uint16_t *)"\0\xff" < 0x100)
+#define IS_BIG_ENDIAN (*(uint16_t *)"\0\xff" < 0x100)
 
 /** ==========================================================
  * These conversion functions are adapted from MPICH
@@ -54,32 +54,32 @@
  * set to 0: uses system provided swapping routines
  *          for 16/32 bit data types
  */
-#define MANUAL_BYTESWAPS    1
+#define MANUAL_BYTESWAPS 1
 
 
 #if (MANUAL_BYTESWAPS == 0)
 #include <netinet/in.h>
 #endif
 
-#define BITSIZE_OF(type)    (sizeof(type) * CHAR_BIT)
+#define BITSIZE_OF(type) (sizeof(type) * CHAR_BIT)
 
 // NOLINTBEGIN(clang-diagnostic-unused-function)
 
 #if (MANUAL_BYTESWAPS == 1)
-static void  BASIC_convert32(char *src, char *dest)
+static void BASIC_convert32(char *src, char *dest)
 {
-	uint32_t tmp_src = *( (uint32_t *)src);
+	uint32_t tmp_src = *((uint32_t *)src);
 
-	*( (uint32_t *)dest) = ( ( (tmp_src >> 24) & 0x000000FF) |
-	                         ( (tmp_src >> 8) & 0x0000FF00) |
-	                         ( (tmp_src << 8) & 0x00FF0000) |
-	                         ( (tmp_src << 24) & 0xFF000000) );
+	*((uint32_t *)dest) = (((tmp_src >> 24) & 0x000000FF)
+	                       | ((tmp_src >> 8) & 0x0000FF00)
+	                       | ((tmp_src << 8) & 0x00FF0000)
+	                       | ((tmp_src << 24) & 0xFF000000));
 }
 
 #else
 static void BASIC_convert32(char *src, char *dest)
 {
-	dest = htonl(*( (uint32_t *)src) );
+	dest = htonl(*((uint32_t *)src));
 }
 
 #endif
@@ -88,16 +88,16 @@ static void BASIC_convert32(char *src, char *dest)
 #if (MANUAL_BYTESWAPS == 1)
 static void BASIC_convert16(char *src, char *dest)
 {
-	uint16_t tmp_src = *( (uint16_t *)src);
+	uint16_t tmp_src = *((uint16_t *)src);
 
-	*( (uint16_t *)dest) = ( ( (tmp_src >> 8) & 0x00FF) |
-	                         ( (tmp_src << 8) & 0xFF00) );
+	*((uint16_t *)dest) = (((tmp_src >> 8) & 0x00FF)
+	                       | ((tmp_src << 8) & 0xFF00));
 }
 
 #else
 static void BASIC_convert16(char *src, char *dest)
 {
-	dest = htons( (uint16_t)src);
+	dest = htons((uint16_t)src);
 }
 
 #endif
@@ -108,15 +108,15 @@ static inline void BASIC_convert64(char *src, char *dest)
 	uint32_t tmp_src[2];
 	uint32_t tmp_dest[2];
 
-	tmp_src[0] = (uint32_t)(*( (uint64_t *)src) >> 32);
-	tmp_src[1] = (uint32_t)( (*( (uint64_t *)src) << 32) >> 32);
+	tmp_src[0] = (uint32_t)(*((uint64_t *)src) >> 32);
+	tmp_src[1] = (uint32_t)((*((uint64_t *)src) << 32) >> 32);
 
-	BASIC_convert32( (char *)&tmp_src[0], (char *)&tmp_dest[0]);
-	BASIC_convert32( (char *)&tmp_src[1], (char *)&tmp_dest[1]);
+	BASIC_convert32((char *)&tmp_src[0], (char *)&tmp_dest[0]);
+	BASIC_convert32((char *)&tmp_src[1], (char *)&tmp_dest[1]);
 
-	*( (uint64_t *)dest)   = (uint64_t)tmp_dest[0];
-	*( (uint64_t *)dest) <<= 32;
-	*( (uint64_t *)dest)  |= (uint64_t)tmp_dest[1];
+	*((uint64_t *)dest)   = (uint64_t)tmp_dest[0];
+	*((uint64_t *)dest) <<= 32;
+	*((uint64_t *)dest)  |= (uint64_t)tmp_dest[1];
 }
 
 static inline void BASIC_convert96(char *src, char *dest)
@@ -125,20 +125,20 @@ static inline void BASIC_convert96(char *src, char *dest)
 	uint32_t tmp_dest[3];
 	char *   ptr = dest;
 
-	tmp_src[0] = (uint32_t)(*( (uint64_t *)src) >> 32);
-	tmp_src[1] = (uint32_t)( (*( (uint64_t *)src) << 32) >> 32);
+	tmp_src[0] = (uint32_t)(*((uint64_t *)src) >> 32);
+	tmp_src[1] = (uint32_t)((*((uint64_t *)src) << 32) >> 32);
 	tmp_src[2] = (uint32_t)
-	             (*( (uint32_t *)( (char *)src + sizeof(uint64_t) ) ) );
+	             (*((uint32_t *)((char *)src + sizeof(uint64_t))));
 
-	BASIC_convert32( (char *)&tmp_src[0], (char *)&tmp_dest[0]);
-	BASIC_convert32( (char *)&tmp_src[1], (char *)&tmp_dest[1]);
-	BASIC_convert32( (char *)&tmp_src[2], (char *)&tmp_dest[2]);
+	BASIC_convert32((char *)&tmp_src[0], (char *)&tmp_dest[0]);
+	BASIC_convert32((char *)&tmp_src[1], (char *)&tmp_dest[1]);
+	BASIC_convert32((char *)&tmp_src[2], (char *)&tmp_dest[2]);
 
-	*( (uint32_t *)ptr) = tmp_dest[0];
+	*((uint32_t *)ptr) = tmp_dest[0];
 	ptr += sizeof(uint32_t);
-	*( (uint32_t *)ptr) = tmp_dest[1];
+	*((uint32_t *)ptr) = tmp_dest[1];
 	ptr += sizeof(uint32_t);
-	*( (uint32_t *)ptr) = tmp_dest[2];
+	*((uint32_t *)ptr) = tmp_dest[2];
 }
 
 static inline void BASIC_convert128(char *src, char *dest)
@@ -147,38 +147,38 @@ static inline void BASIC_convert128(char *src, char *dest)
 	uint64_t tmp_dest[2];
 	char *   ptr = dest;
 
-	tmp_src[0] = *( (uint64_t *)src);
-	tmp_src[1] = *( (uint64_t *)( (char *)src + sizeof(uint64_t) ) );
+	tmp_src[0] = *((uint64_t *)src);
+	tmp_src[1] = *((uint64_t *)((char *)src + sizeof(uint64_t)));
 
-	BASIC_convert64( (char *)&tmp_src[0], (char *)&tmp_dest[0]);
-	BASIC_convert64( (char *)&tmp_src[1], (char *)&tmp_dest[1]);
+	BASIC_convert64((char *)&tmp_src[0], (char *)&tmp_dest[0]);
+	BASIC_convert64((char *)&tmp_src[1], (char *)&tmp_dest[1]);
 
-	*( (uint64_t *)ptr) = tmp_dest[0];
+	*((uint64_t *)ptr) = tmp_dest[0];
 	ptr += sizeof(uint64_t);
-	*( (uint64_t *)ptr) = tmp_dest[1];
+	*((uint64_t *)ptr) = tmp_dest[1];
 }
 
 static inline void BASIC_convert(int type_byte_size, char *src, char *dest)
 {
-	if(IS_BIG_ENDIAN == 0)
+	if (IS_BIG_ENDIAN == 0)
 	{
-		switch(type_byte_size)
+		switch (type_byte_size)
 		{
-			case 1:
-				*dest = *src;
-				break;
+		case 1:
+			*dest = *src;
+			break;
 
-			case 2:
-				BASIC_convert16(src, dest);
-				break;
+		case 2:
+			BASIC_convert16(src, dest);
+			break;
 
-			case 4:
-				BASIC_convert32(src, dest);
-				break;
+		case 4:
+			BASIC_convert32(src, dest);
+			break;
 
-			case 8:
-				BASIC_convert64(src, dest);
-				break;
+		case 8:
+			BASIC_convert64(src, dest);
+			break;
 		}
 	}
 	else
@@ -309,86 +309,86 @@ static inline void BASIC_convert(int type_byte_size, char *src, char *dest)
  */
 static inline size_t MPC_Extern32_common_type_size(mpc_lowcomm_datatype_t common_type)
 {
-	if(!mpc_lowcomm_datatype_is_common(common_type) )
+	if (!mpc_lowcomm_datatype_is_common(common_type))
 	{
 		mpc_common_debug_fatal("MPC_Extern32_common_type_size only handle common types");
 	}
 
 
 	/* No switch case with pointers... */
-	if(common_type == MPC_LOWCOMM_PACKED ||
-	   common_type == MPC_LOWCOMM_BYTE ||
-	   common_type == MPC_LOWCOMM_CHAR ||
-	   common_type == MPC_LOWCOMM_UNSIGNED_CHAR ||
-	   common_type == MPC_LOWCOMM_SIGNED_CHAR ||
-	   common_type == MPC_LOWCOMM_C_BOOL ||
-	   common_type == MPC_LOWCOMM_CXX_BOOL ||
-	   common_type == MPC_LOWCOMM_INT8_T ||
-	   common_type == MPC_LOWCOMM_UINT8_T ||
-	   common_type == MPC_LOWCOMM_CHARACTER ||
-	   common_type == MPC_LOWCOMM_INTEGER1)
+	if (common_type == MPC_LOWCOMM_PACKED
+	    || common_type == MPC_LOWCOMM_BYTE
+	    || common_type == MPC_LOWCOMM_CHAR
+	    || common_type == MPC_LOWCOMM_UNSIGNED_CHAR
+	    || common_type == MPC_LOWCOMM_SIGNED_CHAR
+	    || common_type == MPC_LOWCOMM_C_BOOL
+	    || common_type == MPC_LOWCOMM_CXX_BOOL
+	    || common_type == MPC_LOWCOMM_INT8_T
+	    || common_type == MPC_LOWCOMM_UINT8_T
+	    || common_type == MPC_LOWCOMM_CHARACTER
+	    || common_type == MPC_LOWCOMM_INTEGER1)
 	{
 		return 1;
 	}
-	if(common_type == MPC_LOWCOMM_WCHAR ||
-	   common_type == MPC_LOWCOMM_SHORT ||
-	   common_type == MPC_LOWCOMM_UNSIGNED_SHORT ||
-	   common_type == MPC_LOWCOMM_UNSIGNED_CHAR ||
-	   common_type == MPC_LOWCOMM_INT16_T ||
-	   common_type == MPC_LOWCOMM_UINT16_T ||
-	   common_type == MPC_LOWCOMM_INTEGER2 ||
-	   common_type == MPC_LOWCOMM_REAL2)
+	if (common_type == MPC_LOWCOMM_WCHAR
+	    || common_type == MPC_LOWCOMM_SHORT
+	    || common_type == MPC_LOWCOMM_UNSIGNED_SHORT
+	    || common_type == MPC_LOWCOMM_UNSIGNED_CHAR
+	    || common_type == MPC_LOWCOMM_INT16_T
+	    || common_type == MPC_LOWCOMM_UINT16_T
+	    || common_type == MPC_LOWCOMM_INTEGER2
+	    || common_type == MPC_LOWCOMM_REAL2)
 	{
 		return 2;
 	}
-	if(common_type == MPC_LOWCOMM_INT ||
-	   common_type == MPC_LOWCOMM_INTEGER ||
-	   common_type == MPC_LOWCOMM_INTEGER4 ||
-	   common_type == MPC_LOWCOMM_LOGICAL ||
-	   common_type == MPC_LOWCOMM_UNSIGNED ||
-	   common_type == MPC_LOWCOMM_LONG ||
-	   common_type == MPC_LOWCOMM_UNSIGNED_LONG ||
-	   common_type == MPC_LOWCOMM_FLOAT ||
-	   common_type == MPC_LOWCOMM_INT32_T ||
-	   common_type == MPC_LOWCOMM_UINT32_T ||
-	   common_type == MPC_LOWCOMM_REAL ||
-	   common_type == MPC_LOWCOMM_REAL4 ||
-	   common_type == MPC_LOWCOMM_COMPLEX4)
+	if (common_type == MPC_LOWCOMM_INT
+	    || common_type == MPC_LOWCOMM_INTEGER
+	    || common_type == MPC_LOWCOMM_INTEGER4
+	    || common_type == MPC_LOWCOMM_LOGICAL
+	    || common_type == MPC_LOWCOMM_UNSIGNED
+	    || common_type == MPC_LOWCOMM_LONG
+	    || common_type == MPC_LOWCOMM_UNSIGNED_LONG
+	    || common_type == MPC_LOWCOMM_FLOAT
+	    || common_type == MPC_LOWCOMM_INT32_T
+	    || common_type == MPC_LOWCOMM_UINT32_T
+	    || common_type == MPC_LOWCOMM_REAL
+	    || common_type == MPC_LOWCOMM_REAL4
+	    || common_type == MPC_LOWCOMM_COMPLEX4)
 	{
 		return 4;
 	}
-	if(common_type == MPC_LOWCOMM_LONG_LONG ||
-	   common_type == MPC_LOWCOMM_LONG_LONG_INT ||
-	   common_type == MPC_LOWCOMM_UNSIGNED_LONG_LONG ||
-	   common_type == MPC_LOWCOMM_DOUBLE ||
-	   common_type == MPC_LOWCOMM_DOUBLE_PRECISION ||
-	   common_type == MPC_LOWCOMM_INT64_T ||
-	   common_type == MPC_LOWCOMM_UINT64_T ||
-	   common_type == MPC_LOWCOMM_AINT ||
-	   common_type == MPC_LOWCOMM_COUNT ||
-	   common_type == MPC_LOWCOMM_OFFSET ||
-	   common_type == MPC_LOWCOMM_COMPLEX ||
-	   common_type == MPC_LOWCOMM_C_COMPLEX ||
-	   common_type == MPC_LOWCOMM_C_FLOAT_COMPLEX ||
-	   common_type == MPC_LOWCOMM_CXX_FLOAT_COMPLEX ||
-	   common_type == MPC_LOWCOMM_INTEGER8 ||
-	   common_type == MPC_LOWCOMM_REAL8 ||
-	   common_type == MPC_LOWCOMM_COMPLEX8)
+	if (common_type == MPC_LOWCOMM_LONG_LONG
+	    || common_type == MPC_LOWCOMM_LONG_LONG_INT
+	    || common_type == MPC_LOWCOMM_UNSIGNED_LONG_LONG
+	    || common_type == MPC_LOWCOMM_DOUBLE
+	    || common_type == MPC_LOWCOMM_DOUBLE_PRECISION
+	    || common_type == MPC_LOWCOMM_INT64_T
+	    || common_type == MPC_LOWCOMM_UINT64_T
+	    || common_type == MPC_LOWCOMM_AINT
+	    || common_type == MPC_LOWCOMM_COUNT
+	    || common_type == MPC_LOWCOMM_OFFSET
+	    || common_type == MPC_LOWCOMM_COMPLEX
+	    || common_type == MPC_LOWCOMM_C_COMPLEX
+	    || common_type == MPC_LOWCOMM_C_FLOAT_COMPLEX
+	    || common_type == MPC_LOWCOMM_CXX_FLOAT_COMPLEX
+	    || common_type == MPC_LOWCOMM_INTEGER8
+	    || common_type == MPC_LOWCOMM_REAL8
+	    || common_type == MPC_LOWCOMM_COMPLEX8)
 	{
 		return 8;
 	}
-	if(common_type == MPC_LOWCOMM_LONG_DOUBLE ||
-	   common_type == MPC_LOWCOMM_C_DOUBLE_COMPLEX ||
-	   common_type == MPC_LOWCOMM_CXX_DOUBLE_COMPLEX ||
-	   common_type == MPC_LOWCOMM_INTEGER16 ||
-	   common_type == MPC_LOWCOMM_REAL16 ||
-	   common_type == MPC_LOWCOMM_COMPLEX16)
+	if (common_type == MPC_LOWCOMM_LONG_DOUBLE
+	    || common_type == MPC_LOWCOMM_C_DOUBLE_COMPLEX
+	    || common_type == MPC_LOWCOMM_CXX_DOUBLE_COMPLEX
+	    || common_type == MPC_LOWCOMM_INTEGER16
+	    || common_type == MPC_LOWCOMM_REAL16
+	    || common_type == MPC_LOWCOMM_COMPLEX16)
 	{
 		return 16;
 	}
-	if(common_type == MPC_LOWCOMM_C_LONG_DOUBLE_COMPLEX ||
-	   common_type == MPC_LOWCOMM_CXX_LONG_DOUBLE_COMPLEX ||
-	   common_type == MPC_LOWCOMM_COMPLEX32)
+	if (common_type == MPC_LOWCOMM_C_LONG_DOUBLE_COMPLEX
+	    || common_type == MPC_LOWCOMM_CXX_LONG_DOUBLE_COMPLEX
+	    || common_type == MPC_LOWCOMM_COMPLEX32)
 	{
 		return 32;
 	}
@@ -405,20 +405,20 @@ static inline size_t MPC_Extern32_common_type_size(mpc_lowcomm_datatype_t common
  */
 static inline int MPC_Unsigned_type(mpc_lowcomm_datatype_t common_type)
 {
-	if(!mpc_lowcomm_datatype_is_common(common_type) )
+	if (!mpc_lowcomm_datatype_is_common(common_type))
 	{
 		mpc_common_debug_fatal("MPC_Extern32_common_type_size only handle common types");
 	}
 
-	if(common_type == MPC_LOWCOMM_UNSIGNED_CHAR ||
-	   common_type == MPC_LOWCOMM_UINT8_T ||
-	   common_type == MPC_LOWCOMM_UNSIGNED_SHORT ||
-	   common_type == MPC_LOWCOMM_UINT16_T ||
-	   common_type == MPC_LOWCOMM_UNSIGNED ||
-	   common_type == MPC_LOWCOMM_UNSIGNED_LONG ||
-	   common_type == MPC_LOWCOMM_UINT32_T ||
-	   common_type == MPC_LOWCOMM_UNSIGNED_LONG_LONG ||
-	   common_type == MPC_LOWCOMM_UINT64_T)
+	if (common_type == MPC_LOWCOMM_UNSIGNED_CHAR
+	    || common_type == MPC_LOWCOMM_UINT8_T
+	    || common_type == MPC_LOWCOMM_UNSIGNED_SHORT
+	    || common_type == MPC_LOWCOMM_UINT16_T
+	    || common_type == MPC_LOWCOMM_UNSIGNED
+	    || common_type == MPC_LOWCOMM_UNSIGNED_LONG
+	    || common_type == MPC_LOWCOMM_UINT32_T
+	    || common_type == MPC_LOWCOMM_UNSIGNED_LONG_LONG
+	    || common_type == MPC_LOWCOMM_UINT64_T)
 	{
 		return 1;
 	}

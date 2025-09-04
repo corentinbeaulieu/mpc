@@ -28,8 +28,8 @@
 
 #if OMPT_SUPPORT
 
-void
-_mpc_omp_ompt_callback_flush();
+	void
+	_mpc_omp_ompt_callback_flush();
 
 #endif /* OMPT_SUPPORT */
 #endif /* __MPCOMPT_FLUSH_H__ */

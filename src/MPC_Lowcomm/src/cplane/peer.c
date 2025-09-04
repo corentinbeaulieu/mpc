@@ -28,29 +28,32 @@ int _mpc_lowcomm_peer_teardown()
 	return 0;
 }
 
-_mpc_lowcomm_peer_t *_mpc_lowcomm_peer_register(mpc_lowcomm_peer_uid_t uid, uint64_t local_task_count, char *uri, int is_local)
+_mpc_lowcomm_peer_t *_mpc_lowcomm_peer_register(mpc_lowcomm_peer_uid_t uid,
+                                                uint64_t local_task_count,
+                                                char *uri,
+                                                int is_local)
 {
 	static mpc_common_spinlock_t __peer_lock = MPC_COMMON_SPINLOCK_INITIALIZER;
 
 	_mpc_lowcomm_peer_t *ret = NULL;
 
 	/* Make sure there is no race on the peer registration */
-	mpc_common_spinlock_lock_yield( &__peer_lock );
+	mpc_common_spinlock_lock_yield(&__peer_lock);
 
-	ret = _mpc_lowcomm_peer_get( uid );
+	ret = _mpc_lowcomm_peer_get(uid);
 
-	if(ret != NULL)
+	if (ret != NULL)
 	{
-		mpc_common_spinlock_unlock( &__peer_lock );
+		mpc_common_spinlock_unlock(&__peer_lock);
 		return ret;
 	}
 
-	mpc_common_spinlock_unlock( &__peer_lock );
+	mpc_common_spinlock_unlock(&__peer_lock);
 
-	_mpc_lowcomm_peer_t *new = sctk_malloc(sizeof(_mpc_lowcomm_peer_t) );
+	_mpc_lowcomm_peer_t *new = sctk_malloc(sizeof(_mpc_lowcomm_peer_t));
 	assume(new != NULL);
 	new->infos.uid = uid;
-	new->is_local = is_local;
+	new->is_local  = is_local;
 	new->infos.local_task_count = local_task_count;
 	snprintf(new->infos.uri, MPC_LOWCOMM_PEER_URI_SIZE, "%s", uri);
 
@@ -69,7 +72,7 @@ int _mpc_lowcomm_peer_remove(uint64_t uid)
 {
 	_mpc_lowcomm_peer_t *to_del = _mpc_lowcomm_peer_get(uid);
 
-	if(to_del)
+	if (to_del)
 	{
 		return 1;
 	}
@@ -86,37 +89,44 @@ _mpc_lowcomm_peer_t *_mpc_lowcomm_peer_get(mpc_lowcomm_peer_uid_t uid)
 	return (_mpc_lowcomm_peer_t *)mpc_common_hashtable_get(&__peer_ht, uid);
 }
 
-int mpc_lowcomm_peer_closer(mpc_lowcomm_peer_uid_t dest, mpc_lowcomm_peer_uid_t current, mpc_lowcomm_peer_uid_t candidate)
+int mpc_lowcomm_peer_closer(mpc_lowcomm_peer_uid_t dest,
+                            mpc_lowcomm_peer_uid_t current,
+                            mpc_lowcomm_peer_uid_t candidate)
 {
-	//mpc_common_debug_error("Dest is %lu CURRENT %lu CANDIDATE %lu", dest, current, candidate);
+	// mpc_common_debug_error("Dest is %lu CURRENT %lu CANDIDATE %lu", dest, current, candidate);
 
 	/* No candidate */
-	if(candidate == 0)
+	if (candidate == 0)
 	{
 		return 0;
 	}
 
 	/* Not in the same set */
-	if(mpc_lowcomm_peer_get_set(dest) != mpc_lowcomm_peer_get_set(candidate))
+	if (mpc_lowcomm_peer_get_set(dest) != mpc_lowcomm_peer_get_set(candidate))
 	{
 		return 0;
 	}
 
 	/* No reference pick it if in set */
-	if(current == 0)
+	if (current == 0)
 	{
 		return 1;
 	}
 
-	int current_rank = mpc_lowcomm_peer_get_rank(current);
+	int current_rank   = mpc_lowcomm_peer_get_rank(current);
 	int candidate_rank = mpc_lowcomm_peer_get_rank(candidate);
-	int dest_rank = mpc_lowcomm_peer_get_rank(dest);
+	int dest_rank      = mpc_lowcomm_peer_get_rank(dest);
 
 	int d_cand_d = mpc_common_abs(dest_rank - candidate_rank);
-	int d_cur_d = mpc_common_abs(dest_rank - current_rank);
-	//mpc_common_debug_error("Dest is %u current %u D %d candidate %u D %d", dest_rank, current, d_cur_d, candidate_rank, d_cand_d);
+	int d_cur_d  = mpc_common_abs(dest_rank - current_rank);
+	// mpc_common_debug_error("Dest is %u current %u D %d candidate %u D %d",
+	// 	dest_rank,
+	// 	current,
+	// 	d_cur_d,
+	// 	candidate_rank,
+	// 	d_cand_d);
 
-	if(d_cand_d < d_cur_d)
+	if (d_cand_d < d_cur_d)
 	{
 		return 1;
 	}
@@ -124,9 +134,9 @@ int mpc_lowcomm_peer_closer(mpc_lowcomm_peer_uid_t dest, mpc_lowcomm_peer_uid_t 
 	return 0;
 }
 
-char * mpc_lowcomm_peer_format_r(mpc_lowcomm_peer_uid_t uid, char * buff, int len)
+char * mpc_lowcomm_peer_format_r(mpc_lowcomm_peer_uid_t uid, char *buff, int len)
 {
-	if(!buff)
+	if (!buff)
 	{
 		return buff;
 	}
@@ -136,9 +146,9 @@ char * mpc_lowcomm_peer_format_r(mpc_lowcomm_peer_uid_t uid, char * buff, int le
 	return buff;
 }
 
-
 char * mpc_lowcomm_peer_format(mpc_lowcomm_peer_uid_t uid)
 {
 	static char peer_name[128];
+
 	return mpc_lowcomm_peer_format_r(uid, peer_name, 128);
 }

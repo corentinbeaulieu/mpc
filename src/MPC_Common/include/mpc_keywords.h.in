@@ -26,19 +26,19 @@
 
 /* HAVE_BUILTIN_EXPECT */
 #if @HAVE_BUILTIN_EXPECT@ == 1
-        #define expect_true(expr) __builtin_expect(!!(expr),1)
-        #define expect_false(expr) __builtin_expect(!!(expr),0)
+	#define expect_true(expr)  __builtin_expect(!!(expr), 1)
+	#define expect_false(expr) __builtin_expect(!!(expr), 0)
 #else
-        #define expect_true(expr) (expr)
-        #define expect_false(expr) (expr)
+	#define expect_true(expr)  (expr)
+	#define expect_false(expr) (expr)
 #endif
 
 
 /* For not used functions (disable compiler warning */
 #ifdef __GNUC__
-#define __UNUSED__ __attribute__( ( __unused__ ) )
+	#define __UNUSED__ __attribute__((__unused__))
 #else
-#define __UNUSED__
+	#define __UNUSED__
 #endif
 
 #define UNUSED(a) (void)&a

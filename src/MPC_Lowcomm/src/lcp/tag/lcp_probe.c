@@ -46,50 +46,54 @@ int lcp_tag_probe_nb(lcp_manager_h mngr, lcp_task_h task, const int src,
                      const int tag, const uint64_t comm,
                      lcp_tag_recv_info_t *recv_info)
 {
-        int rc = MPC_LOWCOMM_SUCCESS;
+	int rc = MPC_LOWCOMM_SUCCESS;
 	lcp_unexp_ctnr_t *match = NULL;
 
-        int tmask = tag == MPC_ANY_TAG ? 0 : ~0;
-        int smask = src == MPC_ANY_SOURCE ? 0 : ~0;
+	int tmask = tag == MPC_ANY_TAG ? 0 : ~0;
+	int smask = src == MPC_ANY_SOURCE ? 0 : ~0;
 
-	if (mngr->ctx->config.offload) {
-	        sctk_rail_info_t *iface = mngr->ifaces[mngr->priority_iface];
-                rc = lcp_recv_tag_probe(task, iface, src, tag, comm, recv_info);
+	if (mngr->ctx->config.offload)
+	{
+		sctk_rail_info_t *iface = mngr->ifaces[mngr->priority_iface];
+		rc = lcp_recv_tag_probe(task, iface, src, tag, comm, recv_info);
 
-                return rc;
-        }
+		return rc;
+	}
 
-        LCP_TASK_LOCK(task);
-        match = lcp_search_umqueue(task->tcct[mngr->id]->tag.umqs, (uint16_t)comm, tag, tmask, src, smask);
-        if (match != NULL) {
-                if (match->flags & LCP_RECV_CONTAINER_UNEXP_EAGER_TAG) {
-                        lcp_tag_hdr_t *hdr = (lcp_tag_hdr_t *)(match + 1);
+	LCP_TASK_LOCK(task);
+	match = lcp_search_umqueue(task->tcct[mngr->id]->tag.umqs, (uint16_t)comm, tag, tmask, src, smask);
+	if (match != NULL)
+	{
+		if (match->flags & LCP_RECV_CONTAINER_UNEXP_EAGER_TAG)
+		{
+			lcp_tag_hdr_t *hdr = (lcp_tag_hdr_t *)(match + 1);
 
-                        recv_info->tag    = hdr->tag;
-                        recv_info->length = match->length - sizeof(lcp_tag_hdr_t);
-                        recv_info->src    = hdr->src_tid;
+			recv_info->tag    = hdr->tag;
+			recv_info->length = match->length - sizeof(lcp_tag_hdr_t);
+			recv_info->src    = hdr->src_tid;
+		}
+		else if (match->flags & LCP_RECV_CONTAINER_UNEXP_EAGER_TAG_SYNC)
+		{
+			lcp_tag_sync_hdr_t *hdr = (lcp_tag_sync_hdr_t *)(match + 1);
 
-                } else if (match->flags & LCP_RECV_CONTAINER_UNEXP_EAGER_TAG_SYNC ) {
-                        lcp_tag_sync_hdr_t *hdr = (lcp_tag_sync_hdr_t *)(match + 1);
+			recv_info->tag    = hdr->base.tag;
+			recv_info->length = match->length - sizeof(lcp_tag_sync_hdr_t);
+			recv_info->src    = hdr->base.src_tid;
+		}
+		else if (match->flags & LCP_RECV_CONTAINER_UNEXP_RNDV_TAG)
+		{
+			lcp_rndv_hdr_t *hdr = (lcp_rndv_hdr_t *)(match + 1);
 
-                        recv_info->tag    = hdr->base.tag;
-                        recv_info->length = match->length - sizeof(lcp_tag_sync_hdr_t);
-                        recv_info->src    = hdr->base.src_tid;
+			recv_info->src    = hdr->tag.src_tid;
+			recv_info->tag    = hdr->tag.tag;
+			recv_info->length = hdr->size;
+		}
+		recv_info->found = 1;
+		mpc_common_debug("LCP: probed request src=%d, tag=%d, length=%lu",
+			recv_info->src, recv_info->tag, recv_info->length);
+	}
 
-                } else if (match->flags & LCP_RECV_CONTAINER_UNEXP_RNDV_TAG) {
-                        lcp_rndv_hdr_t *hdr = (lcp_rndv_hdr_t *)(match + 1);
+	LCP_TASK_UNLOCK(task);
 
-                        recv_info->src    = hdr->tag.src_tid;
-                        recv_info->tag    = hdr->tag.tag;
-                        recv_info->length = hdr->size;
-                }
-                recv_info->found = 1;
-                mpc_common_debug("LCP: probed request src=%d, tag=%d, length=%lu",
-                                 recv_info->src, recv_info->tag, recv_info->length);
-
-        }
-
-        LCP_TASK_UNLOCK(task);
-
-        return rc;
+	return rc;
 }

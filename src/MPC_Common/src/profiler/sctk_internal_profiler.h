@@ -33,26 +33,28 @@
 #include "mpc_common_asm.h"
 
 
-struct sctk_profile_meta *sctk_internal_profiler_get_meta();
+	struct sctk_profile_meta *sctk_internal_profiler_get_meta();
 
-/* ****************** */
+	/* ****************** */
 
-/* ****************** */
+	/* ****************** */
 
-/* MPI Init / MPI Finalize */
-static inline void sctk_profiler_set_initialize_time()
-{
-	struct sctk_profiler_array* array = (struct sctk_profiler_array *)mpc_profiler;
-	array->initialize_time = mpc_arch_get_timestamp();
-	sctk_profiler_internal_enable();
-}
+	/* MPI Init / MPI Finalize */
+	static inline void sctk_profiler_set_initialize_time()
+	{
+		struct sctk_profiler_array *array = (struct sctk_profiler_array *)mpc_profiler;
 
-static inline void sctk_profiler_set_finalize_time()
-{
-	struct sctk_profiler_array* array = (struct sctk_profiler_array *)mpc_profiler;
-	sctk_profiler_internal_disable();
-  	array->run_time = ( (double)mpc_arch_get_timestamp() - (double)array->initialize_time);
-}
+		array->initialize_time = mpc_arch_get_timestamp();
+		sctk_profiler_internal_enable();
+	}
+
+	static inline void sctk_profiler_set_finalize_time()
+	{
+		struct sctk_profiler_array *array = (struct sctk_profiler_array *)mpc_profiler;
+
+		sctk_profiler_internal_disable();
+		array->run_time = ((double)mpc_arch_get_timestamp() - (double)array->initialize_time);
+	}
 
 #endif /* MPC_Profiler */
 

@@ -32,13 +32,15 @@
 #ifndef LCP_TAG_MATCH_H
 #define LCP_TAG_MATCH_H
 
-#include <core/lcp_request.h> //FIXME: find a way to remove this dependency.
+#include <core/lcp_request.h> // FIXME: find a way to remove this dependency.
 #include <core/lcp_header.h>
 
 /* NOLINTBEGIN(clang-diagnostic-unused-function) */
-static inline lcp_tag_hdr_t * lcp_ctnr_get_tag(lcp_unexp_ctnr_t *ctnr) {
-        return (lcp_tag_hdr_t *)(ctnr + 1);
+static inline lcp_tag_hdr_t * lcp_ctnr_get_tag(lcp_unexp_ctnr_t *ctnr)
+{
+	return (lcp_tag_hdr_t *)(ctnr + 1);
 }
+
 /* NOLINTEND(clang-diagnostic-unused-function) */
 
 void *lcp_match_prqueue(mpc_queue_head_t *prqs, uint16_t comm_id, int32_t tag, int32_t src);

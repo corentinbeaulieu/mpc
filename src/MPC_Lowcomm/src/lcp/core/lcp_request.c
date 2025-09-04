@@ -40,79 +40,83 @@
 
 int lcp_request_check_status(void *request)
 {
-        lcp_request_t *req = (lcp_request_t *)(request) - 1;
+	lcp_request_t *req = (lcp_request_t *)(request) - 1;
 
-        if (req->flags & LCP_REQUEST_REMOTE_COMPLETED &&
-            req->flags & LCP_REQUEST_LOCAL_COMPLETED) {
-                return req->status;
-        }
+	if (req->flags & LCP_REQUEST_REMOTE_COMPLETED
+	    && req->flags & LCP_REQUEST_LOCAL_COMPLETED)
+	{
+		return req->status;
+	}
 
-        return MPC_LOWCOMM_IN_PROGRESS;
+	return MPC_LOWCOMM_IN_PROGRESS;
 }
 
 void *lcp_request_alloc(lcp_task_h task)
 {
-        lcp_request_t *req = NULL;
+	lcp_request_t *req = NULL;
 
-        assert(task->ctx->config.request.size > 0);
+	assert(task->ctx->config.request.size > 0);
 
-        req = lcp_request_get(task);
-        if (req == NULL) {
-                mpc_common_debug_error("LCP REQ: could not allocate "
-                                       "request.");
-                return NULL;
-        }
-        req->flags |= LCP_REQUEST_USER_ALLOCATED;
-        //NOTE: with lcp_request_get, completion is set automatically.
-        //      Unset it.
-        req->flags &= ~LCP_REQUEST_RELEASE_ON_COMPLETION;
+	req = lcp_request_get(task);
+	if (req == NULL)
+	{
+		mpc_common_debug_error("LCP REQ: could not allocate "
+			                   "request.");
+		return NULL;
+	}
+	req->flags |= LCP_REQUEST_USER_ALLOCATED;
+	// NOTE: with lcp_request_get, completion is set automatically.
+	//      Unset it.
+	req->flags &= ~LCP_REQUEST_RELEASE_ON_COMPLETION;
 
-        return req + 1;
+	return req + 1;
 }
 
 void lcp_request_free(void *request)
 {
-        lcp_request_t *req = (lcp_request_t *)(request) - 1;
+	lcp_request_t *req = (lcp_request_t *)(request) - 1;
 
-        assert(req->flags & LCP_REQUEST_USER_ALLOCATED);
+	assert(req->flags & LCP_REQUEST_USER_ALLOCATED);
 
-        lcp_request_put(req);
+	lcp_request_put(req);
 }
 
 /**
  * @brief Store data from unexpected message.
  *
- * @param task the task
- * @param ctnr_p message data (out)
- * @param data message data (in)
- * @param length length of message
- * @param flags flag of the unexpected message
- * @return int MPC_LOWCOMM_SUCCESS in case of success
+ * @param  task   the task
+ * @param  ctnr_p message data (out)
+ * @param  data   message data (in)
+ * @param  length length of message
+ * @param  flags  flag of the unexpected message
+ * @return        int MPC_LOWCOMM_SUCCESS in case of success
  */
 int lcp_request_init_unexp_ctnr(lcp_task_h task, lcp_unexp_ctnr_t **ctnr_p,
                                 struct iovec *iov, size_t iovcnt, unsigned flags)
 {
 	lcp_unexp_ctnr_t *ctnr;
-        int i;
+	int i;
 
 	ctnr = lcp_container_get(task);
-	if (ctnr == NULL) {
+	if (ctnr == NULL)
+	{
 		mpc_common_debug_error("LCP: could not allocate recv container.");
 		return MPC_LOWCOMM_ERROR;
 	}
 
-        size_t elem_size = mpc_mpool_get_elem_size(&task->unexp_mp);
-        ptrdiff_t offset = 0;
+	size_t    elem_size = mpc_mpool_get_elem_size(&task->unexp_mp);
+	ptrdiff_t offset    = 0;
 
-        for (i = 0; i < (int)iovcnt; i++) {
-                assert(iov[i].iov_len + offset < elem_size);
-                memcpy((char *)(ctnr + 1) + offset, iov[i].iov_base, iov[i].iov_len);
-                offset += iov[i].iov_len;
-        }
+	for (i = 0; i < (int)iovcnt; i++)
+	{
+		assert(iov[i].iov_len + offset < elem_size);
+		memcpy((char *)(ctnr + 1) + offset, iov[i].iov_base, iov[i].iov_len);
+		offset += iov[i].iov_len;
+	}
 
 	ctnr->flags  = 0;
 	ctnr->flags |= flags;
-        ctnr->length = offset;
+	ctnr->length = offset;
 
 	*ctnr_p = ctnr;
 

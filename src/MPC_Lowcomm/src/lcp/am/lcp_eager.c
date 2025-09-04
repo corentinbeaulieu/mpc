@@ -35,21 +35,22 @@
 #define MPC_MODULE "Lowcomm/LCP/Eager"
 
 ssize_t lcp_send_eager_bcopy(lcp_request_t *req,
-                         lcr_pack_callback_t pack,
-                         uint8_t am_id)
+                             lcr_pack_callback_t pack,
+                             uint8_t am_id)
 {
-        ssize_t payload;
-        lcp_ep_h ep = req->send.ep;
+	ssize_t  payload;
+	lcp_ep_h ep = req->send.ep;
 
-        payload = lcp_send_do_am_bcopy(ep->lct_eps[ep->am_chnl],
-                                       am_id, pack, req);
+	payload = lcp_send_do_am_bcopy(ep->lct_eps[ep->am_chnl],
+		am_id, pack, req);
 
-	if (payload < 0) {
+	if (payload < 0)
+	{
 		mpc_common_debug_error("LCP: error packing bcopy.");
-                return MPC_LOWCOMM_ERROR;
+		return MPC_LOWCOMM_ERROR;
 	}
 
-        return payload;
+	return payload;
 }
 
 int lcp_send_eager_zcopy(lcp_request_t *req, uint8_t am_id,
@@ -59,7 +60,7 @@ int lcp_send_eager_zcopy(lcp_request_t *req, uint8_t am_id,
 {
 	lcp_ep_h ep = req->send.ep;
 
-        return lcp_send_do_am_zcopy(ep->lct_eps[ep->am_chnl],
-                                    am_id, hdr, hdr_size,
-                                    iov, iovcnt, comp);
+	return lcp_send_do_am_zcopy(ep->lct_eps[ep->am_chnl],
+		am_id, hdr, hdr_size,
+		iov, iovcnt, comp);
 }

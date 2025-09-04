@@ -25,46 +25,41 @@
 
 #include <mpc_mpi.h>
 #include <mpc_mpi_comm_lib.h>
-#include <mpc_lowcomm_communicator.h> //NOTE: for lowcomm_communicator_t
+#include <mpc_lowcomm_communicator.h> // NOTE: for lowcomm_communicator_t
 #include <lcp.h>
 
 #include "osc_module.h"
 
 #define MAX_WIN_NAME 64
 
-typedef struct MPI_ABI_Win {
-        int comm_size;
-        int comm_rank;
-        mpc_lowcomm_communicator_t comm;
-        mpc_lowcomm_group_t *group;
-        MPI_Info info;
+typedef struct MPI_ABI_Win
+{
+	int                         comm_size;
+	int                         comm_rank;
+	mpc_lowcomm_communicator_t  comm;
+	mpc_lowcomm_group_t *       group;
+	MPI_Info                    info;
 
-        char win_name[MPI_MAX_OBJECT_NAME];
+	char                        win_name[MPI_MAX_OBJECT_NAME];
 
-        int flavor;
-        int model;
-        size_t size;
+	int                         flavor;
+	int                         model;
+	size_t                      size;
 
-        struct mpc_common_hashtable attrs;
+	struct mpc_common_hashtable attrs;
 
-        //FIXME: move to pointer so that include "osc_module.h" can be removed.
-        mpc_osc_module_t win_module;
+	// FIXME: move to pointer so that include "osc_module.h" can be removed.
+	mpc_osc_module_t            win_module;
 } mpc_win_t;
 
 void mpc_win_get_attr(mpc_win_t *win, int win_keyval, void *attr_val,
                       int *flag);
 
-int mpc_win_create(void **base, size_t size,
-                   int disp_unit, MPI_Info info,
-                   mpc_lowcomm_communicator_t comm,
-                   mpc_win_t **win_p);
-int mpc_win_allocate(void **base, size_t size,
-                     int disp_unit, MPI_Info info,
-                     mpc_lowcomm_communicator_t comm,
-                     mpc_win_t **win_p);
-int mpc_win_create_dynamic(MPI_Info info,
-                           mpc_lowcomm_communicator_t comm,
-                           mpc_win_t **win_p);
+int mpc_win_create(void **base, size_t size, int disp_unit, MPI_Info info,
+                   mpc_lowcomm_communicator_t comm, mpc_win_t **win_p);
+int mpc_win_allocate(void **base, size_t size, int disp_unit, MPI_Info info,
+                     mpc_lowcomm_communicator_t comm, mpc_win_t **win_p);
+int mpc_win_create_dynamic(MPI_Info info, mpc_lowcomm_communicator_t comm, mpc_win_t **win_p);
 
 int mpc_win_free(mpc_win_t *win);
 
@@ -117,13 +112,13 @@ int mpc_osc_raccumulate(const void *origin_addr, int origin_count,
                         _mpc_lowcomm_general_datatype_t *target_dt, MPI_Op op,
                         mpc_win_t *win, MPI_Request *request);
 int mpc_osc_rget_accumulate(const void *origin_addr, int origin_count,
-                                _mpc_lowcomm_general_datatype_t *origin_datatype,
-                                void *result_addr, int result_count,
-                                _mpc_lowcomm_general_datatype_t *result_datatype,
-                                int target_rank, ptrdiff_t target_disp, int target_count,
-                                _mpc_lowcomm_general_datatype_t *target_datatype,
-                                MPI_Op op, mpc_win_t *win,
-                                MPI_Request *request);
+                            _mpc_lowcomm_general_datatype_t *origin_datatype,
+                            void *result_addr, int result_count,
+                            _mpc_lowcomm_general_datatype_t *result_datatype,
+                            int target_rank, ptrdiff_t target_disp, int target_count,
+                            _mpc_lowcomm_general_datatype_t *target_datatype,
+                            MPI_Op op, mpc_win_t *win,
+                            MPI_Request *request);
 
 /* Passive target. */
 int mpc_osc_lock(int lock_type, int target, int mpi_assert, mpc_win_t *win);
@@ -147,14 +142,14 @@ int mpc_osc_test(mpc_win_t *win, int *flag);
 int osc_module_fini();
 
 
-//Attributes
+// Attributes
 struct mpc_osc_win_keyval *
 mpc_osc_win_keyval_init(MPI_Win_copy_attr_function *copy_fn,
                         MPI_Win_delete_attr_function *delete_fn,
                         void *extra_state);
 struct mpc_osc_win_attr *
 mpc_osc_win_attr_init(int keyval, void *value,
-                      struct mpc_osc_win_keyval *keyval_pl, mpc_win_t * win);
+                      struct mpc_osc_win_keyval *keyval_pl, mpc_win_t *win);
 int mpc_osc_win_set_attr(MPI_Win win, int keyval, void *attr_val);
 int mpc_osc_win_get_attr(MPI_Win win, int keyval, void *attr_val, int *flag);
 int mpc_osc_win_delete_attr(MPI_Win win, int keyval);

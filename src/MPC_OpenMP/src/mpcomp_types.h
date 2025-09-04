@@ -57,25 +57,27 @@
 #include "mpc_omp_task_trace.h"
 
 #define MPC_OMP_USE_INTEL_ABI 1
-# ifdef MPC_OMP_USE_INTEL_ABI
-#  include "omp_intel_types.h"
-# endif /* MPC_OMP_USE_INTEL_ABI */
+#ifdef MPC_OMP_USE_INTEL_ABI
+#include "omp_intel_types.h"
+#endif /* MPC_OMP_USE_INTEL_ABI */
 
 #include "omp_gomp_constants.h"
 
 /* debug hashtable collisions for task dependencies */
-# define MPC_OMP_DEBUG_TASK_UTHASH 0
+#define MPC_OMP_DEBUG_TASK_UTHASH 0
 
 /* uthash implementations */
 #ifndef HASH_FUNCTION
-#  define HASH_FUNCTION(keyptr, keylen, hashv)  do {                                                                            \
-                                                    hashv = ((mpc_omp_thread_t *) mpc_omp_tls)->task_infos.hash_deps(*keyptr);  \
-                                                } while(0)
+	#define HASH_FUNCTION(keyptr, keylen, hashv)                                          \
+			do                                                                            \
+			{                                                                             \
+				hashv = ((mpc_omp_thread_t *)mpc_omp_tls)->task_infos.hash_deps(*keyptr); \
+			} while (0)
 
-#  if MPC_OMP_DEBUG_TASK_UTHASH
-#   define uthash_collision_fyi(tbl) (++(((mpc_omp_thread_t *) mpc_omp_tls)->hash_collision))
-#   define uthash_expand_fyi(tbl) (++(((mpc_omp_thread_t *) mpc_omp_tls)->hash_resize))
-#  endif /* MPC_OMP_DEBUG_TASK_UTHASH */
+#if MPC_OMP_DEBUG_TASK_UTHASH
+		#define uthash_collision_fyi(tbl) (++(((mpc_omp_thread_t *)mpc_omp_tls)->hash_collision))
+		#define uthash_expand_fyi(tbl)    (++(((mpc_omp_thread_t *)mpc_omp_tls)->hash_resize))
+#endif /* MPC_OMP_DEBUG_TASK_UTHASH */
 #include "uthash.h"
 #endif /* HASH_FUNCTION */
 
@@ -83,15 +85,15 @@
  * OMP DEFINITIONS *
  *******************/
 
-# define MPC_OMP_VERSION_MAJOR  4
-# define MPC_OMP_VERSION_MINOR  5
+#define MPC_OMP_VERSION_MAJOR 4
+#define MPC_OMP_VERSION_MINOR 5
 
 /* cache prefetch on omp task dependencies */
 #define MPC_OMP_TASK_PREFETCH_DEPENDENCIES 0
 
 /* Keep track on the number of ready tasks */
-#define MPC_OMP_COMPILE_THROTTLING              1
-#define MPC_OMP_COMPILE_THROTTLING_MAX_READY    0
+#define MPC_OMP_COMPILE_THROTTLING           1
+#define MPC_OMP_COMPILE_THROTTLING_MAX_READY 0
 
 /* UCONTEXT */
 #define MPC_OMP_TASK_COMPILE_UCONTEXT 1
@@ -112,32 +114,32 @@
 #define MPC_OMP_TASK_COMPILE_LIST_TYPE 1
 
 #if MPC_OMP_TASK_COMPILE_UCONTEXT
-# define MPC_OMP_TASK_UCONTEXT_ENABLED     mpc_omp_conf_get()->task_use_ucontext
-# define MPC_OMP_TASK_UCONTEXT_STACK_SIZE  mpc_omp_conf_get()->task_ucontext_stack_size
-# else
-# define MPC_OMP_TASK_UCONTEXT_ENABLED 0
+	#define MPC_OMP_TASK_UCONTEXT_ENABLED    mpc_omp_conf_get()->task_use_ucontext
+	#define MPC_OMP_TASK_UCONTEXT_STACK_SIZE mpc_omp_conf_get()->task_ucontext_stack_size
+#else
+	#define MPC_OMP_TASK_UCONTEXT_ENABLED 0
 #endif
 
 /* RECYCLER */
-# define MPC_OMP_TASK_USE_RECYCLERS     0
-# if MPC_OMP_TASK_USE_RECYCLERS
-#  define MPC_OMP_TASK_ALLOCATOR        mpc_omp_alloc
-#  define MPC_OMP_TASK_DEALLOCATOR      mpc_omp_free
-#  define MPC_OMP_TASK_DEFAULT_ALIGN    8
-# endif
+#define MPC_OMP_TASK_USE_RECYCLERS 0
+#if MPC_OMP_TASK_USE_RECYCLERS
+	#define MPC_OMP_TASK_ALLOCATOR     mpc_omp_alloc
+	#define MPC_OMP_TASK_DEALLOCATOR   mpc_omp_free
+	#define MPC_OMP_TASK_DEFAULT_ALIGN 8
+#endif
 
 /* BARRIER ALGORITHM */
-# define MPC_OMP_NAIVE_BARRIER              1
-# define MPC_OMP_BARRIER_COMPILE_COND_WAIT  0
+#define MPC_OMP_NAIVE_BARRIER             1
+#define MPC_OMP_BARRIER_COMPILE_COND_WAIT 0
 
 #if MPC_OMP_BARRIER_COMPILE_COND_WAIT
-# if MPC_OMP_NAIVE_BARRIER != 1
-#  error "You can only use MPC_OMP_TASK_BARRIER_COND_WAIT with MPC_OMP_NAIVE_BARRIER"
-# endif /* MPC_OMP_NAIVE_BARRIER */
-# define MPC_OMP_TASK_BARRIER_COND_WAIT_ENABLED        mpc_omp_conf_get()->task_cond_wait_enabled
-# define MPC_OMP_TASK_BARRIER_COND_WAIT_NHYPERACTIVE   mpc_omp_conf_get()->task_cond_wait_nhyperactive
+#if MPC_OMP_NAIVE_BARRIER != 1
+#error "You can only use MPC_OMP_TASK_BARRIER_COND_WAIT with MPC_OMP_NAIVE_BARRIER"
+#endif /* MPC_OMP_NAIVE_BARRIER */
+	#define MPC_OMP_TASK_BARRIER_COND_WAIT_ENABLED      mpc_omp_conf_get()->task_cond_wait_enabled
+	#define MPC_OMP_TASK_BARRIER_COND_WAIT_NHYPERACTIVE mpc_omp_conf_get()->task_cond_wait_nhyperactive
 #else /* MPC_OMP_BARRIER_COMPILE_COND_WAIT */
-# define MPC_OMP_TASK_BARRIER_COND_WAIT_ENABLED     0
+	#define MPC_OMP_TASK_BARRIER_COND_WAIT_ENABLED 0
 #endif /* MPC_OMP_BARRIER_COMPILE_COND_WAIT */
 
 /* Use MCS locks or not */
@@ -146,29 +148,29 @@
 /* Maximum number of alive 'for dynamic' and 'for guided'  construct */
 #define MPC_OMP_MAX_ALIVE_FOR_DYN 3
 
-#define MPC_OMP_NOWAIT_STOP_SYMBOL ( -2 )
+#define MPC_OMP_NOWAIT_STOP_SYMBOL (-2)
 
 /* Uncomment to enable coherency checking */
 #define MPC_OMP_COHERENCY_CHECKING 0
-#define MPC_OMP_OVERFLOW_CHECKING 0
+#define MPC_OMP_OVERFLOW_CHECKING  0
 
 /* MACRO FOR PERFORMANCE */
-#define MPC_OMP_MALLOC_ON_NODE 1
+#define MPC_OMP_MALLOC_ON_NODE         1
 #define MPC_OMP_TRANSFER_INFO_ON_NODES 0
-#define MPC_OMP_ALIGN 1
+#define MPC_OMP_ALIGN                  1
 
 #define MPC_OMP_CHUNKS_NOT_AVAIL 1
-#define MPC_OMP_CHUNKS_AVAIL 2
+#define MPC_OMP_CHUNKS_AVAIL     2
 
 /* Define macro MPC_OMP_MIC in case of Xeon Phi compilation */
 #if __MIC__ || __MIC2__
-# define MPC_OMP_MIC 1
+	#define MPC_OMP_MIC 1
 #endif /* __MIC__ || __MIC2__ */
 
 #if KMP_ARCH_X86
-# define KMP_SIZE_T_MAX ( 0xFFFFFFFF )
+	#define KMP_SIZE_T_MAX (0xFFFFFFFF)
 #else
-# define KMP_SIZE_T_MAX ( 0xFFFFFFFFFFFFFFFF )
+	#define KMP_SIZE_T_MAX (0xFFFFFFFFFFFFFFFF)
 #endif
 
 #define MPC_OMP_TASK_DEFAULT_ALIGN 8
@@ -181,50 +183,50 @@
  ****************/
 typedef enum    mpc_omp_task_larceny_mode_e
 {
-    MPC_OMP_TASK_LARCENY_MODE_HIERARCHICAL,
-    MPC_OMP_TASK_LARCENY_MODE_RANDOM,
-    MPC_OMP_TASK_LARCENY_MODE_RANDOM_ORDER,
-    MPC_OMP_TASK_LARCENY_MODE_ROUNDROBIN,
-    MPC_OMP_TASK_LARCENY_MODE_PRODUCER,
-    MPC_OMP_TASK_LARCENY_MODE_PRODUCER_ORDER,
-    MPC_OMP_TASK_LARCENY_MODE_HIERARCHICAL_RANDOM,
-    MPC_OMP_TASK_LARCENY_MODE_COUNT
+	MPC_OMP_TASK_LARCENY_MODE_HIERARCHICAL,
+	MPC_OMP_TASK_LARCENY_MODE_RANDOM,
+	MPC_OMP_TASK_LARCENY_MODE_RANDOM_ORDER,
+	MPC_OMP_TASK_LARCENY_MODE_ROUNDROBIN,
+	MPC_OMP_TASK_LARCENY_MODE_PRODUCER,
+	MPC_OMP_TASK_LARCENY_MODE_PRODUCER_ORDER,
+	MPC_OMP_TASK_LARCENY_MODE_HIERARCHICAL_RANDOM,
+	MPC_OMP_TASK_LARCENY_MODE_COUNT
 }               mpc_omp_task_larceny_mode_t;
 
 typedef enum    mpc_omp_meta_tree_type_e
 {
-	MPC_OMP_META_TREE_UNDEF      = 0,
-	MPC_OMP_META_TREE_NODE       = 1,
-	MPC_OMP_META_TREE_LEAF       = 2,
-	MPC_OMP_META_TREE_NONE       = 3
+	MPC_OMP_META_TREE_UNDEF = 0,
+	MPC_OMP_META_TREE_NODE  = 1,
+	MPC_OMP_META_TREE_LEAF  = 2,
+	MPC_OMP_META_TREE_NONE  = 3
 }               mpc_omp_meta_tree_type_t;
 
 
 typedef enum    mpc_omp_combined_mode_e
 {
-	MPC_OMP_COMBINED_NONE            = 0,
-	MPC_OMP_COMBINED_SECTION         = 1,
-	MPC_OMP_COMBINED_STATIC_LOOP     = 2,
-	MPC_OMP_COMBINED_DYN_LOOP        = 3,
-	MPC_OMP_COMBINED_GUIDED_LOOP     = 4,
-	MPC_OMP_COMBINED_RUNTIME_LOOP    = 5,
-	MPC_OMP_COMBINED_COUNT           = 6
+	MPC_OMP_COMBINED_NONE         = 0,
+	MPC_OMP_COMBINED_SECTION      = 1,
+	MPC_OMP_COMBINED_STATIC_LOOP  = 2,
+	MPC_OMP_COMBINED_DYN_LOOP     = 3,
+	MPC_OMP_COMBINED_GUIDED_LOOP  = 4,
+	MPC_OMP_COMBINED_RUNTIME_LOOP = 5,
+	MPC_OMP_COMBINED_COUNT        = 6
 }               mpc_omp_combined_mode_t;
 
 typedef enum    mpc_omp_task_yield_mode_e
 {
-    MPC_OMP_TASK_YIELD_MODE_NOOP        = 0,
-    MPC_OMP_TASK_YIELD_MODE_STACK       = 1,
-    MPC_OMP_TASK_YIELD_MODE_CIRCULAR    = 2,
-    MPC_OMP_TASK_YIELD_MODE_FAIR        = 3,
-    MPC_OMP_TASK_YIELD_MODE_COUNT
+	MPC_OMP_TASK_YIELD_MODE_NOOP     = 0,
+	MPC_OMP_TASK_YIELD_MODE_STACK    = 1,
+	MPC_OMP_TASK_YIELD_MODE_CIRCULAR = 2,
+	MPC_OMP_TASK_YIELD_MODE_FAIR     = 3,
+	MPC_OMP_TASK_YIELD_MODE_COUNT
 }               mpc_omp_task_yield_mode_t;
 
 /* list policies */
 typedef enum    mpc_omp_task_list_policy_e
 {
-    MPC_OMP_TASK_LIST_POLICY_LIFO,
-    MPC_OMP_TASK_LIST_POLICY_FIFO
+	MPC_OMP_TASK_LIST_POLICY_LIFO,
+	MPC_OMP_TASK_LIST_POLICY_FIFO
 }               mpc_omp_task_list_policy_t;
 
 /**
@@ -252,58 +254,56 @@ typedef enum    mpc_omp_task_list_policy_e
 /* priority policies */
 typedef enum    mpc_omp_task_priority_policy_e
 {
-    /** 0) FIFO
-     *      - priority hint is ignored
-     *      - runtime set internal tasks priority to zero
-     */
-    MPC_OMP_TASK_PRIORITY_POLICY_ZERO,
+	/** 0) FIFO
+	 *      - priority hint is ignored
+	 *      - runtime set internal tasks priority to zero
+	 */
+	MPC_OMP_TASK_PRIORITY_POLICY_ZERO,
 
-    /** 1) CONVERT
-     *      - user set a priorities on tasks
-     *      - runtime convert non-null priorities to INT_MAX internally
-     */
-    MPC_OMP_TASK_PRIORITY_POLICY_CONVERT,
+	/** 1) CONVERT
+	 *      - user set a priorities on tasks
+	 *      - runtime convert non-null priorities to INT_MAX internally
+	 */
+	MPC_OMP_TASK_PRIORITY_POLICY_CONVERT,
 
-    /** 2) COPY
-     *      - user set a priority hint on tasks
-     *      - runtime copies the tasks hint as its internal priority
-     */
-    MPC_OMP_TASK_PRIORITY_POLICY_COPY
-
+	/** 2) COPY
+	 *      - user set a priority hint on tasks
+	 *      - runtime copies the tasks hint as its internal priority
+	 */
+	MPC_OMP_TASK_PRIORITY_POLICY_COPY
 }               mpc_omp_task_priority_policy_t;
 
 /* propagation policy */
 typedef enum    mpc_omp_task_priority_propagation_policy_e
 {
-    /** 0) NOOP
-     *      - priorities are not propagated
-     */
-    MPC_OMP_TASK_PRIORITY_PROPAGATION_POLICY_NOOP,
+	/** 0) NOOP
+	 *      - priorities are not propagated
+	 */
+	MPC_OMP_TASK_PRIORITY_PROPAGATION_POLICY_NOOP,
 
-    /** 1) DECR
-     *      - runtime propagate priorities on predecessors
-     *      - P(predecessors) = max(P(successors)) - 1
-     */
-    MPC_OMP_TASK_PRIORITY_PROPAGATION_POLICY_DECR,
+	/** 1) DECR
+	 *      - runtime propagate priorities on predecessors
+	 *      - P(predecessors) = max(P(successors)) - 1
+	 */
+	MPC_OMP_TASK_PRIORITY_PROPAGATION_POLICY_DECR,
 
-    /**
-     *  2) EQUAL
-     *      - runtime propagate priorities on predecessors
-     *      - P(predecessors) = max(P(successors))
-     */
-    MPC_OMP_TASK_PRIORITY_PROPAGATION_POLICY_EQUAL,
+	/**
+	 *  2) EQUAL
+	 *      - runtime propagate priorities on predecessors
+	 *      - P(predecessors) = max(P(successors))
+	 */
+	MPC_OMP_TASK_PRIORITY_PROPAGATION_POLICY_EQUAL,
 
-    MPC_OMP_TASK_PRIORITY_PROPAGATION_POLICY_COUNT
-
+	MPC_OMP_TASK_PRIORITY_PROPAGATION_POLICY_COUNT
 }               mpc_omp_task_priority_propagation_policy_t;
 
 typedef enum    mpc_omp_task_priority_propagation_synchronousity_e
 {
-    /* 0) if priorities should be propagated synchronously, on task creation */
-    MPC_OMP_TASK_PRIORITY_PROPAGATION_SYNCHRONOUS,
+	/* 0) if priorities should be propagated synchronously, on task creation */
+	MPC_OMP_TASK_PRIORITY_PROPAGATION_SYNCHRONOUS,
 
-    /* 1) if priorities should be propagated asynchronously, during idle time */
-    MPC_OMP_TASK_PRIORITY_PROPAGATION_ASYNCHRONOUS
+	/* 1) if priorities should be propagated asynchronously, during idle time */
+	MPC_OMP_TASK_PRIORITY_PROPAGATION_ASYNCHRONOUS
 }               mpc_omp_task_priority_propagation_synchronousity_t;
 
 /* Type of children in the topology tree */
@@ -311,7 +311,7 @@ typedef enum    mpc_omp_children_e
 {
 	MPC_OMP_CHILDREN_NULL = 0,
 	MPC_OMP_CHILDREN_NODE = 1,
-    MPC_OMP_CHILDREN_LEAF = 2,
+	MPC_OMP_CHILDREN_LEAF = 2,
 }               mpc_omp_children_t;
 
 typedef enum    mpc_omp_topo_obj_type_e
@@ -350,13 +350,13 @@ typedef enum    mpc_omp_tree_meta_elt_type_e
 typedef union   mpc_omp_tree_meta_elt_ptr_u
 {
 	struct mpc_omp_node_s *node;
-	struct mpc_omp_mvp_s *mvp;
+	struct mpc_omp_mvp_s * mvp;
 }               mpc_omp_tree_meta_elt_ptr_t;
 
 typedef struct  mpc_omp_tree_meta_elt_s
 {
 	mpc_omp_tree_meta_elt_type_t type;
-	mpc_omp_tree_meta_elt_ptr_t ptr;
+	mpc_omp_tree_meta_elt_ptr_t  ptr;
 }               mpc_omp_tree_meta_elt_t;
 
 typedef enum    mpc_omp_mvp_state_e
@@ -377,45 +377,47 @@ typedef enum    mpc_omp_loop_gen_type_e
 /** Type of task pqueues */
 typedef enum    mpc_omp_pqueue_type_e
 {
-    MPC_OMP_PQUEUE_TYPE_TIED        = 0,  /* ready-tied tasks (run once) */
-    MPC_OMP_PQUEUE_TYPE_UNTIED      = 1,  /* ready-untied tasks (run once) */
-    MPC_OMP_PQUEUE_TYPE_NEW         = 2,  /* ready tasks (never run) */
-    MPC_OMP_PQUEUE_TYPE_SUCCESSOR   = 3,  /* ready tasks (never run, direct successors or a task that just finished, may be tied or untied) */
-    MPC_OMP_PQUEUE_TYPE_COUNT       = 4
+	MPC_OMP_PQUEUE_TYPE_TIED      = 0, /* ready-tied tasks (run once) */
+	MPC_OMP_PQUEUE_TYPE_UNTIED    = 1, /* ready-untied tasks (run once) */
+	MPC_OMP_PQUEUE_TYPE_NEW       = 2, /* ready tasks (never run) */
+	MPC_OMP_PQUEUE_TYPE_SUCCESSOR = 3, /* ready tasks (never run, direct successors or a task that just finished, may
+	                                    * be tied or untied) */
+	MPC_OMP_PQUEUE_TYPE_COUNT     = 4
 }               mpc_omp_task_pqueue_type_t;
 
 /** Various lists that a task may be hold */
 typedef enum    mpc_omp_task_list_type_e
 {
-    MPC_OMP_TASK_LIST_TYPE_SCHEDULER    = 0,
-    MPC_OMP_TASK_LIST_TYPE_UP_DOWN      = 1,
-    MPC_OMP_TASK_LIST_TYPE_COUNT        = 2
+	MPC_OMP_TASK_LIST_TYPE_SCHEDULER = 0,
+	MPC_OMP_TASK_LIST_TYPE_UP_DOWN   = 1,
+	MPC_OMP_TASK_LIST_TYPE_COUNT     = 2
 }               mpc_omp_task_list_type_t;
 
 /* TODO: check Romain PhD thesis with task transition state, and implements
  * every states. It could help for runtime debugging purposes */
 typedef enum    mpc_omp_task_state_e
 {
-    MPC_OMP_TASK_STATE_UNINITIALIZED          = 0,
-    MPC_OMP_TASK_STATE_NOT_QUEUEABLE         = 1,
-    MPC_OMP_TASK_STATE_QUEUEABLE             = 2,
-    MPC_OMP_TASK_STATE_QUEUED               = 3,
-    MPC_OMP_TASK_STATE_SCHEDULED            = 4,
-    MPC_OMP_TASK_STATE_SUSPENDED            = 5,
-    MPC_OMP_TASK_STATE_EXECUTED             = 6,
-    MPC_OMP_TASK_STATE_DETACHED             = 7,
-    MPC_OMP_TASK_STATE_COMPLETED            = 8,
-    MPC_OMP_TASK_STATE_RESOLVED             = 9,
-    MPC_OMP_TASK_STATE_DEINITIALIZED        = 10,
+	MPC_OMP_TASK_STATE_UNINITIALIZED = 0,
+	MPC_OMP_TASK_STATE_NOT_QUEUEABLE = 1,
+	MPC_OMP_TASK_STATE_QUEUEABLE     = 2,
+	MPC_OMP_TASK_STATE_QUEUED        = 3,
+	MPC_OMP_TASK_STATE_SCHEDULED     = 4,
+	MPC_OMP_TASK_STATE_SUSPENDED     = 5,
+	MPC_OMP_TASK_STATE_EXECUTED      = 6,
+	MPC_OMP_TASK_STATE_DETACHED      = 7,
+	MPC_OMP_TASK_STATE_COMPLETED     = 8,
+	MPC_OMP_TASK_STATE_RESOLVED      = 9,
+	MPC_OMP_TASK_STATE_DEINITIALIZED = 10,
 }               mpc_omp_task_state_t;
 
 /**********************
  * OMPT STATUS        *
  **********************/
 
-typedef enum    mpc_omp_tool_status_e {
-    mpc_omp_tool_disabled = 0,
-    mpc_omp_tool_enabled  = 1
+typedef enum    mpc_omp_tool_status_e
+{
+	mpc_omp_tool_disabled = 0,
+	mpc_omp_tool_enabled  = 1
 }               mpc_omp_tool_status_t;
 
 /**********************
@@ -426,57 +428,37 @@ typedef enum    mpc_omp_tool_status_e {
  * One structure per OpenMP instance */
 typedef struct mpc_omp_global_icv_s
 {
-	omp_sched_t def_sched_var;  /**< Default schedule when no 'schedule' clause is
-                                 present 			*/
-	int bind_var;				/**< Is the OpenMP threads bound to cpu cores
-                                 */
-	int stacksize_var;			/**< Size of the stack per thread (in Bytes)
-                                 */
-	int active_wait_policy_var; /**< Is the threads wait policy active or passive
-                                 */
-	int thread_limit_var;		/**< Number of Open threads to use for the whole program
-                           */
-	int max_active_levels_var;  /**< Maximum number of nested active parallel
-                                regions 				*/
-	int nmicrovps_var;			/**< Number of VPs
-                                */
-	int warn_nested;			/**< Emit warning for nested parallelism?
-                                */
-	int affinity;				/**< OpenMP threads affinity
-                                */
-	mpc_omp_tool_status_t tool;  /**< OpenMP Tool interface (enabled/disabled)
-                                */
-	char* tool_libraries;	   	/**< OpenMP Tool paths (absolutes paths)
-                                */
+	omp_sched_t           def_sched_var;          /**< Default schedule when no 'schedule' clause is present */
+	int                   bind_var;               /**< Is the OpenMP threads bound to cpu cores */
+	int                   stacksize_var;          /**< Size of the stack per thread (in Bytes) */
+	int                   active_wait_policy_var; /**< Is the threads wait policy active or passive */
+	int                   thread_limit_var;       /**< Number of Open threads to use for the whole program */
+	int                   max_active_levels_var;  /**< Maximum number of nested active parallel regions */
+	int                   nmicrovps_var;          /**< Number of VPs */
+	int                   warn_nested;            /**< Emit warning for nested parallelism? */
+	int                   affinity;               /**< OpenMP threads affinity */
+	mpc_omp_tool_status_t tool;                   /**< OpenMP Tool interface (enabled/disabled) */
+	char *                tool_libraries;         /**< OpenMP Tool paths (absolutes paths) */
 } mpc_omp_global_icv_t;
 
 /** Local Internal Control Variables
  * One structure per OpenMP thread 				*/
 typedef struct mpc_omp_local_icv_s
 {
-	unsigned int nthreads_var; /**< Number of threads for the next team creation
-                                */
-	int dyn_var;			   /**< Is dynamic thread adjustment on?
-                                */
-	int nest_var;			   /**< Is nested OpenMP handled/allowed?
-                                */
-	omp_sched_t run_sched_var; /**< Schedule to use when a 'schedule' clause is
-                                set to 'runtime' */
-	int modifier_sched_var;	/**< Size of chunks for loop schedule
-                                */
-	int active_levels_var;	 /**< Number of nested, active enclosing parallel
-                                regions 			*/
-	int levels_var;			   /**< Number of nested enclosing parallel regions
-                                */
-  omp_allocator_handle_t def_allocator_var ; /**< Memory allocator to be used by
-											   memory allocation routines
-											   */
+	unsigned int           nthreads_var;       /**< Number of threads for the next team creation */
+	int                    dyn_var;            /**< Is dynamic thread adjustment on? */
+	int                    nest_var;           /**< Is nested OpenMP handled/allowed? */
+	omp_sched_t            run_sched_var;      /**< Schedule to use when a 'schedule' clause is set to 'runtime' */
+	int                    modifier_sched_var; /**< Size of chunks for loop schedule */
+	int                    active_levels_var;  /**< Number of nested, active enclosing parallel regions*/
+	int                    levels_var;         /**< Number of nested enclosing parallel regions */
+	omp_allocator_handle_t def_allocator_var;  /**< Memory allocator to be used by memory allocation routines */
 } mpc_omp_local_icv_t;
 
 typedef struct mpc_omp_tree_array_global_info_s
 {
 	int *tree_shape;
-	int top_level;
+	int  top_level;
 } mpc_omp_tree_array_global_info_t;
 
 typedef struct mpc_omp_meta_tree_node_s
@@ -484,48 +466,48 @@ typedef struct mpc_omp_meta_tree_node_s
 	/* Generic information */
 	mpc_omp_meta_tree_type_t type;
 	/* Father information */
-	int *fathers_array;
-	unsigned int fathers_array_size;
+	int *                    fathers_array;
+	unsigned int             fathers_array_size;
 	/* Children information */
-	int *first_child_array;
-	unsigned int *children_num_array;
-	unsigned int children_array_size;
+	int *                    first_child_array;
+	unsigned int *           children_num_array;
+	unsigned int             children_array_size;
 
 	/* Places */
 
 	/* Min index */
-	void *user_pointer;
+	void *    user_pointer;
 	OPA_int_t children_ready;
 } mpc_omp_meta_tree_node_t;
 
 typedef struct mpc_omp_mvp_thread_args_s
 {
-	unsigned int rank;
-	unsigned int pu_id;
-	mpc_omp_meta_tree_node_t *array;
-	unsigned int place_id;
-	unsigned int target_vp;
-	unsigned int place_depth;
-  unsigned int mpi_rank;
+	unsigned int                      rank;
+	unsigned int                      pu_id;
+	mpc_omp_meta_tree_node_t *        array;
+	unsigned int                      place_id;
+	unsigned int                      target_vp;
+	unsigned int                      place_depth;
+	unsigned int                      mpi_rank;
 #if OMPT_SUPPORT
-    /* Transfer common tool instance infos */
-    mpc_omp_ompt_tool_status_t tool_status;
-    mpc_omp_ompt_tool_instance_t* tool_instance;
+		/* Transfer common tool instance infos */
+		mpc_omp_ompt_tool_status_t    tool_status;
+		mpc_omp_ompt_tool_instance_t *tool_instance;
 #endif /* OMPT_SUPPORT */
 } mpc_omp_mvp_thread_args_t;
 
 /* Data structures */
 typedef struct  mpc_omp_task_taskgroup_s
 {
-	struct mpc_omp_task_taskgroup_s * prev;
-	OPA_int_t children_num;
-    OPA_int_t cancelled;
+	struct mpc_omp_task_taskgroup_s *prev;
+	OPA_int_t                        children_num;
+	OPA_int_t                        cancelled;
 }               mpc_omp_task_taskgroup_t;
 
 #ifdef MPC_OMP_USE_MCS_LOCK
-	typedef sctk_mcslock_t mpc_omp_task_lock_t;
+	typedef sctk_mcslock_t           mpc_omp_task_lock_t;
 #else  /* MPC_OMP_USE_MCS_LOCK */
-	typedef mpc_common_spinlock_t mpc_omp_task_lock_t;
+	typedef mpc_common_spinlock_t    mpc_omp_task_lock_t;
 #endif /* MPC_OMP_USE_MCS_LOCK */
 
 /* task dependencies structures */
@@ -541,51 +523,49 @@ typedef uint32_t (*mpc_omp_task_dep_hash_func_t)(uintptr_t);
 /* in, out, inoutset list element */
 typedef struct mpc_omp_task_dep_list_elt_s
 {
-    /* the task for this dependency node */
-    struct mpc_omp_task_s * task;
+	/* the task for this dependency node */
+	struct mpc_omp_task_s *                 task;
 
-    /* the hmap entry in which this node is inserted */
-    struct mpc_omp_task_dep_htable_entry_s * entry;
+	/* the hmap entry in which this node is inserted */
+	struct mpc_omp_task_dep_htable_entry_s *entry;
 
-    /* next and previous elements in the list of the hmap entry */
-    struct mpc_omp_task_dep_list_elt_s * next;
-    struct mpc_omp_task_dep_list_elt_s * prev;
-
+	/* next and previous elements in the list of the hmap entry */
+	struct mpc_omp_task_dep_list_elt_s *    next;
+	struct mpc_omp_task_dep_list_elt_s *    prev;
 }               mpc_omp_task_dep_list_elt_t;
 
 /** Task context structure */
 #if MPC_OMP_TASK_COMPILE_UCONTEXT
 
-# define TASK_UCONTEXT_MAGIC_NUMBER 0x0207
+	#define TASK_UCONTEXT_MAGIC_NUMBER 0x0207
 
-typedef struct  mpc_omp_task_ucontext_s
-{
-    sctk_mctx_t initial;    /* the initial context of this task (for recycling 'makecontext' calls) */
-    sctk_mctx_t current;    /* the current context of this task */
-    sctk_mctx_t * exit;     /* the context to return when this task is paused or finished */
-    int swap_count;         /* number of times this was swapped */
-    int magic;              /* magic number to detect stack overflow */
-}               mpc_omp_task_ucontext_t;
+	typedef struct  mpc_omp_task_ucontext_s
+	{
+		sctk_mctx_t  initial;    /* the initial context of this task (for recycling 'makecontext' calls) */
+		sctk_mctx_t  current;    /* the current context of this task */
+		sctk_mctx_t *exit;       /* the context to return when this task is paused or finished */
+		int          swap_count; /* number of times this was swapped */
+		int          magic;      /* magic number to detect stack overflow */
+	}               mpc_omp_task_ucontext_t;
 #endif
 
 /* a task list */
 typedef struct  mpc_omp_task_list_s
 {
-    /* head task in the list */
-    struct mpc_omp_task_s * head;
+	/* head task in the list */
+	struct mpc_omp_task_s *head;
 
-    /* tail task inf the list */
-    struct mpc_omp_task_s * tail;
+	/* tail task inf the list */
+	struct mpc_omp_task_s *tail;
 
-    /* mutex */
-    mpc_common_spinlock_t lock;
+	/* mutex */
+	mpc_common_spinlock_t  lock;
 
-    /* list type */
-    int type;
+	/* list type */
+	int                    type;
 
-    /* number of elements */
-    OPA_int_t nb_elements;
-
+	/* number of elements */
+	OPA_int_t              nb_elements;
 }               mpc_omp_task_list_t;
 
 /* hash table entry,
@@ -593,187 +573,184 @@ typedef struct  mpc_omp_task_list_s
  * by using a tree structure, ordered by the 'addr' value */
 typedef struct  mpc_omp_task_dep_htable_entry_s
 {
-    /* address for the dependency */
-    void * addr;
+	/* address for the dependency */
+	void *                       addr;
 
-    /* last 'out' or 'inout' task for this key */
-    mpc_omp_task_dep_list_elt_t * out;
+	/* last 'out' or 'inout' task for this key */
+	mpc_omp_task_dep_list_elt_t *out;
 
-    /* list of last 'in' tasks for this key */
-    mpc_omp_task_dep_list_elt_t * ins;
+	/* list of last 'in' tasks for this key */
+	mpc_omp_task_dep_list_elt_t *ins;
 
-    /* list of last 'inoutset' tasks for this key */
-    mpc_omp_task_dep_list_elt_t * inoutset;
+	/* list of last 'inoutset' tasks for this key */
+	mpc_omp_task_dep_list_elt_t *inoutset;
 
-    /* the lock to access lists */
-    mpc_common_spinlock_t lock;
+	/* the lock to access lists */
+	mpc_common_spinlock_t        lock;
 
-    /* the last task that had a dependency for this address
-     * (used for redundancy check) */
-    int last_out;
-    int last_in;
-    int last_inoutset;
+	/* the last task that had a dependency for this address
+	 * (used for redundancy check) */
+	int                          last_out;
+	int                          last_in;
+	int                          last_inoutset;
 
-    /* the hmap handle */
-    UT_hash_handle hh;
+	/* the hmap handle */
+	UT_hash_handle               hh;
 }               mpc_omp_task_dep_htable_entry_t;
 
 /* a task profile */
 typedef struct  mpc_omp_task_profile_s
 {
-    /* next node */
-    struct mpc_omp_task_profile_s * next;
+	/* next node */
+	struct mpc_omp_task_profile_s *next;
 
-    /* the task size */
-    unsigned int size;
+	/* the task size */
+	unsigned int                   size;
 
-    /* the task properties */
-    unsigned int property;
+	/* the task properties */
+	unsigned int                   property;
 
-    /* number of predecessors (is complete) */
-    int npredecessors;
+	/* number of predecessors (is complete) */
+	int                            npredecessors;
 
-    /* priority associated to the profile */
-    int priority;
+	/* priority associated to the profile */
+	int                            priority;
 
-    /* the parent task uid (control parent) */
-    int parent_uid;
+	/* the parent task uid (control parent) */
+	int                            parent_uid;
 }               mpc_omp_task_profile_t;
 
 #if MPC_OMP_TASK_COMPILE_PERSISTENT
 
-/* persistent region infos */
-typedef struct  mpc_omp_task_persistent_region_s
-{
-    /* != 0 if within a persistent task region */
-    int active;
+	/* persistent region infos */
+	typedef struct  mpc_omp_task_persistent_region_s
+	{
+		/* != 0 if within a persistent task region */
+		int                    active;
 
-    /* number of task references, for the implicit taskwait */
-    OPA_int_t task_ref;
+		/* number of task references, for the implicit taskwait */
+		OPA_int_t              task_ref;
 
-    /* number of tasks currently existing in this region */
-    int n_tasks;
+		/* number of tasks currently existing in this region */
+		int                    n_tasks;
 
-    /* first persistent task */
-    struct mpc_omp_task_s * head;
+		/* first persistent task */
+		struct mpc_omp_task_s *head;
 
-    /* current persistent task */
-    struct mpc_omp_task_s * current;
+		/* current persistent task */
+		struct mpc_omp_task_s *current;
 
-    /* previous persistent task */
-    struct mpc_omp_task_s * prev;
+		/* previous persistent task */
+		struct mpc_omp_task_s *prev;
+	}               mpc_omp_persistent_region_t;
 
-}               mpc_omp_persistent_region_t;
+	/* persistent task instance infos */
+	typedef struct  mpc_omp_task_persistent_instance_infos_s
+	{
+		/* the next instance */
+		struct mpc_omp_task_persistent_instance_infos_s *next;
+	}               mpc_omp_task_persistent_instance_t;
 
-/* persistent task instance infos */
-typedef struct  mpc_omp_task_persistent_instance_infos_s
-{
-    /* the next instance */
-    struct mpc_omp_task_persistent_instance_infos_s * next;
-}               mpc_omp_task_persistent_instance_t;
+	/* persistent task infos */
+	typedef struct  mpc_omp_task_persistent_infos_s
+	{
+		/* original task uid */
+		int                    original_uid;
 
-/* persistent task infos */
-typedef struct  mpc_omp_task_persistent_infos_s
-{
-    /* original task uid */
-    int original_uid;
+		/* Zom-bit - '1' if the task has be deleted from it persistent region */
+		int                    zombit;
 
-    /* Zom-bit - '1' if the task has be deleted from it persistent region */
-    int zombit;
-
-    /* next persistent task discovered (relative to the parent scope) */
-    struct mpc_omp_task_s * next;
-
-}               mpc_omp_task_persistent_infos_t;
+		/* next persistent task discovered (relative to the parent scope) */
+		struct mpc_omp_task_s *next;
+	}               mpc_omp_task_persistent_infos_t;
 
 #endif /* MPC_OMP_TASK_COMPILE_PERSISTENT */
 
 /* critical tasks infos */
 typedef struct  mpc_omp_task_profile_info_s
 {
-    /* head info node */
-    OPA_ptr_t head;
+	/* head info node */
+	OPA_ptr_t             head;
 
-    /* number of 'mpc_omp_task_profile_t' in list */
-    OPA_int_t n;
+	/* number of 'mpc_omp_task_profile_t' in list */
+	OPA_int_t             n;
 
-    /* spinlock for concurrency issues */
-    mpc_common_spinlock_t spinlock;
+	/* spinlock for concurrency issues */
+	mpc_common_spinlock_t spinlock;
 }               mpc_omp_task_profile_info_t;
 
 /** Task priorities propagation context */
 typedef struct  mpc_omp_task_priority_propagation_context_s
 {
-    /* lock so that only 1 thread my propagate priorities (for now) */
-    mpc_common_spinlock_t lock;
+	/* lock so that only 1 thread my propagate priorities (for now) */
+	mpc_common_spinlock_t lock;
 
-    /* tasks to climb down to find leaves */
-    mpc_omp_task_list_t down;
+	/* tasks to climb down to find leaves */
+	mpc_omp_task_list_t   down;
 
-    /* tasks to climb up to match profile and propagate priorities */
-    mpc_omp_task_list_t up;
+	/* tasks to climb up to match profile and propagate priorities */
+	mpc_omp_task_list_t   up;
 
-    /* version to mark task and no visit them twice */
-    OPA_int_t version;
+	/* version to mark task and no visit them twice */
+	OPA_int_t             version;
 }               mpc_omp_task_priority_propagation_context_t;
 
 // list of tasks
 typedef struct  mpc_omp_task_array_s
 {
-    // tasks
-    struct mpc_omp_task_s ** tasks;
+	// tasks
+	struct mpc_omp_task_s **tasks;
 
-    // capacity
-    unsigned int capacity;
+	// capacity
+	unsigned int            capacity;
 
-    // number of tasks set
-    unsigned int n;
-
+	// number of tasks set
+	unsigned int            n;
 }               mpc_omp_task_array_t;
 
 /* TODO : we should dissociate the notions of 'dep_node' from 'tasks' - so we can
  * insert empty nodes in the TDG for synchronizations purposes without embedding and empty task */
 typedef struct  mpc_omp_task_dep_node_s
 {
-    /* hash table for child tasks dependencies */
-    mpc_omp_task_dep_htable_entry_t * hmap;
+	/* hash table for child tasks dependencies */
+	mpc_omp_task_dep_htable_entry_t *hmap;
 
-    /* successor tasks */
-    mpc_omp_task_array_t successors;
+	/* successor tasks */
+	mpc_omp_task_array_t             successors;
 
-    /* predecessor tasks */
-    mpc_omp_task_array_t predecessors;
-    int npredecessors;
+	/* predecessor tasks */
+	mpc_omp_task_array_t             predecessors;
+	int                              npredecessors;
 
-    /* Concurrency on the 'successor' list:
-     *  - on the first iteration of the persistent region,
-     *    'task' can be finalizing (here) while some if its successors
-     *    have not been discovered yet.  On next iterations, the graph is fully
-     *    unrolled and every successors are known with no concurrency
-     */
+	/* Concurrency on the 'successor' list:
+	 *  - on the first iteration of the persistent region,
+	 *    'task' can be finalizing (here) while some if its successors
+	 *    have not been discovered yet.  On next iterations, the graph is fully
+	 *    unrolled and every successors are known with no concurrency
+	 */
 
 #if MPC_OMP_TASK_COMPILE_PERSISTENT
-    /* persistent successor that were created after the persistent task completed */
-    mpc_omp_task_array_t persistent_successors_missed;
+		/* persistent successor that were created after the persistent task completed */
+		mpc_omp_task_array_t     persistent_successors_missed;
 #endif /* MPC_OMP_TASK_COMPILE_PERSISTENT */
 
-    /* depth in the data dependency graph */
-    int depth;
+	/* depth in the data dependency graph */
+	int                          depth;
 
-    /* number of predecessors still existing */
-    OPA_int_t ref_predecessors;
+	/* number of predecessors still existing */
+	OPA_int_t                    ref_predecessors;
 
-    /* entries in the parent hash map for dependencies */
-    mpc_omp_task_dep_list_elt_t * dep_list;
-    unsigned int dep_list_size;
+	/* entries in the parent hash map for dependencies */
+	mpc_omp_task_dep_list_elt_t *dep_list;
+	unsigned int                 dep_list_size;
 
 #if OMPT_SUPPORT
-    /* Task dependences record */
-    ompt_dependence_t * ompt_task_deps;
+		/* Task dependences record */
+		ompt_dependence_t *      ompt_task_deps;
 #endif /* OMPT_SUPPORT */
 
-    /* profile version, to know if the profile matching should be performed */
-    int profile_version;
+	/* profile version, to know if the profile matching should be performed */
+	int                          profile_version;
 }               mpc_omp_task_dep_node_t;
 
 struct mpc_omp_task_thread_infos_s;
@@ -781,178 +758,176 @@ struct mpc_omp_task_thread_infos_s;
 /** OpenMP task data structure */
 typedef struct  mpc_omp_task_s
 {
-    /* nested task depth */
-    int depth;
+	/* nested task depth */
+	int depth;
 
-    /* function to execute */
-    void (*func)(void *);
+	/* function to execute */
+	void (*func)(void *);
 
-    /* argument of the function */
-    void * data;
+	/* argument of the function */
+	void *                       data;
 
-    /* total size of the task (sizeof(mpcomp_task_t) + data_size) */
-    unsigned int size;
+	/* total size of the task (sizeof(mpcomp_task_t) + data_size) */
+	unsigned int                 size;
 
-    /* (transition system instance) state */
-    OPA_int_t state;
+	/* (transition system instance) state */
+	OPA_int_t                    state;
 
-    /* dep node lock for scheduling */
-    mpc_common_spinlock_t state_lock;
+	/* dep node lock for scheduling */
+	mpc_common_spinlock_t        state_lock;
 
-    /* number of existing child for this task */
-    OPA_int_t children_count;
+	/* number of existing child for this task */
+	OPA_int_t                    children_count;
 
 #if MPC_OMP_TASK_COMPILE_UCONTEXT
-    mpc_omp_task_ucontext_t * ucontext;
+		mpc_omp_task_ucontext_t *ucontext;
 #endif
 
-    /* task properties */
-    mpc_omp_task_property_t property;
+	/* task properties */
+	mpc_omp_task_property_t      property;
 
-    /* the thread on which the task last-run */
-    struct mpc_omp_thread_s * thread;
+	/* the thread on which the task last-run */
+	struct mpc_omp_thread_s *    thread;
 
-    /* parent task (always non-null, except for the implicit task) */
-    struct mpc_omp_task_s * parent;
+	/* parent task (always non-null, except for the implicit task) */
+	struct mpc_omp_task_s *      parent;
 
-    /* next/previous task pointers if the task is inside a list */
-    struct mpc_omp_task_s * prev[MPC_OMP_TASK_LIST_TYPE_COUNT];
-    struct mpc_omp_task_s * next[MPC_OMP_TASK_LIST_TYPE_COUNT];
+	/* next/previous task pointers if the task is inside a list */
+	struct mpc_omp_task_s *      prev[MPC_OMP_TASK_LIST_TYPE_COUNT];
+	struct mpc_omp_task_s *      next[MPC_OMP_TASK_LIST_TYPE_COUNT];
 
-    /* icv of the thread that created the task */
-    mpc_omp_local_icv_t icvs;
+	/* icv of the thread that created the task */
+	mpc_omp_local_icv_t          icvs;
 
-    /* thread task/icvs/ompt_frame_infos before this task was bound to the thread */
-    struct mpc_omp_task_s * prev_task;
-    mpc_omp_local_icv_t prev_icvs;
+	/* thread task/icvs/ompt_frame_infos before this task was bound to the thread */
+	struct mpc_omp_task_s *      prev_task;
+	mpc_omp_local_icv_t          prev_icvs;
 
-    /* the task group */
-    mpc_omp_task_taskgroup_t * taskgroup;
+	/* the task group */
+	mpc_omp_task_taskgroup_t *   taskgroup;
 
-    /* task dependencies infos */
-    mpc_omp_task_dep_node_t dep_node;
+	/* task dependencies infos */
+	mpc_omp_task_dep_node_t      dep_node;
 
-    /* task reference counter to release memory appropriately */
-    OPA_int_t ref_counter;
+	/* task reference counter to release memory appropriately */
+	OPA_int_t                    ref_counter;
 
-    /* last task allocated by the thread doing if0 pragma */
-    struct mpc_omp_task_s * last_task_alloc;
+	/* last task allocated by the thread doing if0 pragma */
+	struct mpc_omp_task_s *      last_task_alloc;
 
-    /* task uid (= number of task previously created) */
-    int uid;
+	/* task uid (= number of task previously created) */
+	int                          uid;
 
-# if MPC_OMP_TASK_COMPILE_TRACE
-    /* the task name (+1 for the null char.) */
-    char label[MPC_OMP_TASK_LABEL_MAX_LENGTH + 1];
+#if MPC_OMP_TASK_COMPILE_TRACE
+		/* the task name (+1 for the null char.) */
+		char                     label[MPC_OMP_TASK_LABEL_MAX_LENGTH + 1];
 
-    /* the task color */
-    int color;
+		/* the task color */
+		int                      color;
 
-    /* task schedule id (= number of task previously scheduled) */
-    int schedule_id;
-# endif
+		/* task schedule id (= number of task previously scheduled) */
+		int                      schedule_id;
+#endif
 
 #if OMPT_SUPPORT
-    /* Task data and type */
-    ompt_data_t ompt_task_data;
-    ompt_task_flag_t ompt_task_type;
+		/* Task data and type */
+		ompt_data_t      ompt_task_data;
+		ompt_task_flag_t ompt_task_type;
 
-    /* Task frame */
-    ompt_frame_t ompt_task_frame;
+		/* Task frame */
+		ompt_frame_t     ompt_task_frame;
 #endif /* OMPT_SUPPORT */
 
-# if MPC_OMP_TASK_USE_RECYCLERS
-    /* infos of the thread that created this task */
-    struct mpc_omp_task_thread_infos_s * producer;
-# endif /* MPC_OMP_TASK_USE_RECYCLERS */
+#if MPC_OMP_TASK_USE_RECYCLERS
+		/* infos of the thread that created this task */
+		struct mpc_omp_task_thread_infos_s *producer;
+#endif /* MPC_OMP_TASK_USE_RECYCLERS */
 
-    /* task detach event */
-    mpc_omp_event_handle_detach_t detach_event;
+	/* task detach event */
+	mpc_omp_event_handle_detach_t           detach_event;
 
-    /* task flags (can have concurrency, as opposed to task properties) */
-    mpc_omp_task_flags_t flags;
+	/* task flags (can have concurrency, as opposed to task properties) */
+	mpc_omp_task_flags_t                    flags;
 
 #if MPC_OMP_TASK_COMPILE_PRIORITY
-    /* the omp task priority clause value */
-    int omp_priority_hint;
+		/* the omp task priority clause value */
+		int                                 omp_priority_hint;
 
-    /* the task priority, used for scheduling. See mpcomp_task_priority_policy */
-    int priority;
+		/* the task priority, used for scheduling. See mpcomp_task_priority_policy */
+		int                                 priority;
 
-    /* task priorities propagation version */
-    int propagation_version;
+		/* task priorities propagation version */
+		int                                 propagation_version;
 
-    /* time the task run so far */
-    double t_elapsed;
+		/* time the task run so far */
+		double                              t_elapsed;
 
-    /* time the task started */
-    double t_start;
+		/* time the task started */
+		double                              t_start;
 #endif /* MPC_OMP_TASK_COMPILE_PRIORITY */
 
 #if MPC_OMP_TASK_COMPILE_PERSISTENT
+		/* child persistent region */
+		mpc_omp_persistent_region_t     persistent_region;
 
-    /* child persistent region */
-    mpc_omp_persistent_region_t persistent_region;
-
-    /* persistent information for this task */
-    mpc_omp_task_persistent_infos_t persistent_infos;
+		/* persistent information for this task */
+		mpc_omp_task_persistent_infos_t persistent_infos;
 #endif /* MPC_OMP_TASK_COMPILE_PERSISTENT */
 
 #if MPC_OMP_TASK_COMPILE_TASKWAIT_DETACH
-    /* taskwait detach event */
-    mpc_omp_event_handle_detach_t taskwait_detach_event;
+		/* taskwait detach event */
+		mpc_omp_event_handle_detach_t taskwait_detach_event;
 #endif /* MPC_OMP_TASK_COMPILE_TASKWAIT_DETACH */
-
 }               mpc_omp_task_t;
 
 /** RB tree for task priorities */
 typedef struct  mpc_omp_task_pqueue_node_s
 {
-    /* parent node */
-    struct mpc_omp_task_pqueue_node_s * parent;
+	/* parent node */
+	struct mpc_omp_task_pqueue_node_s *parent;
 
-    /* left node (left->priority < this->priority) */
-    struct mpc_omp_task_pqueue_node_s * left;
+	/* left node (left->priority < this->priority) */
+	struct mpc_omp_task_pqueue_node_s *left;
 
-    /* right node (right->priority > this->priority) */
-    struct mpc_omp_task_pqueue_node_s * right;
+	/* right node (right->priority > this->priority) */
+	struct mpc_omp_task_pqueue_node_s *right;
 
-    /* priority for this node */
-    int priority;
+	/* priority for this node */
+	int                                priority;
 
-    /* tasks for this priority */
-    mpc_omp_task_list_t tasks;
+	/* tasks for this priority */
+	mpc_omp_task_list_t                tasks;
 
-    /* 'R' or 'B' */
-    char color;
-
+	/* 'R' or 'B' */
+	char                               color;
 }               mpc_omp_task_pqueue_node_t;
 
 #if MPC_OMP_TASK_COMPILE_PRIORITY
-/**
- * Priority queue with :
- *  - Insertion : O(log2(n))
- *  - Deletion  : O(log2(n)) (not implemented yet)
- *  - Find top priority : O(1)
- *
- * Nodes are lists of tasks with the same priority.
- */
-typedef struct  mpc_omp_task_pqueue_s
-{
-    /* the tree head */
-    mpc_omp_task_pqueue_node_t * root;
 
-    /* number of element in the tree */
-    OPA_int_t nb_elements;
+	/**
+	 * Priority queue with :
+	 *  - Insertion : O(log2(n))
+	 *  - Deletion  : O(log2(n)) (not implemented yet)
+	 *  - Find top priority : O(1)
+	 *
+	 * Nodes are lists of tasks with the same priority.
+	 */
+	typedef struct  mpc_omp_task_pqueue_s
+	{
+		/* the tree head */
+		mpc_omp_task_pqueue_node_t *root;
 
-    /* the tree lock */
-    mpc_common_spinlock_t lock;
+		/* number of element in the tree */
+		OPA_int_t                   nb_elements;
 
-    /* the queue type */
-    mpc_omp_task_pqueue_type_t type;
-}               mpc_omp_task_pqueue_t;
+		/* the tree lock */
+		mpc_common_spinlock_t       lock;
+
+		/* the queue type */
+		mpc_omp_task_pqueue_type_t  type;
+	}               mpc_omp_task_pqueue_t;
 #else /* MPC_OMP_TASK_COMPILE_PRIORITY */
-typedef mpc_omp_task_list_t mpc_omp_task_pqueue_t;
+	typedef mpc_omp_task_list_t mpc_omp_task_pqueue_t;
 #endif /* MPC_OMP_TASK_COMPILE_PRIORITY */
 
 /**
@@ -960,68 +935,67 @@ typedef mpc_omp_task_list_t mpc_omp_task_pqueue_t;
  */
 typedef struct  mpc_omp_task_node_infos_s
 {
-    /** Lists of tasks */
-    mpc_omp_task_pqueue_t * pqueue[MPC_OMP_PQUEUE_TYPE_COUNT];
-    mpc_omp_task_pqueue_t * lastStolen_pqueue[MPC_OMP_PQUEUE_TYPE_COUNT];
-    int taskPqueueNodeRank[MPC_OMP_PQUEUE_TYPE_COUNT];
-    struct drand48_data * pqueue_randBuffer;
+	/** Lists of tasks */
+	mpc_omp_task_pqueue_t *pqueue[MPC_OMP_PQUEUE_TYPE_COUNT];
+	mpc_omp_task_pqueue_t *lastStolen_pqueue[MPC_OMP_PQUEUE_TYPE_COUNT];
+	int                    taskPqueueNodeRank[MPC_OMP_PQUEUE_TYPE_COUNT];
+	struct drand48_data *  pqueue_randBuffer;
 }               mpc_omp_task_node_infos_t;
 
 /** mvp and node share same struct */
 typedef struct  mpc_omp_task_mvp_infos_s
 {
-    /** Lists of tasks */
-    mpc_omp_task_pqueue_t * pqueue[MPC_OMP_PQUEUE_TYPE_COUNT];
-    mpc_omp_task_pqueue_t * lastStolen_pqueue[MPC_OMP_PQUEUE_TYPE_COUNT];
-    int taskPqueueNodeRank[MPC_OMP_PQUEUE_TYPE_COUNT];
-    struct drand48_data * pqueue_randBuffer;
-    int last_thief;
+	/** Lists of tasks */
+	mpc_omp_task_pqueue_t *pqueue[MPC_OMP_PQUEUE_TYPE_COUNT];
+	mpc_omp_task_pqueue_t *lastStolen_pqueue[MPC_OMP_PQUEUE_TYPE_COUNT];
+	int                    taskPqueueNodeRank[MPC_OMP_PQUEUE_TYPE_COUNT];
+	struct drand48_data *  pqueue_randBuffer;
+	int                    last_thief;
 }               mpc_omp_task_mvp_infos_t;
 
 /** Extend mpc_omp_thread_t struct for openmp task support */
 typedef struct  mpc_omp_task_thread_infos_s
 {
-    int * larceny_order;
-    mpc_omp_task_t * current_task;      /* Currently running task */
-    mpc_common_spinlock_t current_task_spinlock;
+	int *                         larceny_order;
+	mpc_omp_task_t *              current_task; /* Currently running task */
+	mpc_common_spinlock_t         current_task_spinlock;
 
-# if MPC_OMP_TASK_COMPILE_UCONTEXT
-    mpc_common_spinlock_t * spinlock_to_unlock; /* a spinlock to be unlocked, see mpc_omp_task_block() */
-    mpc_omp_task_ucontext_t * ucontext;               /* the ucontext to use when running a new task */
-    sctk_mctx_t mctx;                           /* the thread context before the task started */
-# endif /* MPC_OMP_TASK_COMPILE_UCONTEXT */
+#if MPC_OMP_TASK_COMPILE_UCONTEXT
+		mpc_common_spinlock_t *   spinlock_to_unlock; /* a spinlock to be unlocked, see mpc_omp_task_block() */
+		mpc_omp_task_ucontext_t * ucontext;           /* the ucontext to use when running a new task */
+		sctk_mctx_t               mctx;               /* the thread context before the task started */
+#endif /* MPC_OMP_TASK_COMPILE_UCONTEXT */
 
-# if MPC_OMP_TASK_USE_RECYCLERS
-    mpc_common_nrecycler_t task_recycler;   /* Recycler for mpc_omp_task_t and its data */
-    mpc_common_spinlock_t task_recycler_lock;
-#  if MPC_OMP_TASK_COMPILE_UCONTEXT
-    mpc_common_recycler_t  ucontext_recycler;  /* Recycler for mpc_omp_task_ucontext_t */
-#  endif /* MPC_OMP_TASK_COMPILE_UCONTEXT */
-# endif /* MPC_OMP_TASK_USE_RECYCLERS */
+#if MPC_OMP_TASK_USE_RECYCLERS
+		mpc_common_nrecycler_t    task_recycler;     /* Recycler for mpc_omp_task_t and its data */
+		mpc_common_spinlock_t     task_recycler_lock;
+#if MPC_OMP_TASK_COMPILE_UCONTEXT
+			mpc_common_recycler_t ucontext_recycler; /* Recycler for mpc_omp_task_ucontext_t */
+#endif /* MPC_OMP_TASK_COMPILE_UCONTEXT */
+#endif /* MPC_OMP_TASK_USE_RECYCLERS */
 
-    /* extra data for incoming task */
-    struct
-    {
-        mpc_omp_task_dependency_t * dependencies;
-        unsigned int ndependencies_type;
-        char * label;
-        int color;
-        int extra_clauses;
-    } incoming;
+	/* extra data for incoming task */
+	struct
+	{
+		mpc_omp_task_dependency_t *dependencies;
+		unsigned int               ndependencies_type;
+		char *                     label;
+		int                        color;
+		int                        extra_clauses;
+	}                                     incoming;
 
-# if MPC_OMP_TASK_COMPILE_TRACE
-    mpc_omp_thread_task_trace_infos_t tracer;
-# endif
+#if MPC_OMP_TASK_COMPILE_TRACE
+		mpc_omp_thread_task_trace_infos_t tracer;
+#endif
 
-    uintptr_t (*hash_deps)(void * addr);
+	uintptr_t (*hash_deps)(void *addr);
 
-# if WIP
-    mpc_omp_task_list leaves;
-# endif
+#if WIP
+		mpc_omp_task_list leaves;
+#endif
 
-    /* ? */
-    size_t sizeof_kmp_task_t;
-
+	/* ? */
+	size_t                sizeof_kmp_task_t;
 }               mpc_omp_task_thread_infos_t;
 
 /**
@@ -1029,44 +1003,44 @@ typedef struct  mpc_omp_task_thread_infos_s
  */
 typedef struct  mpc_omp_task_instance_infos_s
 {
-	int array_tree_total_size;
-	int *array_tree_level_first;
-	int *array_tree_level_size;
-    bool is_initialized;
+	int                                         array_tree_total_size;
+	int *                                       array_tree_level_first;
+	int *                                       array_tree_level_size;
+	bool                                        is_initialized;
 
-# if MPC_OMP_TASK_COMPILE_TRACE
-    OPA_int_t next_schedule_id;
-# if MPC_OMP_TASK_TRACE_USE_PAPI
-    /* 0 if non-initialized, 1 if initializing, 2 if initialized */
-    OPA_int_t papi_initialized;
-# endif
-# endif /* MPCOMP_TASK_COMPILE_TRACE */
+#if MPC_OMP_TASK_COMPILE_TRACE
+		OPA_int_t                               next_schedule_id;
+#if MPC_OMP_TASK_TRACE_USE_PAPI
+			/* 0 if non-initialized, 1 if initializing, 2 if initialized */
+			OPA_int_t                           papi_initialized;
+#endif
+#endif /* MPCOMP_TASK_COMPILE_TRACE */
 
-    OPA_int_t next_task_uid;
+	OPA_int_t                                   next_task_uid;
 
-    /* number of existing tasks */
-    OPA_int_t ntasks_allocated;
+	/* number of existing tasks */
+	OPA_int_t                                   ntasks_allocated;
 
-    /* number of ready tasks overall */
+	/* number of ready tasks overall */
 #if MPC_OMP_COMPILE_THROTTLING_MAX_READY
-    OPA_int_t ntasks_ready;
+		OPA_int_t                               ntasks_ready;
 #endif /* MPC_OMP_COMPILE_THROTTLING_MAX_READY */
 
-    /* blocked tasks list */
-    mpc_omp_task_list_t blocked_tasks;
+	/* blocked tasks list */
+	mpc_omp_task_list_t                         blocked_tasks;
 
-# if MPC_OMP_BARRIER_COMPILE_COND_WAIT
-    /* condition to make threads sleep when waiting for tasks */
-    pthread_mutex_t work_cond_mutex;
-    pthread_cond_t  work_cond;
-    int             work_cond_nthreads;
-# endif
+#if MPC_OMP_BARRIER_COMPILE_COND_WAIT
+		/* condition to make threads sleep when waiting for tasks */
+		pthread_mutex_t                         work_cond_mutex;
+		pthread_cond_t                          work_cond;
+		int                                     work_cond_nthreads;
+#endif
 
-    /* task profiles for asynchronous priority propagation */
-    mpc_omp_task_profile_info_t profiles;
+	/* task profiles for asynchronous priority propagation */
+	mpc_omp_task_profile_info_t                 profiles;
 
-    /* priority propagation information */
-    mpc_omp_task_priority_propagation_context_t propagation;
+	/* priority propagation information */
+	mpc_omp_task_priority_propagation_context_t propagation;
 }               mpc_omp_task_instance_infos_t;
 
 /**
@@ -1074,27 +1048,28 @@ typedef struct  mpc_omp_task_instance_infos_s
  */
 typedef struct  mpc_omp_task_team_infos_s
 {
-    /** Task max depth in task generation */
-	int task_nesting_max;
+	/** Task max depth in task generation */
+	int       task_nesting_max;
 
-    /* Task stealing policy */
-	int task_larceny_mode;
+	/* Task stealing policy */
+	int       task_larceny_mode;
 
-    /* Thread team task's init status tag */
+	/* Thread team task's init status tag */
 	OPA_int_t status;
 
-    /* Thread team task create task */
-    OPA_int_t use_task;
+	/* Thread team task create task */
+	OPA_int_t use_task;
 
-    /* Pqueue depth in the tree */
-    int pqueue_depth[MPC_OMP_PQUEUE_TYPE_COUNT];
+	/* Pqueue depth in the tree */
+	int       pqueue_depth[MPC_OMP_PQUEUE_TYPE_COUNT];
 }           mpc_omp_task_team_infos_t;
 
-typedef struct  mpc_omp_task_stealing_funcs_s {
-  char *namePolicy;
-  int allowMultipleVictims;
-  int (*pre_init)(void);
-  int (*get_victim)(int globalRank, int index, mpc_omp_task_pqueue_type_t type);
+typedef struct  mpc_omp_task_stealing_funcs_s
+{
+	char *namePolicy;
+	int   allowMultipleVictims;
+	int (*pre_init)(void);
+	int (*get_victim)(int globalRank, int index, mpc_omp_task_pqueue_type_t type);
 }               mpc_omp_task_stealing_funcs_t;
 
 /* Loops */
@@ -1103,33 +1078,33 @@ typedef struct  mpc_omp_task_stealing_funcs_s {
 typedef struct mpc_omp_loop_long_iter_s
 {
 	bool up;
-	long lb;		 /* Lower bound          */
-	long b;			 /* Upper bound          */
-	long incr;		 /* Step                 */
+	long lb;         /* Lower bound          */
+	long b;          /* Upper bound          */
+	long incr;       /* Step                 */
 	long chunk_size; /* Size of each chunk   */
 	long cur_ordered_iter;
 } mpc_omp_loop_long_iter_t;
 
 typedef struct mpc_omp_loop_ull_iter_s
 {
-	bool up;
-	unsigned long long lb;		   /* Lower bound              */
-	unsigned long long b;		   /* Upper bound              */
-	unsigned long long incr;	   /* Step                     */
+	bool               up;
+	unsigned long long lb;         /* Lower bound              */
+	unsigned long long b;          /* Upper bound              */
+	unsigned long long incr;       /* Step                     */
 	unsigned long long chunk_size; /* Size of each chunk       */
 	unsigned long long cur_ordered_iter;
 } mpc_omp_loop_ull_iter_t;
 
 typedef union mpc_omp_loop_gen_iter_u
 {
-	mpc_omp_loop_ull_iter_t mpcomp_ull;
+	mpc_omp_loop_ull_iter_t  mpcomp_ull;
 	mpc_omp_loop_long_iter_t mpcomp_long;
 } mpc_omp_loop_gen_iter_t;
 
 typedef struct mpc_omp_loop_gen_info_s
 {
-	int fresh;
-	int ischunked;
+	int                     fresh;
+	int                     ischunked;
 	mpc_omp_loop_gen_type_t type;
 	mpc_omp_loop_gen_iter_t loop;
 } mpc_omp_loop_gen_info_t;
@@ -1142,23 +1117,24 @@ typedef struct mpc_omp_loop_gen_info_s
 /* Combine a memspace to a full set of traits */
 typedef struct mpc_omp_alloc_s
 {
-  omp_memspace_handle_t memspace;
-  omp_alloctrait_t traits[omp_atk_partition]; // Assume here that omp_atk_partition is the last argument of the omp_alloctrait_t enum
+	omp_memspace_handle_t memspace;
+	omp_alloctrait_t      traits[omp_atk_partition]; // Assume here that omp_atk_partition is the last argument of the
+	                                                 // omp_alloctrait_t enum
 } mpc_omp_alloc_t;
 
 typedef struct mpc_omp_recycl_alloc_info_s
 {
-  int idx_list[MPC_OMP_MAX_ALLOCATORS];
-  int nb_recycl_allocators;
+	int idx_list[MPC_OMP_MAX_ALLOCATORS];
+	int nb_recycl_allocators;
 } mpc_omp_recycl_alloc_info_t;
 
 typedef struct mpc_omp_alloc_list_s
 {
-  mpc_omp_alloc_t list[MPC_OMP_MAX_ALLOCATORS];
-  int nb_init_allocators;
-  int last_index;
-  mpc_omp_recycl_alloc_info_t recycling_info;
-  mpc_common_spinlock_t lock;
+	mpc_omp_alloc_t             list[MPC_OMP_MAX_ALLOCATORS];
+	int                         nb_init_allocators;
+	int                         last_index;
+	mpc_omp_recycl_alloc_info_t recycling_info;
+	mpc_common_spinlock_t       lock;
 } mpc_omp_alloc_list_t;
 
 /********************
@@ -1167,8 +1143,8 @@ typedef struct mpc_omp_alloc_list_s
 
 typedef struct mpc_omp_atomic_int_pad_s
 {
-	OPA_int_t i; /**< Value of the integer */
-	char pad[8]; /* Padding */
+	OPA_int_t i;      /**< Value of the integer */
+	char      pad[8]; /* Padding */
 } mpc_omp_atomic_int_pad_t;
 
 /* Information to transfer to every thread
@@ -1180,103 +1156,103 @@ typedef struct mpc_omp_atomic_int_pad_s
 typedef struct mpc_omp_new_parallel_region_info_s
 {
 	/* MANDATORY INFO */
-	void ( *func )( void * );  /* Function to call by every thread */
-	void *shared;			   /* Shared variables (for every thread) */
-	long num_threads;		   /* Current number of threads in the team */
-	struct mpc_omp_node_s *new_root;
-	int single_sections_current_save;
-	mpc_common_spinlock_t update_lock;
-	int for_dyn_current_save;
-	long combined_pragma;
-	mpc_omp_local_icv_t icvs; /* Set of ICVs for the child team */
+	void (*func)(void *);                /* Function to call by every thread */
+	void *                  shared;      /* Shared variables (for every thread) */
+	long                    num_threads; /* Current number of threads in the team */
+	struct mpc_omp_node_s * new_root;
+	int                     single_sections_current_save;
+	mpc_common_spinlock_t   update_lock;
+	int                     for_dyn_current_save;
+	long                    combined_pragma;
+	mpc_omp_local_icv_t     icvs; /* Set of ICVs for the child team */
 
 	/* META OPTIONAL INFO FOR ULL SUPPORT */
 	mpc_omp_loop_gen_info_t loop_infos;
 	/* OPTIONAL INFO */
-	long loop_lb;		  /* Lower bound */
-	long loop_b;		  /* Upper bound */
-	long loop_incr;		  /* Step */
-	long loop_chunk_size; /* Size of each chunk */
-	int nb_sections;
+	long                    loop_lb;         /* Lower bound */
+	long                    loop_b;          /* Upper bound */
+	long                    loop_incr;       /* Step */
+	long                    loop_chunk_size; /* Size of each chunk */
+	int                     nb_sections;
 #if OMPT_SUPPORT
-    /* Parallel region data */
-    ompt_data_t ompt_parallel_data;
-    /* Single construct fields specific to OMPT
-     * Used to trigger work end event in barrier */
-    int doing_single;
-    int in_single;
+		/* Parallel region data */
+		ompt_data_t         ompt_parallel_data;
+
+		/* Single construct fields specific to OMPT
+		 * Used to trigger work end event in barrier */
+		int                 doing_single;
+		int                 in_single;
 #endif /* OMPT_SUPPORT */
 
-    /* number of existing tasks in the region */
-    OPA_int_t task_ref;
+	/* number of existing tasks in the region */
+	OPA_int_t               task_ref;
 } mpc_omp_parallel_region_t;
 
 /* NOLINTBEGIN(clang-diagnostic-unused-function): False positives */
 static inline void
-_mpc_omp_parallel_region_infos_reset( mpc_omp_parallel_region_t *info )
+_mpc_omp_parallel_region_infos_reset(mpc_omp_parallel_region_t *info)
 {
-	assert( info );
-	memset( info, 0, sizeof( mpc_omp_parallel_region_t ) );
+	assert(info);
+	memset(info, 0, sizeof(mpc_omp_parallel_region_t));
 }
 
 static inline void
-_mpc_omp_parallel_region_infos_init( mpc_omp_parallel_region_t *info )
+_mpc_omp_parallel_region_infos_init(mpc_omp_parallel_region_t *info)
 {
-	assert( info );
-	_mpc_omp_parallel_region_infos_reset( info );
+	assert(info);
+	_mpc_omp_parallel_region_infos_reset(info);
 	info->combined_pragma = MPC_OMP_COMBINED_NONE;
 }
+
 /* NOLINTEND(clang-diagnostic-unused-function) */
 
 /* Team of OpenMP threads */
 typedef struct mpc_omp_team_s
 {
-	mpc_omp_parallel_region_t info; /* Info for new parallel region */
-	int depth;					   /* Depth of the current thread (0 = sequential region) */
-	int id;						   /* team unique id */
+	mpc_omp_parallel_region_t        info;  /* Info for new parallel region */
+	int                              depth; /* Depth of the current thread (0 = sequential region) */
+	int                              id;    /* team unique id */
 
 	/* -- SINGLE/SECTIONS CONSTRUCT -- */
-	OPA_int_t single_sections_last_current;
-	void *single_copyprivate_data;
+	OPA_int_t                        single_sections_last_current;
+	void *                           single_copyprivate_data;
 
 	/* -- DYNAMIC FOR LOOP CONSTRUCT -- */
 	mpc_omp_atomic_int_pad_t
-	for_dyn_nb_threads_exited[MPC_OMP_MAX_ALIVE_FOR_DYN + 1];
+	                                 for_dyn_nb_threads_exited[MPC_OMP_MAX_ALIVE_FOR_DYN + 1];
 
 	/* GUIDED LOOP CONSTRUCT */
-	volatile int is_first[MPC_OMP_MAX_ALIVE_FOR_DYN + 1];
-	OPA_ptr_t guided_from[MPC_OMP_MAX_ALIVE_FOR_DYN + 1];
-	mpc_common_spinlock_t lock;
+	volatile int                     is_first[MPC_OMP_MAX_ALIVE_FOR_DYN + 1];
+	OPA_ptr_t                        guided_from[MPC_OMP_MAX_ALIVE_FOR_DYN + 1];
+	mpc_common_spinlock_t            lock;
 
 	/* ORDERED CONSTRUCT */
-	int next_ordered_index;
-	volatile long next_ordered_offset;
-	volatile unsigned long long next_ordered_offset_ull;
-	OPA_int_t next_ordered_offset_finalized;
+	int                              next_ordered_index;
+	volatile long                    next_ordered_offset;
+	volatile unsigned long long      next_ordered_offset_ull;
+	OPA_int_t                        next_ordered_offset_finalized;
 
 	/* ATOMIC/CRITICAL CONSTRUCT */
-  mpc_common_spinlock_t atomic_lock;
-  omp_lock_t* critical_lock;
+	mpc_common_spinlock_t            atomic_lock;
+	omp_lock_t *                     critical_lock;
 
 	struct mpc_omp_task_team_infos_s task_infos;
 
 #if OMPT_SUPPORT && MPCOMPT_HAS_FRAME_SUPPORT
-    /* Frame struct to transfer infos at parallel region */
-    mpc_omp_ompt_frame_info_t frame_infos;
+		/* Frame struct to transfer infos at parallel region */
+		mpc_omp_ompt_frame_info_t    frame_infos;
 #endif /* OMPT_SUPPORT */
 
 #if MPC_OMP_NAIVE_BARRIER
-    OPA_int_t threads_in_barrier;
-    volatile int barrier_version;
+		OPA_int_t                    threads_in_barrier;
+		volatile int                 barrier_version;
 #endif
-
 } mpc_omp_team_t;
 
 typedef struct  mpc_omp_thread_callback_infos_s
 {
-    /* callbacks per events */
-    mpc_omp_callback_t * callbacks[MPC_OMP_CALLBACK_MAX];
-
+	/* callbacks per events */
+	mpc_omp_callback_t *callbacks[MPC_OMP_CALLBACK_MAX];
 }               mpc_omp_thread_callback_infos_t;
 
 /** OpenMP thread struct
@@ -1284,268 +1260,263 @@ typedef struct  mpc_omp_thread_callback_infos_s
  * one thread per nested level */
 typedef struct mpc_omp_thread_s
 {
-
 	/* -- Internal specific information -- */
-	unsigned int depth;
+	unsigned int                       depth;
 	/** OpenMP rank (0 for master thread per team) */
-	long rank;
-	long tree_array_rank;
-	int *tree_array_ancestor_path;
+	long                               rank;
+	long                               tree_array_rank;
+	int *                              tree_array_ancestor_path;
 	/* Micro-vp of the thread*/
-	struct mpc_omp_mvp_s *mvp;
+	struct mpc_omp_mvp_s *             mvp;
 	/** Root node for nested parallel region */
-	struct mpc_omp_node_s *root;
+	struct mpc_omp_node_s *            root;
 	/* -- Parallel region information -- */
 	/** Information needed when entering a new parallel region */
-	mpc_omp_parallel_region_t info;
+	mpc_omp_parallel_region_t          info;
 	/** Current instance (team + tree) */
-	struct mpc_omp_instance_s *instance;
+	struct mpc_omp_instance_s *        instance;
 	/** Instance for nested parallelism */
-	struct mpc_omp_instance_s *children_instance;
+	struct mpc_omp_instance_s *        children_instance;
 	/* -- SINGLE/SECTIONS CONSTRUCT -- */
 	/** Thread last single or sections generation number */
-	int single_sections_current;
+	int                                single_sections_current;
 	/** Thread last sections generation number in sections construct */
-	int single_sections_target_current;
+	int                                single_sections_target_current;
 	/**  Thread first sections generation number in sections construct */
-	int single_sections_start_current;
+	int                                single_sections_start_current;
 	/** Thread sections number in sections construct */
-	int nb_sections;
+	int                                nb_sections;
 	/* -- LOOP CONSTRUCT -- */
 	/** Handle scheduling type */
-	int schedule_type;
+	int                                schedule_type;
 	/** Handle scheduling type from wrapper */
-	int schedule_is_forced;
+	int                                schedule_is_forced;
 	/* -- STATIC FOR LOOP CONSTRUCT -- */
 	/* Thread number of total chunk for static loop */
-	int static_nb_chunks;
+	int                                static_nb_chunks;
 	/** Thread current index for static loop */
-	int static_current_chunk;
+	int                                static_current_chunk;
 	/* -- DYNAMIC FOR LOOP CONSTRUCT -- */
-	//TODO MERGE THESE TWO STRUCT ...
+	// TODO MERGE THESE TWO STRUCT ...
 	/* Current position in 'for_dyn_chunk_info' array  */
-	int for_dyn_current;
-	OPA_int_t for_dyn_ull_current;
+	int                                for_dyn_current;
+	OPA_int_t                          for_dyn_ull_current;
 	/* Chunks array for loop dynamic schedule constructs */
-	mpc_omp_atomic_int_pad_t for_dyn_remain[MPC_OMP_MAX_ALIVE_FOR_DYN + 1];
+	mpc_omp_atomic_int_pad_t           for_dyn_remain[MPC_OMP_MAX_ALIVE_FOR_DYN + 1];
 	/* Total number of chunks of the thread */
-	unsigned long long for_dyn_total[MPC_OMP_MAX_ALIVE_FOR_DYN + 1];
+	unsigned long long                 for_dyn_total[MPC_OMP_MAX_ALIVE_FOR_DYN + 1];
 	/** Coordinates of target thread to steal */
-	int *for_dyn_target;
+	int *                              for_dyn_target;
 	/* last target */
-	struct mpc_omp_thread_s *dyn_last_target;
+	struct mpc_omp_thread_s *          dyn_last_target;
 	/* Shift of target thread to steal */
-	int *for_dyn_shift;
-	mpc_common_spinlock_t *for_dyn_lock;
+	int *                              for_dyn_shift;
+	mpc_common_spinlock_t *            for_dyn_lock;
 	/* Did we just execute the last iteration of the original loop? ( pr35196.c )*/
-	int for_dyn_last_loop_iteration;
+	int                                for_dyn_last_loop_iteration;
 	/* Thread next ordered index ( common for all active loop in parallel region )*/
-	int next_ordered_index;
+	int                                next_ordered_index;
 	struct mpc_omp_task_thread_infos_s task_infos;
 #ifdef MPC_OMP_USE_INTEL_ABI
-	/** Reduction method index for Intel Runtim */
-	int reduction_method;
-	/** Thread private common pointer for Intel Runtime */
-	struct common_table *th_pri_common;
-	/** Thread private head pointer for Intel Runtime */
-	struct private_common *th_pri_head;
-	/** Number of threads for Intel Runtime */
-	long push_num_threads;
-	/* -- STATIC FOR LOOP CONSTRUCT -- */
-	/** Static Loop is first iteration for Intel Runtime */
-	int first_iteration;
-	/** Chunk number in static loop construct for Intel Runtime */
-	int static_chunk_size_intel;
+		/** Reduction method index for Intel Runtim */
+		int                            reduction_method;
+		/** Thread private common pointer for Intel Runtime */
+		struct common_table *          th_pri_common;
+		/** Thread private head pointer for Intel Runtime */
+		struct private_common *        th_pri_head;
+		/** Number of threads for Intel Runtime */
+		long                           push_num_threads;
+		/* -- STATIC FOR LOOP CONSTRUCT -- */
+		/** Static Loop is first iteration for Intel Runtime */
+		int                            first_iteration;
+		/** Chunk number in static loop construct for Intel Runtime */
+		int                            static_chunk_size_intel;
 #endif /* MPC_OMP_USE_INTEL_ABI */
 
-  /* OpenMP 5.0 -- Memory Management */
+	/* OpenMP 5.0 -- Memory Management */
 
-  omp_allocator_handle_t default_allocator;
-  // Allocators set (including default memory allocator)
-  //  - 1 x (Memspace + Traits) / allocator_handle
-  // struct mpc_omp_alloc_s *alloc_set;
+	omp_allocator_handle_t default_allocator;
+	// Allocators set (including default memory allocator)
+	//  - 1 x (Memspace + Traits) / allocator_handle
+	// struct mpc_omp_alloc_s *alloc_set;
 #ifdef TLS_ALLOCATORS
-  struct mpc_omp_alloc_list_s allocators;
+		struct mpc_omp_alloc_list_s allocators;
 #endif
 
 	/* MVP prev context */
-	//int instance_ghost_rank;
-	struct mpc_omp_node_s *father_node;
+	// int instance_ghost_rank;
+	struct mpc_omp_node_s *           father_node;
 
 	/** Nested thread chaining ( heap ) */
-	struct mpc_omp_thread_s *next;
+	struct mpc_omp_thread_s *         next;
 
 	/** Father thread */
-	struct mpc_omp_thread_s *father;
+	struct mpc_omp_thread_s *         father;
 
 	/* copy __kmpc_fork_call args */
-	void **args_copy;
+	void **                           args_copy;
 
 	/* Current size of args_copy */
-	int temp_argc;
+	int                               temp_argc;
 #if OMPT_SUPPORT
+		/* Thread state */
+		ompt_state_t                  state;
 
-    /* Thread state */
-    ompt_state_t state;
+		/* Wait id */
+		ompt_wait_id_t                wait_id;
 
-    /* Wait id */
-    ompt_wait_id_t wait_id;
-
-    /* Thread data */
-    ompt_data_t ompt_thread_data;
+		/* Thread data */
+		ompt_data_t                   ompt_thread_data;
 
 #if MPCOMPT_HAS_FRAME_SUPPORT
-    /* Frame addr and frame return addr infos */
-    mpc_omp_ompt_frame_info_t frame_infos;
+			/* Frame addr and frame return addr infos */
+			mpc_omp_ompt_frame_info_t frame_infos;
 #endif
 
-    /* Common tool instance status */
-    mpc_omp_ompt_tool_status_t tool_status;
+		/* Common tool instance status */
+		mpc_omp_ompt_tool_status_t    tool_status;
 
-    /* Common tool instance infos */
-    mpc_omp_ompt_tool_instance_t* tool_instance;
+		/* Common tool instance infos */
+		mpc_omp_ompt_tool_instance_t *tool_instance;
 #endif /* OMPT_SUPPORT */
 
-# ifdef MPC_OMP_DEBUG_TASK_UTHASH
-    /* DEBUGGING for task discovery */
-    size_t hash_collision;
-    size_t hash_resize;
-    double t_hash;
-# endif /* MPC_OMP_DEBUG_TASK_UTHASH */
+#ifdef MPC_OMP_DEBUG_TASK_UTHASH
+		/* DEBUGGING for task discovery */
+		size_t                      hash_collision;
+		size_t                      hash_resize;
+		double                      t_hash;
+#endif /* MPC_OMP_DEBUG_TASK_UTHASH */
 
-    /* per-thread callback */
-    mpc_omp_thread_callback_infos_t callback_infos;
-
+	/* per-thread callback */
+	mpc_omp_thread_callback_infos_t callback_infos;
 }       mpc_omp_thread_t;
 
 typedef struct  mpc_omp_instance_callback_infos_s
 {
-    /* callbacks per events */
-    mpc_omp_thread_callback_infos_t master;
+	/* callbacks per events */
+	mpc_omp_thread_callback_infos_t master;
 
-    /* callback lock per event */
-    mpc_common_spinlock_t locks[MPC_OMP_CALLBACK_MAX];
-
+	/* callback lock per event */
+	mpc_common_spinlock_t           locks[MPC_OMP_CALLBACK_MAX];
 }               mpc_omp_instance_callback_infos_t;
 
 /* Instance of OpenMP runtime */
 typedef struct mpc_omp_instance_s
 {
 	/** Root to the tree linking the microVPs */
-	struct mpc_omp_node_s *root;
+	struct mpc_omp_node_s *              root;
 	/** OpenMP information on the team */
-	struct mpc_omp_team_s *team;
+	struct mpc_omp_team_s *              team;
 
-	struct mpc_omp_thread_s *master;
+	struct mpc_omp_thread_s *            master;
 
 	/*-- Instance MVP --*/
-	int buffered;
+	int                                  buffered;
 
 	/** Number of microVPs for this instance   */
 	/** All microVPs of this instance  */
-	unsigned int nb_mvps;
-	struct mpc_omp_generic_node_s *mvps;
-	int tree_array_size;
-	struct mpc_omp_generic_node_s *tree_array;
+	unsigned int                         nb_mvps;
+	struct mpc_omp_generic_node_s *      mvps;
+	int                                  tree_array_size;
+	struct mpc_omp_generic_node_s *      tree_array;
 	/*-- Tree array information --*/
 	/** Depth of the tree */
-	int tree_depth;
+	int                                  tree_depth;
 	/** Degree per level of the tree */
-	int *tree_base;
+	int *                                tree_base;
 	/** Instance microVPs child number per depth */
-	int *tree_cumulative;
+	int *                                tree_cumulative;
 	/** microVPs number at each depth */
-	int *tree_nb_nodes_per_depth;
-	int *tree_first_node_per_depth;
+	int *                                tree_nb_nodes_per_depth;
+	int *                                tree_first_node_per_depth;
 
-	mpc_omp_thread_t *thread_ancestor;
+	mpc_omp_thread_t *                   thread_ancestor;
 
 	/** Task information of this instance */
 	struct mpc_omp_task_instance_infos_s task_infos;
 
-    /* asynchronous callbacks */
-    mpc_omp_instance_callback_infos_t callback_infos;
+	/* asynchronous callbacks */
+	mpc_omp_instance_callback_infos_t    callback_infos;
 
-    /* mutex to dump thread debugging information */
-    mpc_common_spinlock_t debug_lock;
-
+	/* mutex to dump thread debugging information */
+	mpc_common_spinlock_t                debug_lock;
 } mpc_omp_instance_t;
 
 typedef union mpc_omp_node_or_leaf_u
 {
 	struct mpc_omp_node_s **node;
-	struct mpc_omp_mvp_s **leaf;
+	struct mpc_omp_mvp_s ** leaf;
 } mpc_omp_node_or_leaf_t;
 
 typedef struct worker_workshare_s
 {
-  void* workshare;
-  int mpi_rank;
+	void *workshare;
+	int   mpi_rank;
 } worker_workshare_t;
 
 
 /* OpenMP Micro VP */
 typedef struct mpc_omp_mvp_s
 {
-	sctk_mctx_t vp_context; /* Context including registers, stack pointer, ... */
-	mpc_thread_t pid;
+	sctk_mctx_t                          vp_context; /* Context including registers, stack pointer, ... */
+	mpc_thread_t                         pid;
 	/* -- MVP Thread specific information --                   */
 	/** VP on which microVP is executed                         */
-	int thread_vp_idx;
+	int                                  thread_vp_idx;
 	/** PU on which microVP is executed                         */
-	int pu_id;
+	int                                  pu_id;
 	/** MVP thread structure pointer                            */
-	mpc_thread_t thread_self;
+	mpc_thread_t                         thread_self;
 	/** MVP keep alive after fall asleep                        */
-	volatile int enable;
+	volatile int                         enable;
 	/** MVP spinning value in topology tree                     */
-	volatile int spin_status;
-	struct mpc_omp_node_s *spin_node;
+	volatile int                         spin_status;
+	struct mpc_omp_node_s *              spin_node;
 	/* -- MVP Tree related information                         */
-	unsigned int depth;
+	unsigned int                         depth;
 	/** Root of the topology tree                               */
-	struct mpc_omp_node_s *root;
+	struct mpc_omp_node_s *              root;
 	/** Father node in the topology tree                        */
-	struct mpc_omp_node_s *father;
+	struct mpc_omp_node_s *              father;
 	/** Left sibbling mvp                                       */
-	struct mpc_omp_mvp_s *prev_brother;
+	struct mpc_omp_mvp_s *               prev_brother;
 	/* Right sibbling mvp                                       */
-	struct mpc_omp_mvp_s *next_brother;
+	struct mpc_omp_mvp_s *               next_brother;
 	/** Which thread currently running over MVP                 */
-	struct mpc_omp_thread_s *threads;
+	struct mpc_omp_thread_s *            threads;
 	/* -- Parallel Region Information Transfer --              */
 	/* Transfer OpenMP instance pointer to OpenMP thread       */
-	struct mpc_omp_instance_s *instance;
+	struct mpc_omp_instance_s *          instance;
 	/* Index in mvps instance array of last nested instance     */
-	int instance_mvps_index;
+	int                                  instance_mvps_index;
 #if MPC_OMP_TRANSFER_INFO_ON_NODES
-	/* Transfer OpenMP region information to OpenMP thread     */
-	mpc_omp_parallel_region_t info;
+		/* Transfer OpenMP region information to OpenMP thread     */
+		mpc_omp_parallel_region_t        info;
 #endif /* MPC_OMP_TRANSFER_INFO_ON_NODES */
-	mpc_omp_thread_t *buffered_threads;
+	mpc_omp_thread_t *                   buffered_threads;
 	/* -- Tree array MVP information --                         */
 	/* Rank within the microVPs */
-	//TODO Remove duplicate value
-	int rank;
+	// TODO Remove duplicate value
+	int                                  rank;
 
 	/** Rank within sibbling MVP        */
-	int local_rank;
-	int *tree_array_ancestor_path;
-	long tree_array_rank;
+	int                                  local_rank;
+	int *                                tree_array_ancestor_path;
+	long                                 tree_array_rank;
 	/** Rank within topology tree MVP depth level */
-	int stage_rank;
-	int global_rank;
+	int                                  stage_rank;
+	int                                  global_rank;
 	/** Size of topology tree MVP depth level    */
-	int stage_size;
-	int *tree_rank; /* Array of rank in every node of the tree */
-	struct mpc_omp_node_s *tree_array_father;
-	int min_index[MPC_OMP_AFFINITY_NB];
-	struct mpc_omp_task_mvp_infos_s task_infos;
+	int                                  stage_size;
+	int *                                tree_rank; /* Array of rank in every node of the tree */
+	struct mpc_omp_node_s *              tree_array_father;
+	int                                  min_index[MPC_OMP_AFFINITY_NB];
+	struct mpc_omp_task_mvp_infos_s      task_infos;
 	struct mpc_omp_mvp_rank_chain_elt_s *rank_list;
-	struct mpc_omp_mvp_saved_context_s *prev_node_father;
+	struct mpc_omp_mvp_saved_context_s * prev_node_father;
 #if OMPT_SUPPORT
-    /* MVP thread data */
-    ompt_data_t ompt_mvp_data;
+		/* MVP thread data */
+		ompt_data_t                      ompt_mvp_data;
 #endif /* OMPT_SUPPORT */
 } mpc_omp_mvp_t;
 
@@ -1553,81 +1524,80 @@ typedef struct mpc_omp_mvp_s
 
 typedef struct mpc_omp_node_s
 {
-	int already_init;
+	int                              already_init;
 	/* -- MVP Thread specific information --                   */
 	struct mpc_omp_meta_tree_node_s *tree_array;
-	int *tree_array_ancestor_path;
-	long tree_array_rank;
+	int *                            tree_array_ancestor_path;
+	long                             tree_array_rank;
 	/** MVP spinning as a node                                  */
-	struct mpc_omp_mvp_s *mvp;
+	struct mpc_omp_mvp_s *           mvp;
 	/** MVP spinning value in topology tree                     */
-	volatile int spin_status;
+	volatile int                     spin_status;
 	/* NUMA node on which this node is allocated                */
-	int id_numa;
+	int                              id_numa;
 	/* -- MVP Tree related information --                       */
 	/** Depth in the tree                                       */
-	int depth;
+	int                              depth;
 	/** Father node in the topology tree                        */
-	int num_threads;
-	int mvp_first_id;
-	struct mpc_omp_node_s *father;
-	struct mpc_omp_node_s *prev_father;
+	int                              num_threads;
+	int                              mvp_first_id;
+	struct mpc_omp_node_s *          father;
+	struct mpc_omp_node_s *          prev_father;
 	/** Right brother node in the topology tree                 */
-	struct mpc_omp_node_s *prev_brother;
+	struct mpc_omp_node_s *          prev_brother;
 	/** Right brother node in the topology tree                 */
-	struct mpc_omp_node_s *next_brother;
+	struct mpc_omp_node_s *          next_brother;
 	/* Kind of children (node or leaf)                          */
-	mpc_omp_children_t child_type;
+	mpc_omp_children_t               child_type;
 	/* Number of children                                       */
-	int nb_children;
+	int                              nb_children;
 	/* Children list                                            */
-	mpc_omp_node_or_leaf_t children;
+	mpc_omp_node_or_leaf_t           children;
 	/* -- Parallel Region Information Transfer --              */
 	/* Transfer OpenMP instance pointer to OpenMP thread       */
-	struct mpc_omp_instance_s *instance;
+	struct mpc_omp_instance_s *      instance;
 	/* Index in mvps instance array of last nested instance     */
-	int instance_mvps_index;
+	int                              instance_mvps_index;
 #if MPC_OMP_TRANSFER_INFO_ON_NODES
-	/* Transfer OpenMP region information to OpenMP thread     */
-	mpc_omp_parallel_region_t info;
+		/* Transfer OpenMP region information to OpenMP thread     */
+		mpc_omp_parallel_region_t    info;
 #endif /* MPC_OMP_TRANSFER_INFO_ON_NODES */
 
-	int instance_stage_size;
-	int instance_global_rank;
-	int instance_stage_first_rank;
+	int                              instance_stage_size;
+	int                              instance_global_rank;
+	int                              instance_stage_first_rank;
 
 	/* -- Tree array MVP information --                         */
 	/** Rank among children of my father -> local rank          */
-	int tree_depth;
-	int *tree_base;
-	int *tree_cumulative;
-	int *tree_nb_nodes_per_depth;
+	int                              tree_depth;
+	int *                            tree_base;
+	int *                            tree_cumulative;
+	int *                            tree_nb_nodes_per_depth;
 
-	long rank;
-	int local_rank;
-	int stage_rank;
-	int stage_size;
-	int global_rank;
+	long                             rank;
+	int                              local_rank;
+	int                              stage_rank;
+	int                              stage_size;
+	int                              global_rank;
 
 	/* Flat min index of leaves in this subtree                 */
-	int min_index[MPC_OMP_AFFINITY_NB];
+	int                              min_index[MPC_OMP_AFFINITY_NB];
 	/* -- Barrier specific information --                       */
 	/** Threads number already wait on node                     */
-	OPA_int_t barrier;
+	OPA_int_t                        barrier;
 	/** Last generation barrier id perform on node              */
-	volatile long barrier_done;
+	volatile long                    barrier_done;
 	/** Number of threads involved in the barrier               */
-	volatile long barrier_num_threads;
+	volatile long                    barrier_num_threads;
 
 	struct mpc_omp_task_node_infos_s task_infos;
-	struct mpc_omp_node_s *mvp_prev_father;
+	struct mpc_omp_node_s *          mvp_prev_father;
 
 	/* Tree reduction flag */
-	volatile int *isArrived;
+	volatile int *                   isArrived;
 	/* Tree reduction data */
-	void **reduce_data;
-  worker_workshare_t* worker_ws;
-
+	void **                          reduce_data;
+	worker_workshare_t *             worker_ws;
 } mpc_omp_node_t;
 
 
@@ -1636,20 +1606,20 @@ typedef struct mpc_omp_node_s *mpcomp_node_ptr_t;
 typedef struct mpc_omp_mvp_rank_chain_elt_s
 {
 	struct mpc_omp_mvp_rank_chain_elt_s *prev;
-	unsigned int rank;
+	unsigned int                         rank;
 } mpc_omp_mvp_rank_chain_elt_t;
 
 typedef struct mpc_omp_mvp_saved_context_s
 {
-	struct mpc_omp_node_s *father;
-	struct mpc_omp_node_s *node;
-	unsigned int rank;
+	struct mpc_omp_node_s *             father;
+	struct mpc_omp_node_s *             node;
+	unsigned int                        rank;
 	struct mpc_omp_mvp_saved_context_s *prev;
 } mpc_omp_mvp_saved_context_t;
 
 typedef union mpc_omp_node_gen_ptr_u
 {
-	struct mpc_omp_mvp_s *mvp;
+	struct mpc_omp_mvp_s * mvp;
 	struct mpc_omp_node_s *node;
 } mpc_omp_node_gen_ptr_t;
 
@@ -1657,22 +1627,23 @@ typedef struct mpc_omp_generic_node_s
 {
 	mpc_omp_node_gen_ptr_t ptr;
 	/* Kind of children (node or leaf) */
-	mpc_omp_children_t type;
+	mpc_omp_children_t     type;
 } mpc_omp_generic_node_t;
 
 /**************
  * OPENMP TLS *
  **************/
-extern __thread void *mpc_omp_tls;
+extern __thread void *      mpc_omp_tls;
 extern mpc_omp_global_icv_t mpcomp_global_icvs;
 // extern mpc_omp_alloc_list_t mpcomp_global_allocators;
 
 //////////////TARGET/////////////////
 
-typedef enum {
-  tgt_disabled = 0,
-  tgt_default = 1,
-  tgt_mandatory = 2
+typedef enum
+{
+	tgt_disabled  = 0,
+	tgt_default   = 1,
+	tgt_mandatory = 2
 } kmp_target_offload_kind_t;
 extern kmp_target_offload_kind_t __kmp_target_offload;
 

@@ -294,8 +294,8 @@
 #pragma weak MPI_Type_create_f90_integer = PMPI_Type_create_f90_integer
 #pragma weak MPI_Type_create_f90_real = PMPI_Type_create_f90_real
 
-//-----
-//-----
+// -----
+// -----
 /* MPIX methods */
 #pragma weak MPIX_Comm_failure_ack = PMPIX_Comm_failure_ack
 #pragma weak MPIX_Comm_failure_get_acked = PMPIX_Comm_failure_get_acked

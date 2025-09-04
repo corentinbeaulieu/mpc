@@ -26,8 +26,8 @@
 #define MPC_COMMON_INCLUDE_SCTK_DEBUG_H_
 
 #ifdef __cplusplus
-extern "C"
-{
+	extern "C"
+	{
 #endif
 
 #include <assert.h>
@@ -41,18 +41,19 @@ extern "C"
 
 #include "mpc_keywords.h"
 
-#define SMALL_BUFFER_SIZE ( 4 * 1024 )
+#define SMALL_BUFFER_SIZE (4 * 1024)
 
 #define pstr(s) #s
 #define xstr(s) pstr(s)
 
-typedef enum {
-	MPC_COMMON_LOG_LEVEL_ERROR = 0,
+typedef enum
+{
+	MPC_COMMON_LOG_LEVEL_ERROR   = 0,
 	MPC_COMMON_LOG_LEVEL_WARNING = 1,
-	MPC_COMMON_LOG_LEVEL_BASE = 2,
-	MPC_COMMON_LOG_LEVEL_LOG = 3,
-	MPC_COMMON_LOG_LEVEL_INFO = 4,
-	MPC_COMMON_LOG_LEVEL_DEBUG = 5,
+	MPC_COMMON_LOG_LEVEL_BASE    = 2,
+	MPC_COMMON_LOG_LEVEL_LOG     = 3,
+	MPC_COMMON_LOG_LEVEL_INFO    = 4,
+	MPC_COMMON_LOG_LEVEL_DEBUG   = 5,
 	MPC_COMMON_LOG_LEVEL_COUNT
 }mpc_common_debug_verbosity_level_t;
 
@@ -64,23 +65,23 @@ void mpc_common_debug_init();
 void mpc_common_debug_finalize();
 
 /*********
-* ABORT *
-*********/
+ * ABORT *
+ *********/
 
-void mpc_common_debug_abort(void) __attribute__( (__noreturn__) );
+void mpc_common_debug_abort(void) __attribute__((__noreturn__));
 
 /** Print an error message and exit. It use the print formatting convention.
  * **/
-#define mpc_common_debug_fatal(...)                                                 \
-	{                                                                           \
-		mpc_common_debug_error("Fatal error at %s:%d", __FILE__, __LINE__); \
-		mpc_common_debug_error(__VA_ARGS__);                                \
-		mpc_common_debug_abort();                                           \
-	}
+#define mpc_common_debug_fatal(...)                                             \
+		{                                                                       \
+			mpc_common_debug_error("Fatal error at %s:%d", __FILE__, __LINE__); \
+			mpc_common_debug_error(__VA_ARGS__);                                \
+			mpc_common_debug_abort();                                           \
+		}
 
 void mpc_common_debug_abort_log(FILE *stream, int line,
                                 const char *file, const char *func,
-                                const char *fmt, ...) __attribute__( (__noreturn__) );
+                                const char *fmt, ...) __attribute__((__noreturn__));
 
 
 
@@ -88,197 +89,268 @@ void mpc_common_debug_check_size_equal(size_t a, size_t b, char *ca, char *cb,
                                        char *file, int line);
 
 
-#define mpc_common_debug_check_type_equal(a, b)    mpc_common_debug_check_size_equal(sizeof(a), sizeof(b), MPC_STRING(a), MPC_STRING(b), __FILE__, __LINE__)
+#define mpc_common_debug_check_type_equal(a, b)      \
+		mpc_common_debug_check_size_equal(sizeof(a), \
+	sizeof(b),                                       \
+	MPC_STRING(a),                                   \
+	MPC_STRING(b),                                   \
+	__FILE__,                                        \
+	__LINE__)
 
 void mpc_common_debug_check_large_enough(size_t a, size_t b, char *ca, char *cb,
                                          char *file, int line);
 
-#define MPC_COMMON_DEBUG_INFO    stderr, __LINE__, __FILE__, MPC_FUNCTION
+#define MPC_COMMON_DEBUG_INFO stderr, __LINE__, __FILE__, MPC_FUNCTION
 
-#define bad_parameter(message, ...)     mpc_common_debug_abort_log(MPC_COMMON_DEBUG_INFO, message, __VA_ARGS__)
+#define bad_parameter(message, ...) mpc_common_debug_abort_log(MPC_COMMON_DEBUG_INFO, message, __VA_ARGS__)
 
-#define not_implemented()               mpc_common_debug_abort_log(MPC_COMMON_DEBUG_INFO, "Function not implemented!!!!!")
+#define not_implemented() mpc_common_debug_abort_log(MPC_COMMON_DEBUG_INFO, "Function not implemented!!!!!")
 
-#define not_available()                 mpc_common_debug_abort_log(MPC_COMMON_DEBUG_INFO, "Function not available!!!!!")
+#define not_available() mpc_common_debug_abort_log(MPC_COMMON_DEBUG_INFO, "Function not available!!!!!")
 
-#define not_reachable()                 mpc_common_debug_abort_log(MPC_COMMON_DEBUG_INFO, "Function not reachable!!!!!")
+#define not_reachable() mpc_common_debug_abort_log(MPC_COMMON_DEBUG_INFO, "Function not reachable!!!!!")
 
 /*********************************
-* LOGGING AND ERROR LEVEL PRINT *
-*********************************/
+ * LOGGING AND ERROR LEVEL PRINT *
+ *********************************/
 
 void MPC_printf(const char *fmt, ...);
 
-int mpc_common_debug_print(char *filename, int line, const char *funcname, char *color, mpc_common_debug_verbosity_level_t verbosity_level, char *modulename, char *string, ...);
+int mpc_common_debug_print(char *filename,
+                           int line,
+                           const char *funcname,
+                           char *color,
+                           mpc_common_debug_verbosity_level_t verbosity_level,
+                           char *modulename,
+                           char *string,
+                           ...);
 
-#define mpc_common_debug_warning(s, ...) do{\
-	mpc_common_debug_print(__FILE__, __LINE__, __func__, MPC_COLOR_CHAR_YELLOW, MPC_COMMON_LOG_LEVEL_WARNING, xstr(MPC_MODULE), s, ## __VA_ARGS__);}while(0)
+#define mpc_common_debug_warning(s, ...)     \
+		do                                   \
+		{                                    \
+			mpc_common_debug_print(__FILE__, \
+	__LINE__,                                \
+	__func__,                                \
+	MPC_COLOR_CHAR_YELLOW,                   \
+	MPC_COMMON_LOG_LEVEL_WARNING,            \
+	xstr(MPC_MODULE),                        \
+	s,                                       \
+	## __VA_ARGS__);                         \
+		}while (0)
 
-#define mpc_common_debug_error(s, ...) do{\
-	mpc_common_debug_print(__FILE__, __LINE__, __func__, MPC_COLOR_CHAR_RED, MPC_COMMON_LOG_LEVEL_ERROR, xstr(MPC_MODULE), s, ## __VA_ARGS__);}while(0)
+#define mpc_common_debug_error(s, ...)                                                                           \
+		do                                                                                                       \
+		{                                                                                                        \
+			mpc_common_debug_print(__FILE__, __LINE__, __func__, MPC_COLOR_CHAR_RED, MPC_COMMON_LOG_LEVEL_ERROR, \
+	xstr(MPC_MODULE), s, ## __VA_ARGS__);                                                                        \
+		}while (0)
 
-#define mpc_common_debug_log(s, ...) do{\
-	mpc_common_debug_print(__FILE__, __LINE__, __func__, MPC_COLOR_CHAR_GREEN, MPC_COMMON_LOG_LEVEL_LOG, xstr(MPC_MODULE), s, ## __VA_ARGS__);}while(0)
+#define mpc_common_debug_log(s, ...)                                                                             \
+		do                                                                                                       \
+		{                                                                                                        \
+			mpc_common_debug_print(__FILE__, __LINE__, __func__, MPC_COLOR_CHAR_GREEN, MPC_COMMON_LOG_LEVEL_LOG, \
+	xstr(MPC_MODULE), s, ## __VA_ARGS__);                                                                        \
+		}while (0)
 
 
-#define mpc_common_debug_info(s, ...) do{\
-	mpc_common_debug_print(__FILE__, __LINE__, __func__, MPC_COLOR_CHAR_VIOLET, MPC_COMMON_LOG_LEVEL_INFO, xstr(MPC_MODULE), s, ## __VA_ARGS__);}while(0)
+#define mpc_common_debug_info(s, ...)                                                                              \
+		do                                                                                                         \
+		{                                                                                                          \
+			mpc_common_debug_print(__FILE__, __LINE__, __func__, MPC_COLOR_CHAR_VIOLET, MPC_COMMON_LOG_LEVEL_INFO, \
+	xstr(MPC_MODULE), s, ## __VA_ARGS__);                                                                          \
+		}while (0)
 
 
 #ifdef MPC_ENABLE_DEBUG_MESSAGES
-#define mpc_common_debug(s, ...) do{\
-	mpc_common_debug_print(__FILE__, __LINE__, __func__, MPC_COLOR_CHAR_BOLD_WHITE, MPC_COMMON_LOG_LEVEL_DEBUG, xstr(MPC_MODULE), s, ## __VA_ARGS__);}while(0)
+	#define mpc_common_debug(s, ...)             \
+			do                                   \
+			{                                    \
+				mpc_common_debug_print(__FILE__, \
+	__LINE__,                                    \
+	__func__,                                    \
+	MPC_COLOR_CHAR_BOLD_WHITE,                   \
+	MPC_COMMON_LOG_LEVEL_DEBUG,                  \
+	xstr(MPC_MODULE),                            \
+	s,                                           \
+	## __VA_ARGS__);                             \
+			}while (0)
 #else
 	#if defined(__GNUC__) || defined(__INTEL_COMPILER)
-		#define mpc_common_debug(fmt, ...)    (void)(0)
+		#define mpc_common_debug(fmt, ...) (void)(0)
 	#else
-static inline void mpc_common_debug(const char *fmt, ...)
-{
-}
+	static inline void mpc_common_debug(const char *fmt, ...)
+	{
+	}
+
 	#endif
 #endif
 
-const char * mpc_common_debug_get_basename(const char * path);
+const char * mpc_common_debug_get_basename(const char *path);
 
-#define mpc_common_tracepoint(FMT) mpc_common_debug("[%s] %s:%d  : " FMT, __FUNCTION__, mpc_common_debug_get_basename(__FILE__), __LINE__)
-#define mpc_common_tracepoint_fmt(FMT, ...) mpc_common_debug("[%s] %s:%d : " FMT, __FUNCTION__, mpc_common_debug_get_basename(__FILE__),__LINE__, __VA_ARGS__)
+#define mpc_common_tracepoint(FMT)             \
+		mpc_common_debug("[%s] %s:%d  : " FMT, \
+	__FUNCTION__,                              \
+	mpc_common_debug_get_basename(__FILE__),   \
+	__LINE__)
+#define mpc_common_tracepoint_fmt(FMT, ...)   \
+		mpc_common_debug("[%s] %s:%d : " FMT, \
+	__FUNCTION__,                             \
+	mpc_common_debug_get_basename(__FILE__),  \
+	__LINE__,                                 \
+	__VA_ARGS__)
 
-#define mpc_common_errorpoint(FMT) mpc_common_debug_error("[%s] %s:%d : " FMT, __FUNCTION__, mpc_common_debug_get_basename(__FILE__), __LINE__)
-#define mpc_common_errorpoint_fmt(FMT, ...) mpc_common_debug_error("[%s] %s:%d : " FMT, __FUNCTION__, mpc_common_debug_get_basename(__FILE__), __LINE__, __VA_ARGS__)
+#define mpc_common_errorpoint(FMT)                  \
+		mpc_common_debug_error("[%s] %s:%d : " FMT, \
+	__FUNCTION__,                                   \
+	mpc_common_debug_get_basename(__FILE__),        \
+	__LINE__)
+#define mpc_common_errorpoint_fmt(FMT, ...)         \
+		mpc_common_debug_error("[%s] %s:%d : " FMT, \
+	__FUNCTION__,                                   \
+	mpc_common_debug_get_basename(__FILE__),        \
+	__LINE__,                                       \
+	__VA_ARGS__)
 
 
 #if defined(__GNUC__) || defined(__INTEL_COMPILER)
-#define mpc_common_nodebug(fmt, ...)    (void)(0)
+	#define mpc_common_nodebug(fmt, ...) (void)(0)
 #else
 static inline void mpc_common_nodebug(const char *fmt, ...)
 {
 }
+
 #endif
 
 void mpc_common_debug_file(FILE *file, const char *fmt, ...);
 
 /*****************
-* TODO AND INFO *
-*****************/
+ * TODO AND INFO *
+ *****************/
 
 #if (defined HAVE_PRAGMA_MESSAGE) && (defined MPC_ENABLE_DEBUG_MESSAGES)
 
-/* Add todo support (as stated in GCC doc
- * Supported since GCC 4.4.7 ignored in previous versions*/
-#define DO_PRAGMA(x)    _Pragma( #x)
+	/* Add todo support (as stated in GCC doc
+	 * Supported since GCC 4.4.7 ignored in previous versions*/
+	#define DO_PRAGMA(x) _Pragma( #x)
 
-#define TODO(x)         DO_PRAGMA(message("TODO - " #x) )
-#define INFO(x)         DO_PRAGMA(message("INFO - " #x) )
+	#define TODO(x) DO_PRAGMA(message("TODO - " #x))
+	#define INFO(x) DO_PRAGMA(message("INFO - " #x))
 #else
-#define TODO(x)
-#define INFO(x)
+	#define TODO(x)
+	#define INFO(x)
 #endif
 
 /**********************************
-* MANUAL BREAKPOINTING AND CRASH *
-**********************************/
+ * MANUAL BREAKPOINTING AND CRASH *
+ **********************************/
 
-#define MPC_GDB_INTR()         \
-	do                     \
-	{                      \
-		raise(SIGINT); \
-	} while(0)
+#define MPC_GDB_INTR()     \
+		do                 \
+		{                  \
+			raise(SIGINT); \
+		} while (0)
 
-#define MPC_GDB_BREAKPOINT()                                                                            \
-	do                                                                                              \
-	{                                                                                               \
-		char _hostname[300];                                                                    \
-		gethostname(_hostname, 300);                                                            \
-		int _block = 1;                                                                         \
-		mpc_common_debug_error("Breakpoint set to %s:%d on %s", __FILE__, __LINE__, _hostname); \
-		mpc_common_debug_error("You can trace/unblock this process by running under GDB:");     \
-		mpc_common_debug_error("(gdb) attach %d", getpid() );                                   \
-		mpc_common_debug_error("(gdb) p _block = 0");                                           \
-		mpc_common_debug_error("(gdb) continue");                                               \
-		while(_block){                                                                          \
-			; }                                                                             \
-	} while(0)
+#define MPC_GDB_BREAKPOINT()                                                                        \
+		do                                                                                          \
+		{                                                                                           \
+			char _hostname[300];                                                                    \
+			gethostname(_hostname, 300);                                                            \
+			int _block = 1;                                                                         \
+			mpc_common_debug_error("Breakpoint set to %s:%d on %s", __FILE__, __LINE__, _hostname); \
+			mpc_common_debug_error("You can trace/unblock this process by running under GDB:");     \
+			mpc_common_debug_error("(gdb) attach %d",               getpid());                      \
+			mpc_common_debug_error("(gdb) p _block = 0");                                           \
+			mpc_common_debug_error("(gdb) continue");                                               \
+			while (_block)                                                                          \
+			{                                                                                       \
+				;                                                                                   \
+			}                                                                                       \
+		} while (0)
 
 /* Some Debug Helpers */
 // NOLINTBEGIN(clang-analyzer-core.CallAndMessage)
-#define MPC_CRASH()                                                                                              \
-	do                                                                                                       \
-	{                                                                                                        \
-		if(getenv("MPC_DEBUG_CRASH") )                                                                   \
+#define MPC_CRASH()                                                                                      \
+		do                                                                                               \
 		{                                                                                                \
-			mpc_common_debug_error("MPC will now create a \"breakpoint\" where the SIGSEGV occurs"); \
-			MPC_GDB_BREAKPOINT();                                                                    \
-		}                                                                                                \
-		else                                                                                             \
-		{                                                                                                \
-			( (void (*)() ) 0x0)();                                                                  \
-		}                                                                                                \
-	} while(0)
+			if (getenv("MPC_DEBUG_CRASH"))                                                               \
+			{                                                                                            \
+				mpc_common_debug_error("MPC will now create a \"breakpoint\" where the SIGSEGV occurs"); \
+				MPC_GDB_BREAKPOINT();                                                                    \
+			}                                                                                            \
+			else                                                                                         \
+			{                                                                                            \
+				((void (*)()) 0x0)();                                                                    \
+			}                                                                                            \
+		} while (0)
 // NOLINTEND(clang-analyzer-core.CallAndMessage)
 
-//If inline is not supported, disable assertions
+// If inline is not supported, disable assertions
 
-#define assume_m(x, ...)                                                              \
-	if(!(x) )                                                                     \
-	{                                                                             \
-		mpc_common_debug_error("Error at %s!%d\n%s", __FILE__, __LINE__, #x); \
-		mpc_common_debug_error(__VA_ARGS__);                                  \
-		mpc_common_debug_abort();                                             \
-	}
+#define assume_m(x, ...)                                                          \
+		if (!(x))                                                                 \
+		{                                                                         \
+			mpc_common_debug_error("Error at %s!%d\n%s", __FILE__, __LINE__, #x); \
+			mpc_common_debug_error(__VA_ARGS__);                                  \
+			mpc_common_debug_abort();                                             \
+		}
 
 
 
 __attribute__((__noreturn__)) void mpc_common_debug_assert_print(FILE *stream, int line,
-                                   const char *file, const char *func,
-                                   const char *fmt, ...);
+                                                                 const char *file, const char *func,
+                                                                 const char *fmt, ...);
 
 
-//for standard assert function, rewrite but maintain -DNDEBUG convention
+// for standard assert function, rewrite but maintain -DNDEBUG convention
 #if !defined(NDEBUG)
 	#undef assert
 	#undef assert_func
 	#define MPC_IN_DEBUG_MODE
-	#define assert(op)                                                                  \
-	do                                                                                  \
-	{                                                                                   \
-		if(expect_false(!(op) ) ){                                                        \
-			mpc_common_debug_assert_print(MPC_COMMON_DEBUG_INFO, MPC_STRING(op) ); }        \
-	} while(0)
+	#define assert(op)                                                                    \
+			do                                                                            \
+			{                                                                             \
+				if (expect_false(!(op)))                                                  \
+				{                                                                         \
+					mpc_common_debug_assert_print(MPC_COMMON_DEBUG_INFO, MPC_STRING(op)); \
+				}                                                                         \
+			} while (0)
 
-	#define assert_func(op)                             \
-	  do                                                \
-	  {                                                 \
-		  op                                              \
-	  } while(0)
+	#define assert_func(op) \
+			do              \
+			{               \
+				op          \
+			} while (0)
 #else
   #undef MPC_IN_DEBUG_MODE
   #undef assert_func
-  #define assert_func(op)    (void)(0)
+	#define assert_func(op) (void)(0)
   #undef assert
-  #define assert(op)         (void)(0)
-#endif //NDEBUG
+	#define assert(op) (void)(0)
+#endif // NDEBUG
 
 /** Assume stay present independently of NDEBUG/NO_INTERNAL_ASSERT **/
 #define assume(op)                                                                    \
-	do                                                                                  \
-	{                                                                                   \
-		if(expect_false(!(op) ) ){                                                        \
-			mpc_common_debug_assert_print(MPC_COMMON_DEBUG_INFO, MPC_STRING(op) ); }        \
-	} while(0)
+		do                                                                            \
+		{                                                                             \
+			if (expect_false(!(op)))                                                  \
+			{                                                                         \
+				mpc_common_debug_assert_print(MPC_COMMON_DEBUG_INFO, MPC_STRING(op)); \
+			}                                                                         \
+		} while (0)
 
-#define mpc_common_debug_only_once()                                                                           \
-	do                                                                                                     \
-	{                                                                                                      \
-		static int mpc_common_debug_only_once_initialized = 0;                                         \
-		if(mpc_common_debug_only_once_initialized == 1)                                                \
-		{                                                                                              \
-			(void)fprintf(stderr, "Multiple initialisation on line %d in file %s\n", __LINE__, __FILE__); \
-			mpc_common_debug_abort();                                                              \
-		}                                                                                              \
-		mpc_common_debug_only_once_initialized++;                                                      \
-	} while(0)
+#define mpc_common_debug_only_once()                                                                          \
+		do                                                                                                    \
+		{                                                                                                     \
+			static int mpc_common_debug_only_once_initialized = 0;                                            \
+			if (mpc_common_debug_only_once_initialized == 1)                                                  \
+			{                                                                                                 \
+				(void)fprintf(stderr, "Multiple initialisation on line %d in file %s\n", __LINE__, __FILE__); \
+				mpc_common_debug_abort();                                                                     \
+			}                                                                                                 \
+			mpc_common_debug_only_once_initialized++;                                                         \
+		} while (0)
 
 #ifdef __cplusplus
-} /* end of extern "C" */
+	} /* end of extern "C" */
 #endif
 #endif

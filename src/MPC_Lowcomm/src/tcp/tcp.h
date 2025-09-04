@@ -23,8 +23,8 @@
 #ifndef __SCTK_TCP_H_
 #define __SCTK_TCP_H_
 #ifdef __cplusplus
-extern "C"
-{
+	extern "C"
+	{
 #endif
 
 #include <mpc_common_spinlock.h>
@@ -34,26 +34,28 @@ extern "C"
 /* \brief TCP header
  *
  */
-typedef struct lcr_tcp_am_hdr {
+typedef struct lcr_tcp_am_hdr
+{
 	uint8_t am_id;
-	size_t length;
+	size_t  length;
 } lcr_tcp_am_hdr_t;
 
-typedef struct lcr_tcp_am_zcopy_hdr {
+typedef struct lcr_tcp_am_zcopy_hdr
+{
 	lcr_tcp_am_hdr_t base;
-	int iovcnt;
-	struct iovec iov[0];
+	int              iovcnt;
+	struct iovec     iov[0];
 } lcr_tcp_am_zcopy_hdr_t;
 
 /** \brief ROUTE level data structure for TCP
-*
-*   This structure is stored in each \ref _mpc_lowcomm_endpoint_s structure
-*   using the \ref _mpc_lowcomm_endpoint_info_t union
-*/
+ *
+ *   This structure is stored in each \ref _mpc_lowcomm_endpoint_s structure
+ *   using the \ref _mpc_lowcomm_endpoint_info_t union
+ */
 typedef struct
 {
 	mpc_common_spinlock_t lock; /**< Client socket write lock */
-	int fd;               /**< Client socket */
+	int                   fd;   /**< Client socket */
 } _mpc_lowcomm_endpoint_info_tcp_t;
 
 /** \brief RAIL level info data structure for TCP
@@ -63,31 +65,33 @@ typedef struct
  */
 typedef struct
 {
-	char * interface;                               /**< name of the net interface to try first */
-	int sockfd;                                          /**< Listening socket file descriptor */
-	int portno;                                          /**< Listening socket port number */
-	char connection_infos[MPC_COMMON_MAX_STRING_SIZE];              /**< Connection info for this listening socket */
-	size_t connection_infos_size;                        /**< Length of the connection_info field */
-	void * ( *tcp_thread_loop ) ( struct _mpc_lowcomm_endpoint_s * ); /**< Function to call when registering a route (RDMA/MULTIRAIL/TCP) */
+	char *                interface;                                    /**< name of the net interface to try first */
+	int                   sockfd;                                       /**< Listening socket file descriptor */
+	int                   portno;                                       /**< Listening socket port number */
+	char                  connection_infos[MPC_COMMON_MAX_STRING_SIZE]; /**< Connection info for this listening socket
+	                                                                     */
+	size_t                connection_infos_size;                        /**< Length of the connection_info field */
+	void * (*tcp_thread_loop)(struct _mpc_lowcomm_endpoint_s *);        /**< Function to call when registering a route
+	                                                                     * (RDMA/MULTIRAIL/TCP) */
 
-	mpc_common_spinlock_t lock; /**< Add route lock */
-	mpc_common_spinlock_t poll_lock; /**< Add poll lock */
+	mpc_common_spinlock_t lock;                                         /**< Add route lock */
+	mpc_common_spinlock_t poll_lock;                                    /**< Add poll lock */
 	/* Config */
-	int bcopy_buf_size;
-	int zcopy_buf_size;
+	int                   bcopy_buf_size;
+	int                   zcopy_buf_size;
 
 	/* Buffered protocol */
-	size_t bcopy_thresh;
+	size_t                bcopy_thresh;
 
 	/* Zero copy protocol */
-	int max_iov;
+	int                   max_iov;
 } _mpc_lowcomm_tcp_rail_info_t;
 
 
 void sctk_network_finalize_tcp(sctk_rail_info_t *rail);
-void sctk_network_init_tcp ( sctk_rail_info_t *rail );
+void sctk_network_init_tcp(sctk_rail_info_t *rail);
 
 #ifdef __cplusplus
-}
+	}
 #endif
 #endif

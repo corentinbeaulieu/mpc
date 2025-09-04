@@ -38,14 +38,14 @@
 #include <rdma/fi_errno.h>
 
 /***********
-* DEFINES *
-***********/
+ * DEFINES *
+ ***********/
 
-#define MPC_OFI_ADDRESS_LEN    512
+#define MPC_OFI_ADDRESS_LEN 512
 
 /*****************
-* ALLOC ALIGNED *
-*****************/
+ * ALLOC ALIGNED *
+ *****************/
 
 typedef struct _mpc_ofi_aligned_mem_s
 {
@@ -57,8 +57,8 @@ _mpc_ofi_aligned_mem_t _mpc_ofi_alloc_aligned(size_t size);
 void _mpc_ofi_free_aligned(_mpc_ofi_aligned_mem_t *mem);
 
 /*************
-* PRINTINGS *
-*************/
+ * PRINTINGS *
+ *************/
 
 int _mpc_ofi_decode_cq_flags(uint64_t flags);
 int _mpc_ofi_decode_mr_mode(uint64_t flags);
@@ -66,35 +66,59 @@ const char *_mpc_ofi_decode_endpoint_type(enum fi_ep_type);
 enum fi_ep_type _mpc_ofi_encode_endpoint_type(const char *type);
 
 /************
-* RETCODES *
-************/
+ * RETCODES *
+ ************/
 
-#define MPC_OFI_DUMP_ERROR(a)           do{                                                                                             \
-		int __ret = (a);                                                                                                        \
-		if(__ret < 0){                                                                                                          \
-			mpc_common_errorpoint_fmt("[MPC_OFI]@%s:%d: %s\n%s(%d)\n", __FILE__, __LINE__, #a, fi_strerror(-__ret), __ret); \
-		}                                                                                                                       \
-}while(0)
+#define MPC_OFI_DUMP_ERROR(a)                                              \
+		do                                                                 \
+		{                                                                  \
+			int __ret = (a);                                               \
+			if (__ret < 0)                                                 \
+			{                                                              \
+				mpc_common_errorpoint_fmt("[MPC_OFI]@%s:%d: %s\n%s(%d)\n", \
+	__FILE__,                                                              \
+	__LINE__,                                                              \
+	#a,                                                                    \
+	fi_strerror(-__ret),                                                   \
+	__ret);                                                                \
+			}                                                              \
+		}while (0)
 
-#define MPC_OFI_CHECK_RET(a)            do{                                                                                             \
-		int __ret = (a);                                                                                                        \
-		if(__ret < 0){                                                                                                          \
-			mpc_common_errorpoint_fmt("[MPC_OFI]@%s:%d: %s\n%s(%d)\n", __FILE__, __LINE__, #a, fi_strerror(-__ret), __ret); \
-			return __ret;                                                                                                   \
-		}                                                                                                                       \
-}while(0)
+#define MPC_OFI_CHECK_RET(a)                                               \
+		do                                                                 \
+		{                                                                  \
+			int __ret = (a);                                               \
+			if (__ret < 0)                                                 \
+			{                                                              \
+				mpc_common_errorpoint_fmt("[MPC_OFI]@%s:%d: %s\n%s(%d)\n", \
+	__FILE__,                                                              \
+	__LINE__,                                                              \
+	#a,                                                                    \
+	fi_strerror(-__ret),                                                   \
+	__ret);                                                                \
+				return __ret;                                              \
+			}                                                              \
+		}while (0)
 
-#define MPC_OFI_CHECK_RET_OR_NULL(a)    do{                                                                                             \
-		int __ret = (a);                                                                                                        \
-		if(__ret < 0){                                                                                                          \
-			mpc_common_errorpoint_fmt("[MPC_OFI]@%s:%d: %s\n%s(%d)\n", __FILE__, __LINE__, #a, fi_strerror(-__ret), __ret); \
-			return NULL;                                                                                                    \
-		}                                                                                                                       \
-}while(0)
+#define MPC_OFI_CHECK_RET_OR_NULL(a)                                       \
+		do                                                                 \
+		{                                                                  \
+			int __ret = (a);                                               \
+			if (__ret < 0)                                                 \
+			{                                                              \
+				mpc_common_errorpoint_fmt("[MPC_OFI]@%s:%d: %s\n%s(%d)\n", \
+	__FILE__,                                                              \
+	__LINE__,                                                              \
+	#a,                                                                    \
+	fi_strerror(-__ret),                                                   \
+	__ret);                                                                \
+				return NULL;                                               \
+			}                                                              \
+		}while (0)
 
 /*********
-* HINTS *
-*********/
+ * HINTS *
+ *********/
 
 struct fi_info *_mpc_ofi_get_requested_hints(const char *provider, const char *endpoint_type);
 

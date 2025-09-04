@@ -23,7 +23,7 @@
 #define MPC_MPI_MPC_CL_H
 
 #ifdef __cplusplus
-extern "C" {
+	extern "C" {
 #endif
 
 #include <mpc_mpi_comm_lib.h>
@@ -37,53 +37,53 @@ extern "C" {
 #include <unistd.h>
 
 /****************************
-* SPECIALIZED MESSAGE TAGS *
-****************************/
+ * SPECIALIZED MESSAGE TAGS *
+ ****************************/
 
-#define MPC_GATHERV_TAG                  (-2)
+#define MPC_GATHERV_TAG (-2)
 
-#define MPC_SCATTERV_TAG                 (-4)
-#define MPC_SCATTER_TAG                  (-5)
-#define MPC_ALLTOALL_TAG                 (-6)
-#define MPC_ALLTOALLV_TAG                (-7)
-#define MPC_ALLTOALLW_TAG                (-8)
-#define MPC_ALLGATHERV_TAG               (-12)
-#define MPC_REDUCE_TAG                   (-13)
-#define MPC_ALLREDUCE_TAG                (-14)
-#define MPC_REDUCE_SCATTER_TAG           (-15)
-#define MPC_REDUCE_SCATTER_BLOCK_TAG     (-16)
-#define MPC_SCAN_TAG                     (-17)
-#define MPC_EXSCAN_TAG                   (-18)
-#define MPC_IBARRIER_TAG                 (-19)
-#define MPC_IBCAST_TAG                   (-20)
-#define MPC_IGATHER_TAG                  (-21)
-#define MPC_IGATHERV_TAG                 (-22)
-#define MPC_ISCATTER_TAG                 (-23)
-#define MPC_ISCATTERV_TAG                (-24)
-#define MPC_IALLGATHER_TAG               (-25)
-#define MPC_IALLGATHERV_TAG              (-26)
-#define MPC_IALLTOALL_TAG                (-27)
-#define MPC_IALLTOALLV_TAG               (-28)
-#define MPC_IALLTOALLW_TAG               (-29)
-#define MPC_IREDUCE_TAG                  (-30)
-#define MPC_IALLREDUCE_TAG               (-31)
-#define MPC_IREDUCE_SCATTER_TAG          (-32)
-#define MPC_IREDUCE_SCATTER_BLOCK_TAG    (-33)
-#define MPC_ISCAN_TAG                    (-34)
-#define MPC_IEXSCAN_TAG                  (-35)
-#define MPC_COPY_TAG                     (-36)
+#define MPC_SCATTERV_TAG              (-4)
+#define MPC_SCATTER_TAG               (-5)
+#define MPC_ALLTOALL_TAG              (-6)
+#define MPC_ALLTOALLV_TAG             (-7)
+#define MPC_ALLTOALLW_TAG             (-8)
+#define MPC_ALLGATHERV_TAG            (-12)
+#define MPC_REDUCE_TAG                (-13)
+#define MPC_ALLREDUCE_TAG             (-14)
+#define MPC_REDUCE_SCATTER_TAG        (-15)
+#define MPC_REDUCE_SCATTER_BLOCK_TAG  (-16)
+#define MPC_SCAN_TAG                  (-17)
+#define MPC_EXSCAN_TAG                (-18)
+#define MPC_IBARRIER_TAG              (-19)
+#define MPC_IBCAST_TAG                (-20)
+#define MPC_IGATHER_TAG               (-21)
+#define MPC_IGATHERV_TAG              (-22)
+#define MPC_ISCATTER_TAG              (-23)
+#define MPC_ISCATTERV_TAG             (-24)
+#define MPC_IALLGATHER_TAG            (-25)
+#define MPC_IALLGATHERV_TAG           (-26)
+#define MPC_IALLTOALL_TAG             (-27)
+#define MPC_IALLTOALLV_TAG            (-28)
+#define MPC_IALLTOALLW_TAG            (-29)
+#define MPC_IREDUCE_TAG               (-30)
+#define MPC_IALLREDUCE_TAG            (-31)
+#define MPC_IREDUCE_SCATTER_TAG       (-32)
+#define MPC_IREDUCE_SCATTER_BLOCK_TAG (-33)
+#define MPC_ISCAN_TAG                 (-34)
+#define MPC_IEXSCAN_TAG               (-35)
+#define MPC_COPY_TAG                  (-36)
 /* TAG of minimum value */
-#define MPC_LAST_TAG                     (-37)
+#define MPC_LAST_TAG (-37)
 
 /********************
-* INIT AND RELEASE *
-********************/
+ * INIT AND RELEASE *
+ ********************/
 
 int _mpc_cl_abort(mpc_lowcomm_communicator_t, int);
 
 /***********************************
-* (EXTENDED) GENERALIZED REQUESTS *
-***********************************/
+ * (EXTENDED) GENERALIZED REQUESTS *
+ ***********************************/
 
 /** \brief This function starts a generic request
  *
@@ -162,17 +162,17 @@ int _mpc_cl_grequest_class_create(sctk_Grequest_query_function *query_fn,
 int _mpc_cl_grequest_class_allocate(sctk_Request_class target_class, void *extra_state, mpc_lowcomm_request_t *request);
 
 /******************************
-* MPC COMMON INFO MANAGEMENT *
-******************************/
+ * MPC COMMON INFO MANAGEMENT *
+ ******************************/
 
 /* Matches the one of MPI_INFO_NULL @ mpc_mpi.h:207 */
-#define MPC_INFO_NULL    (-1)
+#define MPC_INFO_NULL (-1)
 
 /* Maximum length for keys and values
  * they are both defined for MPC and MPI variants */
 /*1 MB */
-#define MPC_MAX_INFO_VAL    1048576
-#define MPC_MAX_INFO_KEY    256
+#define MPC_MAX_INFO_VAL 1048576
+#define MPC_MAX_INFO_KEY 256
 
 int _mpc_cl_info_set(MPC_Info, const char *, const char *);
 int _mpc_cl_info_free(MPC_Info *);
@@ -187,8 +187,8 @@ int _mpc_cl_info_get_valuelen(MPC_Info, const char *, int *, int *);
 
 
 /*********************************
-* REQUEST AND STATUS MANAGEMENT *
-*********************************/
+ * REQUEST AND STATUS MANAGEMENT *
+ *********************************/
 
 int _mpc_cl_request_get_status(mpc_lowcomm_request_t request, int *flag, mpc_lowcomm_status_t *status);
 
@@ -199,8 +199,8 @@ int _mpc_cl_status_get_count(const mpc_lowcomm_status_t *, mpc_lowcomm_datatype_
 
 
 /********************
-* TOPOLOGY GETTERS *
-********************/
+ * TOPOLOGY GETTERS *
+ ********************/
 
 int _mpc_cl_comm_rank(mpc_lowcomm_communicator_t comm, int *rank);
 int _mpc_cl_comm_size(mpc_lowcomm_communicator_t comm, int *size);
@@ -209,15 +209,15 @@ int _mpc_cl_node_rank(int *rank);
 int _mpc_cl_get_processor_name(char *name, int *resultlen);
 
 /*************************
-* COLLECTIVE OPERATIONS *
-*************************/
+ * COLLECTIVE OPERATIONS *
+ *************************/
 
 int _mpc_cl_op_create(sctk_Op_User_function *, int, sctk_Op *);
 int _mpc_cl_op_free(sctk_Op *);
 
 /*****************************
-* POINT TO POINT OPERATIONS *
-*****************************/
+ * POINT TO POINT OPERATIONS *
+ *****************************/
 #define _mpc_cl_get_lowcomm_request(_req) ((mpc_lowcomm_request_t *)(_req) - 1)
 int _mpc_cl_pass_mpi_request_info(size_t request_size, void (*init_mpi_request)(void *request));
 
@@ -252,8 +252,8 @@ int _mpc_cl_recv(void *buf, mpc_lowcomm_msg_count_t count, mpc_lowcomm_datatype_
 
 
 /*******************
-* WAIT OPERATIONS *
-*******************/
+ * WAIT OPERATIONS *
+ *******************/
 
 /** \brief Internal MPI_Waitall implementation relying on pointer to requests
  *
@@ -279,16 +279,19 @@ int _mpc_cl_waitany(mpc_lowcomm_msg_count_t count, mpc_lowcomm_request_t array_o
                     mpc_lowcomm_msg_count_t *index, mpc_lowcomm_status_t *status);
 
 /*****************
-* COMMUNICATORS *
-*****************/
+ * COMMUNICATORS *
+ *****************/
 
-int _mpc_cl_comm_create(mpc_lowcomm_communicator_t comm, mpc_lowcomm_group_t *group, mpc_lowcomm_communicator_t *comm_out);
+int _mpc_cl_comm_create(mpc_lowcomm_communicator_t comm,
+                        mpc_lowcomm_group_t *group,
+                        mpc_lowcomm_communicator_t *comm_out);
 
 int _mpc_cl_intercomm_create(mpc_lowcomm_communicator_t local_comm,
                              int local_leader, mpc_lowcomm_communicator_t peer_comm,
                              int remote_leader, int tag, mpc_lowcomm_communicator_t *newintercomm);
 
-int _mpc_cl_intercommcomm_merge(mpc_lowcomm_communicator_t intercomm, int high, mpc_lowcomm_communicator_t *newintracomm);
+int _mpc_cl_intercommcomm_merge(mpc_lowcomm_communicator_t intercomm, int high,
+                                mpc_lowcomm_communicator_t *newintracomm);
 
 int _mpc_cl_comm_free(mpc_lowcomm_communicator_t *comm);
 
@@ -297,12 +300,22 @@ int _mpc_cl_comm_dup(mpc_lowcomm_communicator_t incomm, mpc_lowcomm_communicator
 int _mpc_cl_comm_split(mpc_lowcomm_communicator_t comm, int color, int key, mpc_lowcomm_communicator_t *comm_out);
 
 /******************
-* ERROR HANDLING *
-******************/
+ * ERROR HANDLING *
+ ******************/
 
-void _mpc_cl_default_error(mpc_lowcomm_communicator_t *comm, const int * error, char *msg, char *function, char *file, int line);
+void _mpc_cl_default_error(mpc_lowcomm_communicator_t *comm,
+                           const int *error,
+                           char *msg,
+                           char *function,
+                           char *file,
+                           int line);
 
-void _mpc_cl_return_error(mpc_lowcomm_communicator_t *comm, const int *error, char *message, char *function, char *file, int line);
+void _mpc_cl_return_error(mpc_lowcomm_communicator_t *comm,
+                          const int *error,
+                          char *message,
+                          char *function,
+                          char *file,
+                          int line);
 
 void _mpc_cl_abort_error(mpc_lowcomm_communicator_t *comm, const int *error, char *message, char *function, char *file,
                          int line);
@@ -319,16 +332,16 @@ int _mpc_cl_errhandler_free(MPC_Errhandler *errhandler);
 int _mpc_cl_error_class(int errorcode, int *errorclass);
 
 /************************
-* TIMING AND PROFILING *
-************************/
+ * TIMING AND PROFILING *
+ ************************/
 
 double _mpc_cl_wtime(void);
 double _mpc_cl_wtick(void);
 
 
 /**************
-* CHECKPOINT *
-**************/
+ * CHECKPOINT *
+ **************/
 
 /**
  * Trigger a checkpoint for the whole application.
@@ -360,15 +373,17 @@ typedef struct
 	MPC_Handler_function *             err_handler;
 
 	struct mpc_mpi_per_communicator_s *mpc_mpi_per_communicator;
-	void ( *mpc_mpi_per_communicator_copy )(struct mpc_mpi_per_communicator_s **, struct mpc_mpi_per_communicator_s *);
-	void ( *mpc_mpi_per_communicator_copy_dup )(struct mpc_mpi_per_communicator_s **, struct mpc_mpi_per_communicator_s *);
+	void (*mpc_mpi_per_communicator_copy)(struct mpc_mpi_per_communicator_s **, struct mpc_mpi_per_communicator_s *);
+	void (*mpc_mpi_per_communicator_copy_dup)(struct mpc_mpi_per_communicator_s **,
+	                                          struct mpc_mpi_per_communicator_s *);
 
-	UT_hash_handle                     hh;
+	UT_hash_handle hh;
 } mpc_per_communicator_t;
 
 /** \brief Retrieves a given per communicator context from task CTX
  */
-mpc_per_communicator_t *_mpc_cl_per_communicator_get(struct mpc_mpi_cl_per_mpi_process_ctx_s *task_specific, mpc_lowcomm_communicator_t comm);
+mpc_per_communicator_t *_mpc_cl_per_communicator_get(struct mpc_mpi_cl_per_mpi_process_ctx_s *task_specific,
+                                                     mpc_lowcomm_communicator_t comm);
 
 
 /************************************************************************/
@@ -383,7 +398,7 @@ mpc_per_communicator_t *_mpc_cl_per_communicator_get(struct mpc_mpi_cl_per_mpi_p
  */
 struct mpc_mpi_cl_per_mpi_process_ctx_atexit_s
 {
-	void                                            ( *func )(); /**< Function to be called when task exits */
+	void                                            (*func)();   /**< Function to be called when task exits */
 	struct mpc_mpi_cl_per_mpi_process_ctx_atexit_s *next;        /**< Following function to call */
 };
 
@@ -405,7 +420,7 @@ typedef struct mpc_mpi_cl_per_mpi_process_ctx_s
 	mpc_common_spinlock_t                           per_communicator_lock;
 
 	/* ID */
-	int                                             task_id; /**< MPI comm rank of the task */
+	int                                             task_id;        /**< MPI comm rank of the task */
 
 	/* Status */
 	int                                             init_done;      /**< This is the init/release counter */
@@ -420,11 +435,12 @@ typedef struct mpc_mpi_cl_per_mpi_process_ctx_s
 	struct _mpc_egreq_classes_storage               grequest_context;
 
 	/* MPI_Info handling */
-	struct MPC_Info_factory                         info_fact; /**< This structure is used to store the association
-	                                                            *   between MPI_Infos structs and their ID */
+	struct MPC_Info_factory                         info_fact;     /**< This structure is used to store the association
+	                                                                *   between MPI_Infos structs and their ID */
 
 	/* At EXIT */
-	struct mpc_mpi_cl_per_mpi_process_ctx_atexit_s *exit_handlers;  /**< These functions are called when tasks leaves (atexit) */
+	struct mpc_mpi_cl_per_mpi_process_ctx_atexit_s *exit_handlers; /**< These functions are called when tasks leaves
+	                                                                * (atexit) */
 
 	/* For disguisement */
 	struct sctk_thread_data_s *                     thread_data;
@@ -434,12 +450,12 @@ typedef struct mpc_mpi_cl_per_mpi_process_ctx_s
 } mpc_mpi_cl_per_mpi_process_ctx_t;
 
 /***********************
-* DATATYPE MANAGEMENT *
-***********************/
+ * DATATYPE MANAGEMENT *
+ ***********************/
 
-#define MPC_TYPE_NULL_DELETE_FN    (NULL)
-#define MPC_TYPE_NULL_COPY_FN      (NULL)
-#define MPC_TYPE_NULL_DUP_FN       ( (void *)0x3)
+#define MPC_TYPE_NULL_DELETE_FN (NULL)
+#define MPC_TYPE_NULL_COPY_FN   (NULL)
+#define MPC_TYPE_NULL_DUP_FN    ((void *)0x3)
 
 /** \brief Compute the size of a \ref mpc_lowcomm_datatype_t
  *  \param datatype target datatype
@@ -513,7 +529,11 @@ int _mpc_cl_type_get_name(mpc_lowcomm_datatype_t datatype, char *name, int *resu
  *
  *
  */
-int _mpc_cl_type_get_envelope(mpc_lowcomm_datatype_t datatype, int *num_integers, int *num_addresses, int *num_datatypes, int *combiner);
+int _mpc_cl_type_get_envelope(mpc_lowcomm_datatype_t datatype,
+                              int *num_integers,
+                              int *num_addresses,
+                              int *num_datatypes,
+                              int *combiner);
 
 /**
  * \brief Retrieve the internal layout of a datatype (see MPI_Get_contents)
@@ -622,8 +642,8 @@ int _mpc_cl_type_get_attr(mpc_lowcomm_datatype_t datatype, int type_keyval,
                           void **attribute_val, int *flag);
 
 /***********************
-* Datatype Management *
-***********************/
+ * Datatype Management *
+ ***********************/
 
 struct _mpc_dt_context;
 
@@ -662,7 +682,9 @@ int _mpc_cl_type_get_true_extent(mpc_lowcomm_datatype_t datatype, long *true_lb,
 int _mpc_cl_type_use(mpc_lowcomm_datatype_t datatype);
 
 
-_mpc_lowcomm_general_datatype_t *_mpc_cl_per_mpi_process_ctx_general_datatype_ts_get(mpc_mpi_cl_per_mpi_process_ctx_t *task_specific, const size_t datatype_idx);
+_mpc_lowcomm_general_datatype_t *_mpc_cl_per_mpi_process_ctx_general_datatype_ts_get(
+	mpc_mpi_cl_per_mpi_process_ctx_t *task_specific,
+	const size_t datatype_idx);
 _mpc_lowcomm_general_datatype_t *_mpc_cl_per_mpi_process_ctx_general_datatype_get(const size_t datatype_idx);
 
 
@@ -684,9 +706,14 @@ int _mpc_cl_per_mpi_process_ctx_datatype_unlock(void);
 
 int _mpc_cl_attach_per_comm(mpc_lowcomm_communicator_t comm, mpc_lowcomm_communicator_t new_comm);
 
-int _mpc_cl_type_hcontiguous_ctx(mpc_lowcomm_datatype_t *datatype, size_t count, mpc_lowcomm_datatype_t *data_in, struct _mpc_dt_context *ctx);
+int _mpc_cl_type_hcontiguous_ctx(mpc_lowcomm_datatype_t *datatype,
+                                 size_t count,
+                                 mpc_lowcomm_datatype_t *data_in,
+                                 struct _mpc_dt_context *ctx);
 
-int _mpc_cl_general_datatype_try_get_info(mpc_lowcomm_datatype_t datatype, int *res, _mpc_lowcomm_general_datatype_t *output_datatype);
+int _mpc_cl_general_datatype_try_get_info(mpc_lowcomm_datatype_t datatype,
+                                          int *res,
+                                          _mpc_lowcomm_general_datatype_t *output_datatype);
 
 int _mpc_cl_type_ctx_set(mpc_lowcomm_datatype_t datatype, struct _mpc_dt_context *dctx);
 
@@ -694,7 +721,7 @@ int _mpc_cl_type_set_size(mpc_lowcomm_datatype_t datatype, size_t size);
 
 
 #ifdef __cplusplus
-}
+	}
 #endif
 
 #endif /* MPC_MPI_MPC_CL_H */

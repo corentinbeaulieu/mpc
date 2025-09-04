@@ -28,7 +28,7 @@
 #include "sctk_ft_types.h"
 
 #ifdef __cplusplus
-extern "C" {
+	extern "C" {
 #endif
 
 /* See src/ft.c for Documentation */
@@ -49,7 +49,7 @@ void sctk_ft_checkpoint_finalize();
 
 int sctk_ft_finalize();
 
-const char* sctk_ft_str_status(mpc_lowcomm_checkpoint_state_t);
+const char *sctk_ft_str_status(mpc_lowcomm_checkpoint_state_t);
 int sctk_ft_disable();
 int sctk_ft_enable();
 
@@ -57,7 +57,7 @@ int sctk_ft_no_suspend_start();
 void sctk_ft_no_suspend_end();
 
 #ifdef __cplusplus
-}
+	}
 #endif
 
 #endif /* ifndef __FT_IFACE_H */

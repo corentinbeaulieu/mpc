@@ -27,26 +27,25 @@
 #include "sctk_profiler_array.h"
 
 
-struct sctk_performance_tree
-{
-	/* Level relative metrics */
-	double entry_relative_percentage_time[ SCTK_PROFILE_KEY_COUNT ];
-	double entry_relative_percentage_hits[ SCTK_PROFILE_KEY_COUNT ];
+	struct sctk_performance_tree
+	{
+		/* Level relative metrics */
+		double   entry_relative_percentage_time[SCTK_PROFILE_KEY_COUNT];
+		double   entry_relative_percentage_hits[SCTK_PROFILE_KEY_COUNT];
 
-	/* Global metrics */
-	uint64_t total_time;
-	uint64_t total_hits;
+		/* Global metrics */
+		uint64_t total_time;
+		uint64_t total_hits;
 
-	double entry_total_percentage_time[ SCTK_PROFILE_KEY_COUNT ];
-	double entry_total_percentage_hits[ SCTK_PROFILE_KEY_COUNT ];
+		double   entry_total_percentage_time[SCTK_PROFILE_KEY_COUNT];
+		double   entry_total_percentage_hits[SCTK_PROFILE_KEY_COUNT];
 
-	uint64_t entry_average_time[ SCTK_PROFILE_KEY_COUNT ];
+		uint64_t entry_average_time[SCTK_PROFILE_KEY_COUNT];
+	};
 
-};
 
-
-void  sctk_performance_tree_init( struct sctk_performance_tree *tr, struct sctk_profiler_array *array);
-void  sctk_performance_tree_release( struct sctk_performance_tree *tr );
+	void sctk_performance_tree_init(struct sctk_performance_tree *tr, struct sctk_profiler_array *array);
+	void sctk_performance_tree_release(struct sctk_performance_tree *tr);
 
 
 #endif /* MPC_Profiler */

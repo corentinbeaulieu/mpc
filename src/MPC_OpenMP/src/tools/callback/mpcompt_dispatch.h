@@ -28,9 +28,9 @@
 
 #if OMPT_SUPPORT
 
-void
-_mpc_omp_ompt_callback_dispatch( ompt_dispatch_t kind,
-                             ompt_data_t instance );
+	void
+	_mpc_omp_ompt_callback_dispatch(ompt_dispatch_t kind,
+	                                ompt_data_t instance);
 
 #endif /* OMPT_SUPPORT */
 #endif /* __MPCOMPT_DISPATCH_H__ */

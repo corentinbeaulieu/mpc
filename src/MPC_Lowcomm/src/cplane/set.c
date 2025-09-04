@@ -41,8 +41,8 @@
 static struct mpc_common_hashtable __set_ht;
 
 /*****************
-* SETUP TEADOWN *
-*****************/
+ * SETUP TEADOWN *
+ *****************/
 
 int _mpc_lowcomm_set_setup()
 {
@@ -59,8 +59,8 @@ int _mpc_lowcomm_set_teardown()
 }
 
 /**********************
-* REGISTER INTERFACE *
-**********************/
+ * REGISTER INTERFACE *
+ **********************/
 
 _mpc_lowcomm_set_t *_mpc_lowcomm_set_init(mpc_lowcomm_set_uid_t gid,
                                           char *name,
@@ -68,15 +68,15 @@ _mpc_lowcomm_set_t *_mpc_lowcomm_set_init(mpc_lowcomm_set_uid_t gid,
                                           uint64_t *peers_uids,
                                           uint64_t peer_count,
                                           int is_lead,
-										  mpc_lowcomm_peer_uid_t local_peer)
+                                          mpc_lowcomm_peer_uid_t local_peer)
 {
 	static mpc_common_spinlock_t __set_creation_lock = MPC_COMMON_SPINLOCK_INITIALIZER;
 
 	mpc_common_spinlock_lock_yield(&__set_creation_lock);
 
-	_mpc_lowcomm_set_t * ret = _mpc_lowcomm_set_get(gid);
+	_mpc_lowcomm_set_t *ret = _mpc_lowcomm_set_get(gid);
 
-	if( ret != NULL)
+	if (ret != NULL)
 	{
 		mpc_common_spinlock_unlock(&__set_creation_lock);
 		return ret;
@@ -85,10 +85,10 @@ _mpc_lowcomm_set_t *_mpc_lowcomm_set_init(mpc_lowcomm_set_uid_t gid,
 	mpc_common_spinlock_unlock(&__set_creation_lock);
 
 
-	_mpc_lowcomm_set_t *new = sctk_malloc(sizeof(_mpc_lowcomm_set_t) );
+	_mpc_lowcomm_set_t *new = sctk_malloc(sizeof(_mpc_lowcomm_set_t));
 	assume(new != NULL);
 
-	new->is_lead = is_lead;
+	new->is_lead    = is_lead;
 	new->local_peer = local_peer;
 
 	new->gid = gid;
@@ -101,11 +101,11 @@ _mpc_lowcomm_set_t *_mpc_lowcomm_set_init(mpc_lowcomm_set_uid_t gid,
 	assume(new->peers != NULL);
 	new->peer_count = peer_count;
 
-	for(i = 0; i < peer_count; i++)
+	for (i = 0; i < peer_count; i++)
 	{
 		_mpc_lowcomm_peer_t *peer = _mpc_lowcomm_peer_get(peers_uids[i]);
 
-		if(!peer)
+		if (!peer)
 		{
 			bad_parameter("No such peer %ld", peers_uids[i]);
 		}
@@ -125,27 +125,26 @@ int _mpc_lowcomm_set_free(_mpc_lowcomm_set_t *set)
 	sctk_free(set->peers);
 	set->peers = NULL;
 
-	memset(set, 0, sizeof(_mpc_lowcomm_set_t) );
+	memset(set, 0, sizeof(_mpc_lowcomm_set_t));
 
 	sctk_free(set);
 
 	return 0;
 }
 
-
-static inline int __load_set_from_uid( __UNUSED__ uint32_t uid, char * path)
+static inline int __load_set_from_uid(__UNUSED__ uint32_t uid, char *path)
 {
 	/* Now load information for each set */
 	struct _mpc_lowcomm_uid_descriptor_s sd;
 
-	if( _mpc_lowcomm_uid_descriptor_load(&sd, path) != 0 )
+	if (_mpc_lowcomm_uid_descriptor_load(&sd, path) != 0)
 	{
 		mpc_common_debug_warning("Failed to load set at %s", path);
 		return -1;
 	}
 
 	/* Is the set already known ? */
-	if(_mpc_lowcomm_set_get(sd.set_uid))
+	if (_mpc_lowcomm_set_get(sd.set_uid))
 	{
 		/* Set is already known just drop */
 		return 0;
@@ -153,20 +152,20 @@ static inline int __load_set_from_uid( __UNUSED__ uint32_t uid, char * path)
 
 
 	/* If we have a set we need to register its main peer for later connections
-	   if it is not already known */
+	 * if it is not already known */
 	mpc_lowcomm_peer_uid_t main_peer = mpc_lowcomm_monitor_uid_of(sd.set_uid, 0);
 
-	if(!_mpc_lowcomm_peer_get(main_peer))
+	if (!_mpc_lowcomm_peer_get(main_peer))
 	{
 		_mpc_lowcomm_peer_register(main_peer,
-								0,
-								sd.leader_uri,
-								0);
+			0,
+			sd.leader_uri,
+			0);
 	}
 
 	/* First of all we make sure the peer is reachable */
 
-	if(!mpc_lowcomm_monitor_peer_reachable_directly(main_peer))
+	if (!mpc_lowcomm_monitor_peer_reachable_directly(main_peer))
 	{
 		/* These info could not be retrieved consider the set as lost */
 		_mpc_lowcomm_uid_clear(sd.set_uid);
@@ -176,11 +175,11 @@ static inline int __load_set_from_uid( __UNUSED__ uint32_t uid, char * path)
 
 	/* Note that we don't create the set for now we need its data */
 
-	mpc_lowcomm_monitor_retcode_t command_ret;
-	mpc_lowcomm_monitor_response_t set_info =  mpc_lowcomm_monitor_get_set_info(main_peer,
-															                    &command_ret);
+	mpc_lowcomm_monitor_retcode_t  command_ret;
+	mpc_lowcomm_monitor_response_t set_info = mpc_lowcomm_monitor_get_set_info(main_peer,
+		&command_ret);
 
-	if(!set_info)
+	if (!set_info)
 	{
 		/* These info could not be retrieved consider the set as lost */
 		_mpc_lowcomm_uid_clear(sd.set_uid);
@@ -195,15 +194,14 @@ static inline int __load_set_from_uid( __UNUSED__ uint32_t uid, char * path)
 	return 0;
 }
 
-
 int _mpc_lowcomm_set_load_from_system(void)
 {
 	return _mpc_lowcomm_uid_scan(__load_set_from_uid);
 }
 
 /*******************
-* QUERY INTERFACE *
-*******************/
+ * QUERY INTERFACE *
+ *******************/
 
 _mpc_lowcomm_set_t *_mpc_lowcomm_set_get(mpc_lowcomm_set_uid_t gid)
 {
@@ -214,7 +212,7 @@ int _mpc_lowcomm_set_iterate(int (*set_cb)(mpc_lowcomm_monitor_set_t set, void *
 {
 	_mpc_lowcomm_set_t *set = NULL;
 
-	if(!set_cb)
+	if (!set_cb)
 	{
 		return 1;
 	}
@@ -223,7 +221,7 @@ int _mpc_lowcomm_set_iterate(int (*set_cb)(mpc_lowcomm_monitor_set_t set, void *
 	{
 		int ret = (set_cb)(set, arg);
 
-		if(ret != 0)
+		if (ret != 0)
 		{
 			break;
 		}
@@ -233,7 +231,7 @@ int _mpc_lowcomm_set_iterate(int (*set_cb)(mpc_lowcomm_monitor_set_t set, void *
 	return 0;
 }
 
-mpc_lowcomm_peer_uid_t * _mpc_lowcomm_get_set_roots(int * root_table_len)
+mpc_lowcomm_peer_uid_t * _mpc_lowcomm_get_set_roots(int *root_table_len)
 {
 	_mpc_lowcomm_set_t *set = NULL;
 
@@ -243,7 +241,7 @@ mpc_lowcomm_peer_uid_t * _mpc_lowcomm_get_set_roots(int * root_table_len)
 
 	MPC_HT_ITER(&__set_ht, set)
 	{
-		if(!set->peer_count)
+		if (!set->peer_count)
 		{
 			continue;
 		}
@@ -252,9 +250,9 @@ mpc_lowcomm_peer_uid_t * _mpc_lowcomm_get_set_roots(int * root_table_len)
 	}
 	MPC_HT_ITER_END(&__set_ht)
 
-	*root_table_len = len;
+	* root_table_len = len;
 
-	mpc_lowcomm_peer_uid_t *  ret = sctk_malloc(sizeof(mpc_lowcomm_peer_uid_t) * len * 2);
+	mpc_lowcomm_peer_uid_t *ret = sctk_malloc(sizeof(mpc_lowcomm_peer_uid_t) * len * 2);
 	assume(ret != NULL);
 
 	set = NULL;
@@ -264,7 +262,7 @@ mpc_lowcomm_peer_uid_t * _mpc_lowcomm_get_set_roots(int * root_table_len)
 	{
 		MPC_HT_ITER(&__set_ht, set)
 		{
-			if(!set->peer_count)
+			if (!set->peer_count)
 			{
 				continue;
 			}
@@ -279,9 +277,9 @@ mpc_lowcomm_peer_uid_t * _mpc_lowcomm_get_set_roots(int * root_table_len)
 	mpc_lowcomm_peer_uid_t my_set_root = mpc_lowcomm_monitor_uid_of(mpc_lowcomm_monitor_get_gid(), 0);
 
 	int i;
-	for(i = 1 ; i < len; i++)
+	for (i = 1 ; i < len; i++)
 	{
-		if(ret[i] == my_set_root)
+		if (ret[i] == my_set_root)
 		{
 			/* Swap */
 			mpc_lowcomm_peer_uid_t tmp = ret[0];
@@ -293,24 +291,23 @@ mpc_lowcomm_peer_uid_t * _mpc_lowcomm_get_set_roots(int * root_table_len)
 	return ret;
 }
 
-void _mpc_lowcomm_free_set_roots(mpc_lowcomm_peer_uid_t * roots)
+void _mpc_lowcomm_free_set_roots(mpc_lowcomm_peer_uid_t *roots)
 {
 	sctk_free(roots);
 }
 
-
-int _mpc_lowcomm_set_contains(_mpc_lowcomm_set_t * set, mpc_lowcomm_peer_uid_t peer_uid)
+int _mpc_lowcomm_set_contains(_mpc_lowcomm_set_t *set, mpc_lowcomm_peer_uid_t peer_uid)
 {
-	if(!set)
+	if (!set)
 	{
 		return 0;
 	}
 
 	uint64_t i;
 
-	for(i = 0 ; i < set->peer_count; i++)
+	for (i = 0 ; i < set->peer_count; i++)
 	{
-		if(set->peers[i]->infos.uid == peer_uid)
+		if (set->peers[i]->infos.uid == peer_uid)
 		{
 			return 1;
 		}

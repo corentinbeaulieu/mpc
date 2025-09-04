@@ -42,75 +42,81 @@ void *lcp_search_umqueue(mpc_queue_head_t *umqs,
                          uint16_t comm_id, int32_t tag, int32_t tmask,
                          int32_t src, int32_t smask)
 {
-        int result;
+	int result;
 	mpc_queue_head_t *queue;
-        lcp_unexp_ctnr_t *ctnr;
-        mpc_queue_iter_t iter;
+	lcp_unexp_ctnr_t *ctnr;
+	mpc_queue_iter_t  iter;
 
 	queue = &umqs[comm_id];
-        mpc_queue_for_each_safe(ctnr, iter, lcp_unexp_ctnr_t, queue, elem) {
-                lcp_tag_hdr_t *hdr = lcp_ctnr_get_tag(ctnr);
+	mpc_queue_for_each_safe(ctnr, iter, lcp_unexp_ctnr_t, queue, elem)
+	{
+		lcp_tag_hdr_t *hdr = lcp_ctnr_get_tag(ctnr);
 
-                result = ((hdr->tag == tag) || (!tmask && hdr->tag >= 0)) &&
-                        ((hdr->src_tid & smask) == (src & smask));
-                if (result) {
-                        return ctnr;
-                }
-        }
+		result = ((hdr->tag == tag) || (!tmask && hdr->tag >= 0))
+		         && ((hdr->src_tid & smask) == (src & smask));
+		if (result)
+		{
+			return ctnr;
+		}
+	}
 
 	return NULL;
 }
 
 void lcp_append_umqueue(mpc_queue_head_t *umqs, mpc_queue_elem_t *elem, uint16_t comm_id)
 {
-        mpc_queue_push(&umqs[comm_id], elem);
+	mpc_queue_push(&umqs[comm_id], elem);
 }
 
 void *lcp_match_umqueue(mpc_queue_head_t *umqs,
                         uint16_t comm_id, int32_t tag, int32_t tmask,
                         int32_t src, int32_t smask)
 {
-        int result;
+	int result;
 	mpc_queue_head_t *queue;
-        lcp_unexp_ctnr_t *ctnr;
-        mpc_queue_iter_t iter;
+	lcp_unexp_ctnr_t *ctnr;
+	mpc_queue_iter_t  iter;
 
 	queue = &umqs[comm_id];
-        mpc_queue_for_each_safe(ctnr, iter, lcp_unexp_ctnr_t, queue, elem) {
-                lcp_tag_hdr_t *hdr = lcp_ctnr_get_tag(ctnr);
+	mpc_queue_for_each_safe(ctnr, iter, lcp_unexp_ctnr_t, queue, elem)
+	{
+		lcp_tag_hdr_t *hdr = lcp_ctnr_get_tag(ctnr);
 
-                result = ((hdr->tag == tag) || (!tmask && hdr->tag >= 0)) &&
-                        ((hdr->src_tid & smask) == (src & smask));
-                if (result) {
-                        mpc_queue_del_iter(queue, iter);
-                        return ctnr;
-                }
-        }
+		result = ((hdr->tag == tag) || (!tmask && hdr->tag >= 0))
+		         && ((hdr->src_tid & smask) == (src & smask));
+		if (result)
+		{
+			mpc_queue_del_iter(queue, iter);
+			return ctnr;
+		}
+	}
 
 	return NULL;
 }
 
 void lcp_append_prqueue(mpc_queue_head_t *prqs, mpc_queue_elem_t *elem, uint16_t comm_id)
 {
-        mpc_queue_push(&prqs[comm_id], elem);
+	mpc_queue_push(&prqs[comm_id], elem);
 }
 
 void *lcp_match_prqueue(mpc_queue_head_t *prqs, uint16_t comm_id, int32_t tag, int32_t src)
 {
-        int result;
-        mpc_queue_head_t *queue;
-        lcp_request_t *req;
-        mpc_queue_iter_t iter;
+	int result;
+	mpc_queue_head_t *queue;
+	lcp_request_t *   req;
+	mpc_queue_iter_t  iter;
 
-        queue = &prqs[comm_id];
-        mpc_queue_for_each_safe(req, iter, lcp_request_t, queue, match) {
-		result = ((req->recv.tag.tag == tag) || (!req->recv.tag.tmask && tag >= 0)) &&
-			((req->recv.tag.src_tid & req->recv.tag.smask) == (src & req->recv.tag.smask));
-                if (result) {
-                        mpc_queue_del_iter(queue, iter);
-                        return req;
-                }
-        }
+	queue = &prqs[comm_id];
+	mpc_queue_for_each_safe(req, iter, lcp_request_t, queue, match)
+	{
+		result = ((req->recv.tag.tag == tag) || (!req->recv.tag.tmask && tag >= 0))
+		         && ((req->recv.tag.src_tid & req->recv.tag.smask) == (src & req->recv.tag.smask));
+		if (result)
+		{
+			mpc_queue_del_iter(queue, iter);
+			return req;
+		}
+	}
 
-        return NULL;
+	return NULL;
 }

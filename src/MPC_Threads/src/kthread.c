@@ -37,9 +37,9 @@
 
 #ifndef SCTK_KERNEL_THREAD_USE_TLS
 
-int _mpc_thread_kthread_key_create(mpc_thread_keys_t *key, void (*destr_function)(void *) )
+int _mpc_thread_kthread_key_create(mpc_thread_keys_t *key, void (*destr_function)(void *))
 {
-	return pthread_key_create( (pthread_key_t *)key, destr_function);
+	return pthread_key_create((pthread_key_t *)key, destr_function);
 }
 
 int _mpc_thread_kthread_key_delete(mpc_thread_keys_t key)
@@ -71,9 +71,10 @@ void *_mpc_thread_kthread_getspecific(mpc_thread_keys_t key)
 	keya = *keyp;
 	return pthread_getspecific(keya);
 }
+
 #endif /* SCTK_KERNEL_THREAD_USE_TLS */
 
-typedef void *(*start_routine_t) (void *);
+typedef void *(*start_routine_t)(void *);
 
 typedef struct _mpc_thread_kthread_create_start_s
 {
@@ -94,8 +95,8 @@ static void *__kthread_start_func(void *t_arg)
 
 	mpc_topology_clear_cpu_pinning_cache();
 
-	memcpy(&slot, t_arg, sizeof(_mpc_thread_kthread_create_start_t) );
-	( (_mpc_thread_kthread_create_start_t *)t_arg)->started = 1;
+	memcpy(&slot, t_arg, sizeof(_mpc_thread_kthread_create_start_t));
+	((_mpc_thread_kthread_create_start_t *)t_arg)->started = 1;
 
 	sctk_alloc_posix_plug_on_egg_allocator();
 
@@ -103,7 +104,7 @@ static void *__kthread_start_func(void *t_arg)
 
 	mpc_common_spinlock_lock(&__thread_list_lock);
 
-	if(__thread_list)
+	if (__thread_list)
 	{
 		slot.next = __thread_list;
 	}
@@ -115,12 +116,12 @@ static void *__kthread_start_func(void *t_arg)
 	__thread_list = &slot;
 	mpc_common_spinlock_unlock(&__thread_list_lock);
 
-	while(1)
+	while (1)
 	{
-		void *(*start_routine) (void *);
+		void *(*start_routine)(void *);
 		void *arg;
 
-		start_routine = (void *(*)(void *) )slot.start_routine;
+		start_routine = (void *(*)(void *)) slot.start_routine;
 		arg           = (void *)slot.arg;
 
 		start_routine(arg);
@@ -129,9 +130,9 @@ static void *__kthread_start_func(void *t_arg)
 
 		mpc_common_nodebug("Kernel thread done");
 
-		sem_wait(&(slot.sem) );
+		sem_wait(&(slot.sem));
 
-		while(slot.used != 1)
+		while (slot.used != 1)
 		{
 			sched_yield();
 		}
@@ -141,8 +142,7 @@ static void *__kthread_start_func(void *t_arg)
 	return NULL;
 }
 
-int (*real_pthread_create)(pthread_t *, const pthread_attr_t *,
-                           void *(*)(void *), void *) = NULL;
+int (*real_pthread_create)(pthread_t *, const pthread_attr_t *, void *(*)(void *), void *) = NULL;
 
 int mpc_thread_kthread_pthread_create(pthread_t *thread, const pthread_attr_t *attr,
                                       void *(*start_routine)(void *), void *arg)
@@ -154,18 +154,18 @@ int mpc_thread_kthread_pthread_create(pthread_t *thread, const pthread_attr_t *a
 
 	r_attr = (pthread_attr_t *)attr;
 
-	if(r_attr == NULL)
+	if (r_attr == NULL)
 	{
 		r_attr = &local_attr;
 		res    = pthread_attr_init(r_attr);
-		if(res != 0)
+		if (res != 0)
 		{
 			return res;
 		}
 	}
 
 	res = pthread_attr_getstacksize(r_attr, &kthread_stack_size);
-	if(res != 0)
+	if (res != 0)
 	{
 		return res;
 	}
@@ -173,7 +173,7 @@ int mpc_thread_kthread_pthread_create(pthread_t *thread, const pthread_attr_t *a
 	kthread_stack_size += sctk_extls_size();
 
 	res = pthread_attr_setstacksize(r_attr, kthread_stack_size);
-	if(res != 0)
+	if (res != 0)
 	{
 		return res;
 	}
@@ -192,9 +192,9 @@ int _mpc_thread_kthread_create(mpc_thread_kthread_t *thread, void *(*start_routi
 	mpc_common_nodebug("Scan already started kthreads");
 	mpc_common_spinlock_lock(&__thread_list_lock);
 	cursor = (_mpc_thread_kthread_create_start_t *)__thread_list;
-	while(cursor != NULL)
+	while (cursor != NULL)
 	{
-		if(cursor->used == 0)
+		if (cursor->used == 0)
 		{
 			found       = (_mpc_thread_kthread_create_start_t *)cursor;
 			found->used = 1;
@@ -205,13 +205,13 @@ int _mpc_thread_kthread_create(mpc_thread_kthread_t *thread, void *(*start_routi
 	mpc_common_spinlock_unlock(&__thread_list_lock);
 	mpc_common_nodebug("Scan already started kthreads done found %p", found);
 
-	if(found)
+	if (found)
 	{
 		mpc_common_nodebug("Reuse old thread %p", found);
 		found->arg           = arg;
 		found->start_routine = start_routine;
 		found->started       = 0;
-		sem_post(&(found->sem) );
+		sem_post(&(found->sem));
 		return 0;
 	}
 	else
@@ -224,26 +224,26 @@ int _mpc_thread_kthread_create(mpc_thread_kthread_t *thread, void *(*start_routi
 		pthread_attr_init(&attr);
 		pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);
 
-//#warning "Move it to the XML configuration file"
+		// #warning "Move it to the XML configuration file"
 		char *env;
-		if( (env = getenv("MPC_KTHREAD_STACK_SIZE") ) != NULL)
+		if ((env = getenv("MPC_KTHREAD_STACK_SIZE")) != NULL)
 		{
 			kthread_stack_size = atoll(env) /* + sctk_extls_size() */;
 		}
 
 #ifdef PTHREAD_STACK_MIN
-		if((unsigned long) PTHREAD_STACK_MIN > kthread_stack_size)
-		{
-			pthread_attr_setstacksize(&attr, PTHREAD_STACK_MIN);
-		}
-		else
-		{
-			pthread_attr_setstacksize(&attr, kthread_stack_size);
-		}
+			if ((unsigned long)PTHREAD_STACK_MIN > kthread_stack_size)
+			{
+				pthread_attr_setstacksize(&attr, PTHREAD_STACK_MIN);
+			}
+			else
+			{
+				pthread_attr_setstacksize(&attr, kthread_stack_size);
+			}
 #else
-		pthread_attr_setstacksize(&attr, kthread_stack_size);
+			pthread_attr_setstacksize(&attr, kthread_stack_size);
 #endif
-		assume(sizeof(mpc_thread_kthread_t) == sizeof(pthread_t) );
+		assume(sizeof(mpc_thread_kthread_t) == sizeof(pthread_t));
 
 		tmp.started       = 0;
 		tmp.arg           = arg;
@@ -252,29 +252,29 @@ int _mpc_thread_kthread_create(mpc_thread_kthread_t *thread, void *(*start_routi
 
 		mpc_common_nodebug("_mpc_thread_kthread_create: before pthread_create");
 
-		res = mpc_thread_kthread_pthread_create( (pthread_t *)thread, &attr, __kthread_start_func, &tmp);
+		res = mpc_thread_kthread_pthread_create((pthread_t *)thread, &attr, __kthread_start_func, &tmp);
 
-		if(res != 0)
+		if (res != 0)
 		{
 			pthread_attr_destroy(&attr);
 			pthread_attr_init(&attr);
 			pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);
-			res = mpc_thread_kthread_pthread_create( (pthread_t *)thread, &attr, __kthread_start_func, &tmp);
+			res = mpc_thread_kthread_pthread_create((pthread_t *)thread, &attr, __kthread_start_func, &tmp);
 		}
 
 		mpc_common_nodebug("_mpc_thread_kthread_create: after pthread_create with res = %d", res);
 
 		pthread_attr_destroy(&attr);
 
-		if(res != 0)
+		if (res != 0)
 		{
 			mpc_common_nodebug("Warning: Creating kernel threads with no attribute");
-			res = mpc_thread_kthread_pthread_create( (pthread_t *)thread, NULL, __kthread_start_func, &tmp);
+			res = mpc_thread_kthread_pthread_create((pthread_t *)thread, NULL, __kthread_start_func, &tmp);
 
 			assume(res == 0);
 		}
 
-		while(tmp.started != 1)
+		while (tmp.started != 1)
 		{
 			sched_yield();
 		}
@@ -285,12 +285,12 @@ int _mpc_thread_kthread_create(mpc_thread_kthread_t *thread, void *(*start_routi
 
 int _mpc_thread_kthread_join(mpc_thread_kthread_t th, void **thread_return)
 {
-	return pthread_join( (pthread_t)th, thread_return);
+	return pthread_join((pthread_t)th, thread_return);
 }
 
 int _mpc_thread_kthread_kill(mpc_thread_kthread_t th, int val)
 {
-	return pthread_kill( (pthread_t)th, val);
+	return pthread_kill((pthread_t)th, val);
 }
 
 mpc_thread_kthread_t _mpc_thread_kthread_self()

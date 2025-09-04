@@ -29,13 +29,13 @@
 #if OMPT_SUPPORT
 #include "mpcomp_types.h"
 
-void
-_mpc_omp_ompt_callback_thread_begin( mpc_omp_thread_t* thread,
-                                 ompt_thread_t thread_type );
+	void
+	_mpc_omp_ompt_callback_thread_begin(mpc_omp_thread_t *thread,
+	                                    ompt_thread_t thread_type);
 
-void
-_mpc_omp_ompt_callback_thread_end( mpc_omp_thread_t* thread,
-                               ompt_thread_t thread_type );
+	void
+	_mpc_omp_ompt_callback_thread_end(mpc_omp_thread_t *thread,
+	                                  ompt_thread_t thread_type);
 
 #endif /* OMPT_SUPPORT */
 #endif /* __MPCOMPT_THREAD_H__ */

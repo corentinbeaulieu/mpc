@@ -67,11 +67,10 @@ __thread void *sctk_extls_storage = NULL;
 int sctk_locate_dynamic_initializers()
 {
 #ifdef MPC_USE_EXTLS
-	extls_ret_t ret          = extls_locate_dynamic_initializers();
-	return (ret == EXTLS_SUCCESS) ? 0 : 1;
-
+		extls_ret_t ret = extls_locate_dynamic_initializers();
+		return (ret == EXTLS_SUCCESS) ? 0 : 1;
 #else
-	return 0;
+		return 0;
 #endif
 }
 
@@ -85,19 +84,18 @@ int sctk_locate_dynamic_initializers()
 int sctk_call_dynamic_initializers()
 {
 #ifdef MPC_USE_EXTLS
-	extls_ret_t ret = extls_call_dynamic_initializers();
+		extls_ret_t ret = extls_call_dynamic_initializers();
 
-	if(ret != EXTLS_SUCCESS)
-	{
-		return 1;
-	}
+		if (ret != EXTLS_SUCCESS)
+		{
+			return 1;
+		}
 
-	ret = extls_call_static_constructors();
+		ret = extls_call_static_constructors();
 
-	return (ret == EXTLS_SUCCESS) ? 0 : 1;
-
+		return (ret == EXTLS_SUCCESS) ? 0 : 1;
 #else
-	return 0;
+		return 0;
 #endif
 }
 
@@ -108,10 +106,9 @@ int sctk_call_dynamic_initializers()
 int MPC_Config_Status_MPC_HAVE_OPTION_ETLS_OPTIMIZED()
 {
 #if MPC_USE_EXTLS
-	return 1;
-
+		return 1;
 #else
-	return 0;
+		return 0;
 #endif
 }
 
@@ -151,12 +148,12 @@ static mpc_common_spinlock_t dtors_lock = MPC_COMMON_SPINLOCK_INITIALIZER;
  * handled by each task, independently. This should be called
  * each time a new task is started.
  * @param[in,out] head the list address
- * @param[in] obj the object owning the destructor.
- * @param[in] func the function call to destroy the object
+ * @param[in]     obj  the object owning the destructor.
+ * @param[in]     func the function call to destroy the object
  */
-void sctk_tls_dtors_add(struct sctk_tls_dtors_s **head, void *obj, void (*func)(void *) )
+void sctk_tls_dtors_add(struct sctk_tls_dtors_s **head, void *obj, void (*func)(void *))
 {
-	struct sctk_tls_dtors_s *elt = sctk_malloc(sizeof(struct sctk_tls_dtors_s) );
+	struct sctk_tls_dtors_s *elt = sctk_malloc(sizeof(struct sctk_tls_dtors_s));
 
 	elt->dtor = func;
 	elt->obj  = obj;
@@ -164,7 +161,6 @@ void sctk_tls_dtors_add(struct sctk_tls_dtors_s **head, void *obj, void (*func)(
 	mpc_common_spinlock_lock(&dtors_lock);
 	LL_PREPEND(*head, elt);
 	mpc_common_spinlock_unlock(&dtors_lock);
-
 }
 
 /**
@@ -199,10 +195,10 @@ size_t sctk_extls_size()
 	size_t size;
 
 #ifdef MPC_USE_EXTLS
-	size = extls_get_sz_static_tls_segments();
+		size = extls_get_sz_static_tls_segments();
 #else
-	/* no extra space allocated for TLS when libextls is not present */
-	size = getpagesize();
+		/* no extra space allocated for TLS when libextls is not present */
+		size = getpagesize();
 #endif
 	return size;
 }
@@ -216,11 +212,11 @@ static size_t page_size = 0;
  */
 void *sctk_align_ptr_to_page(void *ptr)
 {
-	if(!page_size)
+	if (!page_size)
 	{
 		page_size = getpagesize();
 	}
-	ptr = (char *)ptr - ( (size_t)ptr % page_size);
+	ptr = (char *)ptr - ((size_t)ptr % page_size);
 	return ptr;
 }
 
@@ -231,11 +227,11 @@ void *sctk_align_ptr_to_page(void *ptr)
  */
 size_t sctk_align_size_to_page(size_t size)
 {
-	if(!page_size)
+	if (!page_size)
 	{
 		page_size = getpagesize();
 	}
-	if(size % page_size == 0)
+	if (size % page_size == 0)
 	{
 		return size;
 	}

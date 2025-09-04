@@ -23,12 +23,12 @@
 #define __SCTK__THREAD_DBG__
 
 #ifdef __cplusplus
-extern "C"
-{
+	extern "C"
+	{
 #endif
 
-typedef struct sctk_thread_data_s sctk_thread_data_t;
-typedef struct sctk_thread_status_s sctk_thread_status_t;
+typedef struct sctk_thread_data_s      sctk_thread_data_t;
+typedef struct sctk_thread_status_s    sctk_thread_status_t;
 
 
 void sctk_thread_add(sctk_thread_data_t *item, void *tid);
@@ -47,6 +47,6 @@ int sctk_report_death(void *tid);
 
 
 #ifdef __cplusplus
-}                               /* end of extern "C" */
+	} /* end of extern "C" */
 #endif
 #endif

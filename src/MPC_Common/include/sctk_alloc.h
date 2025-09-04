@@ -26,42 +26,44 @@
 
 #include <sys/mman.h>
 
-//TODO Remove this for version >2.4.1 if no issue were found
+// TODO Remove this for version >2.4.1 if no issue were found
 #if 0
 #if defined(SCTK_USE_VALGRIND)
 
 #include <valgrind/valgrind.h>
 #include <valgrind/memcheck.h>
 
-#if !defined(VALGRIND_STACK_REGISTER) || !defined(VALGRIND_STACK_REGISTER) || !defined(VALGRIND_MAKE_NOACCESS)|| !defined(VALGRIND_MAKE_WRITABLE)|| !defined(VALGRIND_MALLOCLIKE_BLOCK)|| !defined(VALGRIND_FREELIKE_BLOCK) || !defined(VALGRIND_MAKE_READABLE)
+#if !defined(VALGRIND_STACK_REGISTER) || !defined(VALGRIND_STACK_REGISTER) || !defined(VALGRIND_MAKE_NOACCESS) \
+		|| !defined(VALGRIND_MAKE_WRITABLE) || !defined(VALGRIND_MALLOCLIKE_BLOCK)                             \
+		|| !defined(VALGRIND_FREELIKE_BLOCK) || !defined(VALGRIND_MAKE_READABLE)
 #error "Unable to compil with Valgrind support"
 #endif
 
-#define SCTK_MAKE_NOACCESS(tmp,size) VALGRIND_MAKE_NOACCESS(tmp,size)
-#define SCTK_MAKE_WRITABLE(a,b) VALGRIND_MAKE_WRITABLE(a,b)
-#define SCTK_MAKE_READABLE(a,b) VALGRIND_MAKE_READABLE(a,b)
-#define SCTK_CHECK_READABLE(a,b) VALGRIND_CHECK_READABLE(a,b)
+		#define SCTK_MAKE_NOACCESS(tmp, size) VALGRIND_MAKE_NOACCESS(tmp, size)
+		#define SCTK_MAKE_WRITABLE(a, b)      VALGRIND_MAKE_WRITABLE(a, b)
+		#define SCTK_MAKE_READABLE(a, b)      VALGRIND_MAKE_READABLE(a, b)
+		#define SCTK_CHECK_READABLE(a, b)     VALGRIND_CHECK_READABLE(a, b)
 
-#define SCTK_MALLOCLIKE_BLOCK(a,b,c,d) VALGRIND_MALLOCLIKE_BLOCK(a,b,c,d)
-#define SCTK_FREELIKE_BLOCK(a,b) VALGRIND_FREELIKE_BLOCK(a,b)
+		#define SCTK_MALLOCLIKE_BLOCK(a, b, c, d) VALGRIND_MALLOCLIKE_BLOCK(a, b, c, d)
+		#define SCTK_FREELIKE_BLOCK(a, b)         VALGRIND_FREELIKE_BLOCK(a, b)
 
 #else
 
-#define SCTK_MAKE_NOACCESS(tmp,size) (void)(0)
-#define SCTK_MAKE_WRITABLE(a,b) (void)(0)
-#define SCTK_MAKE_READABLE(a,b) (void)(0)
-#define SCTK_CHECK_READABLE(a,b) (void)(0)
+		#define SCTK_MAKE_NOACCESS(tmp, size) (void)(0)
+		#define SCTK_MAKE_WRITABLE(a, b)      (void)(0)
+		#define SCTK_MAKE_READABLE(a, b)      (void)(0)
+		#define SCTK_CHECK_READABLE(a, b)     (void)(0)
 
-#define SCTK_MALLOCLIKE_BLOCK(a,b,c,d) (void)(0)
-#define SCTK_FREELIKE_BLOCK(a,b) (void)(0)
+		#define SCTK_MALLOCLIKE_BLOCK(a, b, c, d) (void)(0)
+		#define SCTK_FREELIKE_BLOCK(a, b)         (void)(0)
 #endif
 #endif
 
 #ifdef HAVE_MEMCHECK_H
 	#include <valgrind/valgrind.h>
 	#include <valgrind/memcheck.h>
-#else //HAVE_MEMCHECK_H
-	#define VALGRIND_STACK_REGISTER(a,b) (void)(0)
+#else // HAVE_MEMCHECK_H
+	#define VALGRIND_STACK_REGISTER(a, b) (void)(0)
 #endif
 
 

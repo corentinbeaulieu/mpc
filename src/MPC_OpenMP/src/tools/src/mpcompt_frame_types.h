@@ -28,25 +28,27 @@
 
 #if OMPT_SUPPORT && MPCOMPT_HAS_FRAME_SUPPORT
 
-/* Wrapper used for pragma directives.
- * UNDEF
- * GOMP  <=> GOMP (mpc_omp_GOMP_ and some mpcomp_ prefix)
- * INTEL <=> INTEL (kmpc_ prefix)
- */
-typedef enum mpc_omp_ompt_wrapper_e {
-    MPC_OMP_UNDEF  = 0,
-    MPC_OMP_GOMP   = 1,
-    MPC_OMP_INTEL  = 2
-} mpc_omp_ompt_wrapper_t;
+	/* Wrapper used for pragma directives.
+	 * UNDEF
+	 * GOMP  <=> GOMP (mpc_omp_GOMP_ and some mpcomp_ prefix)
+	 * INTEL <=> INTEL (kmpc_ prefix)
+	 */
+	typedef enum mpc_omp_ompt_wrapper_e
+	{
+		MPC_OMP_UNDEF = 0,
+		MPC_OMP_GOMP  = 1,
+		MPC_OMP_INTEL = 2
+	} mpc_omp_ompt_wrapper_t;
 
-/* Frame infos structure, one per thread.
- */
-typedef struct mpc_omp_ompt_frame_info_s {
-    mpc_omp_ompt_wrapper_t omp_wrapper;
-    int outer_caller;
-    ompt_frame_t ompt_frame_infos;
-    void* ompt_return_addr;
-} mpc_omp_ompt_frame_info_t;
+	/* Frame infos structure, one per thread.
+	 */
+	typedef struct mpc_omp_ompt_frame_info_s
+	{
+		mpc_omp_ompt_wrapper_t omp_wrapper;
+		int                    outer_caller;
+		ompt_frame_t           ompt_frame_infos;
+		void *                 ompt_return_addr;
+	} mpc_omp_ompt_frame_info_t;
 
 #endif /* OMPT_SUPPORT */
 #endif /* __MPCOMPT_FRAME_TYPES_H__ */

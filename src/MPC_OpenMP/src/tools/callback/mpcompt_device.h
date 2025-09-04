@@ -28,29 +28,29 @@
 
 #if OMPT_SUPPORT
 
-void
-_mpc_omp_ompt_callback_device_initialize( int device_num,
-                                      const char *type,
-                                      ompt_device_t *device,
-                                      ompt_function_lookup_t lookup,
-                                      const char *documentation );
+	void
+	_mpc_omp_ompt_callback_device_initialize(int device_num,
+	                                         const char *type,
+	                                         ompt_device_t *device,
+	                                         ompt_function_lookup_t lookup,
+	                                         const char *documentation);
 
-void
-_mpc_omp_ompt_callback_device_finalize( int device_num );
+	void
+	_mpc_omp_ompt_callback_device_finalize(int device_num);
 
-void
-_mpc_omp_ompt_callback_device_load( int device_num,
-                                const char *filename,
-                                int64_t offset_in_file,
-                                void *vma_in_file,
-                                size_t bytes,
-                                void *host_addr,
-                                void *device_addr,
-                                uint64_t module_id );
+	void
+	_mpc_omp_ompt_callback_device_load(int device_num,
+	                                   const char *filename,
+	                                   int64_t offset_in_file,
+	                                   void *vma_in_file,
+	                                   size_t bytes,
+	                                   void *host_addr,
+	                                   void *device_addr,
+	                                   uint64_t module_id);
 
-void
-_mpc_omp_ompt_callback_device_unload( int device_num,
-                                  uint64_t module_id );
+	void
+	_mpc_omp_ompt_callback_device_unload(int device_num,
+	                                     uint64_t module_id);
 
 #endif /* OMPT_SUPPORT */
 #endif /* __MPCOMPT_DEVICE_H__ */

@@ -43,27 +43,27 @@ static void *__tcp_thread_loop(_mpc_lowcomm_endpoint_t *tmp)
 
 	mpc_common_debug("Rail %d from %d launched", tmp->rail->rail_number, tmp->dest);
 
-	while(1)
+	while (1)
 	{
 		mpc_lowcomm_ptp_message_t *msg;
 		void *  body;
 		size_t  size;
 		ssize_t res;
 
-		res = mpc_common_io_safe_read(fd, ( char * )&size, sizeof(size_t) );
+		res = mpc_common_io_safe_read(fd, ( char * )&size, sizeof(size_t));
 
-		if( (res <= 0) )
+		if ((res <= 0))
 		{
 			/* EOF or ERROR */
 			break;
 		}
 
-		if(res < (ssize_t)sizeof(size_t) )
+		if (res < (ssize_t)sizeof(size_t))
 		{
 			break;
 		}
 
-		if(size < sizeof(mpc_lowcomm_ptp_message_body_t) )
+		if (size < sizeof(mpc_lowcomm_ptp_message_body_t))
 		{
 			break;
 		}
@@ -78,15 +78,15 @@ static void *__tcp_thread_loop(_mpc_lowcomm_endpoint_t *tmp)
 
 
 		/* Recv header*/
-		res = mpc_common_io_safe_read(fd, ( char * )msg, sizeof(mpc_lowcomm_ptp_message_body_t) );
+		res = mpc_common_io_safe_read(fd, ( char * )msg, sizeof(mpc_lowcomm_ptp_message_body_t));
 
-		if( (res <= 0) )
+		if ((res <= 0))
 		{
 			/* EOF or ERROR */
 			break;
 		}
 
-		if(res != sizeof(mpc_lowcomm_ptp_message_body_t) )
+		if (res != sizeof(mpc_lowcomm_ptp_message_body_t))
 		{
 			break;
 		}
@@ -99,7 +99,7 @@ static void *__tcp_thread_loop(_mpc_lowcomm_endpoint_t *tmp)
 
 		res = mpc_common_io_safe_read(fd, ( char * )body, size);
 
-		if( (res <= 0) )
+		if ((res <= 0))
 		{
 			/* EOF or ERROR */
 			break;
@@ -130,7 +130,7 @@ __UNUSED__ static void _mpc_lowcomm_tcp_send_message(mpc_lowcomm_ptp_message_t *
 	size_t size;
 	int    fd;
 
-	mpc_common_spinlock_lock(&(endpoint->data.tcp.lock) );
+	mpc_common_spinlock_lock(&(endpoint->data.tcp.lock));
 
 	fd = endpoint->data.tcp.fd;
 
@@ -138,18 +138,17 @@ __UNUSED__ static void _mpc_lowcomm_tcp_send_message(mpc_lowcomm_ptp_message_t *
 
 	mpc_common_nodebug("SEND MSG of size %d ENDPOINT TCP to %d", size, endpoint->dest);
 
-	mpc_common_io_safe_write(fd, ( char * )&size, sizeof(size_t) );
+	mpc_common_io_safe_write(fd, ( char * )&size, sizeof(size_t));
 
-	mpc_common_io_safe_write(fd, ( char * )msg, sizeof(mpc_lowcomm_ptp_message_body_t) );
+	mpc_common_io_safe_write(fd, ( char * )msg,   sizeof(mpc_lowcomm_ptp_message_body_t));
 
 	_mpc_lowcomm_msg_cpy_in_fd(msg, fd);
-	mpc_common_spinlock_unlock(&(endpoint->data.tcp.lock) );
+	mpc_common_spinlock_unlock(&(endpoint->data.tcp.lock));
 
 	mpc_common_nodebug("SEND MSG ENDPOINT TCP to %d DONE", endpoint->dest);
 
 	mpc_lowcomm_ptp_message_complete_and_free(msg);
 }
-
 
 /**
  * Handler triggering the send_message_from_network call, before reaching the inter_thread_comm matching process.
@@ -157,7 +156,7 @@ __UNUSED__ static void _mpc_lowcomm_tcp_send_message(mpc_lowcomm_ptp_message_t *
  */
 static int _mpc_lowcomm_tcp_send_message_from_network(mpc_lowcomm_ptp_message_t *msg)
 {
-	if(_mpc_lowcomm_reorder_msg_check(msg) == _MPC_LOWCOMM_REORDER_NO_NUMBERING)
+	if (_mpc_lowcomm_reorder_msg_check(msg) == _MPC_LOWCOMM_REORDER_NO_NUMBERING)
 	{
 		/* No reordering */
 		_mpc_comm_ptp_message_send_check(msg, 1);
@@ -199,7 +198,7 @@ void sctk_network_init_tcp(sctk_rail_info_t *rail)
 
 	char *interface = rail->runtime_config_rail->device;
 
-	if(!interface)
+	if (!interface)
 	{
 		interface = "default";
 	}
@@ -215,11 +214,11 @@ void sctk_network_init_tcp(sctk_rail_info_t *rail)
 }
 
 #ifdef MPC_LOWCOMM_PROTOCOL
-int lcr_tcp_iface_is_reachable(sctk_rail_info_t *rail, uint64_t uid) {
-        //FIXME: check whether getting connection info should be done here. For
-        //       now just return true.
-        UNUSED(rail); UNUSED(uid);
-        return 1;
+int lcr_tcp_iface_is_reachable(sctk_rail_info_t *rail, uint64_t uid)
+{
+	// FIXME: check whether getting connection info should be done here. For now just return true.
+	UNUSED(rail); UNUSED(uid);
+	return 1;
 }
 
 int lcr_tcp_get_attr(sctk_rail_info_t *rail,
@@ -228,12 +227,10 @@ int lcr_tcp_get_attr(sctk_rail_info_t *rail,
 	struct _mpc_lowcomm_config_struct_net_driver_tcp tcp_driver =
 		rail->runtime_config_driver_config->driver.value.tcp;
 
-	attr->iface.cap.am.max_iovecs = 6; //FIXME: arbitrary value...
-	attr->iface.cap.am.max_bcopy  = 0; /* FIXME: send() return whenever data has been
-										* copied to kernel buf. So, potential benefit
-										* compared to zcopy...
-										* TCP socket are blocking, hence
-	                                    * no need for buffered copy.
+	attr->iface.cap.am.max_iovecs = 6; // FIXME: arbitrary value...
+	attr->iface.cap.am.max_bcopy  = 0; /* FIXME: send() return whenever data has been copied to kernel buf. So,
+	                                    * potential benefit compared to zcopy... TCP socket are blocking, hence no need
+	                                    * for buffered copy.
 	                                    * TODO: check MPI_BSend */
 	attr->iface.cap.am.max_zcopy  = tcp_driver.max_msg_size;
 
@@ -245,25 +242,29 @@ int lcr_tcp_get_attr(sctk_rail_info_t *rail,
 
 	return MPC_LOWCOMM_SUCCESS;
 }
+
 /**
  * Function called by each started polling thread, processing message on the given route.
  * \param[in] tmp the route to progress
  * \return NULL
  */
 static inline int lcr_tcp_invoke_am(sctk_rail_info_t *rail,
-				    uint8_t am_id,
-				    size_t length,
-				    void *data)
+                                    uint8_t am_id,
+                                    size_t length,
+                                    void *data)
 {
 	int rc = MPC_LOWCOMM_SUCCESS;
 
 	lcr_am_handler_t handler = rail->am[am_id];
-	if (handler.cb == NULL) {
+
+	if (handler.cb == NULL)
+	{
 		mpc_common_debug_fatal("LCP: handler id %d not supported.", am_id);
 	}
 
 	rc = handler.cb(handler.arg, data, length, 0);
-	if (rc != MPC_LOWCOMM_SUCCESS) {
+	if (rc != MPC_LOWCOMM_SUCCESS)
+	{
 		mpc_common_debug_error("LCP: handler id %d failed.", am_id);
 	}
 
@@ -276,33 +277,41 @@ static void *lcr_tcp_thread_loop(_mpc_lowcomm_endpoint_t *ep)
 
 	mpc_common_debug("Rail %d from %d launched", ep->rail->rail_number, ep->dest);
 
-	while(1)
+	while (1)
 	{
-		ssize_t recv_length;
-		void *data;
+		ssize_t          recv_length;
+		void *           data;
 		lcr_tcp_am_hdr_t hdr;
 
 		recv_length = mpc_common_io_safe_read(fd, (char *)&hdr, sizeof(hdr));
 
-		if (recv_length < 0) {
+		if (recv_length < 0)
+		{
 			break;
-		} else if (recv_length < (ssize_t)sizeof(hdr)) {
+		}
+		else if (recv_length < (ssize_t)sizeof(hdr))
+		{
 			break;
-		} else {
-			data = sctk_malloc(hdr.length);
+		}
+		else
+		{
+			data        = sctk_malloc(hdr.length);
 			recv_length = mpc_common_io_safe_read(fd, data, hdr.length);
 			if (recv_length <= 0)
+			{
 				break;
+			}
 			else if ((size_t)recv_length < hdr.length)
+			{
 				break;
+			}
 
-                        /* Ensure in order with ep lock */
-                        mpc_common_spinlock_lock(&(ep->rail->network.tcp.poll_lock));
+			/* Ensure in order with ep lock */
+			mpc_common_spinlock_lock(&(ep->rail->network.tcp.poll_lock));
 			lcr_tcp_invoke_am(ep->rail, hdr.am_id, hdr.length, data);
-                        mpc_common_spinlock_unlock(&(ep->rail->network.tcp.poll_lock));
+			mpc_common_spinlock_unlock(&(ep->rail->network.tcp.poll_lock));
 			sctk_free(data);
 		}
-
 	}
 
 	shutdown(fd, SHUT_RDWR);
@@ -319,28 +328,31 @@ static void *lcr_tcp_thread_loop(_mpc_lowcomm_endpoint_t *ep)
  *
  */
 static ssize_t lcr_tcp_send_am_bcopy(_mpc_lowcomm_endpoint_t *ep, uint8_t id,
-				     lcr_pack_callback_t pack, void *arg,
-				     __UNUSED__ unsigned flags)
+                                     lcr_pack_callback_t pack, void *arg,
+                                     __UNUSED__ unsigned flags)
 {
 	sctk_rail_info_t *rail = ep->rail;
-	uint32_t payload_length;
-	ssize_t sent;
+	uint32_t          payload_length;
+	ssize_t           sent;
 
 	lcr_tcp_am_hdr_t *hdr = sctk_malloc(rail->network.tcp.bcopy_buf_size);
-	if (hdr == NULL) {
-	       mpc_common_debug_error("Could not allocate TCP buffer.");
-	       payload_length = -1;
-	       goto err;
+
+	if (hdr == NULL)
+	{
+		mpc_common_debug_error("Could not allocate TCP buffer.");
+		payload_length = -1;
+		goto err;
 	}
 	memset(hdr, 0, rail->network.tcp.bcopy_buf_size);
 
-	hdr->am_id = id;
+	hdr->am_id  = id;
 	hdr->length = payload_length = pack(hdr + 1, arg);
 
 	mpc_common_spinlock_lock(&(ep->data.tcp.lock));
 	sent = mpc_common_io_safe_write(ep->data.tcp.fd, hdr, hdr->length + sizeof(*hdr));
 	mpc_common_spinlock_unlock(&(ep->data.tcp.lock));
-	if (sent < 0) {
+	if (sent < 0)
+	{
 		payload_length = -1;
 	}
 
@@ -350,63 +362,67 @@ err:
 }
 
 static void lcr_tcp_send_am_prepare(const struct iovec *iov, int iovcnt,
-				   void *header, unsigned hdr_length,
-				   uint8_t id, lcr_tcp_am_zcopy_hdr_t *hdr,
-				   size_t *payload_length)
+                                    void *header, unsigned hdr_length,
+                                    uint8_t id, lcr_tcp_am_zcopy_hdr_t *hdr,
+                                    size_t *payload_length)
 {
 	int i;
 
 	hdr->base.am_id = id;
-	hdr->iovcnt = 0;
+	hdr->iovcnt     = 0;
 	hdr->iov[hdr->iovcnt].iov_base = hdr;
-	hdr->iov[hdr->iovcnt].iov_len = sizeof(lcr_tcp_am_hdr_t);
+	hdr->iov[hdr->iovcnt].iov_len  = sizeof(lcr_tcp_am_hdr_t);
 	hdr->iovcnt++;
 
-	if (hdr_length > 0) {
+	if (hdr_length > 0)
+	{
 		hdr->iov[hdr->iovcnt].iov_base = header;
-		hdr->iov[hdr->iovcnt].iov_len = hdr_length;
+		hdr->iov[hdr->iovcnt].iov_len  = hdr_length;
 		hdr->iovcnt++;
 	}
 
 	/* Copy iov and compute payload length */
 	*payload_length = 0;
-	for (i=0; i<iovcnt; i++) {
-	       hdr->iov[hdr->iovcnt].iov_base = iov[i].iov_base;
-	       hdr->iov[hdr->iovcnt].iov_len  = iov[i].iov_len;
-	       *payload_length += iov[i].iov_len;
-	       hdr->iovcnt++;
+	for (i = 0; i < iovcnt; i++)
+	{
+		hdr->iov[hdr->iovcnt].iov_base = iov[i].iov_base;
+		hdr->iov[hdr->iovcnt].iov_len  = iov[i].iov_len;
+		*payload_length += iov[i].iov_len;
+		hdr->iovcnt++;
 	}
 }
 
 static int lcr_tcp_send_am_zcopy(_mpc_lowcomm_endpoint_t *ep,
-				 uint8_t id, void *header,
-				 unsigned hdr_length, const struct iovec *iov,
-				 size_t iovcnt, __UNUSED__ unsigned flags,
-				 lcr_completion_t *comp)
+                                 uint8_t id, void *header,
+                                 unsigned hdr_length, const struct iovec *iov,
+                                 size_t iovcnt, __UNUSED__ unsigned flags,
+                                 lcr_completion_t *comp)
 {
 	int rc;
 	lcr_tcp_am_zcopy_hdr_t *hdr = NULL;
-	size_t payload_length;
-	ssize_t sent;
+	size_t            payload_length;
+	ssize_t           sent;
 	sctk_rail_info_t *rail = ep->rail;
 
-	hdr = sctk_malloc(rail->network.tcp.zcopy_buf_size*sizeof(char));
-	if (hdr == NULL) {
+	hdr = sctk_malloc(rail->network.tcp.zcopy_buf_size * sizeof(char));
+	if (hdr == NULL)
+	{
 		mpc_common_debug_error("Could not allocate zcopy header.");
 		rc = MPC_LOWCOMM_ERROR;
 		goto err;
 	}
-	memset(hdr, 0, rail->network.tcp.zcopy_buf_size*sizeof(char));
+	memset(hdr, 0, rail->network.tcp.zcopy_buf_size * sizeof(char));
 
 	lcr_tcp_send_am_prepare(iov, iovcnt, header, hdr_length,
-				id, hdr, &payload_length);
+		id, hdr, &payload_length);
 	hdr->base.length = payload_length + hdr_length;
 
 	mpc_common_spinlock_lock(&(ep->data.tcp.lock));
 	sent = mpc_common_iovec_safe_write(ep->data.tcp.fd, hdr->iov, hdr->iovcnt,
-					   hdr->base.length + sizeof(lcr_tcp_am_hdr_t));
+		hdr->base.length + sizeof(lcr_tcp_am_hdr_t));
 	mpc_common_spinlock_unlock(&(ep->data.tcp.lock));
-	if (sent < 0) {
+	if (sent < 0)
+	{
 		rc = MPC_LOWCOMM_ERROR;
 		goto clean_buf;
 	}
@@ -424,7 +440,7 @@ err:
 
 int lcr_tcp_init_iface(sctk_rail_info_t *rail)
 {
-	//FIXME: to pass the assert in sctk_network_init_tcp_all
+	// FIXME: to pass the assert in sctk_network_init_tcp_all
 	rail->send_message_from_network = _mpc_lowcomm_tcp_send_message_from_network;
 	rail->connect_on_demand         = tcp_on_demand_connection_handler;
 
@@ -433,25 +449,25 @@ int lcr_tcp_init_iface(sctk_rail_info_t *rail)
 	rail->send_am_bcopy      = lcr_tcp_send_am_bcopy;
 	rail->send_am_zcopy      = lcr_tcp_send_am_zcopy;
 	rail->iface_get_attr     = lcr_tcp_get_attr;
-        rail->iface_is_reachable = lcr_tcp_iface_is_reachable;
+	rail->iface_is_reachable = lcr_tcp_iface_is_reachable;
 
 	/* init config */
 	rail->network.tcp.max_iov        = 8;
 	rail->network.tcp.bcopy_buf_size = 32768; /* 32kb */
-	rail->network.tcp.zcopy_buf_size = sizeof(lcr_tcp_am_zcopy_hdr_t) +
-	                                   rail->network.tcp.max_iov * sizeof(struct iovec);
+	rail->network.tcp.zcopy_buf_size = sizeof(lcr_tcp_am_zcopy_hdr_t)
+	                                   + rail->network.tcp.max_iov * sizeof(struct iovec);
 
-        /* Init capabilities */
-        rail->cap = LCR_IFACE_CAP_REMOTE;
+	/* Init capabilities */
+	rail->cap = LCR_IFACE_CAP_REMOTE;
 
-        /* Init poll lock */
+	/* Init poll lock */
 	mpc_common_spinlock_init(&(rail->network.tcp.poll_lock), 0);
 
 	// sctk_rail_init_route(rail, rail->runtime_config_rail->topology, tcp_on_demand_connection_handler);
 
 	char *interface = rail->runtime_config_rail->device;
 
-	if(!interface)
+	if (!interface)
 	{
 		interface = "default";
 	}
@@ -480,7 +496,7 @@ int lcr_tcp_query_devices(__UNUSED__ lcr_component_t *component,
 	DIR *          dir;
 
 	dir = opendir(net_dir);
-	if(dir == NULL)
+	if (dir == NULL)
 	{
 		mpc_common_debug_error("TCP: could not find net directory");
 		rc = MPC_LOWCOMM_ERROR;
@@ -489,16 +505,15 @@ int lcr_tcp_query_devices(__UNUSED__ lcr_component_t *component,
 
 	devices     = NULL;
 	num_devices = 0;
-	for(;;)
+	for (;;)
 	{
 		errno = 0;
 		entry = readdir(dir);
-		if(entry == NULL)
+		if (entry == NULL)
 		{
-			if(errno != 0)
+			if (errno != 0)
 			{
-				mpc_common_debug_error("TCP: net directory exists "
-				                       "but no entry found.");
+				mpc_common_debug_error("TCP: net directory exists but no entry found.");
 				rc = MPC_LOWCOMM_ERROR;
 				goto close_dir;
 			}
@@ -506,25 +521,25 @@ int lcr_tcp_query_devices(__UNUSED__ lcr_component_t *component,
 		}
 
 		/* avoid reading entry like . and .. */
-		if(entry->d_type != DT_LNK)
+		if (entry->d_type != DT_LNK)
 		{
 			continue;
 		}
 
-		if(!strcmp(entry->d_name, "lo"))
+		if (!strcmp(entry->d_name, "lo"))
 		{
 			/* Skip loopback */
 			continue;
 		}
 
-		if(strstr(entry->d_name, "docker"))
+		if (strstr(entry->d_name, "docker"))
 		{
 			/* Skip docker */
 			continue;
 		}
 
-		devices = sctk_realloc(devices, sizeof(*devices) * (num_devices + 1) );
-		if(devices == NULL)
+		devices = sctk_realloc(devices, sizeof(*devices) * (num_devices + 1));
+		if (devices == NULL)
 		{
 			mpc_common_debug_error("PTL: could not allocate devices");
 			rc = MPC_LOWCOMM_ERROR;
@@ -550,14 +565,14 @@ int lcr_tcp_iface_open(__UNUSED__ const char *device_name, int id,
                        sctk_rail_info_t **iface_p,
                        unsigned features)
 {
-        UNUSED(features);
+	UNUSED(features);
 	int rc = MPC_LOWCOMM_SUCCESS;
 	sctk_rail_info_t *iface = NULL;
 
 	UNUSED(device_name);
 
 	lcr_rail_init(rail_config, driver_config, &iface);
-	if(iface == NULL)
+	if (iface == NULL)
 	{
 		mpc_common_debug_error("LCR: could not allocate tcp rail");
 		rc = MPC_LOWCOMM_ERROR;
@@ -575,7 +590,7 @@ err:
 
 lcr_component_t tcp_component =
 {
-	.name          = { "tcpmpi"    },
+	.name          = { "tcpmpi" },
 	.query_devices = lcr_tcp_query_devices,
 	.iface_open    = lcr_tcp_iface_open,
 	.devices       = NULL,

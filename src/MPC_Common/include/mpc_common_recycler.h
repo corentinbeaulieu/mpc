@@ -28,23 +28,23 @@
 /* ######################################################################## */
 
 #ifndef __RECYCLER_H__
-# define __RECYCLER_H__
+#define __RECYCLER_H__
 
-# include <stdlib.h>
+#include <stdlib.h>
 
 typedef struct  mpc_common_recycler_info_s
 {
-    /* recycler capacity */
-    unsigned int capacity;
+	/* recycler capacity */
+	unsigned int capacity;
 
-    /* number of objects in the recycler array */
-    unsigned int n;
+	/* number of objects in the recycler array */
+	unsigned int n;
 
-    /* the size of a single element, in bytes */
-    unsigned int unit_size;
+	/* the size of a single element, in bytes */
+	unsigned int unit_size;
 
-    /* the pointers */
-    void ** objects;
+	/* the pointers */
+	void **      objects;
 }               mpc_common_recycler_info_t;
 
 /**
@@ -53,14 +53,14 @@ typedef struct  mpc_common_recycler_info_s
  */
 typedef struct  mpc_common_recycler_s
 {
-    /* the memory allocator */
-    void * (*allocator)(size_t);
+	/* the memory allocator */
+	void * (*allocator)(size_t);
 
-    /* the memory de-allocator */
-    void   (*deallocator)(void *);
+	/* the memory de-allocator */
+	void (*deallocator)(void *);
 
-    /* the recycler info */
-    mpc_common_recycler_info_t info;
+	/* the recycler info */
+	mpc_common_recycler_info_t info;
 }               mpc_common_recycler_t;
 
 /**
@@ -72,25 +72,25 @@ typedef struct  mpc_common_recycler_s
  *	\param capacity number of object that can be recycled at most before being free-ed
  */
 void mpc_common_recycler_init(
-    mpc_common_recycler_t * recycler,
-    void * (*allocator)(size_t),
-    void   (*deallocator)(void *),
-    unsigned int unit_size,
-    unsigned int capacity
-);
+	mpc_common_recycler_t *recycler,
+	void * (*allocator)(size_t),
+	void (*deallocator)(void *),
+	unsigned int unit_size,
+	unsigned int capacity
+	);
 
 /**
  *	\brief Deinitialize the recycler (which was initialized by a 'recycler_init()' call)
  *	\param recycler the recycler
  */
-void mpc_common_recycler_deinit(mpc_common_recycler_t * recycler);
+void mpc_common_recycler_deinit(mpc_common_recycler_t *recycler);
 
 /**
  * \brief Get a recycled object, or allocate a new one
  * \param recycler the recycler
  * \return the object
  */
-void * mpc_common_recycler_alloc(mpc_common_recycler_t * recycler);
+void * mpc_common_recycler_alloc(mpc_common_recycler_t *recycler);
 
 /**
  * \brief
@@ -98,35 +98,35 @@ void * mpc_common_recycler_alloc(mpc_common_recycler_t * recycler);
  * \param object the object to be recycled
  * \attention If the recycler is full, the object is freed
  */
-void mpc_common_recycler_recycle(mpc_common_recycler_t * recycler, void * object);
+void mpc_common_recycler_recycle(mpc_common_recycler_t *recycler, void *object);
 
 /**
  * A recycler of objects which may have different sizes
  */
 typedef struct  mpc_common_nrecycler_s
 {
-    /* the memory allocator */
-    void * (*allocator)(size_t);
+	/* the memory allocator */
+	void * (*allocator)(size_t);
 
-    /* the memory de-allocator */
-    void   (*deallocator)(void *);
+	/* the memory de-allocator */
+	void (*deallocator)(void *);
 
-    /* the recycler info */
-    mpc_common_recycler_info_t infos[32];
+	/* the recycler info */
+	mpc_common_recycler_info_t infos[32];
 }               mpc_common_nrecycler_t;
 
 void mpc_common_nrecycler_init(
-    mpc_common_nrecycler_t * nrecycler,
-    void * (*allocator)(size_t),
-    void   (*deallocator)(void *),
-    unsigned int capacities[32]
-);
+	mpc_common_nrecycler_t * nrecycler,
+	void *(*allocator)(size_t),
+	void (*deallocator)(void *),
+	unsigned int capacities[32]
+	);
 
 /**
  *	\brief Deinitialize the rnecycler (which was initialized by a 'recycler_init()' call)
  *	\param nrecycler the nrecycler
  */
-void mpc_common_nrecycler_deinit(mpc_common_nrecycler_t * nrecycler);
+void mpc_common_nrecycler_deinit(mpc_common_nrecycler_t *nrecycler);
 
 /**
  * \brief Get a recycled object, or allocate a new one
@@ -134,7 +134,7 @@ void mpc_common_nrecycler_deinit(mpc_common_nrecycler_t * nrecycler);
  * \param size the size of the object
  * \return the object
  */
-void * mpc_common_nrecycler_alloc(mpc_common_nrecycler_t * nrecycler, unsigned int size);
+void * mpc_common_nrecycler_alloc(mpc_common_nrecycler_t *nrecycler, unsigned int size);
 
 /**
  * \brief
@@ -143,6 +143,6 @@ void * mpc_common_nrecycler_alloc(mpc_common_nrecycler_t * nrecycler, unsigned i
  * \param size the size of the object
  * \attention If the recycler is full, the object is freed
  */
-void mpc_common_nrecycler_recycle(mpc_common_nrecycler_t * nrecycler, void * object, unsigned int size);
+void mpc_common_nrecycler_recycle(mpc_common_nrecycler_t *nrecycler, void *object, unsigned int size);
 
 #endif /* __RECYCLER_H__ */

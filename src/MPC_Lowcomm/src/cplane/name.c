@@ -45,16 +45,18 @@ struct _mpc_lowcomm_monitor_name_s
 static struct _mpc_lowcomm_monitor_name_s *__names = NULL;
 static mpc_common_spinlock_t __names_lock          = MPC_COMMON_SPINLOCK_INITIALIZER;
 
-static inline struct _mpc_lowcomm_monitor_name_s *__name_new(char *name, char * port_name, mpc_lowcomm_peer_uid_t hosting_peer)
+static inline struct _mpc_lowcomm_monitor_name_s *__name_new(char *name,
+                                                             char *port_name,
+                                                             mpc_lowcomm_peer_uid_t hosting_peer)
 {
-	struct _mpc_lowcomm_monitor_name_s *ret = sctk_malloc(sizeof(struct _mpc_lowcomm_monitor_name_s) );
+	struct _mpc_lowcomm_monitor_name_s *ret = sctk_malloc(sizeof(struct _mpc_lowcomm_monitor_name_s));
 
 	assume(ret != NULL);
 
-	ret->name = strdup(name);
-	ret->port = strdup(port_name);
+	ret->name         = strdup(name);
+	ret->port         = strdup(port_name);
 	ret->hosting_peer = hosting_peer;
-	ret->prev = NULL;
+	ret->prev         = NULL;
 
 	return ret;
 }
@@ -65,9 +67,9 @@ static inline struct _mpc_lowcomm_monitor_name_s *__name_get_no_lock(char *name)
 
 	struct _mpc_lowcomm_monitor_name_s *cur = __names;
 
-	while(cur)
+	while (cur)
 	{
-		if(!strcmp(cur->name, name) )
+		if (!strcmp(cur->name, name))
 		{
 			ret = cur;
 			break;
@@ -75,7 +77,7 @@ static inline struct _mpc_lowcomm_monitor_name_s *__name_get_no_lock(char *name)
 		cur = cur->prev;
 	}
 
-    return ret;
+	return ret;
 }
 
 static inline struct _mpc_lowcomm_monitor_name_s *__name_get(char *name)
@@ -106,10 +108,10 @@ int __name_drop(char *name)
 
 	mpc_common_spinlock_lock(&__names_lock);
 
-	if(__names)
+	if (__names)
 	{
 		/* If head is the one */
-		if(!strcmp(__names->name, name) )
+		if (!strcmp(__names->name, name))
 		{
 			to_free = __names;
 			__names = __names->prev;
@@ -120,9 +122,9 @@ int __name_drop(char *name)
 		{
 			struct _mpc_lowcomm_monitor_name_s *cur = __names;
 
-			while(cur->prev)
+			while (cur->prev)
 			{
-				if(!strcmp(cur->prev->name, name) )
+				if (!strcmp(cur->prev->name, name))
 				{
 					to_free   = cur->prev;
 					cur->prev = cur->prev->prev;
@@ -147,7 +149,7 @@ static inline int __name_push(struct _mpc_lowcomm_monitor_name_s *new)
 	mpc_common_spinlock_lock(&__names_lock);
 
 	/* Make sure we did not race */
-	if(__name_get_no_lock(new->name) == NULL)
+	if (__name_get_no_lock(new->name) == NULL)
 	{
 		new->prev = __names;
 		__names   = new;
@@ -166,7 +168,7 @@ static inline void __name_release(void)
 
 	struct _mpc_lowcomm_monitor_name_s *cur = __names;
 
-	while(cur)
+	while (cur)
 	{
 		struct _mpc_lowcomm_monitor_name_s *to_free = cur;
 		cur = cur->prev;
@@ -175,8 +177,8 @@ static inline void __name_release(void)
 }
 
 /********************
-* INIT AND RELEASE *
-********************/
+ * INIT AND RELEASE *
+ ********************/
 
 void _mpc_lowcomm_monitor_name_init(void)
 {
@@ -189,22 +191,22 @@ void _mpc_lowcomm_monitor_name_release(void)
 }
 
 /***********
-* PUBLISH *
-***********/
+ * PUBLISH *
+ ***********/
 
-int _mpc_lowcomm_monitor_name_publish(char *name, char * port_name,  mpc_lowcomm_peer_uid_t hosting_peer)
+int _mpc_lowcomm_monitor_name_publish(char *name, char *port_name, mpc_lowcomm_peer_uid_t hosting_peer)
 {
 	/* First make sure the name is not already here */
 	struct _mpc_lowcomm_monitor_name_s *prev = __name_get(name);
 
-	if(prev)
+	if (prev)
 	{
 		return 1;
 	}
 
 	prev = __name_new(name, port_name, hosting_peer);
 
-	if(__name_push(prev) )
+	if (__name_push(prev))
 	{
 		/* We were raced on the same name */
 		__name_free(prev);
@@ -220,70 +222,69 @@ int _mpc_lowcomm_monitor_name_unpublish(char *name)
 }
 
 /***********
-* RESOLVE *
-***********/
+ * RESOLVE *
+ ***********/
 
-char * _mpc_lowcomm_monitor_name_get_port(char *name,  mpc_lowcomm_peer_uid_t *hosting_peer)
+char * _mpc_lowcomm_monitor_name_get_port(char *name, mpc_lowcomm_peer_uid_t *hosting_peer)
 {
 	struct _mpc_lowcomm_monitor_name_s *n = __name_get(name);
 
-    if(n)
-    {
+	if (n)
+	{
 		*hosting_peer = n->hosting_peer;
-        return n->port;
-    }
+		return n->port;
+	}
 
-    return NULL;
+	return NULL;
 }
 
-
 /********
-* LIST *
-********/
+ * LIST *
+ ********/
 
 char * _mpc_lowcomm_monitor_name_get_csv_list(void)
 {
-    /* First we need the global string length */
+	/* First we need the global string length */
 
-    size_t string_len = 0;
+	size_t string_len = 0;
 
-    char * ret = NULL;
+	char *ret = NULL;
 
 	mpc_common_spinlock_lock(&__names_lock);
 
 	struct _mpc_lowcomm_monitor_name_s *cur = __names;
 
-	while(cur)
+	while (cur)
 	{
 		string_len += strlen(cur->name) + 2; /* With some margins */
-		cur = cur->prev;
+		cur         = cur->prev;
 	}
 
-    ret = sctk_malloc(string_len + 1);
-    ret[0] = '\0';
+	ret    = sctk_malloc(string_len + 1);
+	ret[0] = '\0';
 
-    assume(ret != NULL);
+	assume(ret != NULL);
 
-    cur = __names;
+	cur = __names;
 
-	while(cur)
+	while (cur)
 	{
-        strncat(ret, cur->name, string_len);
+		strncat(ret, cur->name, string_len);
 
-        if(cur->prev)
-        {
-            strncat(ret, ",", string_len);
-        }
+		if (cur->prev)
+		{
+			strncat(ret, ",", string_len);
+		}
 
 		cur = cur->prev;
 	}
 
 	mpc_common_spinlock_unlock(&__names_lock);
 
-    return ret;
+	return ret;
 }
 
 void _mpc_lowcomm_monitor_name_free_cvs_list(char *list)
 {
-    sctk_free(list);
+	sctk_free(list);
 }

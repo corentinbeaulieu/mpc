@@ -28,22 +28,118 @@
 #include "mpc_mpi.h"
 
 int _mpc_mpi_collectives_bcast(void *buffer, int count, MPI_Datatype datatype, int root, MPI_Comm comm);
-int _mpc_mpi_collectives_reduce(const void *sendbuf, void* recvbuf, int count, MPI_Datatype datatype, MPI_Op op, int root, MPI_Comm comm);
-int _mpc_mpi_collectives_allreduce(const void *sendbuf, void* recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm);
-int _mpc_mpi_collectives_scatter(const void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, int root, MPI_Comm comm);
-int _mpc_mpi_collectives_scatterv(const void *sendbuf, const int *sendcounts, const int *displs, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, int root, MPI_Comm comm);
-int _mpc_mpi_collectives_gather(const void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, int root, MPI_Comm comm);
-int _mpc_mpi_collectives_gatherv(const void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, const int *recvcounts, const int *displs, MPI_Datatype recvtype, int root, MPI_Comm comm);
-int _mpc_mpi_collectives_reduce_scatter_block(const void *sendbuf, void* recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm);
-int _mpc_mpi_collectives_reduce_scatter(const void *sendbuf, void* recvbuf, const int *recvcounts, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm);
-int _mpc_mpi_collectives_allgather(const void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, MPI_Comm comm);
-int _mpc_mpi_collectives_allgatherv(const void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, const int *recvcounts, const int *displs, MPI_Datatype recvtype, MPI_Comm comm);
-int _mpc_mpi_collectives_alltoall(const void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, MPI_Comm comm);
-int _mpc_mpi_collectives_alltoallv(const void *sendbuf, const int *sendcounts, const int *sdispls, MPI_Datatype sendtype, void *recvbuf, const int *recvcounts, const int *rdispls, MPI_Datatype recvtype, MPI_Comm comm);
-int _mpc_mpi_collectives_alltoallw(const void *sendbuf, const int *sendcounts, const int *sdispls, const MPI_Datatype *sendtypes, void *recvbuf, const int *recvcounts, const int *rdispls, const MPI_Datatype *recvtypes, MPI_Comm comm);
-int _mpc_mpi_collectives_scan (const void *sendbuf, void *recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm);
-int _mpc_mpi_collectives_exscan (const void *sendbuf, void *recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm);
-int _mpc_mpi_collectives_barrier (MPI_Comm comm);
+int _mpc_mpi_collectives_reduce(const void *sendbuf,
+                                void *recvbuf,
+                                int count,
+                                MPI_Datatype datatype,
+                                MPI_Op op,
+                                int root,
+                                MPI_Comm comm);
+int _mpc_mpi_collectives_allreduce(const void *sendbuf,
+                                   void *recvbuf,
+                                   int count,
+                                   MPI_Datatype datatype,
+                                   MPI_Op op,
+                                   MPI_Comm comm);
+int _mpc_mpi_collectives_scatter(const void *sendbuf,
+                                 int sendcount,
+                                 MPI_Datatype sendtype,
+                                 void *recvbuf,
+                                 int recvcount,
+                                 MPI_Datatype recvtype,
+                                 int root,
+                                 MPI_Comm comm);
+int _mpc_mpi_collectives_scatterv(const void *sendbuf,
+                                  const int *sendcounts,
+                                  const int *displs,
+                                  MPI_Datatype sendtype,
+                                  void *recvbuf,
+                                  int recvcount,
+                                  MPI_Datatype recvtype,
+                                  int root,
+                                  MPI_Comm comm);
+int _mpc_mpi_collectives_gather(const void *sendbuf,
+                                int sendcount,
+                                MPI_Datatype sendtype,
+                                void *recvbuf,
+                                int recvcount,
+                                MPI_Datatype recvtype,
+                                int root,
+                                MPI_Comm comm);
+int _mpc_mpi_collectives_gatherv(const void *sendbuf,
+                                 int sendcount,
+                                 MPI_Datatype sendtype,
+                                 void *recvbuf,
+                                 const int *recvcounts,
+                                 const int *displs,
+                                 MPI_Datatype recvtype,
+                                 int root,
+                                 MPI_Comm comm);
+int _mpc_mpi_collectives_reduce_scatter_block(const void *sendbuf,
+                                              void *recvbuf,
+                                              int count,
+                                              MPI_Datatype datatype,
+                                              MPI_Op op,
+                                              MPI_Comm comm);
+int _mpc_mpi_collectives_reduce_scatter(const void *sendbuf,
+                                        void *recvbuf,
+                                        const int *recvcounts,
+                                        MPI_Datatype datatype,
+                                        MPI_Op op,
+                                        MPI_Comm comm);
+int _mpc_mpi_collectives_allgather(const void *sendbuf,
+                                   int sendcount,
+                                   MPI_Datatype sendtype,
+                                   void *recvbuf,
+                                   int recvcount,
+                                   MPI_Datatype recvtype,
+                                   MPI_Comm comm);
+int _mpc_mpi_collectives_allgatherv(const void *sendbuf,
+                                    int sendcount,
+                                    MPI_Datatype sendtype,
+                                    void *recvbuf,
+                                    const int *recvcounts,
+                                    const int *displs,
+                                    MPI_Datatype recvtype,
+                                    MPI_Comm comm);
+int _mpc_mpi_collectives_alltoall(const void *sendbuf,
+                                  int sendcount,
+                                  MPI_Datatype sendtype,
+                                  void *recvbuf,
+                                  int recvcount,
+                                  MPI_Datatype recvtype,
+                                  MPI_Comm comm);
+int _mpc_mpi_collectives_alltoallv(const void *sendbuf,
+                                   const int *sendcounts,
+                                   const int *sdispls,
+                                   MPI_Datatype sendtype,
+                                   void *recvbuf,
+                                   const int *recvcounts,
+                                   const int *rdispls,
+                                   MPI_Datatype recvtype,
+                                   MPI_Comm comm);
+int _mpc_mpi_collectives_alltoallw(const void *sendbuf,
+                                   const int *sendcounts,
+                                   const int *sdispls,
+                                   const MPI_Datatype *sendtypes,
+                                   void *recvbuf,
+                                   const int *recvcounts,
+                                   const int *rdispls,
+                                   const MPI_Datatype *recvtypes,
+                                   MPI_Comm comm);
+int _mpc_mpi_collectives_scan(const void *sendbuf,
+                              void *recvbuf,
+                              int count,
+                              MPI_Datatype datatype,
+                              MPI_Op op,
+                              MPI_Comm comm);
+int _mpc_mpi_collectives_exscan(const void *sendbuf,
+                                void *recvbuf,
+                                int count,
+                                MPI_Datatype datatype,
+                                MPI_Op op,
+                                MPI_Comm comm);
+int _mpc_mpi_collectives_barrier(MPI_Comm comm);
 
 
 void _mpc_mpi_coll_allow_topological_comm();

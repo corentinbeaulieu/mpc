@@ -29,7 +29,7 @@ struct shared_mem_barrier
 int sctk_shared_mem_barrier_init(struct shared_mem_barrier *shmb, int nb_task);
 int sctk_shared_mem_barrier_release(struct shared_mem_barrier *shmb);
 
-#define MPC_LOWCOMM_COMM_SHM_COLL_BUFF_MAX_SIZE    1024
+#define MPC_LOWCOMM_COMM_SHM_COLL_BUFF_MAX_SIZE 1024
 
 union shared_mem_buffer
 {
@@ -206,6 +206,7 @@ static inline struct shared_mem_bcast *sctk_comm_coll_get_bcast(struct sctk_comm
 
 	return &coll->shm_bcast[xid];
 }
+
 /* NOLINTEND(clang-diagnostic-unused-function) */
 
 int sctk_per_node_comm_context_init(struct sctk_per_node_comm_context *ctx,

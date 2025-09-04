@@ -25,40 +25,40 @@
 #define MPC_COMMON_INCLUDE_MPC_COMMON_TYPES_H_
 
 #ifdef __cplusplus
-extern "C" {
+	extern "C" {
 #endif
 
- /**********
+/**********
  * STDINT *
  **********/
 
-//stdint.h is C99, if we didn't get support of it, fall-back on manual
-//definitions of uint64_t... For compatibility, please use sctk_stdin.h in MPC
-//in place of stdint.h
+// stdint.h is C99, if we didn't get support of it, fall-back on manual
+// definitions of uint64_t... For compatibility, please use sctk_stdin.h in MPC
+// in place of stdint.h
 /* HAVE_STDINT_H */
 #if (@HAVE_STDINT_H@ == 1) || defined(__cplusplus)
-	//use standard defs
+	// use standard defs
 	#include <stdint.h>
 #else /* HAVE_STDINT_H */
-	//select arch specific mode
+	// select arch specific mode
 	#if defined(SCTK_x86_64_ARCH_SCTK) || defined(SCTK_i686_ARCH_SCTK)
-		//for x86 64bit
-		typedef signed char             int8_t;
-		typedef short int               int16_t;
-		typedef int                     int32_t;
-		typedef long int                int64_t;
-                typedef unsigned long int       uintptr_t
-		typedef unsigned char           uint8_t;
-		typedef unsigned short int      uint16_t;
-		typedef unsigned int            uint32_t;
-		//"long long int" is 64bit for 32bit and 64bit arch
-		//not as "long int" which change.
-		//Also OK for windows which use 32bit long int and
-		//64bit long long on x86_64
-		typedef unsigned long long int  uint64_t;
-	#else //arch
+		// for x86 64bit
+		typedef signed char           int8_t;
+		typedef short int             int16_t;
+		typedef int                   int32_t;
+		typedef long int              int64_t;
+		typedef unsigned long int     uintptr_t;
+		typedef unsigned char         uint8_t;
+		typedef unsigned short int    uint16_t;
+		typedef unsigned int          uint32_t;
+		// "long long int" is 64bit for 32bit and 64bit arch
+		// not as "long int" which change.
+		// Also OK for windows which use 32bit long int and
+		// 64bit long long on x86_64
+		typedef unsigned long long int uint64_t;
+	#else // arch
 		#error "Unsupported architecture without stdint.h"
-	#endif //arch
+	#endif // arch
 #endif /* HAVE_STDINT_H */
 
 /**************
@@ -74,7 +74,7 @@ extern "C" {
 #endif /* HAVE_WCHAR_H */
 
 #ifdef __cplusplus
-}
+	}
 #endif
 
 #endif /* MPC_COMMON_INCLUDE_MPC_COMMON_TYPES_H_ */

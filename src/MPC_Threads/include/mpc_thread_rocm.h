@@ -28,37 +28,38 @@
 #include <hip/hip_runtime.h>
 #include <mpc_common_debug.h>
 
-/** in debug mode, check all HIP APIs return codes */
+	/** in debug mode, check all HIP APIs return codes */
 #ifndef NDEBUG
-#define safe_hip(u) \
-	assume_m(((u) == hipSuccess), "HIP call failed with value %d: (%s)", u, hipGetErrorString(u))
+		#define safe_hip(u) \
+				assume_m(((u) == hipSuccess), "HIP call failed with value %d: (%s)", u, hipGetErrorString(u))
 #else
-#define safe_hip(u)    u
+		#define safe_hip(u) u
 #endif
 
-/**
- * The HIP context structure as handled by MPC.
- *
- * This structure is part of TLS bundle handled internally by thread context.
- */
-typedef struct hip_ctx_s
-{
-	char      pushed;  /**< Set to 1 when the ctx is currently pushed */
-	int       cpu_id;  /**< Register the cpu_id associated to the HIP ctx */
-	hipCtx_t  context; /**< THE HIP ctx */
-} hip_ctx_t;
+	/**
+	 * The HIP context structure as handled by MPC.
+	 *
+	 * This structure is part of TLS bundle handled internally by thread context.
+	 */
+	typedef struct hip_ctx_s
+	{
+		char     pushed;  /**< Set to 1 when the ctx is currently pushed */
+		int      cpu_id;  /**< Register the cpu_id associated to the HIP ctx */
+		hipCtx_t context; /**< THE HIP ctx */
+	} hip_ctx_t;
 
-/* HIP libs init */
-int sctk_accl_hip_init();
+	/* HIP libs init */
+	int sctk_accl_hip_init();
 
-/** create a new HIP context for the current thread */
-void sctk_accl_hip_init_context();
+	/** create a new HIP context for the current thread */
+	void sctk_accl_hip_init_context();
 
-/** Push the HIP context of the current thread on the elected GPU */
-int sctk_accl_hip_push_context();
+	/** Push the HIP context of the current thread on the elected GPU */
+	int sctk_accl_hip_push_context();
 
-/** Remove the current HIP context from the GPU */
-int sctk_accl_hip_pop_context();
+	/** Remove the current HIP context from the GPU */
+	int sctk_accl_hip_pop_context();
+
 #endif
 
 #endif

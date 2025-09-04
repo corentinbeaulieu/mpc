@@ -31,7 +31,7 @@
 #define MPC_MODULE "Threads/Accel"
 
 static size_t nb_cuda_devices = 0;
-static size_t nb_hip_devices = 0;
+static size_t nb_hip_devices  = 0;
 
 /**
  * Initialize MPC_Accelerators.
@@ -41,29 +41,30 @@ static size_t nb_hip_devices = 0;
  */
 void sctk_accl_init()
 {
-
 #ifdef MPC_USE_CUDA
-	if (mpc_common_get_flags()->enable_cuda) {
-		nb_cuda_devices = 0;
-		mpc_common_debug_warning("CUDA Accelerators support ENABLED");
-		mpc_topology_device_t **list_cuda_devices = 
-			mpc_topology_device_get_from_handle_regexp(
-				"cuda-enabled-card*", (int *) &nb_cuda_devices);
-		sctk_free(list_cuda_devices);
-		sctk_accl_cuda_init();
-	}
+		if (mpc_common_get_flags()->enable_cuda)
+		{
+			nb_cuda_devices = 0;
+			mpc_common_debug_warning("CUDA Accelerators support ENABLED");
+			mpc_topology_device_t **list_cuda_devices =
+				mpc_topology_device_get_from_handle_regexp(
+					"cuda-enabled-card*", (int *)&nb_cuda_devices);
+			sctk_free(list_cuda_devices);
+			sctk_accl_cuda_init();
+		}
 #endif
 
 #ifdef MPC_USE_ROCM
-	if (mpc_common_get_flags()->enable_rocm) {
-		nb_hip_devices = 0;
-		mpc_common_debug_warning("ROCM Accelerators support ENABLED");
-		mpc_topology_device_t **list_hip_devices = 
-			mpc_topology_device_get_from_handle_regexp(
-				"rocm-enabled-card*", (int *) &nb_hip_devices);
-		sctk_free(list_hip_devices);
-		sctk_accl_hip_init();
-	}
+		if (mpc_common_get_flags()->enable_rocm)
+		{
+			nb_hip_devices = 0;
+			mpc_common_debug_warning("ROCM Accelerators support ENABLED");
+			mpc_topology_device_t **list_hip_devices =
+				mpc_topology_device_get_from_handle_regexp(
+					"rocm-enabled-card*", (int *)&nb_hip_devices);
+			sctk_free(list_hip_devices);
+			sctk_accl_hip_init();
+		}
 #endif
 
 #ifdef MPC_USE_OPENACC
@@ -71,7 +72,6 @@ void sctk_accl_init()
 
 #ifdef MPC_USE_OPENCL
 #endif
-
 }
 
 /**
@@ -96,12 +96,11 @@ size_t sctk_accl_get_nb_hip_devices()
 	return nb_hip_devices;
 }
 
-
 /*********************************
-* MPC ACCELERATOR INIT FUNCTION *
-*********************************/
+ * MPC ACCELERATOR INIT FUNCTION *
+ *********************************/
 
-void mpc_accelerator_register_function() __attribute__( (constructor) );
+void mpc_accelerator_register_function() __attribute__((constructor));
 
 void mpc_accelerator_register_function()
 {

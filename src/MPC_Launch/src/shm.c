@@ -15,8 +15,8 @@
 
 
 /*********************
-* PMI DATA EXCHANGE *
-*********************/
+ * PMI DATA EXCHANGE *
+ *********************/
 
 static inline char *__get_per_node_unique_name(char *buff, int len)
 {
@@ -26,7 +26,7 @@ static inline char *__get_per_node_unique_name(char *buff, int len)
 	snprintf(local_buff, 128, "/dev/shm/mpc-shm-XXXXXX");
 	int fd = mkstemp(local_buff);
 
-	if(fd < 0)
+	if (fd < 0)
 	{
 		perror("mkstemp");
 		return NULL;
@@ -37,7 +37,7 @@ static inline char *__get_per_node_unique_name(char *buff, int len)
 
 	char *slash = strrchr(local_buff, '/');
 
-	if(slash)
+	if (slash)
 	{
 		snprintf(buff, len, "%s", slash);
 		return buff;
@@ -68,17 +68,19 @@ static inline void *__map_shm_segment_pmi(size_t size)
 	int is_singleton = (1 == mpc_common_get_process_count());
 
 	/* We need an unique name let 0 in each unix process on local node define it */
-	if(mpc_common_get_local_process_rank() == 0)
+	if (mpc_common_get_local_process_rank() == 0)
 	{
 		__get_per_node_unique_name(segment_name, 128);
 
-		if(!is_singleton)
+		if (!is_singleton)
+		{
 			mpc_launch_pmi_put(segment_name, segment_key, 1 /* local to node */);
+		}
 
 		/* Time to create the segment */
 		shm_fd = shm_open(segment_name, O_CREAT | O_EXCL | O_RDWR | O_TRUNC, 0600);
 
-		if(shm_fd < 0)
+		if (shm_fd < 0)
 		{
 			perror("shm_open");
 			mpc_common_debug_fatal("Failed to open shm segment (as leading processes)");
@@ -87,18 +89,20 @@ static inline void *__map_shm_segment_pmi(size_t size)
 		/* Truncate to size */
 		int ret = ftruncate(shm_fd, size);
 
-		if(ret < 0)
+		if (ret < 0)
 		{
 			perror("ftruncate");
 			mpc_common_debug_fatal("Failed to truncate shm segment to size %ld", size);
 		}
 	}
 
-	if(!is_singleton)
+	if (!is_singleton)
+	{
 		mpc_launch_pmi_barrier();
+	}
 
 	/* Now time to retrieve the local segments in non leaders */
-	if(mpc_common_get_local_process_rank() != 0)
+	if (mpc_common_get_local_process_rank() != 0)
 	{
 		segment_name[0] = '\0';
 
@@ -108,14 +112,14 @@ static inline void *__map_shm_segment_pmi(size_t size)
 		/* Then get the segment name */
 		mpc_launch_pmi_get(segment_name, 128, segment_key, local_leader);
 
-		if(!strlen(segment_name) )
+		if (!strlen(segment_name))
 		{
 			mpc_common_debug_fatal("Failed to retrieve shm segment name");
 		}
 
 		shm_fd = shm_open(segment_name, O_RDWR, 0600);
 
-		if(shm_fd < 0)
+		if (shm_fd < 0)
 		{
 			perror("shm_open");
 			mpc_common_debug_fatal("Failed to open shm segment (as secondary processes)");
@@ -126,16 +130,18 @@ static inline void *__map_shm_segment_pmi(size_t size)
 
 	void *ret = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
 
-	if(ret == NULL)
+	if (ret == NULL)
 	{
 		perror("mmap");
 		mpc_common_debug_fatal("Failed to map shm segment");
 	}
 
-	if(!is_singleton)
+	if (!is_singleton)
+	{
 		mpc_launch_pmi_barrier();
+	}
 
-	if(mpc_common_get_local_process_rank() == 0)
+	if (mpc_common_get_local_process_rank() == 0)
 	{
 		shm_unlink(segment_name);
 	}
@@ -144,8 +150,8 @@ static inline void *__map_shm_segment_pmi(size_t size)
 }
 
 /*********************
-* MPI DATA EXCHANGE *
-*********************/
+ * MPI DATA EXCHANGE *
+ *********************/
 
 static inline void *__map_shm_segment_mpi(size_t size, mpc_launch_shm_exchange_params_t *params)
 {
@@ -161,14 +167,14 @@ static inline void *__map_shm_segment_mpi(size_t size, mpc_launch_shm_exchange_p
 
 	int shm_fd = -1;
 
-	if(my_rank == 0)
+	if (my_rank == 0)
 	{
 		__get_per_node_unique_name(segment_name, 128);
 
 		/* Time to create the segment */
 		shm_fd = shm_open(segment_name, O_CREAT | O_EXCL | O_RDWR | O_TRUNC, 0600);
 
-		if(shm_fd < 0)
+		if (shm_fd < 0)
 		{
 			perror("shm_open");
 			mpc_common_debug_fatal("Failed to open shm segment (as leading processes)");
@@ -177,7 +183,7 @@ static inline void *__map_shm_segment_mpi(size_t size, mpc_launch_shm_exchange_p
 		/* Truncate to size */
 		int ret = ftruncate(shm_fd, size);
 
-		if(ret < 0)
+		if (ret < 0)
 		{
 			perror("ftruncate");
 			mpc_common_debug_fatal("Failed to truncate shm segment to size %ld", size);
@@ -188,11 +194,11 @@ static inline void *__map_shm_segment_mpi(size_t size, mpc_launch_shm_exchange_p
 
 	assume(strlen(segment_name) != 0);
 
-	if(my_rank != 0)
+	if (my_rank != 0)
 	{
 		shm_fd = shm_open(segment_name, O_RDWR, 0600);
 
-		if(shm_fd < 0)
+		if (shm_fd < 0)
 		{
 			perror("shm_open");
 			mpc_common_debug_fatal("Failed to open shm segment (as secondary processes)");
@@ -203,7 +209,7 @@ static inline void *__map_shm_segment_mpi(size_t size, mpc_launch_shm_exchange_p
 
 	void *ret = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
 
-	if(ret == NULL)
+	if (ret == NULL)
 	{
 		perror("mmap");
 		mpc_common_debug_fatal("Failed to map shm segment");
@@ -211,7 +217,7 @@ static inline void *__map_shm_segment_mpi(size_t size, mpc_launch_shm_exchange_p
 
 	(params->mpi.barrier)(params->mpi.pcomm);
 
-	if(my_rank == 0)
+	if (my_rank == 0)
 	{
 		shm_unlink(segment_name);
 	}
@@ -220,18 +226,18 @@ static inline void *__map_shm_segment_mpi(size_t size, mpc_launch_shm_exchange_p
 }
 
 /********************************
-* MPC LAUNCH SHM MAP INTERFACE *
-********************************/
+ * MPC LAUNCH SHM MAP INTERFACE *
+ ********************************/
 
 void *mpc_launch_shm_map(size_t size, mpc_launch_shm_exchange_method_t method, mpc_launch_shm_exchange_params_t *params)
 {
-	switch(method)
+	switch (method)
 	{
-		case MPC_LAUNCH_SHM_USE_MPI:
-			return __map_shm_segment_mpi(size, params);
+	case MPC_LAUNCH_SHM_USE_MPI:
+		return __map_shm_segment_mpi(size, params);
 
-		case MPC_LAUNCH_SHM_USE_PMI:
-			return __map_shm_segment_pmi(size);
+	case MPC_LAUNCH_SHM_USE_PMI:
+		return __map_shm_segment_pmi(size);
 	}
 
 	return NULL;

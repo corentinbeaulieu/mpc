@@ -39,17 +39,17 @@
 
 typedef struct mpc_omp_places_info_s
 {
-	unsigned int id;
-	hwloc_bitmap_t interval;
-	hwloc_bitmap_t logical_interval;
+	unsigned int                  id;
+	hwloc_bitmap_t                interval;
+	hwloc_bitmap_t                logical_interval;
 	struct mpc_omp_places_info_s *prev, *next;
 } mpc_omp_places_info_t;
 
-void mpc_omp_display_places( mpc_omp_places_info_t *list );
-mpc_omp_places_info_t *_mpc_omp_places_env_variable_parsing( const int );
-int mpc_omp_places_get_real_nb_mvps( mpc_omp_places_info_t *list );
-int _mpc_omp_places_get_topo_info( mpc_omp_places_info_t *list, int **shape, int **cpus_order );
+void mpc_omp_display_places(mpc_omp_places_info_t *list);
+mpc_omp_places_info_t *_mpc_omp_places_env_variable_parsing(const int);
+int mpc_omp_places_get_real_nb_mvps(mpc_omp_places_info_t *list);
+int _mpc_omp_places_get_topo_info(mpc_omp_places_info_t *list, int **shape, int **cpus_order);
 
-hwloc_bitmap_t mpc_omp_places_get_default_include_bitmap( const int );
+hwloc_bitmap_t mpc_omp_places_get_default_include_bitmap(const int);
 
 #endif /* __MPC_OMP_PLACES_ENV_H__*/

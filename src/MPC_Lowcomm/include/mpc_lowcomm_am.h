@@ -4,7 +4,7 @@
 #include <mpc_lowcomm.h>
 
 #ifdef __cplusplus
-extern "C" {
+	extern "C" {
 #endif
 
 /************************
@@ -37,7 +37,7 @@ struct mpc_lowcomm_am_ctx_s;
  * @brief Opaque Context for active messages
  *
  */
-typedef struct mpc_lowcomm_am_ctx_s * mpc_lowcomm_am_ctx_t;
+typedef struct mpc_lowcomm_am_ctx_s *mpc_lowcomm_am_ctx_t;
 
 /**
  * @brief Initialize RPC engine
@@ -52,10 +52,10 @@ mpc_lowcomm_am_ctx_t mpc_lowcomm_am_init();
  * @brief Release the RPC engine while ensuring completion
  * @warning Needs to be called *before* mpc_lowcomm_release
  *
- * @param ctx RPC context handle to be freed (initialized with mpc_lowcomm_am_init)
- * @return int 0 on success
+ * @param  ctx RPC context handle to be freed (initialized with mpc_lowcomm_am_init)
+ * @return     int 0 on success
  */
-int mpc_lowcomm_am_release(mpc_lowcomm_am_ctx_t * ctx);
+int mpc_lowcomm_am_release(mpc_lowcomm_am_ctx_t *ctx);
 
 /****************************
  * ACTIVE MESSAGE INTERFACE *
@@ -67,16 +67,16 @@ int mpc_lowcomm_am_release(mpc_lowcomm_am_ctx_t * ctx);
  * @warning The function needs to be resolvable with dlsym
  *          (you may need to compile with -rdynamic)
  *
- * @param ctx Opaque AM context (from mpc_lowcomm_am_init)
- * @param buffers Array of pointer to individual parameters
- * @param datatypes Types for respective parameters
- * @param sendcount Number of arguments to send
- * @param recvbuf Receive buffer (one element)
- * @param recvtype Receive type for the recvbuf
- * @param fname Remote function name to be called
- * @param dest Destination rank
- * @param req Request to be waited with mpc_lowcomm_wait*
- * @return int 0 on success
+ * @param  ctx       Opaque AM context (from mpc_lowcomm_am_init)
+ * @param  buffers   Array of pointer to individual parameters
+ * @param  datatypes Types for respective parameters
+ * @param  sendcount Number of arguments to send
+ * @param  recvbuf   Receive buffer (one element)
+ * @param  recvtype  Receive type for the recvbuf
+ * @param  fname     Remote function name to be called
+ * @param  dest      Destination rank
+ * @param  req       Request to be waited with mpc_lowcomm_wait*
+ * @return           int 0 on success
  */
 int mpc_lowcomm_iam(mpc_lowcomm_am_ctx_t ctx,
                     void **buffers,
@@ -94,15 +94,15 @@ int mpc_lowcomm_iam(mpc_lowcomm_am_ctx_t ctx,
  * @warning The function needs to be resolvable with dlsym
  *          (you may need to compile with -rdynamic)
  *
- * @param ctx Opaque AM context (from mpc_lowcomm_am_init)
- * @param buffers Array of pointer to individual parameters
- * @param datatypes Types for respective parameters
- * @param sendcount Number of arguments to send
- * @param recvbuf Receive buffer (one element)
- * @param recvtype Receive type for the recvbuf
- * @param fname Remote function name to be called
- * @param dest Destination rank
- * @return int 0 on success
+ * @param  ctx       Opaque AM context (from mpc_lowcomm_am_init)
+ * @param  buffers   Array of pointer to individual parameters
+ * @param  datatypes Types for respective parameters
+ * @param  sendcount Number of arguments to send
+ * @param  recvbuf   Receive buffer (one element)
+ * @param  recvtype  Receive type for the recvbuf
+ * @param  fname     Remote function name to be called
+ * @param  dest      Destination rank
+ * @return           int 0 on success
  */
 int mpc_lowcomm_am(mpc_lowcomm_am_ctx_t ctx,
                    void **buffers,
@@ -114,7 +114,7 @@ int mpc_lowcomm_am(mpc_lowcomm_am_ctx_t ctx,
                    int dest);
 
 #ifdef __cplusplus
-}
+	}
 #endif
 
 #endif /* MPC_LOWCOMM_AM */

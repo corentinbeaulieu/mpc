@@ -58,12 +58,12 @@ static size_t _forced_pool_size = 0;
 
 static void __pool_size_adapt(char *exename)
 {
-	if(!exename)
+	if (!exename)
 	{
 		return;
 	}
 
-	if(_forced_pool_size != 0)
+	if (_forced_pool_size != 0)
 	{
 		return;
 	}
@@ -74,26 +74,26 @@ static void __pool_size_adapt(char *exename)
 	int is_linear = mempool_conf->force_process_linear;
 
 
-	if(mempool_conf->autodetect)
+	if (mempool_conf->autodetect)
 	{
-		if(strstr(exename, "IMB"))
+		if (strstr(exename, "IMB"))
 		{
 			is_linear = 1;
 		}
 	}
 
-	if(is_linear)
+	if (is_linear)
 	{
-		_forced_pool_size = mempool_conf->per_proc_size *
-		                    mpc_common_get_local_process_count();
+		_forced_pool_size = mempool_conf->per_proc_size
+		                    * mpc_common_get_local_process_count();
 		mpc_common_debug("Info : setting MPI_Alloc_mem pool size to %d MB",
-		                 _forced_pool_size / (1024 * 1024) );
+			_forced_pool_size / (1024 * 1024));
 	}
 }
 
 static size_t __get_pool_size()
 {
-	if(_forced_pool_size != 0)
+	if (_forced_pool_size != 0)
 	{
 		return _forced_pool_size;
 	}
@@ -131,7 +131,7 @@ void alloc_workshare(mpc_lowcomm_communicator_t comm)
 	mpc_workshare *workshare, *tmp;
 	void *         addr;
 
-	if(mpc_common_get_local_task_rank() == 0)
+	if (mpc_common_get_local_task_rank() == 0)
 	{
 		tmp  = sctk_malloc(sizeof(mpc_workshare) * nb_tasks);
 		addr = tmp;
@@ -141,31 +141,32 @@ void alloc_workshare(mpc_lowcomm_communicator_t comm)
 
 	workshare = (mpc_workshare *)addr;
 #ifdef MPC_Threads
-	mpc_thread_data_get()->workshare = workshare;
+		mpc_thread_data_get()->workshare = workshare;
 #endif
 
-	if(mpc_common_get_local_task_rank() == 0)
+	if (mpc_common_get_local_task_rank() == 0)
 	{
 		mpc_lowcomm_workshare_init_func_pointers();
 		int i;
-		for(i = 0; i < nb_tasks; i++)
+		for (i = 0; i < nb_tasks; i++)
 		{
 			OPA_store_int(&(workshare[i].is_last_iter), 1);
-			mpc_common_spinlock_init(&workshare[i].lock, 0);
-			mpc_common_spinlock_init(&workshare[i].lock2, 0);
-			mpc_common_spinlock_init(&workshare[i].atomic_lock, 0);
+			mpc_common_spinlock_init(&workshare[i].lock,          0);
+			mpc_common_spinlock_init(&workshare[i].lock2,         0);
+			mpc_common_spinlock_init(&workshare[i].atomic_lock,   0);
 			mpc_common_spinlock_init(&workshare[i].critical_lock, 0);
 			workshare[i].lb = 0;
 			workshare[i].ub = 0;
 			OPA_store_int(&(workshare[i].nb_threads_stealing), 0);
 		}
-		for(i = 0; i < nb_tasks; i++)
+		for (i = 0; i < nb_tasks; i++)
 		{
 			workshare[i].is_allowed_to_steal = 1;
 		}
 	}
 	mpc_lowcomm_barrier(comm);
 }
+
 #endif
 
 
@@ -190,7 +191,7 @@ static void __accumulate_op_lock_init(mpc_lowcomm_communicator_t per_node_comm)
 
 	int is_shared = 0;
 
-	if(!my_node_level_rank)
+	if (!my_node_level_rank)
 	{
 		p        = mpc_lowcomm_allocmem_pool_alloc_check(sizeof(mpc_common_spinlock_t), &is_shared);
 		rel_addr = mpc_lowcomm_allocmem_relative_addr(p);
@@ -206,7 +207,7 @@ static void __accumulate_op_lock_init(mpc_lowcomm_communicator_t per_node_comm)
 
 void mpc_lowcomm_accumulate_op_lock()
 {
-	//mpc_common_debug_error("LOCK");
+	// mpc_common_debug_error("LOCK");
 
 	assert(__accululate_master_lock != NULL);
 	mpc_common_spinlock_lock_yield(__accululate_master_lock);
@@ -214,7 +215,7 @@ void mpc_lowcomm_accumulate_op_lock()
 
 void mpc_lowcomm_accumulate_op_unlock()
 {
-	//mpc_common_debug_error("UNLOCK");
+	// mpc_common_debug_error("UNLOCK");
 	assert(__accululate_master_lock != NULL);
 	mpc_common_spinlock_unlock(__accululate_master_lock);
 }
@@ -236,9 +237,9 @@ static inline void __setup_pool(mpc_lowcomm_communicator_t per_node_comm)
 	int cw_rank = mpc_lowcomm_communicator_rank(MPC_COMM_WORLD);
 
 	/* disabling shm allocator for C/R (temp) */
-	if(mpc_common_get_flags()->checkpoint_enabled)
+	if (mpc_common_get_flags()->checkpoint_enabled)
 	{
-		if(!cw_rank)
+		if (!cw_rank)
 		{
 			mpc_common_debug_warning("Shared-Node memory RMA are not supported when C/R is enabled");
 		}
@@ -249,7 +250,7 @@ static inline void __setup_pool(mpc_lowcomm_communicator_t per_node_comm)
 
 	int alloc_mem_enabled = _mpc_lowcomm_conf_get()->memorypool.enabled;
 
-	if(alloc_mem_enabled == 0)
+	if (alloc_mem_enabled == 0)
 	{
 		_pool_only_local = 1;
 		return;
@@ -259,23 +260,23 @@ static inline void __setup_pool(mpc_lowcomm_communicator_t per_node_comm)
 	int is_master = 0;
 
 #if defined(MPC_IN_PROCESS_MODE)
-	is_master           = 1;
-	process_master_comm = per_node_comm;
+		is_master           = 1;
+		process_master_comm = per_node_comm;
 #else
-	/* Now only local rank 0 in each process will work */
+		/* Now only local rank 0 in each process will work */
 
-	if(mpc_common_get_local_task_rank() == 0)
-	{
-		is_master = 1;
-	}
+		if (mpc_common_get_local_task_rank() == 0)
+		{
+			is_master = 1;
+		}
 
-	process_master_comm = mpc_lowcomm_communicator_split(per_node_comm, is_master, cw_rank);
+		process_master_comm = mpc_lowcomm_communicator_split(per_node_comm, is_master, cw_rank);
 #endif
 
-	if(is_master)
+	if (is_master)
 	{
 		/* Round size up to the next page */
-		size_t to_map_size = ( (inner_size / SCTK_PAGE_SIZE) + 1) * SCTK_PAGE_SIZE;
+		size_t to_map_size = ((inner_size / SCTK_PAGE_SIZE) + 1) * SCTK_PAGE_SIZE;
 		__mpc_lowcomm_memory_pool.mapped_size = to_map_size;
 
 		mpc_launch_shm_exchange_params_t params;
@@ -285,36 +286,36 @@ static inline void __setup_pool(mpc_lowcomm_communicator_t per_node_comm)
 		params.mpi.rank    = __rank;
 		params.mpi.pcomm   = process_master_comm;
 
-		//mpc_common_debug_warning("POOL is %ld large", to_map_size);
+		// mpc_common_debug_warning("POOL is %ld large", to_map_size);
 
 		__mpc_lowcomm_memory_pool._pool = mpc_launch_shm_map(to_map_size, MPC_LAUNCH_SHM_USE_MPI, &params);
 
-		//mpc_common_debug_error("POOL @ %p", __mpc_lowcomm_memory_pool._pool);
+		// mpc_common_debug_error("POOL @ %p", __mpc_lowcomm_memory_pool._pool);
 
 		assume(__mpc_lowcomm_memory_pool._pool != NULL);
 
 #if !defined(MPC_IN_PROCESS_MODE)
-		mpc_lowcomm_communicator_free(&process_master_comm);
+			mpc_lowcomm_communicator_free(&process_master_comm);
 #endif
 
 		/* First mark segment start for debug */
-		int * canary =  (int *)__mpc_lowcomm_memory_pool._pool;
+		int *canary = (int *)__mpc_lowcomm_memory_pool._pool;
 		*canary = 1377;
 
 		/* After we have a lock */
-		void * after_canary = canary + 1;
+		void *after_canary = canary + 1;
 
 		__mpc_lowcomm_memory_pool.lock = after_canary;
 
 		/* A bit array */
-		void * bit_array = __mpc_lowcomm_memory_pool.lock + 1;
+		void *bit_array = __mpc_lowcomm_memory_pool.lock + 1;
 
 		/* And to finish the actual memory pool */
 		__mpc_lowcomm_memory_pool.pool = bit_array + SCTK_PAGE_SIZE;
 
 		mpc_common_nodebug("BASE %p LOCK %p POOL %p", bit_array_page,
-		                   __mpc_lowcomm_memory_pool.lock,
-		                   __mpc_lowcomm_memory_pool.pool);
+			__mpc_lowcomm_memory_pool.lock,
+			__mpc_lowcomm_memory_pool.pool);
 
 		__mpc_lowcomm_memory_pool.size      = pool_size;
 		__mpc_lowcomm_memory_pool.size_left = pool_size;
@@ -322,10 +323,10 @@ static inline void __setup_pool(mpc_lowcomm_communicator_t per_node_comm)
 		mpc_common_spinlock_init(__mpc_lowcomm_memory_pool.lock, 0);
 
 		mpc_common_bit_array_init_buff(&__mpc_lowcomm_memory_pool.mask,
-		                               SCTK_PAGE_SIZE * 8, bit_array,
-		                               SCTK_PAGE_SIZE);
+			SCTK_PAGE_SIZE * 8, bit_array,
+			SCTK_PAGE_SIZE);
 
-		__mpc_lowcomm_memory_pool.space_per_bit = (pool_size / (SCTK_PAGE_SIZE * 8) );
+		__mpc_lowcomm_memory_pool.space_per_bit = (pool_size / (SCTK_PAGE_SIZE * 8));
 		mpc_common_hashtable_init(&__mpc_lowcomm_memory_pool.size_ht, 32);
 	}
 }
@@ -339,7 +340,7 @@ int mpc_lowcomm_allocmem_pool_init()
 	 * pool init in the shared memory segment */
 	mpc_common_spinlock_lock(&_pool_init_lock);
 
-	if(_pool_init_done == 0)
+	if (_pool_init_done == 0)
 	{
 		/* Pool was globally initialized */
 		_pool_init_done = 1;
@@ -350,7 +351,9 @@ int mpc_lowcomm_allocmem_pool_init()
 	int cw_rank = mpc_lowcomm_communicator_rank(MPC_COMM_WORLD);
 
 	/* First build a comm for each node */
-	mpc_lowcomm_communicator_t per_node_comm = mpc_lowcomm_communicator_split(MPC_COMM_WORLD, mpc_common_get_node_rank(), cw_rank);
+	mpc_lowcomm_communicator_t per_node_comm = mpc_lowcomm_communicator_split(MPC_COMM_WORLD,
+		mpc_common_get_node_rank(),
+		cw_rank);
 
 	int my_node_size = mpc_lowcomm_communicator_size(per_node_comm);
 
@@ -360,13 +363,13 @@ int mpc_lowcomm_allocmem_pool_init()
 	mpc_lowcomm_communicator_t per_process_comm = mpc_lowcomm_communicator_split(per_node_comm, split_ws, cw_rank);
 
 #ifdef MPC_ENABLE_WORKSHARE
-	alloc_workshare(per_process_comm);
+		alloc_workshare(per_process_comm);
 #endif
 	mpc_lowcomm_communicator_free(&per_process_comm);
 
 
 	/* Are all the tasks in the same process ? */
-	if( (my_node_size == 1) || (mpc_lowcomm_get_process_count() == 1))
+	if ((my_node_size == 1) || (mpc_lowcomm_get_process_count() == 1))
 	{
 		/* Memory pool is only local */
 		_pool_only_local = 1;
@@ -382,9 +385,9 @@ int mpc_lowcomm_allocmem_pool_init()
 
 		__accumulate_op_lock_init(per_node_comm);
 
-		if(_mpc_lowcomm_conf_get()->memorypool.enabled)
+		if (_mpc_lowcomm_conf_get()->memorypool.enabled)
 		{
-			int * canary = (int *)__mpc_lowcomm_memory_pool._pool;
+			int *canary = (int *)__mpc_lowcomm_memory_pool._pool;
 			assume(*canary == 1377);
 		}
 	}
@@ -398,7 +401,7 @@ int mpc_lowcomm_allocmem_pool_init()
 int mpc_lowcomm_allocmem_pool_release()
 {
 	/* Are all the tasks in the same process ? */
-	if(_pool_only_local)
+	if (_pool_only_local)
 	{
 		return 0;
 	}
@@ -407,7 +410,7 @@ int mpc_lowcomm_allocmem_pool_release()
 
 	mpc_common_spinlock_lock(&_pool_init_lock);
 
-	if(_pool_init_done)
+	if (_pool_init_done)
 	{
 		is_master       = 1;
 		_pool_init_done = 0;
@@ -416,14 +419,14 @@ int mpc_lowcomm_allocmem_pool_release()
 	mpc_common_spinlock_unlock(&_pool_init_lock);
 
 	mpc_launch_shm_unmap(__mpc_lowcomm_memory_pool._pool,
-	                     __mpc_lowcomm_memory_pool.mapped_size);
+		__mpc_lowcomm_memory_pool.mapped_size);
 
-	if(is_master)
+	if (is_master)
 	{
 		mpc_common_hashtable_release(&__mpc_lowcomm_memory_pool.size_ht);
 		/* All the rest is static */
 		memset(&__mpc_lowcomm_memory_pool, 0,
-		       sizeof(struct mpc_lowcomm_allocmem_pool) );
+			sizeof(struct mpc_lowcomm_allocmem_pool));
 	}
 
 	return 0;
@@ -440,7 +443,6 @@ static inline void mpc_lowcomm_allocmem_pool_unlock()
 {
 	assert(__mpc_lowcomm_memory_pool.lock);
 	mpc_common_spinlock_unlock(__mpc_lowcomm_memory_pool.lock);
-
 }
 
 void *mpc_lowcomm_allocmem_pool_alloc_check(size_t size, int *is_shared)
@@ -448,30 +450,31 @@ void *mpc_lowcomm_allocmem_pool_alloc_check(size_t size, int *is_shared)
 	*is_shared = 0;
 
 	/* Are all the tasks in the same process ? */
-	if(_pool_only_local)
+	if (_pool_only_local)
 	{
 		*is_shared = 1;
 		return sctk_malloc(size);
 	}
 
 	/* We are sure that it does not fit */
-	if( (__mpc_lowcomm_memory_pool.size_left < size) )
+	if ((__mpc_lowcomm_memory_pool.size_left < size))
 	{
 		return sctk_malloc(size);
 	}
 
 	mpc_lowcomm_allocmem_pool_lock();
 
-	uint64_t number_of_bits = 1 + (size + (size % __mpc_lowcomm_memory_pool.space_per_bit) ) / __mpc_lowcomm_memory_pool.space_per_bit;
+	uint64_t number_of_bits = 1 + (size + (size % __mpc_lowcomm_memory_pool.space_per_bit))
+	                          / __mpc_lowcomm_memory_pool.space_per_bit;
 
 	/* Now try to find this number of contiguous free bits */
 	size_t i, j;
 	struct mpc_common_bit_array *ba = &__mpc_lowcomm_memory_pool.mask;
 
 
-	for(i = 0; i < ba->real_size; i++)
+	for (i = 0; i < ba->real_size; i++)
 	{
-		if(mpc_common_bit_array_get(ba, i) )
+		if (mpc_common_bit_array_get(ba, i))
 		{
 			/* This bit is taken */
 			continue;
@@ -479,36 +482,36 @@ void *mpc_lowcomm_allocmem_pool_alloc_check(size_t size, int *is_shared)
 
 		uint64_t end_of_seg_off = i + number_of_bits;
 
-		if(ba->real_size <= end_of_seg_off)
+		if (ba->real_size <= end_of_seg_off)
 		{
 			/* We are too close from the end */
 			break;
 		}
 
-		if(mpc_common_bit_array_get(ba, end_of_seg_off) == 0)
+		if (mpc_common_bit_array_get(ba, end_of_seg_off) == 0)
 		{
 			int found_taken_bit = 0;
 			/* Last bit is free it is a good candidate */
 
 			/* Now scan the whole segment */
-			for(j = i; j <= end_of_seg_off ; j++)
+			for (j = i; j <= end_of_seg_off ; j++)
 			{
-				if(mpc_common_bit_array_get(ba, j) )
+				if (mpc_common_bit_array_get(ba, j))
 				{
 					found_taken_bit = 1;
 					/* No need to rescan the same area */
-					i = j+1;
+					i = j + 1;
 					break;
 				}
 			}
 
-			if(found_taken_bit == 0)
+			if (found_taken_bit == 0)
 			{
 				/* We found enough space */
 				/* Book the bits */
 				size_t k;
 
-				for(k = i; k <= end_of_seg_off; k++)
+				for (k = i; k <= end_of_seg_off; k++)
 				{
 					mpc_common_bit_array_set(ba, k, 1);
 				}
@@ -522,7 +525,7 @@ void *mpc_lowcomm_allocmem_pool_alloc_check(size_t size, int *is_shared)
 
 				/* Store bit size for free for address */
 				mpc_common_hashtable_set(&__mpc_lowcomm_memory_pool.size_ht, ( uint64_t )addr,
-				                         ( void * )number_of_bits);
+					( void * )number_of_bits);
 
 				mpc_lowcomm_allocmem_pool_unlock();
 				*is_shared = 1;
@@ -542,7 +545,7 @@ void *mpc_lowcomm_allocmem_pool_alloc(size_t size)
 {
 	int dummy_shared;
 
-	void * ret = mpc_lowcomm_allocmem_pool_alloc_check(size, &dummy_shared);
+	void *ret = mpc_lowcomm_allocmem_pool_alloc_check(size, &dummy_shared);
 
 	return ret;
 }
@@ -550,7 +553,7 @@ void *mpc_lowcomm_allocmem_pool_alloc(size_t size)
 int mpc_lowcomm_allocmem_pool_free_size(void *ptr, ssize_t known_size)
 {
 	/* Are all the tasks in the same process ? */
-	if(_pool_only_local)
+	if (_pool_only_local)
 	{
 		sctk_free(ptr);
 		return 0;
@@ -561,7 +564,7 @@ int mpc_lowcomm_allocmem_pool_free_size(void *ptr, ssize_t known_size)
 
 
 
-	if(known_size < 0)
+	if (known_size < 0)
 	{
 		size_in_ptr = mpc_common_hashtable_get(&__mpc_lowcomm_memory_pool.size_ht, ( uint64_t )ptr);
 	}
@@ -570,11 +573,11 @@ int mpc_lowcomm_allocmem_pool_free_size(void *ptr, ssize_t known_size)
 		size_in_ptr = ( void * )known_size;
 	}
 
-	if(size_in_ptr != NULL)
+	if (size_in_ptr != NULL)
 	{
 		/* Compute bit_offset */
-		size_t off = (ptr - __mpc_lowcomm_memory_pool.pool) /
-		             __mpc_lowcomm_memory_pool.space_per_bit;
+		size_t off = (ptr - __mpc_lowcomm_memory_pool.pool)
+		             / __mpc_lowcomm_memory_pool.space_per_bit;
 		size_t number_of_bits = (size_t)size_in_ptr;
 		size_t i;
 
@@ -582,7 +585,7 @@ int mpc_lowcomm_allocmem_pool_free_size(void *ptr, ssize_t known_size)
 		mpc_common_nodebug("Free %p [%d to %d]", ptr, off, (off + number_of_bits));
 
 
-		for(i = off; i <= (off + number_of_bits); i++)
+		for (i = off; i <= (off + number_of_bits); i++)
 		{
 			mpc_common_bit_array_set(&__mpc_lowcomm_memory_pool.mask, i, 0);
 		}
@@ -610,7 +613,7 @@ int mpc_lowcomm_allocmem_is_in_pool(void *ptr)
 {
 	struct mpc_lowcomm_allocmem_pool *p = &__mpc_lowcomm_memory_pool;
 
-	if( (p->pool <= ptr) && (ptr < (p->pool + p->size) ) )
+	if ((p->pool <= ptr) && (ptr < (p->pool + p->size)))
 	{
 		return 1;
 	}

@@ -55,9 +55,9 @@
 #define MPC_MODULE "Launch/Launch"
 
 #if defined(MPC_ENABLE_DEBUG_MESSAGES)
-#define SCTK_DEBUG_MODE    " Debug Messages Enabled"
+	#define SCTK_DEBUG_MODE " Debug Messages Enabled"
 #else
-#define SCTK_DEBUG_MODE    ""
+	#define SCTK_DEBUG_MODE ""
 #endif
 
 /**************************
@@ -68,80 +68,84 @@
  * @brief This holds the configuration for MPC_Launch
  *
  */
-struct mpc_launch_config{
-	int bt_sig_enabled; /** Produce backtraces on error */
-	int banner_enabled; /** Should MPC's banner be displayed */
-	int autokill_timer; /** What is the kill timer in seconds (0 means none) */
-	char mpcrun_launcher[MPC_CONF_STRING_SIZE]; /** What is the default launcher for MPCRUN */
+struct mpc_launch_config
+{
+	int  bt_sig_enabled;                             /** Produce backtraces on error */
+	int  banner_enabled;                             /** Should MPC's banner be displayed */
+	int  autokill_timer;                             /** What is the kill timer in seconds (0 means none) */
+	char mpcrun_launcher[MPC_CONF_STRING_SIZE];      /** What is the default launcher for MPCRUN */
 	char mpcrun_user_launcher[MPC_CONF_STRING_SIZE]; /** Where to look for user launchers in mpcrun */
-	int disable_aslr; /** If mpcrun should disable ASLR */
+	int  disable_aslr;                               /** If mpcrun should disable ASLR */
 };
 
 static struct mpc_launch_config __launch_config;
 
 void mpc_launch_print_banner(short int restart)
 {
-	if(mpc_common_get_process_rank() == 0)
+	if (mpc_common_get_process_rank() == 0)
 	{
 		char *mpc_lang = "C/C++";
 
-		if(mpc_common_get_flags()->is_fortran == 1)
+		if (mpc_common_get_flags()->is_fortran == 1)
 		{
 			mpc_lang = "Fortran";
 		}
 
-		if(__launch_config.banner_enabled)
+		if (__launch_config.banner_enabled)
 		{
-			if(mpc_common_get_flags()->checkpoint_enabled && restart)
+			if (mpc_common_get_flags()->checkpoint_enabled && restart)
 			{
 				mpc_common_debug_log("+++ Application restarting from checkpoint with the following configuration:");
 			}
 
 			mpc_common_debug_log("--------------------------------------------------------");
-			mpc_common_debug_log("MPC version: %s", MPC_VERSION_STRING);
+			mpc_common_debug_log("MPC version: %s",      MPC_VERSION_STRING);
 			mpc_common_debug_log("Running    : %s code", mpc_lang);
 			mpc_common_debug_log("Setup      : %d tasks %d processes %d cpus",
-			                     mpc_common_get_flags()->task_number,
-			                     mpc_common_get_flags()->process_number,
-			                     mpc_topology_get_pu_count() );
-			mpc_common_debug_log("Threading  : '%s'", mpc_common_get_flags()->thread_library_kind);
+				mpc_common_get_flags()->task_number,
+				mpc_common_get_flags()->process_number,
+				mpc_topology_get_pu_count());
+			mpc_common_debug_log("Threading  : '%s'",  mpc_common_get_flags()->thread_library_kind);
 			mpc_common_debug_log("Allocator  : %s %s", sctk_alloc_mode(), SCTK_DEBUG_MODE);
-			mpc_common_debug_log("C/R        : %s", mpc_common_get_flags()->checkpoint_model);
-			mpc_common_debug_log("Debug      : %s", SCTK_DEBUG_MODE);
-			mpc_common_debug_log("Networks   : %s", mpc_common_get_flags()->sctk_network_description_string);
+			mpc_common_debug_log("C/R        : %s",    mpc_common_get_flags()->checkpoint_model);
+			mpc_common_debug_log("Debug      : %s",    SCTK_DEBUG_MODE);
+			mpc_common_debug_log("Networks   : %s",    mpc_common_get_flags()->sctk_network_description_string);
 			mpc_common_debug_log("--------------------------------------------------------");
 		}
 	}
 }
 
 /********************
-* ARGUMENT SETTERS *
-********************/
+ * ARGUMENT SETTERS *
+ ********************/
 
 #ifdef MPC_Threads
 
 static inline void __set_thread_engine(void)
 {
-	if(!strcmp("pthread", mpc_common_get_flags()->thread_library_kind))
+	if (!strcmp("pthread", mpc_common_get_flags()->thread_library_kind))
 	{
 		mpc_common_get_flags()->thread_library_init = mpc_thread_pthread_engine_init;
-	}else if(!strcmp("ethread", mpc_common_get_flags()->thread_library_kind))
+	}
+	else if (!strcmp("ethread", mpc_common_get_flags()->thread_library_kind))
 	{
 		mpc_common_get_flags()->thread_library_init = mpc_thread_ethread_engine_init;
-	}else if(!strcmp("ethread_mxn", mpc_common_get_flags()->thread_library_kind))
+	}
+	else if (!strcmp("ethread_mxn", mpc_common_get_flags()->thread_library_kind))
 	{
 		mpc_common_get_flags()->thread_library_init = mpc_thread_ethread_mxn_engine_init;
-	}else
+	}
+	else
 	{
 		bad_parameter("No such thread engine '%s'\n"
-		              "choices are (pthread, ethread, ethread_mxn)", mpc_common_get_flags()->thread_library_kind);
+			          "choices are (pthread, ethread, ethread_mxn)", mpc_common_get_flags()->thread_library_kind);
 	}
 
 
 	/* Once the thread engine is set its config must be locked as it cannot change */
 	mpc_conf_config_type_elem_t *thconf = mpc_conf_root_config_get("mpcframework.launch.default.thread");
 
-	if(thconf)
+	if (thconf)
 	{
 		mpc_conf_config_type_elem_set_locked(thconf, 1);
 	}
@@ -160,24 +164,23 @@ static inline void __set_thread_engine(void)
 
 static void __arg_set_verbosity(char *arg)
 {
-
 	int tmp = atoi(arg) + MPC_COMMON_LOG_LEVEL_BASE;
 
-	if( (0 <= tmp) && (mpc_common_get_flags()->verbosity < tmp) )
+	if ((0 <= tmp) && (mpc_common_get_flags()->verbosity < tmp))
 	{
 		mpc_common_get_flags()->verbosity = tmp;
 	}
 }
 
 /****************************
-* ARGUMENT PARSING HELPERS *
-****************************/
+ * ARGUMENT PARSING HELPERS *
+ ****************************/
 
 /* NOLINTBEGIN(clang-diagnostic-unused-function): False positives */
 
 static inline int __parse_arg(char *arg, void (*action)(void), char *passed_arg)
 {
-	if(strncmp(arg, passed_arg, strlen(arg) ) == 0)
+	if (strncmp(arg, passed_arg, strlen(arg)) == 0)
 	{
 		action();
 		return 0;
@@ -190,9 +193,9 @@ char *___extract_argument_string_value(char *arg, char *passed_arg)
 {
 	size_t len = strlen(arg);
 
-	if(!strncmp(passed_arg, arg, len) )
+	if (!strncmp(passed_arg, arg, len))
 	{
-		if( (len + 1) < strlen(passed_arg) )
+		if ((len + 1) < strlen(passed_arg))
 		{
 			return passed_arg + len + 1; /*skip = */
 		}
@@ -207,7 +210,7 @@ static inline int __parse_arg_eq(char *arg,
 {
 	char *value = ___extract_argument_string_value(arg, passed_arg);
 
-	if(value)
+	if (value)
 	{
 		action(value);
 		return 0;
@@ -221,103 +224,104 @@ static inline int __parse_arg_eq(char *arg,
 
 /* Booleans */
 
-#define __SET_FLAG_BOOLEAN(arg, flag, value)                  \
-	do                                                    \
-	{                                                     \
-		if(!strcmp(arg, passed_arg) )                 \
+#define __SET_FLAG_BOOLEAN(arg, flag, value)          \
+		do                                            \
 		{                                             \
-			mpc_common_get_flags()->flag = value; \
-			return;                               \
-		}                                             \
-	} while(0)
+			if (!strcmp(arg, passed_arg))             \
+			{                                         \
+				mpc_common_get_flags()->flag = value; \
+				return;                               \
+			}                                         \
+		} while (0)
 
 #define SET_FLAG_BOOLEAN(key, flag)                     \
-	__SET_FLAG_BOOLEAN( ("--"key), flag, 1);        \
-	__SET_FLAG_BOOLEAN( ("--enable-"key), flag, 1); \
-	__SET_FLAG_BOOLEAN( ("--disable-"key), flag, 0);
+		__SET_FLAG_BOOLEAN(("--"key),         flag, 1); \
+		__SET_FLAG_BOOLEAN(("--enable-"key),  flag, 1); \
+		__SET_FLAG_BOOLEAN(("--disable-"key), flag, 0);
 
 /* Strings / Integers */
 
-#define __SET_FLAG_CONV(arg, flag, converter)                                                   \
-	do                                                                                      \
-	{                                                                                       \
+#define __SET_FLAG_CONV(arg, flag, converter)                                           \
+		do                                                                              \
 		{                                                                               \
-			char *__value_flag = ___extract_argument_string_value(arg, passed_arg); \
-			if(__value_flag)                                                        \
-			{                                                                       \
-				mpc_common_get_flags()->flag = converter(__value_flag);         \
-				return;                                                         \
-			}                                                                       \
-		}                                                                               \
-	} while(0)
+			{                                                                           \
+				char *__value_flag = ___extract_argument_string_value(arg, passed_arg); \
+				if (__value_flag)                                                       \
+				{                                                                       \
+					mpc_common_get_flags()->flag = converter(__value_flag);             \
+					return;                                                             \
+				}                                                                       \
+			}                                                                           \
+		} while (0)
 
-#define SET_FLAG_STRING_ARRAY(arg, flag, array_size) \
-	do \
-	{ \
-		char *__value_flag = ___extract_argument_string_value(arg, passed_arg); \
-		if(__value_flag)                                                        \
-		{                                                                       \
-			snprintf(mpc_common_get_flags()->flag, array_size ,"%s", __value_flag);         \
-			return;                                                         \
-		}  \
-	} while (0);
+#define SET_FLAG_STRING_ARRAY(arg, flag, array_size)                                    \
+		do                                                                              \
+		{                                                                               \
+			char *__value_flag = ___extract_argument_string_value(arg, passed_arg);     \
+			if (__value_flag)                                                           \
+			{                                                                           \
+				snprintf(mpc_common_get_flags()->flag, array_size, "%s", __value_flag); \
+				return;                                                                 \
+			}                                                                           \
+		} while (0);
 
 
 
-#define SET_FLAG_STRING(arg, flag)                  \
-	do {                                        \
-		__SET_FLAG_CONV(arg, flag, strdup); \
-	} while(0)
+#define SET_FLAG_STRING(arg, flag)              \
+		do                                      \
+		{                                       \
+			__SET_FLAG_CONV(arg, flag, strdup); \
+		} while (0)
 
-#define SET_FLAG_INT(arg, flag)                   \
-	do {                                      \
-		__SET_FLAG_CONV(arg, flag, atoi); \
-	} while(0)
+#define SET_FLAG_INT(arg, flag)               \
+		do                                    \
+		{                                     \
+			__SET_FLAG_CONV(arg, flag, atoi); \
+		} while (0)
 
 /* Function based handling */
 
-#define PARSE_ARG(arg, action)                        \
-	if(__parse_arg(arg, action, passed_arg) == 0) \
+#define PARSE_ARG(arg, action)                         \
+		if (__parse_arg(arg, action, passed_arg) == 0) \
 		return
-#define PARSE_ARG_WITH_EQ(arg, action)                   \
-	if(__parse_arg_eq(arg, action, passed_arg) == 0) \
+#define PARSE_ARG_WITH_EQ(arg, action)                    \
+		if (__parse_arg_eq(arg, action, passed_arg) == 0) \
 		return
 
 static inline void __parse_argument(char *passed_arg)
 {
-
 	mpc_common_debug("mpirun argument: %s", passed_arg);
 
 	/* Boolean flags */
-	SET_FLAG_BOOLEAN("smt", enable_smt_capabilities);
-	SET_FLAG_BOOLEAN("graphic-placement", enable_topology_graphic_placement);
-	SET_FLAG_BOOLEAN("text-placement", enable_topology_text_placement);
-	SET_FLAG_BOOLEAN("checkpoint", checkpoint_enabled);
+	    SET_FLAG_BOOLEAN("smt",               enable_smt_capabilities);
+	    SET_FLAG_BOOLEAN("graphic-placement", enable_topology_graphic_placement);
+	    SET_FLAG_BOOLEAN("text-placement",    enable_topology_text_placement);
+	    SET_FLAG_BOOLEAN("checkpoint",        checkpoint_enabled);
 	/* Old syntax could be removed */
-	SET_FLAG_BOOLEAN("cuda", enable_cuda);
+	    SET_FLAG_BOOLEAN("cuda",              enable_cuda);
 #if MPC_HIP_PLATFORM_NVIDIA // hip nvidia compatibility mode (__HIP_PLATFORM_NVIDIA__).
-	SET_FLAG_BOOLEAN("rocm", enable_cuda);
+		SET_FLAG_BOOLEAN("rocm",              enable_cuda);
 #else
-	SET_FLAG_BOOLEAN("rocm", enable_rocm);
+		SET_FLAG_BOOLEAN("rocm",              enable_rocm);
 #endif
 
-	SET_FLAG_BOOLEAN("isatty", isatty);
+	    SET_FLAG_BOOLEAN("isatty",            isatty);
 
 
 	/* String flags */
 	SET_FLAG_STRING("--sctk_use_network", network_driver_name);
-	SET_FLAG_STRING("--profiling", profiler_outputs);
-	SET_FLAG_STRING("--launcher", launcher);
+	SET_FLAG_STRING("--profiling",        profiler_outputs);
+	SET_FLAG_STRING("--launcher",         launcher);
 	SET_FLAG_STRING_ARRAY("--thread", thread_library_kind, MPC_CONF_STRING_SIZE);
 
 	/* Int flags */
-	SET_FLAG_INT("--node-number", node_number);
-	SET_FLAG_INT("--process-number", process_number);
-	SET_FLAG_INT("--task-number", task_number);
+	SET_FLAG_INT("--node-number",      node_number);
+	SET_FLAG_INT("--process-number",   process_number);
+	SET_FLAG_INT("--task-number",      task_number);
 	SET_FLAG_INT("--processor-number", processor_number);
-	SET_FLAG_INT("--appnum", appnum);
-	SET_FLAG_INT("--task-number", appsize);
-	SET_FLAG_INT("--appcount", appcount);
+	SET_FLAG_INT("--appnum",           appnum);
+	SET_FLAG_INT("--task-number",      appsize);
+	SET_FLAG_INT("--appcount",         appcount);
 
 	PARSE_ARG_WITH_EQ("--mpc-verbose", __arg_set_verbosity);
 
@@ -325,8 +329,8 @@ static inline void __parse_argument(char *passed_arg)
 }
 
 /*********************
-* VP START FUNCTION *
-*********************/
+ * VP START FUNCTION *
+ *********************/
 
 typedef struct
 {
@@ -337,7 +341,7 @@ typedef struct
 
 static inline startup_arg_t *__startup_arg_extract_and_duplicate(startup_arg_t *input_args)
 {
-	startup_arg_t *ret = sctk_malloc(sizeof(startup_arg_t) );
+	startup_arg_t *ret = sctk_malloc(sizeof(startup_arg_t));
 
 	assume(ret);
 	ret->argc = input_args->argc;
@@ -346,31 +350,31 @@ static inline startup_arg_t *__startup_arg_extract_and_duplicate(startup_arg_t *
 	 * to prevent the case where a (strange)
 	 * program modifies the argv[i] pointers
 	 * preventing them to be freed at exit */
-	ret->saved_argv = (char **)sctk_malloc((ret->argc + 1) * sizeof(char *) );
+	ret->saved_argv = (char **)sctk_malloc((ret->argc + 1) * sizeof(char *));
 	assume(ret->saved_argv);
 	int i;
 
-	for(i = 0; i < ret->argc; i++)
+	for (i = 0; i < ret->argc; i++)
 	{
 		ret->saved_argv[i] = input_args->argv[i];
 	}
 
-	ret->argv = (char **)sctk_malloc((ret->argc + 1) * sizeof(char *) );
+	ret->argv = (char **)sctk_malloc((ret->argc + 1) * sizeof(char *));
 	assume(ret->argv);
 
-	for(i = 0; i < ret->argc; i++)
+	for (i = 0; i < ret->argc; i++)
 	{
 		int   j;
 		int   k;
 		char *tmp;
-		tmp = (char *)sctk_malloc( (strlen(input_args->argv[i]) + 1) * sizeof(char) );
+		tmp = (char *)sctk_malloc((strlen(input_args->argv[i]) + 1) * sizeof(char));
 		assume(tmp != NULL);
 		j = 0;
 		k = 0;
 
-		while(input_args->argv[i][j] != '\0')
+		while (input_args->argv[i][j] != '\0')
 		{
-			if(memcmp(&(input_args->argv[i][j]), "@MPC_LINK_ARGS@", strlen("@MPC_LINK_ARGS@") ) != 0)
+			if (memcmp(&(input_args->argv[i][j]), "@MPC_LINK_ARGS@", strlen("@MPC_LINK_ARGS@")) != 0)
 			{
 				tmp[k] = input_args->argv[i][j];
 				j++;
@@ -401,7 +405,7 @@ static inline void __startup_arg_free(startup_arg_t *arg)
 {
 	int i;
 
-	for(i = 0; i < arg->argc; i++)
+	for (i = 0; i < arg->argc; i++)
 	{
 		/* Here we free using the copy
 		 * of the array to be sure we have
@@ -417,7 +421,7 @@ static inline void __startup_arg_free(startup_arg_t *arg)
 /* This variable is the return code for MPC's main
  * it is initialized in mpc_launch_main */
 static OPA_int_t __mpc_main_return_code;
-#define MPC_INCOHERENT_RETCODE    42
+#define MPC_INCOHERENT_RETCODE 42
 
 static void *__mpc_mpi_task_start_function(void *parg)
 {
@@ -431,7 +435,7 @@ static void *__mpc_mpi_task_start_function(void *parg)
 
 	retcode = CALL_MAIN(mpc_user_main__, duplicate_args->argc, duplicate_args->argv);
 
-	if(mpc_common_get_flags()->is_fortran)
+	if (mpc_common_get_flags()->is_fortran)
 	{
 		/* No retcode in Fortran */
 		OPA_store_int(&__mpc_main_return_code, 0);
@@ -439,15 +443,15 @@ static void *__mpc_mpi_task_start_function(void *parg)
 	else
 	{
 		/* We need to handle the case when MPC's mains do not return the
-		* same value we then apply the following rules:
-		*
-		* - All 0 => OK
-		* - All != 0 and same value return value
-		* - All/Some != 0 return MPC err code 42 (MPC_INCOHERENT_RETCODE) and warnings for each retcode
-		*/
+		 * same value we then apply the following rules:
+		 *
+		 * - All 0 => OK
+		 * - All != 0 and same value return value
+		 * - All/Some != 0 return MPC err code 42 (MPC_INCOHERENT_RETCODE) and warnings for each retcode
+		 */
 
 		/* Firs check if retcodes are not already incoherent */
-		if(OPA_load_int(&__mpc_main_return_code) == MPC_INCOHERENT_RETCODE)
+		if (OPA_load_int(&__mpc_main_return_code) == MPC_INCOHERENT_RETCODE)
 		{
 			mpc_common_debug_warning("main returned %d", retcode);
 		}
@@ -456,10 +460,10 @@ static void *__mpc_mpi_task_start_function(void *parg)
 			int previous_val = OPA_swap_int(&__mpc_main_return_code, retcode);
 
 			/* if -1 I'm the first to return all ok */
-			if(previous_val != -1)
+			if (previous_val != -1)
 			{
 				/* Check if previous val is not different if so enter incoherent mode */
-				if(previous_val != retcode)
+				if (previous_val != retcode)
 				{
 					/* Set retcodes as incoherent */
 					OPA_swap_int(&__mpc_main_return_code, MPC_INCOHERENT_RETCODE);
@@ -480,17 +484,17 @@ static void *___auto_kill_func(void *arg)
 {
 	int timeout = *(int *)arg;
 
-	if(timeout > 0)
+	if (timeout > 0)
 	{
-		if(__launch_config.banner_enabled &&
-		   !mpc_common_get_flags()->is_fortran)
+		if (__launch_config.banner_enabled
+		    && !mpc_common_get_flags()->is_fortran)
 		{
 			mpc_common_io_noalloc_fprintf(stderr, "Autokill in %ds\n", timeout);
 		}
 
 		sleep(timeout);
 
-		if(!mpc_common_get_flags()->is_fortran)
+		if (!mpc_common_get_flags()->is_fortran)
 		{
 			mpc_common_io_noalloc_fprintf(stderr, "TIMEOUT reached\n");
 		}
@@ -507,7 +511,7 @@ static void __create_autokill_thread()
 
 	auto_kill = __launch_config.autokill_timer;
 
-	if(auto_kill > 0)
+	if (auto_kill > 0)
 	{
 		pthread_t pid;
 		pthread_create(&pid, NULL, ___auto_kill_func, &auto_kill);
@@ -523,36 +527,36 @@ static inline void __set_default_values()
 	mpc_common_get_flags()->sctk_network_description_string = NULL;
 
 	/* Set default configuration */
-	__launch_config.bt_sig_enabled = 1;
+	__launch_config.bt_sig_enabled          = 1;
 	mpc_common_get_flags()->debug_callbacks = 0;
-	__launch_config.banner_enabled = 1;
-	__launch_config.autokill_timer = 0;
-	snprintf(__launch_config.mpcrun_launcher, MPC_CONF_STRING_SIZE, "none");
-	snprintf(__launch_config.mpcrun_user_launcher,MPC_CONF_STRING_SIZE,"~/.mpc/");
-	__launch_config.disable_aslr = 1;
+	__launch_config.banner_enabled          = 1;
+	__launch_config.autokill_timer          = 0;
+	snprintf(__launch_config.mpcrun_launcher,      MPC_CONF_STRING_SIZE, "none");
+	snprintf(__launch_config.mpcrun_user_launcher, MPC_CONF_STRING_SIZE, "~/.mpc/");
+	__launch_config.disable_aslr      = 1;
 	mpc_common_get_flags()->verbosity = 2;
-	mpc_common_get_flags()->launcher = strdup(mpc_conf_stringify(MPC_LAUNCHER));
+	mpc_common_get_flags()->launcher  = strdup(mpc_conf_stringify(MPC_LAUNCHER));
 
 	mpc_common_get_flags()->enable_smt_capabilities = 0;
-	mpc_common_get_flags()->task_number = 1;
-	mpc_common_get_flags()->process_number = 0;
-	mpc_common_get_flags()->processor_number = 0;
+	mpc_common_get_flags()->task_number             = 1;
+	mpc_common_get_flags()->process_number          = 0;
+	mpc_common_get_flags()->processor_number        = 0;
 
 #ifdef MPC_Threads
-	snprintf(mpc_common_get_flags()->thread_library_kind, MPC_CONF_STRING_SIZE, "ethread_mxn");
-	mpc_common_get_flags()->thread_library_init = mpc_thread_ethread_mxn_engine_init;
+		snprintf(mpc_common_get_flags()->thread_library_kind, MPC_CONF_STRING_SIZE, "ethread_mxn");
+		mpc_common_get_flags()->thread_library_init = mpc_thread_ethread_mxn_engine_init;
 #endif
 
 	/* TODO modularize */
-	mpc_common_get_flags()->profiler_outputs        = strdup("stdout");
-	mpc_common_get_flags()->checkpoint_enabled      = 0;
-	mpc_common_get_flags()->enable_cuda             = 0;
-	mpc_common_get_flags()->enable_rocm             = 0;
-	mpc_common_get_flags()->checkpoint_model = strdup("No C/R");
+	    mpc_common_get_flags()->profiler_outputs   = strdup("stdout");
+	    mpc_common_get_flags()->checkpoint_enabled = 0;
+	    mpc_common_get_flags()->enable_cuda        = 0;
+	    mpc_common_get_flags()->enable_rocm        = 0;
+	    mpc_common_get_flags()->checkpoint_model   = strdup("No C/R");
 
 	/* force smt on MIC */
 #ifdef __MIC__
-	mpc_common_get_flags()->enable_smt_capabilities = 1;
+		mpc_common_get_flags()->enable_smt_capabilities = 1;
 #endif
 }
 
@@ -565,43 +569,79 @@ static inline void __register_config(void)
 	char user_prefix[512];
 	mpc_conf_user_prefix("mpcframework", user_prefix, 512);
 
-	mpc_conf_root_config_search_path("mpcframework", MPC_PREFIX_PATH"/etc/mpcframework/", user_prefix, "both");
+	mpc_conf_root_config_search_path("mpcframework", MPC_PREFIX_PATH "/etc/mpcframework/", user_prefix, "both");
 
 #ifdef MPC_ENABLE_SHELL_COLORS
- 	mpc_common_get_flags()->colors = 1;
+		mpc_common_get_flags()->colors = 1;
 #else
- 	mpc_common_get_flags()->colors = 0;
+		mpc_common_get_flags()->colors = 0;
 #endif
 
 	/* Register debug config */
 	mpc_conf_config_type_t *debug = mpc_conf_config_type_init("debug",
-	                                                       PARAM("backtrace", &__launch_config.bt_sig_enabled ,MPC_CONF_BOOL, "Produce backtraces on error"),
-														   PARAM("verbosity", &mpc_common_get_flags()->verbosity, MPC_CONF_INT, "Should debug messages be displayed (1-3)"),
-														   PARAM("callbacks", &mpc_common_get_flags()->debug_callbacks, MPC_CONF_BOOL, "Print callbacks debug information"),
-														   PARAM("colors", &mpc_common_get_flags()->colors, MPC_CONF_BOOL, "Enable shell colors"),
-														   NULL);
+		    PARAM("backtrace", &__launch_config.bt_sig_enabled, MPC_CONF_BOOL, "Produce backtraces on error"),
+		    PARAM("verbosity",
+			&mpc_common_get_flags()->verbosity,
+			MPC_CONF_INT,
+			"Should debug messages be displayed (1-3)"),
+		    PARAM("callbacks",
+			&mpc_common_get_flags()->debug_callbacks,
+			MPC_CONF_BOOL,
+			"Print callbacks debug information"),
+		    PARAM("colors", &mpc_common_get_flags()->colors, MPC_CONF_BOOL, "Enable shell colors"),
+		NULL);
 
 	/* Register Launch Config */
 	mpc_conf_config_type_t *mpcrun = mpc_conf_config_type_init("mpcrun",
-	                                                       PARAM("plugin", __launch_config.mpcrun_launcher, MPC_CONF_STRING, "Default launch plugin in mpcrun"),
-	                                                       PARAM("user", __launch_config.mpcrun_user_launcher, MPC_CONF_STRING, "Where to look for MPCRUN user-plugins"),
-														   PARAM("aslr", &__launch_config.disable_aslr, MPC_CONF_BOOL, "Disable Address space layout randomization in MPCRUN"),
-														   PARAM("smt", &mpc_common_get_flags()->enable_smt_capabilities, MPC_CONF_BOOL, "Enable Hyper-Threading (SMT)"),
-														   PARAM("task", &mpc_common_get_flags()->task_number, MPC_CONF_INT, "Default number of MPI tasks"),
-														   PARAM("process", &mpc_common_get_flags()->process_number, MPC_CONF_INT, "Default number of UNIX processes"),
-														   PARAM("node", &mpc_common_get_flags()->node_number, MPC_CONF_INT, "Default number of Nodes"),
-														   PARAM("core", &mpc_common_get_flags()->processor_number, MPC_CONF_INT, "Default number of cores per UNIX processes"),
+		    PARAM("plugin",
+			__launch_config.mpcrun_launcher,
+			MPC_CONF_STRING,
+			"Default launch plugin in mpcrun"),
+		    PARAM("user",
+			__launch_config.mpcrun_user_launcher,
+			MPC_CONF_STRING,
+			"Where to look for MPCRUN user-plugins"),
+		    PARAM("aslr",
+			&__launch_config.disable_aslr,
+			MPC_CONF_BOOL,
+			"Disable Address space layout randomization in MPCRUN"),
+		    PARAM("smt",
+			&mpc_common_get_flags()->enable_smt_capabilities,
+			MPC_CONF_BOOL,
+			"Enable Hyper-Threading (SMT)"),
+		    PARAM("task",
+			&mpc_common_get_flags()->task_number,
+			MPC_CONF_INT,
+			"Default number of MPI tasks"),
+		    PARAM("process",
+			&mpc_common_get_flags()->process_number,
+			MPC_CONF_INT,
+			"Default number of UNIX processes"),
+		    PARAM("node",
+			&mpc_common_get_flags()->node_number,
+			MPC_CONF_INT,
+			"Default number of Nodes"),
+		    PARAM("core",
+			&mpc_common_get_flags()->processor_number,
+			MPC_CONF_INT,
+			"Default number of cores per UNIX processes"),
 #ifdef MPC_Threads
-														   PARAM("thread", mpc_common_get_flags()->thread_library_kind, MPC_CONF_STRING, "Default thread engine (pthread, ethread, ethread_mxn and X_ng variants)"),
+			PARAM("thread",
+			mpc_common_get_flags()->thread_library_kind,
+			MPC_CONF_STRING,
+			"Default thread engine (pthread, ethread, ethread_mxn and X_ng variants)"),
 #endif
-	                                                       NULL);
+		NULL);
 
 	mpc_conf_config_type_t *mc = mpc_conf_config_type_init("launch",
-	                                                       PARAM("banner", &__launch_config.banner_enabled, MPC_CONF_BOOL, "Should MPC's banner be displayed"),
-														   PARAM("autokill", &__launch_config.autokill_timer, MPC_CONF_INT, "What is the kill timer in seconds (0 means none)"),
-														   PARAM("debug", debug, MPC_CONF_TYPE, "MPC debug parameters"),
-	                                                       PARAM("mpcrun", mpcrun, MPC_CONF_TYPE, "Default values for MPCRUN"),
-	                                                       NULL);
+		PARAM("banner", &__launch_config.banner_enabled, MPC_CONF_BOOL, "Should MPC's banner be displayed"),
+		PARAM("autokill",
+			&__launch_config.autokill_timer,
+			MPC_CONF_INT,
+			"What is the kill timer in seconds (0 means none)"),
+		PARAM("debug",  debug,  MPC_CONF_TYPE, "MPC debug parameters"),
+		PARAM("mpcrun", mpcrun, MPC_CONF_TYPE, "Default values for MPCRUN"),
+		NULL);
 	mpc_conf_root_config_append("mpcframework", mc, "MPC Launcher Configuration");
 
 	/* Trigger all other configs */
@@ -617,32 +657,31 @@ static inline void __register_config(void)
 	mpc_common_init_trigger("Config Checks");
 }
 
-
-#define LEGACY_MPCRUN_ARGUMENT_START    "--sctk-args--"
-#define LEGACY_MPCRUN_ARGUMENT_END      "--sctk-args-end--"
+#define LEGACY_MPCRUN_ARGUMENT_START "--sctk-args--"
+#define LEGACY_MPCRUN_ARGUMENT_END   "--sctk-args-end--"
 
 static void __unpack_arguments()
 {
 	char *sctk_argument = getenv("MPC_STARTUP_ARGS");
 
-	if(sctk_argument != NULL)
+	if (sctk_argument != NULL)
 	{
 		char *str1, *token;
 		char *saveptr;
 		int   j;
 
-		for(j = 1, str1 = sctk_argument;; j++, str1 = NULL)
+		for (j = 1, str1 = sctk_argument;; j++, str1 = NULL)
 		{
 			token = strtok_r(str1, " ", &saveptr);
 
-			if(token == NULL)
+			if (token == NULL)
 			{
 				break;
 			}
 
 			/* Ignore legacy argument start and end */
-			if(!strcmp(token, LEGACY_MPCRUN_ARGUMENT_START) ||
-			   !strcmp(token, LEGACY_MPCRUN_ARGUMENT_END) )
+			if (!strcmp(token, LEGACY_MPCRUN_ARGUMENT_START)
+			    || !strcmp(token, LEGACY_MPCRUN_ARGUMENT_END))
 			{
 				continue;
 			}
@@ -654,19 +693,19 @@ static void __unpack_arguments()
 
 static void __check_cli_params(void)
 {
-	if(!mpc_common_get_flags()->task_number)
+	if (!mpc_common_get_flags()->task_number)
 	{
 		fprintf(stderr, "No task number specified!\n");
 		mpc_common_debug_abort();
 	}
 
-	if(mpc_common_get_flags()->process_number && mpc_common_get_flags()->task_number)
+	if (mpc_common_get_flags()->process_number && mpc_common_get_flags()->task_number)
 	{
-		if(mpc_common_get_flags()->task_number < mpc_common_get_flags()->process_number)
+		if (mpc_common_get_flags()->task_number < mpc_common_get_flags()->process_number)
 		{
 			bad_parameter("MPI process number (-n=%d) must be at least the process number (-p=%d)",
-			              mpc_common_get_flags()->task_number,
-			              mpc_common_get_flags()->process_number);
+				mpc_common_get_flags()->task_number,
+				mpc_common_get_flags()->process_number);
 		}
 	}
 }
@@ -675,17 +714,17 @@ static void __topology_init()
 {
 	mpc_topology_init();
 
-	if(mpc_common_get_flags()->processor_number > 1)
+	if (mpc_common_get_flags()->processor_number > 1)
 	{
-		if(mpc_common_get_flags()->process_number > 1)
+		if (mpc_common_get_flags()->process_number > 1)
 		{
 			unsigned int cpu_detected = mpc_topology_get_pu_count();
 
-			if(cpu_detected < mpc_common_get_flags()->processor_number)
+			if (cpu_detected < mpc_common_get_flags()->processor_number)
 			{
 				fprintf(stderr,
-				        "Processor number doesn't match number detected %d <> %d!\n",
-				        cpu_detected, mpc_common_get_flags()->processor_number);
+					"Processor number doesn't match number detected %d <> %d!\n",
+					cpu_detected, mpc_common_get_flags()->processor_number);
 			}
 		}
 	}
@@ -697,6 +736,7 @@ static void __topology_init()
 void __check_for_print_config(void)
 {
 	const char *const absolute_path = mpc_common_get_flags()->exename;
+
 	if (absolute_path != NULL)
 	{
 		char *prev, *curr;
@@ -717,12 +757,11 @@ void __check_for_print_config(void)
 	}
 }
 
-
 void mpc_launch_init_runtime()
 {
 	static volatile int __init_already_done = 0;
 
-	if(__init_already_done)
+	if (__init_already_done)
 	{
 		return;
 	}
@@ -746,7 +785,7 @@ void mpc_launch_init_runtime()
 	__check_cli_params();
 	__set_thread_engine();
 
-	if(__launch_config.bt_sig_enabled)
+	if (__launch_config.bt_sig_enabled)
 	{
 		mpc_common_debugger_install_sig_handlers();
 	}
@@ -763,7 +802,7 @@ void mpc_launch_init_runtime()
 
 	mpc_common_init_trigger("Base Runtime Init with Config");
 
-	if( mpc_common_get_flags()->debug_callbacks )
+	if (mpc_common_get_flags()->debug_callbacks)
 	{
 		mpc_common_init_print();
 	}
@@ -776,7 +815,7 @@ void mpc_launch_release_runtime()
 {
 	mpc_common_init_trigger("Base Runtime Finalize");
 	mpc_topology_destroy();
-        mpc_launch_pmi_finalize();
+	mpc_launch_pmi_finalize();
 	mpc_conf_root_config_release_all();
 }
 
@@ -794,9 +833,9 @@ int mpc_launch_main(int argc, char **argv)
 	arg.argv = argv;
 
 #ifdef MPC_Threads
-	mpc_thread_spawn_mpi_tasks(__mpc_mpi_task_start_function, &arg);
+		mpc_thread_spawn_mpi_tasks(__mpc_mpi_task_start_function, &arg);
 #else
-	__mpc_mpi_task_start_function(&arg);
+		__mpc_mpi_task_start_function(&arg);
 #endif
 
 	mpc_launch_release_runtime();

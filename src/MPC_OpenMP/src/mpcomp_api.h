@@ -45,6 +45,7 @@ void omp_set_dynamic(int);
 int omp_get_dynamic(void);
 void omp_set_nested(int);
 int omp_get_nested(void);
+
 void omp_set_schedule(omp_sched_t, int);
 void omp_get_schedule(omp_sched_t *, int *);
 int omp_in_parallel(void);
@@ -59,7 +60,7 @@ int omp_get_thread_limit(void);
 void omp_set_max_active_levels(int);
 int omp_get_max_active_levels();
 int omp_in_final(void);
-int omp_control_tool(int, int, void*);
+int omp_control_tool(int, int, void *);
 int mpc_omp_get_num_threads(void);
 int mpc_omp_get_thread_num(void);
 

@@ -51,39 +51,38 @@
 
 #define MPC_MODULE "Common/Debug"
 
-#define SMALL_BUFFER_SIZE ( 4 * 1024 )
-#define DEBUG_INFO_SIZE ( 128 )
+#define SMALL_BUFFER_SIZE (4 * 1024)
+#define DEBUG_INFO_SIZE   (128)
 
 /**********************
  * FILE-BASED LOGGING *
  **********************/
 
- static FILE * __log_outfile = NULL;
- static mpc_common_spinlock_t __log_outfile_lock = MPC_COMMON_SPINLOCK_INITIALIZER;
+static FILE *__log_outfile = NULL;
+static mpc_common_spinlock_t __log_outfile_lock = MPC_COMMON_SPINLOCK_INITIALIZER;
 
 static void __release_file_based_logging(void)
 {
-	if(__log_outfile)
+	if (__log_outfile)
 	{
 		(void)fclose(__log_outfile);
 	}
 }
 
-
 static void __init_file_based_logging(void)
 {
-	char * file_log_activated = getenv("MPC_LOGFILE");
+	char *file_log_activated = getenv("MPC_LOGFILE");
 
 
-	if(!file_log_activated)
+	if (!file_log_activated)
 	{
 		return;
 	}
 
-	if(!strcasecmp(file_log_activated, "1") || !strcasecmp(file_log_activated, "true"))
+	if (!strcasecmp(file_log_activated, "1") || !strcasecmp(file_log_activated, "true"))
 	{
-		char path[DEBUG_INFO_SIZE];
-		char host[DEBUG_INFO_SIZE];
+		char  path[DEBUG_INFO_SIZE];
+		char  host[DEBUG_INFO_SIZE];
 		pid_t pid = getpid();
 
 		gethostname(host, DEBUG_INFO_SIZE);
@@ -95,74 +94,82 @@ static void __init_file_based_logging(void)
 
 		__log_outfile = fopen(path, "w");
 
-		if(!__log_outfile)
+		if (!__log_outfile)
 		{
 			mpc_common_debug_fatal("Failed to open logfile %s activated by MPC_LOGFILE", path);
 		}
 	}
 }
 
-
-static void __log_to_file(char *filename, int line, const char *funcname, const  char * verbosity_level, char *modulename, char * content){
-	if(!__log_outfile)
+static void __log_to_file(char *filename,
+                          int line,
+                          const char *funcname,
+                          const char *verbosity_level,
+                          char *modulename,
+                          char *content)
+{
+	if (!__log_outfile)
 	{
 		return;
 	}
 
-	char escaped_buffer[2*SMALL_BUFFER_SIZE];
-	mpc_common_escape_string(content, escaped_buffer, (size_t)(2*SMALL_BUFFER_SIZE));
+	char escaped_buffer[2 * SMALL_BUFFER_SIZE];
+	mpc_common_escape_string(content, escaped_buffer, (size_t)(2 * SMALL_BUFFER_SIZE));
 
-	int task = mpc_common_get_task_rank();
-	int process = mpc_common_get_process_rank(); 
-	int node = mpc_common_get_node_rank();
+	int task    = mpc_common_get_task_rank();
+	int process = mpc_common_get_process_rank();
+	int node    = mpc_common_get_node_rank();
 
 	mpc_common_spinlock_lock(&__log_outfile_lock);
 
 	double ts = mpc_arch_get_timestamp_gettimeofday();
 
-	(void)fprintf(__log_outfile, "{ \"time\" : %.24g, \"task\" : %d, \"process\" : %d, \"node\" : %d, \"filename\" : \"%s\", \"line\" : %d , \"funcname\" : \"%s\" , \"verbosity\" : \"%s\", \"module\" : \"%s\", \"content\" : \"%s\"}\n",
-	ts,
-	task,
-	process,
-	node,
-	filename,
-	line,
-	funcname,
-	verbosity_level,
-	modulename,
-	escaped_buffer);
+	(void)fprintf(__log_outfile,
+		"{ \"time\" : %.24g, \"task\" : %d, \"process\" : %d, \"node\" : %d, \"filename\" : \"%s\", \"line\" : %d ,"
+		" \"funcname\" : \"%s\" , \"verbosity\" : \"%s\", \"module\" : \"%s\", \"content\" : \"%s\"}\n",
+		ts,
+		task,
+		process,
+		node,
+		filename,
+		line,
+		funcname,
+		verbosity_level,
+		modulename,
+		escaped_buffer);
 
 	mpc_common_spinlock_unlock(&__log_outfile_lock);
 }
 
-
-
 /**********************************************************************/
-/*Threads support                                                     */
+/* Threads support                                                    */
 /**********************************************************************/
 
-static inline char *__debug_print_info( char *buffer )
+static inline char *__debug_print_info(char *buffer)
 {
-		if(mpc_common_debug_is_stderr_tty() && mpc_common_get_flags()->colors){
-			snprintf(buffer,
-			         DEBUG_INFO_SIZE,
-			         "%s[%sT%4d %sP%4d %sN%4d%s]%s ",	// Task, Process & Node rank
-			
-			         // Task process & node rank
-			         MPC_COLOR_CHAR_BOLD_WHITE,
-			         MPC_COLOR_CHAR_RED, mpc_common_get_task_rank(),
-			         MPC_COLOR_CHAR_BLUE, mpc_common_get_process_rank(),
-			         MPC_COLOR_CHAR_GREEN, mpc_common_get_node_rank(),
-			         MPC_COLOR_CHAR_BOLD_WHITE, MPC_COLOR_CHAR_DEFAULT);
-		}
-		else{
-			snprintf( buffer,
-					DEBUG_INFO_SIZE,
-					"[T%4d P%4d N%4d]",
-					mpc_common_get_task_rank(), mpc_common_get_process_rank(), mpc_common_get_node_rank() );
-		}
+	if (mpc_common_debug_is_stderr_tty() && mpc_common_get_flags()->colors)
+	{
+		snprintf(buffer,
+			DEBUG_INFO_SIZE,
+			"%s[%sT%4d %sP%4d %sN%4d%s]%s ", // Task, Process & Node rank
+
+			// Task process & node rank
+			MPC_COLOR_CHAR_BOLD_WHITE,
+			MPC_COLOR_CHAR_RED, mpc_common_get_task_rank(),
+			MPC_COLOR_CHAR_BLUE, mpc_common_get_process_rank(),
+			MPC_COLOR_CHAR_GREEN, mpc_common_get_node_rank(),
+			MPC_COLOR_CHAR_BOLD_WHITE, MPC_COLOR_CHAR_DEFAULT);
+	}
+	else
+	{
+		snprintf(buffer,
+			DEBUG_INFO_SIZE,
+			"[T%4d P%4d N%4d]",
+			mpc_common_get_task_rank(), mpc_common_get_process_rank(), mpc_common_get_node_rank());
+	}
 	return buffer;
 }
+
 /* NOLINTEND(clang-diagnostic-unused-function) */
 
 /**********************************************************************/
@@ -170,7 +177,7 @@ static inline char *__debug_print_info( char *buffer )
 /**********************************************************************/
 void mpc_launch_pmi_abort(const int);
 
-__attribute__((__noreturn__)) void mpc_common_debug_abort( void )
+__attribute__((__noreturn__)) void mpc_common_debug_abort(void)
 {
 	mpc_common_debug_error("######## Program will now abort ########");
 	mpc_launch_pmi_abort(6);
@@ -184,116 +191,125 @@ __attribute__((__noreturn__)) void mpc_common_debug_abort( void )
 /**********************************************************************/
 
 
-const char * mpc_common_debug_get_basename(const char * path)
+const char * mpc_common_debug_get_basename(const char *path)
 {
-	char * ret = strrchr(path, '/');
-	return ret?(ret + 1):path;
+	char *ret = strrchr(path, '/');
+
+	return ret ? (ret + 1) : path;
 }
 
-
-int MPC_check_compatibility_lib( int major, int minor, int patch, char *pre )
+int MPC_check_compatibility_lib(int major, int minor, int patch, char *pre)
 {
 	static char error_msg[4096];
 
-	if ( ( major != MPC_VERSION_MAJOR ) || ( minor != MPC_VERSION_MINOR ) || (patch != MPC_VERSION_PATCH) )
+	if ((major != MPC_VERSION_MAJOR) || (minor != MPC_VERSION_MINOR) || (patch != MPC_VERSION_PATCH))
 	{
-		sprintf( error_msg,
-		         "MPC version used for this file (%d.%d.%d%s) differs from the library used for the link (%d.%d.%d%s)\n",
-		         major, minor, patch, pre, MPC_VERSION_MAJOR, MPC_VERSION_MINOR, MPC_VERSION_PATCH, MPC_VERSION_PRE );
-		mpc_common_debug_warning( error_msg );
+		sprintf(error_msg,
+			"MPC version used for this file (%d.%d.%d%s) differs from the library used for the link (%d.%d.%d%s)\n",
+			major, minor, patch, pre, MPC_VERSION_MAJOR, MPC_VERSION_MINOR, MPC_VERSION_PATCH, MPC_VERSION_PRE);
+		mpc_common_debug_warning(error_msg);
 		return 1;
 	}
 
 	return 0;
 }
 
-void MPC_printf( const char *fmt, ... )
+void MPC_printf(const char *fmt, ...)
 {
 	va_list ap;
-	char debug_info[SMALL_BUFFER_SIZE];
-	char buff[SMALL_BUFFER_SIZE];
-	va_start( ap, fmt );
-	mpc_common_io_noalloc_snprintf( buff, SMALL_BUFFER_SIZE,
-	                                "%s %s",
-	                                __debug_print_info( debug_info ),
-	                                fmt );
-	mpc_common_io_noalloc_vfprintf( stderr, buff, ap );
-	fflush( stderr );
-	va_end( ap );
+	char    debug_info[SMALL_BUFFER_SIZE];
+	char    buff[SMALL_BUFFER_SIZE];
+
+	va_start(ap, fmt);
+	mpc_common_io_noalloc_snprintf(buff, SMALL_BUFFER_SIZE,
+		"%s %s",
+		__debug_print_info(debug_info),
+		fmt);
+	mpc_common_io_noalloc_vfprintf(stderr, buff, ap);
+	fflush(stderr);
+	va_end(ap);
 }
 
-
-void mpc_common_debug_assert_print( FILE *stream, int line, const char *file,
-                                 const char *func, const char *fmt, ... )
+void mpc_common_debug_assert_print(FILE *stream, int line, const char *file,
+                                   const char *func, const char *fmt, ...)
 {
 	va_list ap;
-	char debug_info[SMALL_BUFFER_SIZE];
-	char buff[SMALL_BUFFER_SIZE];
+	char    debug_info[SMALL_BUFFER_SIZE];
+	char    buff[SMALL_BUFFER_SIZE];
 
-	if ( func == NULL )
-		mpc_common_io_noalloc_snprintf( buff, SMALL_BUFFER_SIZE,
-		                                "%s %s:%d : Assertion %s\n",
-		                                __debug_print_info( debug_info ),
-												  mpc_common_debug_get_basename(file),
-												  line,
-		                                fmt);
+	if (func == NULL)
+	{
+		mpc_common_io_noalloc_snprintf(buff, SMALL_BUFFER_SIZE,
+			"%s %s:%d : Assertion %s\n",
+			__debug_print_info(debug_info),
+			mpc_common_debug_get_basename(file),
+			line,
+			fmt);
+	}
 	else
-		mpc_common_io_noalloc_snprintf( buff, SMALL_BUFFER_SIZE,
-		                                "%s [%s] %s:%d : Assertion %s\n",
-		                                __debug_print_info( debug_info ),
-												  func,
-												  mpc_common_debug_get_basename(file),
-												  line,
-		                                fmt);
+	{
+		mpc_common_io_noalloc_snprintf(buff, SMALL_BUFFER_SIZE,
+			"%s [%s] %s:%d : Assertion %s\n",
+			__debug_print_info(debug_info),
+			func,
+			mpc_common_debug_get_basename(file),
+			line,
+			fmt);
+	}
 
-	va_start( ap, fmt );
-	mpc_common_io_noalloc_vfprintf( stream, buff, ap );
-	va_end( ap );
+	va_start(ap, fmt);
+	mpc_common_io_noalloc_vfprintf(stream, buff, ap);
+	va_end(ap);
 	mpc_common_debug_abort();
 }
 
-
-void mpc_common_debug_file( FILE *file, const char *fmt, ... )
+void mpc_common_debug_file(FILE *file, const char *fmt, ...)
 {
 	va_list ap;
-	char debug_info[SMALL_BUFFER_SIZE];
-	char buff[SMALL_BUFFER_SIZE];
-	va_start( ap, fmt );
-	mpc_common_io_noalloc_snprintf( buff, SMALL_BUFFER_SIZE,
-	                                "%s %s\n",
-	                                __debug_print_info( debug_info ),
-	                                fmt );
-	vfprintf( file, buff, ap );
-	va_end( ap );
-	fflush( file );
+	char    debug_info[SMALL_BUFFER_SIZE];
+	char    buff[SMALL_BUFFER_SIZE];
+
+	va_start(ap, fmt);
+	mpc_common_io_noalloc_snprintf(buff, SMALL_BUFFER_SIZE,
+		"%s %s\n",
+		__debug_print_info(debug_info),
+		fmt);
+	vfprintf(file, buff, ap);
+	va_end(ap);
+	fflush(file);
 }
 
-void mpc_common_debug_abort_log( FILE *stream, int line,
-                                    const char *file, const char *func,
-                                    const char *fmt, ... )
+void mpc_common_debug_abort_log(FILE *stream, int line,
+                                const char *file, const char *func,
+                                const char *fmt, ...)
 {
 	va_list ap;
-	char buff[SMALL_BUFFER_SIZE];
+	char    buff[SMALL_BUFFER_SIZE];
 
-	if(mpc_common_debug_is_stderr_tty() && mpc_common_get_flags()->colors)
-		mpc_common_io_noalloc_snprintf( buff, SMALL_BUFFER_SIZE,
-		            "%s:%d (%s):\n"
-		            "-------------------------------------\n"
-		            "%s%s%s\n"
-		            "-------------------------------------\n"
-		            "\n", file, line, func?func:"??",
-		            MPC_COLOR_CHAR_BOLD_RED, fmt, MPC_COLOR_CHAR_DEFAULT);
-	else mpc_common_io_noalloc_snprintf( buff, SMALL_BUFFER_SIZE,
-					"%s:%d (%s):\n"
-					"-------------------------------------\n"
-					"%s\n"
-					"-------------------------------------\n"
-					"\n", file, line, func?func:"??",
-					fmt );
+	if (mpc_common_debug_is_stderr_tty() && mpc_common_get_flags()->colors)
+	{
+		mpc_common_io_noalloc_snprintf(buff, SMALL_BUFFER_SIZE,
+			"%s:%d (%s):\n"
+			"-------------------------------------\n"
+			"%s%s%s\n"
+			"-------------------------------------\n"
+			"\n", file, line, func ? func : "??",
+			MPC_COLOR_CHAR_BOLD_RED, fmt, MPC_COLOR_CHAR_DEFAULT);
+	}
+	else
+	{
+		mpc_common_io_noalloc_snprintf(buff, SMALL_BUFFER_SIZE,
+			"%s:%d (%s):\n"
+			"-------------------------------------\n"
+			"%s\n"
+			"-------------------------------------\n"
+			"\n", file, line, func ? func : "??",
+			fmt);
+	}
 
-	va_start( ap, fmt );
-	mpc_common_io_noalloc_vfprintf( stream, buff, ap );
-	va_end( ap );
+	va_start(ap, fmt);
+	mpc_common_io_noalloc_vfprintf(stream, buff, ap);
+	va_end(ap);
 
 	mpc_common_debug_abort();
 }
@@ -301,71 +317,80 @@ void mpc_common_debug_abort_log( FILE *stream, int line,
 /**********************************************************************/
 /*Sizes                                                               */
 /**********************************************************************/
-void mpc_common_debug_check_large_enough( size_t a, size_t b, char *ca, char *cb, char *file,
-                         int line )
+void mpc_common_debug_check_large_enough(size_t a, size_t b, char *ca, char *cb, char *file,
+                                         int line)
 {
-	if ( !( a <= b ) )
+	if (!(a <= b))
 	{
-		mpc_common_io_noalloc_fprintf( stderr,
-		                               "Internal error !(%s <= %s) at line %d in %s\n",
-		                               ca, cb, line, file );
-		mpc_common_debug_abort();
-	}
-}
-void mpc_common_debug_check_size_equal( size_t a, size_t b, char *ca, char *cb, char *file,
-                            int line )
-{
-	if ( a != b )
-	{
-		mpc_common_io_noalloc_fprintf( stderr,
-		                               "Internal error %s != %s at line %d in %s\n",
-		                               ca, cb, line, file );
+		mpc_common_io_noalloc_fprintf(stderr,
+			"Internal error !(%s <= %s) at line %d in %s\n",
+			ca, cb, line, file);
 		mpc_common_debug_abort();
 	}
 }
 
-void __mpcprintf(char *messagebuffer, char *modulename, char *filename __UNUSED__, int line __UNUSED__, char *color, const char* verbosity_level){
-	if(mpc_common_debug_is_stderr_tty()
-		&& mpc_common_get_flags()->colors) {
+void mpc_common_debug_check_size_equal(size_t a, size_t b, char *ca, char *cb, char *file,
+                                       int line)
+{
+	if (a != b)
+	{
+		mpc_common_io_noalloc_fprintf(stderr,
+			"Internal error %s != %s at line %d in %s\n",
+			ca, cb, line, file);
+		mpc_common_debug_abort();
+	}
+}
+
+void __mpcprintf(char *messagebuffer,
+                 char *modulename,
+                 char *filename __UNUSED__,
+                 int line __UNUSED__,
+                 char *color,
+                 const char *verbosity_level)
+{
+	if (mpc_common_debug_is_stderr_tty()
+	    && mpc_common_get_flags()->colors)
+	{
 		fprintf(stderr,
-		        "%s[%sT%4d %sP%4d %sN%4d%s]%s "	// Task, Process & Node rank
-		        "%s[%s%s%s]%s "					// Verbosity level
-		        "%s[%s%s%s]%s "					// Module
-		        "%s%s%s\n",						// Message
+			"%s[%sT%4d %sP%4d %sN%4d%s]%s "     // Task, Process & Node rank
+			"%s[%s%s%s]%s "                     // Verbosity level
+			"%s[%s%s%s]%s "                     // Module
+			"%s%s%s\n",                         // Message
 
-		        // Task process & node rank
-		        MPC_COLOR_CHAR_BOLD_WHITE,
-		        MPC_COLOR_CHAR_RED, mpc_common_get_task_rank(),
-		        MPC_COLOR_CHAR_BLUE, mpc_common_get_process_rank(),
-		        MPC_COLOR_CHAR_GREEN, mpc_common_get_node_rank(),
-		        MPC_COLOR_CHAR_BOLD_WHITE, MPC_COLOR_CHAR_DEFAULT,
+			// Task process & node rank
+			MPC_COLOR_CHAR_BOLD_WHITE,
+			MPC_COLOR_CHAR_RED, mpc_common_get_task_rank(),
+			MPC_COLOR_CHAR_BLUE, mpc_common_get_process_rank(),
+			MPC_COLOR_CHAR_GREEN, mpc_common_get_node_rank(),
+			MPC_COLOR_CHAR_BOLD_WHITE, MPC_COLOR_CHAR_DEFAULT,
 
-		        // Verbosity Level
-		        MPC_COLOR_CHAR_BOLD_WHITE,
-		        color, verbosity_level,
-		        MPC_COLOR_CHAR_BOLD_WHITE,
-		        MPC_COLOR_CHAR_DEFAULT,
+			// Verbosity Level
+			MPC_COLOR_CHAR_BOLD_WHITE,
+			color, verbosity_level,
+			MPC_COLOR_CHAR_BOLD_WHITE,
+			MPC_COLOR_CHAR_DEFAULT,
 
-		        // Module
-		        MPC_COLOR_CHAR_BOLD_WHITE,
-		        MPC_COLOR_CHAR_CYAN, modulename,
-		        MPC_COLOR_CHAR_BOLD_WHITE,
-		        MPC_COLOR_CHAR_DEFAULT,
+			// Module
+			MPC_COLOR_CHAR_BOLD_WHITE,
+			MPC_COLOR_CHAR_CYAN, modulename,
+			MPC_COLOR_CHAR_BOLD_WHITE,
+			MPC_COLOR_CHAR_DEFAULT,
 
-		        // Message
-		        color, messagebuffer, MPC_COLOR_CHAR_DEFAULT);
-	} else {
-		fprintf(stderr, 
-		        "[T%4d P%4d N%4d] [%s] [%s] %s\n",
-		        mpc_common_get_task_rank(),
-		        mpc_common_get_process_rank(), 
-		        mpc_common_get_node_rank(),
-		        verbosity_level,
-		        modulename,
-		        messagebuffer);
+			// Message
+			color, messagebuffer, MPC_COLOR_CHAR_DEFAULT);
+	}
+	else
+	{
+		fprintf(stderr,
+			"[T%4d P%4d N%4d] [%s] [%s] %s\n",
+			mpc_common_get_task_rank(),
+			mpc_common_get_process_rank(),
+			mpc_common_get_node_rank(),
+			verbosity_level,
+			modulename,
+			messagebuffer);
 	}
 }
-
 
 /******************************
  * LOG FILTERING CAPABILITIES *
@@ -383,14 +408,15 @@ typedef enum
 
 const char *  __filter_type_name(__log_filter_type_t t)
 {
-	const char * names[] = {
+	const char *names[] =
+	{
 		"None",
 		"Module",
 		"Function",
 		"File"
 	};
 
-	if(t > FILTER_COUNT)
+	if (t > FILTER_COUNT)
 	{
 		mpc_common_debug_fatal("Overflow in filter");
 	}
@@ -398,13 +424,12 @@ const char *  __filter_type_name(__log_filter_type_t t)
 	return names[t];
 }
 
-
 #define FILTER_MAX_SIZE 512
 
 struct __log_filter_rule_s
 {
 	__log_filter_type_t type;
-	char match[FILTER_MAX_SIZE];
+	char                match[FILTER_MAX_SIZE];
 };
 
 
@@ -416,9 +441,9 @@ static unsigned int __log_filter_rules_count = 0;
 
 static inline void __parse_log_filter_rules(void)
 {
-	char * filter_str = getenv("MPC_LOG");
+	char *filter_str = getenv("MPC_LOG");
 
-	if(!filter_str)
+	if (!filter_str)
 	{
 		/* No filter to apply __log_filter_rules remains null*/
 		return;
@@ -429,159 +454,178 @@ static inline void __parse_log_filter_rules(void)
 	regex_t re_module;
 	regex_t re_function;
 
-	if (regcomp(&re_file, "file:(.*)", REG_ICASE | REG_EXTENDED)) {
+	if (regcomp(&re_file, "file:(.*)", REG_ICASE | REG_EXTENDED))
+	{
 		mpc_common_debug_error("Failed to compile re_file regular expression");
 		return;
 	}
 
-	if (regcomp(&re_module, "mod:(.*)", REG_ICASE | REG_EXTENDED)) {
+	if (regcomp(&re_module, "mod:(.*)", REG_ICASE | REG_EXTENDED))
+	{
 		mpc_common_debug_error("Failed to compile re_module regular expression");
 		return;
 	}
 
-	if (regcomp(&re_function, "func:(.*)", REG_ICASE | REG_EXTENDED)) {
+	if (regcomp(&re_function, "func:(.*)", REG_ICASE | REG_EXTENDED))
+	{
 		mpc_common_debug_error("Failed to compile re_function regular expression");
 		return;
 	}
 
 	/* Tokenize on ',' */
 
-	char *token = NULL;
+	char *token    = NULL;
 	char *save_ptr = NULL;
 
-    // Get the first token
-    token = strtok_r(filter_str, ",", &save_ptr);
+	// Get the first token
+	token = strtok_r(filter_str, ",", &save_ptr);
 
-    // Walk through other tokens
-    while (token != NULL) {
+	// Walk through other tokens
+	while (token != NULL)
+	{
+		char buff[FILTER_MAX_SIZE];
+		(void)snprintf(buff, FILTER_MAX_SIZE, "%s", token);
+		char *trimmed_token = mpc_common_trim(buff);
 
-			char buff[FILTER_MAX_SIZE];
-			(void)snprintf(buff,FILTER_MAX_SIZE, "%s", token);
-			char * trimmed_token = mpc_common_trim(buff);
 
+		regmatch_t match[2];
 
-			regmatch_t match[2];
+		__log_filter_type_t filter_type = FILTER_NONE;
+		char *smatch = NULL;
 
-			__log_filter_type_t filter_type = FILTER_NONE;
-			char * smatch = NULL;
+		if (regexec(&re_file, trimmed_token, 2, match, 0) == 0)
+		{
+			*(trimmed_token + match[1].rm_eo) = '\0';
+			smatch      = trimmed_token + match[1].rm_so;
+			filter_type = FILTER_FILE;
+		}
+		else if (regexec(&re_module, trimmed_token, 2, match, 0) == 0)
+		{
+			*(trimmed_token + match[1].rm_eo) = '\0';
+			smatch      = trimmed_token + match[1].rm_so;
+			filter_type = FILTER_MODULE;
+		}
+		else if (regexec(&re_function, trimmed_token, 2, match, 0) == 0)
+		{
+			*(trimmed_token + match[1].rm_eo) = '\0';
+			smatch      = trimmed_token + match[1].rm_so;
+			filter_type = FILTER_FUNCTION;
+		}
+		else
+		{
+			/* No match it is a module */
+			smatch      = trimmed_token;
+			filter_type = FILTER_MODULE;
+		}
 
-			if(regexec(&re_file, trimmed_token, 2, match, 0) == 0)
+		if (smatch)
+		{
+			if (__log_filter_rules_count == MAX_LOG_FILTER_RULES)
 			{
-				*(trimmed_token + match[1].rm_eo) = '\0';
-				smatch = trimmed_token + match[1].rm_so;
-				filter_type = FILTER_FILE;
-			}else if (regexec(&re_module, trimmed_token, 2, match, 0) == 0)
-			{
-				*(trimmed_token + match[1].rm_eo) = '\0';
-				smatch = trimmed_token + match[1].rm_so;
-				filter_type = FILTER_MODULE;
-			}
-			else if (regexec(&re_function, trimmed_token, 2, match, 0) == 0)
-			{
-				*(trimmed_token + match[1].rm_eo) = '\0';
-				smatch = trimmed_token + match[1].rm_so;
-				filter_type = FILTER_FUNCTION;
-			}
-			else
-			{
-				/* No match it is a module */
-				smatch = trimmed_token;
-				filter_type = FILTER_MODULE;
-			}
-
-			if(smatch)
-			{
-				if( __log_filter_rules_count == MAX_LOG_FILTER_RULES)
-				{
-					mpc_common_debug_fatal("It is not possible to have more than %d rules in MPC_LOG environment variable", MAX_LOG_FILTER_RULES);
-				}
-
-				mpc_common_debug_info("Filter on %s (from %s) type %s", smatch, token, __filter_type_name(filter_type));
-
-				(void)snprintf(__log_filter_rules[__log_filter_rules_count].match, FILTER_MAX_SIZE, "%s", smatch);
-				__log_filter_rules[__log_filter_rules_count].type = filter_type;
-
-				__log_filter_rules_count++;
-
+				mpc_common_debug_fatal("It is not possible to have more than %d rules in MPC_LOG environment variable",
+					MAX_LOG_FILTER_RULES);
 			}
 
-		
-			/* Move to next token */
-        token = strtok_r(NULL, "-", &save_ptr);
+			mpc_common_debug_info("Filter on %s (from %s) type %s", smatch, token, __filter_type_name(filter_type));
 
-    }
+			(void)snprintf(__log_filter_rules[__log_filter_rules_count].match, FILTER_MAX_SIZE, "%s", smatch);
+			__log_filter_rules[__log_filter_rules_count].type = filter_type;
+
+			__log_filter_rules_count++;
+		}
+
+
+		/* Move to next token */
+		token = strtok_r(NULL, "-", &save_ptr);
+	}
 }
 
-
-char* strstr_case_insensitive(const char* haystack, const char* needle) {
-    if (!*needle) return (char*)haystack;
-
-    for (; *haystack; ++haystack) {
-        if (tolower((unsigned char)*haystack) == tolower((unsigned char)*needle)) {
-            const char* h = haystack + 1;
-            const char* n = needle   + 1;
-            while (*n && *h && tolower((unsigned char)*h) == tolower((unsigned char)*n)) {
-                ++h;
-                ++n;
-            }
-            if (!*n) return (char*)haystack;
-        }
-    }
-
-    return NULL;
-}
-
-static inline int __call_is_filtered_from_env(const char * modulename, const char *funcname, const char * filename)
+char * strstr_case_insensitive(const char *haystack, const char *needle)
 {
+	if (!*needle)
+	{
+		return (char *)haystack;
+	}
 
+	for (; *haystack; ++haystack)
+	{
+		if (tolower((unsigned char)*haystack) == tolower((unsigned char)*needle))
+		{
+			const char *h = haystack + 1;
+			const char *n = needle + 1;
+			while (*n && *h && tolower((unsigned char)*h) == tolower((unsigned char)*n))
+			{
+				++h;
+				++n;
+			}
+			if (!*n)
+			{
+				return (char *)haystack;
+			}
+		}
+	}
+
+	return NULL;
+}
+
+static inline int __call_is_filtered_from_env(const char *modulename, const char *funcname, const char *filename)
+{
 	/* No filter nothing is filtered */
-	if(__log_filter_rules_count == 0)
+	if (__log_filter_rules_count == 0)
 	{
 		return 0;
 	}
 
 	unsigned int i = 0;
 
-	for( i = 0 ; i < __log_filter_rules_count ; i++)
+	for (i = 0 ; i < __log_filter_rules_count ; i++)
 	{
-	 	struct __log_filter_rule_s * tmp = &__log_filter_rules[i];
+		struct __log_filter_rule_s *tmp = &__log_filter_rules[i];
 
 		/* Allow print at first rule matching */
-		switch (tmp->type) {
-			case FILTER_FILE:
-				if(strstr_case_insensitive(filename, tmp->match))
-				{
-					return 0;
-				}
+		switch (tmp->type)
+		{
+		case FILTER_FILE:
+			if (strstr_case_insensitive(filename, tmp->match))
+			{
+				return 0;
+			}
 			break;
-			case FILTER_MODULE:
-				if(strstr_case_insensitive(modulename, tmp->match))
-				{
-					return 0;
-				}
+
+		case FILTER_MODULE:
+			if (strstr_case_insensitive(modulename, tmp->match))
+			{
+				return 0;
+			}
 			break;
-			case FILTER_FUNCTION:
-				if(strstr_case_insensitive(funcname, tmp->match))
-				{
-					return 0;
-				}
+
+		case FILTER_FUNCTION:
+			if (strstr_case_insensitive(funcname, tmp->match))
+			{
+				return 0;
+			}
 			break;
-			case FILTER_COUNT:
-			case FILTER_NONE:
-				mpc_common_debug_fatal("There should be no lo rule of type FILTER_NONE");
+
+		case FILTER_COUNT:
+		case FILTER_NONE:
+			mpc_common_debug_fatal("There should be no lo rule of type FILTER_NONE");
 			break;
 		}
-
-
 	}
 
 
 	/* If no rule did match we are filtered */
 
-	return 1;	
+	return 1;
 }
 
-static void __log_and_print(char *filename, int line, const char *funcname, char *color, const char * verbosity_level, char *modulename, char * content)
+static void __log_and_print(char *filename,
+                            int line,
+                            const char *funcname,
+                            char *color,
+                            const char *verbosity_level,
+                            char *modulename,
+                            char *content)
 {
 	/* To console */
 	__mpcprintf(content, modulename, filename, line, color, verbosity_level);
@@ -589,32 +633,37 @@ static void __log_and_print(char *filename, int line, const char *funcname, char
 	__log_to_file(filename, line, funcname, verbosity_level, modulename, content);
 }
 
-
-
-
-int mpc_common_debug_print(char *filename, int line, const char *funcname, char *color, mpc_common_debug_verbosity_level_t verbosity_level, char *modulename, char *string, ...) {
+int mpc_common_debug_print(char *filename,
+                           int line,
+                           const char *funcname,
+                           char *color,
+                           mpc_common_debug_verbosity_level_t verbosity_level,
+                           char *modulename,
+                           char *string,
+                           ...)
+{
 	va_list ap;
-	int r = 0;
+	int     r = 0;
 
 	/* Check loglevel */
-	if(mpc_common_get_flags()->verbosity < (int) verbosity_level)
+	if (mpc_common_get_flags()->verbosity < (int)verbosity_level)
 	{
 		return 0;
 	}
 
-	if(__call_is_filtered_from_env(modulename, funcname, filename))
+	if (__call_is_filtered_from_env(modulename, funcname, filename))
 	{
 		/* All filters did fail no need to print */
 		return 0;
 	}
 
-	va_start(ap, string); 
+	va_start(ap, string);
 
 	char messagebuffer[SMALL_BUFFER_SIZE];
 
-	if(modulename[0] == 'M' && modulename[1] == 'P' && modulename[2] == 'C')
+	if (modulename[0] == 'M' && modulename[1] == 'P' && modulename[2] == 'C')
 	{
-		if(!strcmp("MPC_MODULE", modulename))
+		if (!strcmp("MPC_MODULE", modulename))
 		{
 			/* No module was set */
 			modulename = "";
@@ -622,59 +671,67 @@ int mpc_common_debug_print(char *filename, int line, const char *funcname, char 
 	}
 
 	/* Strip quotes */
-	char __no_quote_module_name[128];
-	char * no_quote_module_name = __no_quote_module_name;
+	char  __no_quote_module_name[128];
+	char *no_quote_module_name = __no_quote_module_name;
 	(void)snprintf(no_quote_module_name, 128, "%s", modulename);
 
 	unsigned long modlen = strlen(no_quote_module_name);
 
-	if(modlen)
+	if (modlen)
 	{
-		if(no_quote_module_name[modlen - 1] == '"' || no_quote_module_name[modlen - 1] == '\'')
+		if (no_quote_module_name[modlen - 1] == '"' || no_quote_module_name[modlen - 1] == '\'')
 		{
 			no_quote_module_name[modlen - 1] = '\0';
 		}
 
-		if(no_quote_module_name[0] == '"' || no_quote_module_name[0] == '\'')
+		if (no_quote_module_name[0] == '"' || no_quote_module_name[0] == '\'')
 		{
 			no_quote_module_name++;
 		}
 	}
 
-	r = vsnprintf(messagebuffer,(long)SMALL_BUFFER_SIZE, string, ap);
+	r = vsnprintf(messagebuffer, (long)SMALL_BUFFER_SIZE, string, ap);
 
 
-	if(strchr(messagebuffer, '\n'))
+	if (strchr(messagebuffer, '\n'))
 	{
 		char *save_ptr = NULL;
- 		char * sline = strtok_r(messagebuffer, "\n", &save_ptr);
+		char *sline    = strtok_r(messagebuffer, "\n", &save_ptr);
 
-    	while (sline != NULL) {
-			if(strlen(sline))
+		while (sline != NULL)
+		{
+			if (strlen(sline))
 			{
-				 __log_and_print(filename, line, funcname, color, mpc_common_debug_verbosity_level_to_string(verbosity_level), no_quote_module_name, sline);
+				__log_and_print(filename, line, funcname, color,
+					mpc_common_debug_verbosity_level_to_string(verbosity_level), no_quote_module_name, sline);
 			}
 			sline = strtok_r(NULL, "\n", &save_ptr);
 		}
-
 	}
 	else
 	{
-		__log_and_print(filename, line, funcname, color, mpc_common_debug_verbosity_level_to_string(verbosity_level), no_quote_module_name, messagebuffer);
+		__log_and_print(filename,
+			line,
+			funcname,
+			color,
+			mpc_common_debug_verbosity_level_to_string(verbosity_level),
+			no_quote_module_name,
+			messagebuffer);
 	}
 
-	va_end (ap);
+	va_end(ap);
 	return r;
 }
 
 const char * mpc_common_debug_verbosity_level_to_string(mpc_common_debug_verbosity_level_t level)
 {
-	if(level > MPC_COMMON_LOG_LEVEL_COUNT)
+	if (level > MPC_COMMON_LOG_LEVEL_COUNT)
 	{
 		return NULL;
 	}
 
-	static const char * slevel[] = {
+	static const char *slevel[] =
+	{
 		"error",
 		"warning",
 		"base",
@@ -686,7 +743,6 @@ const char * mpc_common_debug_verbosity_level_to_string(mpc_common_debug_verbosi
 	return slevel[level];
 }
 
-
 /**************
  * TTY STATUS *
  **************/
@@ -694,7 +750,8 @@ const char * mpc_common_debug_verbosity_level_to_string(mpc_common_debug_verbosi
 static int __is_stderr_tty = 0;
 
 
-int mpc_common_debug_is_stderr_tty(){
+int mpc_common_debug_is_stderr_tty()
+{
 	return __is_stderr_tty;
 }
 
@@ -703,14 +760,15 @@ int mpc_common_debug_is_stderr_tty(){
  ***************************************/
 
 
-void mpc_common_debug_init(){
+void mpc_common_debug_init()
+{
 	/* Set TTY support for stderr from launcher state */
-	if(getenv("IS_STDERR_TTY") )
+	if (getenv("IS_STDERR_TTY"))
 	{
 		__is_stderr_tty = 1;
 	}
 	else
-	{ 
+	{
 		__is_stderr_tty = 0;
 	}
 

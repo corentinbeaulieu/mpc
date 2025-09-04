@@ -25,43 +25,46 @@
 #ifndef LCR_PTL_PUB_H
 #define LCR_PTL_PUB_H
 #ifdef __cplusplus
-extern "C"
-{
+	extern "C"
+	{
 #endif
 
 #include "ptl.h"
 #include "mpc_common_debug.h"
 #include "mpc_keywords.h"
 
-//FIXME: hack for previous public ptl function.
+// FIXME: hack for previous public ptl function.
 /* NOLINTBEGIN(clang-diagnostic-unused-function): False positives */
-static inline int ptl_offcoll_barrier(int comm_idx, int rank, int size) {
-        UNUSED(comm_idx);
-        UNUSED(rank);
-        UNUSED(size);
-        not_implemented();
-        return 0;
+static inline int ptl_offcoll_barrier(int comm_idx, int rank, int size)
+{
+	UNUSED(comm_idx);
+	UNUSED(rank);
+	UNUSED(size);
+	not_implemented();
+	return 0;
 }
 
-static inline int ptl_offcoll_bcast(int comm_idx, int rank, int size,
-                                    void* buf, size_t bytes, int root) {
-        UNUSED(comm_idx);
-        UNUSED(rank);
-        UNUSED(size);
-        UNUSED(buf);
-        UNUSED(bytes);
-        UNUSED(root);
-        not_implemented();
-        return 0;
+static inline int ptl_offcoll_bcast(int comm_idx, int rank, int size, void *buf, size_t bytes, int root)
+{
+	UNUSED(comm_idx);
+	UNUSED(rank);
+	UNUSED(size);
+	UNUSED(buf);
+	UNUSED(bytes);
+	UNUSED(root);
+	not_implemented();
+	return 0;
 }
 
-static inline int ptl_offcoll_enabled() {
-        return 0;
+static inline int ptl_offcoll_enabled()
+{
+	return 0;
 }
+
 /* NOLINTEND(clang-diagnostic-unused-function) */
 
 
 #ifdef __cplusplus
-}
+	}
 #endif
 #endif

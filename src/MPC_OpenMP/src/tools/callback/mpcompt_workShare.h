@@ -28,13 +28,13 @@
 
 #if OMPT_SUPPORT
 
-void
-_mpc_omp_ompt_callback_master( ompt_scope_endpoint_t endpoint );
+	void
+	_mpc_omp_ompt_callback_master(ompt_scope_endpoint_t endpoint);
 
-void
-_mpc_omp_ompt_callback_work( ompt_work_t wstype,
-                         ompt_scope_endpoint_t endpoint,
-                         uint64_t count );
+	void
+	_mpc_omp_ompt_callback_work(ompt_work_t wstype,
+	                            ompt_scope_endpoint_t endpoint,
+	                            uint64_t count);
 
 #endif /* OMPT_SUPPORT */
 #endif /* __MPCOMPT_WORKSHARE_H__ */

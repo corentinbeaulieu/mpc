@@ -28,12 +28,12 @@
 #include <string.h>
 #include <unistd.h>
 #include <uthash.h>
-//#include <mpc_config.h> //NOTE: apparently not needed.
+// #include <mpc_config.h> //NOTE: apparently not needed.
 #include <mpc_common_types.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+	extern "C"
+	{
 #endif
 
 /**
@@ -50,16 +50,16 @@ extern "C"
  * This implemented getters and setters for the PMI interface in MPC
  */
 
-        /**
-         * @defgroup libmode_hooks MPC Library mode hooks
-        * Libmode allows MPC to run alongside another MPI instance
-        * to do so simply compile mpc with ./installmpc --lib-mode.
-        * Note that a TCP rail is required to bootstrap the comm ring
-        * to enable on demand connections on high speed networks.
-        *
-        * These function are the weak implementation to be overridden
-        * by actual ones in the target implementation.
-         */
+/**
+ * @defgroup libmode_hooks MPC Library mode hooks
+ * Libmode allows MPC to run alongside another MPI instance
+ * to do so simply compile mpc with ./installmpc --lib-mode.
+ * Note that a TCP rail is required to bootstrap the comm ring
+ * to enable on demand connections on high speed networks.
+ *
+ * These function are the weak implementation to be overridden
+ * by actual ones in the target implementation.
+ */
 
 /***********
  * MPC PMI *
@@ -74,8 +74,8 @@ extern "C"
  * PMI ERROR DEFINITIONS *
  *************************/
 
-#define MPC_LAUNCH_PMI_SUCCESS 0 /**< Wrapper for PMI_SUCCESS */
-#define MPC_LAUNCH_PMI_FAIL -1 /**< Wrapper for PMI_FAIL */
+#define MPC_LAUNCH_PMI_SUCCESS 0  /**< Wrapper for PMI_SUCCESS */
+#define MPC_LAUNCH_PMI_FAIL    -1 /**< Wrapper for PMI_FAIL */
 
 /***************************
  * INITIALIZATION/FINALIZE *
@@ -127,7 +127,7 @@ int mpc_launch_pmi_is_initialized();
 /**
  * @brief Abort the process using PMI
  *
- * @param [in] return_code	Return code to return from the processes
+ * @param[in] return_code Return code to return from the processes
  */
 void mpc_launch_pmi_abort(const int return_code);
 
@@ -149,43 +149,43 @@ int mpc_launch_pmi_barrier();
 /**
  * @brief Put a value in KVS for rank using an integer tag
  *
- * @param value Data to be stored in the PMI
- * @param tag identifier of the stored value
- * @return int SCTK_PMI_SUCCESS / _FAIL
+ * @param  value Data to be stored in the PMI
+ * @param  tag   identifier of the stored value
+ * @return       int SCTK_PMI_SUCCESS / _FAIL
  */
-int mpc_launch_pmi_put_as_rank( char *value, int tag, int is_local );
+int mpc_launch_pmi_put_as_rank(char *value, int tag, int is_local);
 
 /**
  * @brief Get a value in KVS for rank using an integer tag
  *
- * @param value Data to be retrieved from the PMI
- * @param size maximum size of the expected data
- * @param tag tag of the data to be retrieved
- * @param rank rank to retrieve data for
- * @return int SCTK_PMI_SUCCESS / _FAIL
+ * @param  value Data to be retrieved from the PMI
+ * @param  size  maximum size of the expected data
+ * @param  tag   tag of the data to be retrieved
+ * @param  rank  rank to retrieve data for
+ * @return       int SCTK_PMI_SUCCESS / _FAIL
  */
-int mpc_launch_pmi_get_as_rank( char *value, size_t size, int tag, int rank );
+int mpc_launch_pmi_get_as_rank(char *value, size_t size, int tag, int rank);
 
 /**
  * @brief Set a value at key in the KVS
  *
- * @param value value to be set
- * @param key corresponding key
- * @param is_local if the value is to be stored locally not over net
- * @return int SCTK_PMI_SUCCESS / _FAIL
+ * @param  value    value to be set
+ * @param  key      corresponding key
+ * @param  is_local if the value is to be stored locally not over net
+ * @return          int SCTK_PMI_SUCCESS / _FAIL
  */
-int mpc_launch_pmi_put( char *value, char *key, int is_local );
+int mpc_launch_pmi_put(char *value, char *key, int is_local);
 
 /**
  * @brief Get a value at key in the KVS
  *
- * @param value value to be retrieved
- * @param size maximum value size
- * @param key corresponding key
- * @param remote remote rank to query
- * @return int SCTK_PMI_SUCCESS / _FAIL
+ * @param  value  value to be retrieved
+ * @param  size   maximum value size
+ * @param  key    corresponding key
+ * @param  remote remote rank to query
+ * @return        int SCTK_PMI_SUCCESS / _FAIL
  */
-int mpc_launch_pmi_get( char *value, size_t size, char *key, int remote);
+int mpc_launch_pmi_get(char *value, size_t size, char *key, int remote);
 
 /*********************
  * OS PROCESS LAYOUT *
@@ -197,25 +197,25 @@ int mpc_launch_pmi_get( char *value, size_t size, char *key, int remote);
  */
 struct mpc_launch_pmi_process_layout
 {
-	int node_rank;		/**< Node info for rank */
-	int nb_process;		/**< Number of processes on the node */
-	int *process_list;	/**< List of processes ID on the node */
-	UT_hash_handle hh;	/**< UTHash handle */
+	int            node_rank;    /**< Node info for rank */
+	int            nb_process;   /**< Number of processes on the node */
+	int *          process_list; /**< List of processes ID on the node */
+	UT_hash_handle hh;           /**< UTHash handle */
 };
 
 /**
  * @brief Retrieve a UTHASH hash-table gathering process layout on nodes
  *
- * @param layout [OUT] where to store the pointer (not to free)
- * @return int SCTK_PMI_SUCCESS / _FAIL
+ * @param  layout [OUT] where to store the pointer (not to free)
+ * @return        int SCTK_PMI_SUCCESS / _FAIL
  */
-int mpc_launch_pmi_get_process_layout( struct mpc_launch_pmi_process_layout **layout );
+int mpc_launch_pmi_get_process_layout(struct mpc_launch_pmi_process_layout **layout);
 
 /**
  * @brief Translates a local (to the node) rank into a global rank
  *
- * @param remote [in] Local rank to translate
- * @return Global rank of the given peer
+ * @param  remote [in] Local rank to translate
+ * @return        Global rank of the given peer
  */
 int mpc_launch_pmi_get_global_rank_from_local(const int remote);
 
@@ -225,34 +225,36 @@ int mpc_launch_pmi_get_global_rank_from_local(const int remote);
 
 /*! \brief Get the job id
  * @param id Pointer to store the job id
-*/
-int mpc_launch_pmi_get_job_id( uint64_t *id );
+ */
+int mpc_launch_pmi_get_job_id(uint64_t *id);
 
 /* End Process Management Interface */
+
 /**
  * @}
  */
 
 /* End MPC_Launch */
+
 /**
  * @}
  */
 
 
-int mpc_launch_pmi_get_univ_size(int* univsize);
+int mpc_launch_pmi_get_univ_size(int *univsize);
 
-int mpc_launch_pmi_get_app_rank(int* appname);
+int mpc_launch_pmi_get_app_rank(int *appname);
 
-int mpc_launch_pmi_get_app_size(int* appsize);
+int mpc_launch_pmi_get_app_size(int *appsize);
 
-int mpc_launch_pmi_get_app_num(int* appnum);
+int mpc_launch_pmi_get_app_num(int *appnum);
 
-int mpc_launch_pmi_get_pset(char** pset);
+int mpc_launch_pmi_get_pset(char **pset);
 
-int mpc_launch_pmi_get_pset_list(char** psetlist);
+int mpc_launch_pmi_get_pset_list(char **psetlist);
 
 #ifdef __cplusplus
-}
+	}
 #endif
 
 #endif // MPC_LAUNCH_INCLUDE_MPC_LAUNCH_PMI_H_

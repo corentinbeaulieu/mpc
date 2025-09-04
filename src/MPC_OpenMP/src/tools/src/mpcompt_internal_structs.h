@@ -26,21 +26,23 @@
 
 #if OMPT_SUPPORT
 
-typedef struct mpc_omp_ompt_enumerate_infos_s {
-  const char* name;
-  unsigned long id;
-} mpc_omp_ompt_enumerate_infos_t;
+	typedef struct mpc_omp_ompt_enumerate_infos_s
+	{
+		const char *  name;
+		unsigned long id;
+	} mpc_omp_ompt_enumerate_infos_t;
 
-typedef struct mpc_omp_ompt_callback_infos_s {
-  const char *name;
-  ompt_callbacks_t id;
-  ompt_set_result_t status;
-} mpc_omp_ompt_callback_infos_t;
+	typedef struct mpc_omp_ompt_callback_infos_s
+	{
+		const char *      name;
+		ompt_callbacks_t  id;
+		ompt_set_result_t status;
+	} mpc_omp_ompt_callback_infos_t;
 
-// compare two string ignoring case
+	// compare two string ignoring case
 #ifndef OMPT_STR_MATCH
-#define OMPT_STR_MATCH( string0, string1 ) \
-  !strcasecmp( string0, string1 )
+		#define OMPT_STR_MATCH(string0, string1) \
+				!strcasecmp(string0, string1)
 #endif /* OMPT_STR_MATCH */
 
 #endif /* OMPT_SUPPORT */

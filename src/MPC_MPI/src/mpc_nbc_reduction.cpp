@@ -29,21 +29,21 @@ int __mpc_mpi_reduce_cpp_type(void *buf3, void *buf1, void *buf2, MPI_Op op, MPI
 {
 	int i;
 
-	if ( type == MPI_CXX_BOOL )
+	if (type == MPI_CXX_BOOL)
 	{
 		MPC_NBC_OP_DEFINE_LOGICAL(bool)
 	}
-	else if ( type == MPI_CXX_FLOAT_COMPLEX )
+	else if (type == MPI_CXX_FLOAT_COMPLEX)
 	{
-		MPC_NBC_OP_DEFINE_COMPLEX(std::complex<float>)
+		MPC_NBC_OP_DEFINE_COMPLEX(std::complex <float>)
 	}
-	else if ( type == MPI_CXX_DOUBLE_COMPLEX )
+	else if (type == MPI_CXX_DOUBLE_COMPLEX)
 	{
-		MPC_NBC_OP_DEFINE_COMPLEX(std::complex<double>)
+		MPC_NBC_OP_DEFINE_COMPLEX(std::complex <double>)
 	}
-	else if ( type == MPI_CXX_LONG_DOUBLE_COMPLEX )
+	else if (type == MPI_CXX_LONG_DOUBLE_COMPLEX)
 	{
-		MPC_NBC_OP_DEFINE_COMPLEX(std::complex<long double>)
+		MPC_NBC_OP_DEFINE_COMPLEX(std::complex <long double>)
 	}
 	else
 	{

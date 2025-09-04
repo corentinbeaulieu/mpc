@@ -19,8 +19,8 @@
 #include "proto.h"
 
 /**********************
-* SETUP AND TEARDOWN *
-**********************/
+ * SETUP AND TEARDOWN *
+ **********************/
 
 int _mpc_lowcomm_monitor_setup();
 int _mpc_lowcomm_monitor_teardown();
@@ -29,8 +29,8 @@ int _mpc_lowcomm_monitor_setup_per_task();
 int _mpc_lowcomm_monitor_teardown_per_task();
 
 /**************************
-* MONITOR HUB DEFINITION *
-**************************/
+ * MONITOR HUB DEFINITION *
+ **************************/
 
 
 struct _mpc_lowcomm_monitor_s
@@ -104,8 +104,8 @@ int _mpc_lowcomm_peer_is_local(mpc_lowcomm_peer_uid_t uid);
 
 
 /*********************
-* COMMAND GENERATOR *
-*********************/
+ * COMMAND GENERATOR *
+ *********************/
 
 int _mpc_lowcomm_monitor_command_engine_init(void);
 int _mpc_lowcomm_monitor_command_engine_teardown(void);
@@ -116,8 +116,8 @@ int _mpc_lowcomm_monitor_command_send(_mpc_lowcomm_monitor_wrap_t *cmd, mpc_lowc
 
 
 /****************
-* SET EXCHANGE *
-****************/
+ * SET EXCHANGE *
+ ****************/
 
 int _mpc_lowcomm_monitor_command_register_set_info(mpc_lowcomm_monitor_args_t *cmd);
 
@@ -128,8 +128,8 @@ _mpc_lowcomm_monitor_wrap_t *_mpc_lowcomm_monitor_command_return_set_info(mpc_lo
                                                                           mpc_lowcomm_set_uid_t requested_set);
 
 /*****************
-* PEER EXCHANGE *
-*****************/
+ * PEER EXCHANGE *
+ *****************/
 
 int _mpc_lowcomm_monitor_command_register_peer_info(mpc_lowcomm_monitor_args_t *cmd);
 
@@ -139,22 +139,22 @@ _mpc_lowcomm_monitor_wrap_t *_mpc_lowcomm_monitor_command_return_peer_info(mpc_l
                                                                            uint64_t response_index);
 
 /********
-* PING *
-********/
+ * PING *
+ ********/
 
 _mpc_lowcomm_monitor_wrap_t *_mpc_lowcomm_monitor_command_return_ping_info(mpc_lowcomm_peer_uid_t dest,
                                                                            uint64_t response_index);
 
 /****************
-* CONNECTIVITY *
-****************/
+ * CONNECTIVITY *
+ ****************/
 
 _mpc_lowcomm_monitor_wrap_t *_mpc_lowcomm_monitor_command_return_connectivity_info(mpc_lowcomm_peer_uid_t dest,
                                                                                    uint64_t response_index);
 
 /***********************
-* ON DEMAND CALLBACKS *
-***********************/
+ * ON DEMAND CALLBACKS *
+ ***********************/
 
 int _mpc_lowcomm_monitor_on_demand_callbacks_init(void);
 int _mpc_lowcomm_monitor_on_demand_callbacks_teardown(void);
@@ -166,14 +166,14 @@ _mpc_lowcomm_monitor_wrap_t *_mpc_lowcomm_monitor_command_process_ondemand(mpc_l
 /* COMM INFO */
 
 _mpc_lowcomm_monitor_wrap_t *_mpc_lowcomm_monitor_command_return_comm_info(mpc_lowcomm_peer_uid_t dest,
-																		   mpc_lowcomm_monitor_args_t *content,
+                                                                           mpc_lowcomm_monitor_args_t *content,
                                                                            uint64_t response_index);
 
 
 /* NAMING INFO */
 
 _mpc_lowcomm_monitor_wrap_t *_mpc_lowcomm_monitor_command_return_naming_info(mpc_lowcomm_peer_uid_t dest,
-																		     mpc_lowcomm_monitor_args_t *content,
+                                                                             mpc_lowcomm_monitor_args_t *content,
                                                                              uint64_t response_index);
 
 #endif /* _MPC_LOWCOMM_MONITOR_H_ */

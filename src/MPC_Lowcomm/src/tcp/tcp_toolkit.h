@@ -23,19 +23,19 @@
 #ifndef __SCTK_TCP_TOOLKIT_H_
 #define __SCTK_TCP_TOOLKIT_H_
 #ifdef __cplusplus
-extern "C"
-{
+	extern "C"
+	{
 #endif
 
 #include "endpoint.h"
 #include <mpc_lowcomm_monitor.h>
 
-void sctk_network_init_tcp_all ( sctk_rail_info_t *rail, char *interface,
-                                 void * ( *tcp_thread ) ( _mpc_lowcomm_endpoint_t * ) );
+void sctk_network_init_tcp_all(sctk_rail_info_t *rail, char *interface,
+                               void * (*tcp_thread)(_mpc_lowcomm_endpoint_t *));
 
-void tcp_on_demand_connection_handler( sctk_rail_info_t *rail, mpc_lowcomm_peer_uid_t dest_process );
+void tcp_on_demand_connection_handler(sctk_rail_info_t *rail, mpc_lowcomm_peer_uid_t dest_process);
 
 #ifdef __cplusplus
-}
+	}
 #endif
 #endif

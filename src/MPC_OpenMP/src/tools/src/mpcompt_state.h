@@ -29,46 +29,54 @@
 #include "mpcompt_thread_state.h"
 #include "mpc_common_debug.h"
 
-static mpc_omp_ompt_enumerate_infos_t mpcompt_state_infos[] = {
-#define ompt_state_macro(state, code, desc) {#state, code},
-  FOREACH_OMPT_STATE(ompt_state_macro)
+	static mpc_omp_ompt_enumerate_infos_t mpcompt_state_infos[] = {
+		#define ompt_state_macro(state, code, desc) {#state, code },
+		FOREACH_OMPT_STATE(ompt_state_macro)
 #undef ompt_state_macro
-};
+	};
 
-static inline int
-_mpc_omp_ompt_get_next_state ( int current_state,
-                         int *next_state,
-                         const char **next_state_name ) {
-    int i;
-    static const int state_array_len =
-        sizeof( mpcompt_state_infos ) / sizeof( mpc_omp_ompt_enumerate_infos_t );
-    assert( state_array_len > 0 );
+	static inline int
+	_mpc_omp_ompt_get_next_state(int current_state,
+	                             int *next_state,
+	                             const char **next_state_name)
+	{
+		int i;
+		static const int state_array_len =
+			sizeof(mpcompt_state_infos) / sizeof(mpc_omp_ompt_enumerate_infos_t);
 
-    if( current_state == ompt_state_undefined ) {
-        /* next state -> i = 0 */
-        i = -1;
-    }
-    else {
-        /* Find current state in mpcompt_state_infos tabular */
-        for( i = 0; i < state_array_len; i++ ) {
-            if( mpcompt_state_infos[i].id != (unsigned long) current_state )
-                continue;
+		assert(state_array_len > 0);
 
-            break;
-        }
-    }
+		if (current_state == ompt_state_undefined)
+		{
+			/* next state -> i = 0 */
+			i = -1;
+		}
+		else
+		{
+			/* Find current state in mpcompt_state_infos tabular */
+			for (i = 0; i < state_array_len; i++)
+			{
+				if (mpcompt_state_infos[i].id != (unsigned long)current_state)
+				{
+					continue;
+				}
 
-    /* get next value */
-    i++;
+				break;
+			}
+		}
 
-    /* Found */
-    if( i < state_array_len ) {
-        *next_state = mpcompt_state_infos[i].id;
-        *next_state_name = mpcompt_state_infos[i].name;
-    }
+		/* get next value */
+		i++;
 
-    return ( i < state_array_len ) ? 1 : 0;
-}
+		/* Found */
+		if (i < state_array_len)
+		{
+			*next_state      = mpcompt_state_infos[i].id;
+			*next_state_name = mpcompt_state_infos[i].name;
+		}
+
+		return (i < state_array_len) ? 1 : 0;
+	}
 
 #endif /* OMPT_SUPPORT */
 #endif /* __MPCOMPT_STATE_H__ */

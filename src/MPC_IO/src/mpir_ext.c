@@ -9,8 +9,8 @@
 #include <mpc_common_rank.h>
 
 /***********
-* YIEDING *
-***********/
+ * YIEDING *
+ ***********/
 
 
 /** \brief MPICH says check whether the progress engine is blocked assuming
@@ -22,22 +22,22 @@ void MPIR_Ext_cs_yield(void)
 }
 
 /******************
-* ERROR HANDLING *
-******************/
+ * ERROR HANDLING *
+ ******************/
 
 int MPIR_Err_create_code_valist(__UNUSED__ int lastcode, __UNUSED__ int fatal, const char fcname[],
                                 int line, __UNUSED__ int error_class, const char generic_msg[],
                                 const char specific_msg[], __UNUSED__ va_list Argp)
 {
 	char *buf;
-	int   idx=0;
+	int   idx = 0;
 
 	buf = (char *)sctk_malloc(1024);
-	if(buf != NULL)
+	if (buf != NULL)
 	{
 		idx += snprintf(buf, 1023, "%s (line %d): ", fcname, line);
 
-		if(specific_msg == NULL)
+		if (specific_msg == NULL)
 		{
 			snprintf(&buf[idx], 1023 - idx, "%s\n", generic_msg);
 		}
@@ -56,7 +56,7 @@ void MPIR_Err_get_string(int errcode, char *msg, int maxlen, __UNUSED__ MPIR_Err
 	char buff[128];
 	int  len;
 
-	if(!msg)
+	if (!msg)
 	{
 		return;
 	}
@@ -66,7 +66,7 @@ void MPIR_Err_get_string(int errcode, char *msg, int maxlen, __UNUSED__ MPIR_Err
 
 	mpc_mpi_cl_error_string(errcode, buff, &len);
 
-	if(strlen(buff) )
+	if (strlen(buff))
 	{
 		snprintf(msg, maxlen, "%s", buff);
 	}
@@ -89,17 +89,16 @@ int MPIR_Abort(MPI_Comm comm, int mpi_errno, int exit_code, const char *error_ms
 	return PMPI_Abort(comm, exit_code);
 }
 
-int MPIR_File_call_cxx_errhandler( __UNUSED__ void *fh, __UNUSED__ int *errorcode,
-			   __UNUSED__ void (*c_errhandler)(void  *, int *, ... ) )
+int MPIR_File_call_cxx_errhandler(__UNUSED__ void *fh, __UNUSED__ int *errorcode,
+                                  __UNUSED__ void (*c_errhandler)(void *, int *, ...))
 {
-
 	return MPI_SUCCESS;
 }
-
 
 /************************************************************************/
 /* Datatype Optimization                                                */
 /************************************************************************/
+
 /** \brief This function is used in ROMIO in order to determine if a data-type is contiguous
  *  We implement it here as it is much faster to do it with the
  *  knowledge of data-type internals
@@ -127,11 +126,12 @@ void MPIR_Datatype_iscontig(MPI_Datatype datatype, int *flag)
 int MPIR_Status_set_bytes(MPI_Status *status, MPI_Datatype datatype, MPI_Count nbytes)
 {
 	MPI_Count type_size;
+
 	PMPI_Type_size_x(datatype, &type_size);
 
 	MPI_Count count = 0;
 
-	if( type_size != 0 )
+	if (type_size != 0)
 	{
 		count = nbytes / type_size;
 	}
@@ -152,35 +152,41 @@ int MPIR_Status_set_bytes(MPI_Status *status, MPI_Datatype datatype, MPI_Count n
  *  \param id (out) id of the target node
  *  \return MPI_SUCCESS if all OK
  */
-int MPIR_Get_node_id(MPI_Comm comm, int rank, int *id) {
-  // TODO use the actual node rank
-  int comm_world_rank = mpc_mpi_cl_world_rank(comm, rank);
+int MPIR_Get_node_id(MPI_Comm comm, int rank, int *id)
+{
+	// TODO use the actual node rank
+	int comm_world_rank = mpc_mpi_cl_world_rank(comm, rank);
 
-  struct mpc_launch_pmi_process_layout *nodes_infos = NULL;
-  mpc_launch_pmi_get_process_layout(&nodes_infos);
+	struct mpc_launch_pmi_process_layout *nodes_infos = NULL;
 
-  int node_number = mpc_common_get_node_count();
+	mpc_launch_pmi_get_process_layout(&nodes_infos);
 
-  struct mpc_launch_pmi_process_layout *tmp = NULL;
+	int node_number = mpc_common_get_node_count();
 
-  int i, j;
+	struct mpc_launch_pmi_process_layout *tmp = NULL;
 
-  for (i = 0; i < node_number; i++) {
-    HASH_FIND_INT(nodes_infos, &node_number, tmp);
+	int i, j;
 
-	if (tmp == NULL) {
-		return MPI_ERR_INTERN;
+	for (i = 0; i < node_number; i++)
+	{
+		HASH_FIND_INT(nodes_infos, &node_number, tmp);
+
+		if (tmp == NULL)
+		{
+			return MPI_ERR_INTERN;
+		}
+
+		for (j = 0; j < tmp->nb_process; j++)
+		{
+			if (tmp->process_list[j] == comm_world_rank)
+			{
+				*id = i;
+				return MPI_SUCCESS;
+			}
+		}
 	}
 
-    for (j = 0; j < tmp->nb_process; j++) {
-      if (tmp->process_list[j] == comm_world_rank) {
-        *id = i;
-        return MPI_SUCCESS;
-      }
-    }
-  }
-
-  return MPI_SUCCESS;
+	return MPI_SUCCESS;
 }
 
 /************************************************************************/
@@ -196,15 +202,14 @@ int MPIR_Get_node_id(MPI_Comm comm, int rank, int *id) {
  * the classical request management functions as MPIO_Requests
  * are in fact normal MPI_Requests */
 
-MPI_Fint PMPIO_Request_c2f( MPI_Request request )
+MPI_Fint PMPIO_Request_c2f(MPI_Request request)
 {
-	return MPI_Request_c2f( request );
+	return MPI_Request_c2f(request);
 }
 
-
-MPI_Request PMPIO_Request_f2c(MPI_Fint rid )
+MPI_Request PMPIO_Request_f2c(MPI_Fint rid)
 {
-	return MPI_Request_f2c( rid );
+	return MPI_Request_f2c(rid);
 }
 
 #endif
@@ -223,122 +228,137 @@ MPI_Request PMPIO_Request_f2c(MPI_Fint rid )
  *  \param count OUT number of entries
  */
 int MPCX_Type_flatten(MPI_Datatype datatype, MPI_Aint **blocklen,
-                      MPI_Aint **indices, MPI_Count *count) {
-  mpc_mpi_cl_per_mpi_process_ctx_t *task_specific = mpc_cl_per_mpi_process_ctx_get();
-  _mpc_dt_derived_t *target_derived_type;
-  _mpc_dt_contiguout_t *contiguous_type;
+                      MPI_Aint **indices, MPI_Count *count)
+{
+	mpc_mpi_cl_per_mpi_process_ctx_t *task_specific = mpc_cl_per_mpi_process_ctx_get();
+	_mpc_dt_derived_t *   target_derived_type;
+	_mpc_dt_contiguout_t *contiguous_type;
 
-  /* Nothing to do */
-  if (datatype == MPI_DATATYPE_NULL) {
-    *count = 0;
-    return MPI_SUCCESS;
-  }
+	/* Nothing to do */
+	if (datatype == MPI_DATATYPE_NULL)
+	{
+		*count = 0;
+		return MPI_SUCCESS;
+	}
 
-  /* Here we decide what to do in function of the data-type kind:
-   *
-   * Common and contiguous :
-   * 	=> Return start at 0 and the extent
-   * Derived:
-   * 	=> Extract the flattened representation from MPC
-   */
+	/* Here we decide what to do in function of the data-type kind:
+	 *
+	 * Common and contiguous :
+	 * 	=> Return start at 0 and the extent
+	 * Derived:
+	 * 	=> Extract the flattened representation from MPC
+	 */
 
-  switch (_mpc_dt_get_kind(datatype)) {
-  case MPC_DATATYPES_COMMON:
-    *count = 1;
+	switch (_mpc_dt_get_kind(datatype))
+	{
+	case MPC_DATATYPES_COMMON:
+		*count = 1;
 
-    *blocklen = sctk_malloc(*count * sizeof(MPI_Aint));
-    *indices = sctk_malloc(*count * sizeof(MPI_Aint));
+		*blocklen = sctk_malloc(*count * sizeof(MPI_Aint));
+		*indices  = sctk_malloc(*count * sizeof(MPI_Aint));
 
-    assume(*blocklen != NULL);
-    assume(*indices != NULL);
+		assume(*blocklen != NULL);
+		assume(*indices != NULL);
 
-    (*indices)[0] = 0;
-    (*blocklen)[0] = mpc_lowcomm_datatype_common_get_size(datatype);
-    break;
-  case MPC_DATATYPES_CONTIGUOUS:
-    contiguous_type = _mpc_cl_per_mpi_process_ctx_contiguous_datatype_ts_get(task_specific, datatype);
-    *count = 1;
+		(*indices)[0]  = 0;
+		(*blocklen)[0] = mpc_lowcomm_datatype_common_get_size(datatype);
+		break;
 
-    *blocklen = sctk_malloc(*count * sizeof(MPI_Aint));
-    *indices = sctk_malloc(*count * sizeof(MPI_Aint));
+	case MPC_DATATYPES_CONTIGUOUS:
+		contiguous_type = _mpc_cl_per_mpi_process_ctx_contiguous_datatype_ts_get(task_specific, datatype);
+		*count          = 1;
 
-    assume(*blocklen != NULL);
-    assume(*indices != NULL);
+		*blocklen = sctk_malloc(*count * sizeof(MPI_Aint));
+		*indices  = sctk_malloc(*count * sizeof(MPI_Aint));
 
-    (*indices)[0] = 0;
-    (*blocklen)[0] = contiguous_type->size;
-    break;
+		assume(*blocklen != NULL);
+		assume(*indices != NULL);
 
-  case MPC_DATATYPES_DERIVED:
-    target_derived_type =
-        _mpc_cl_per_mpi_process_ctx_derived_datatype_ts_get(task_specific, datatype);
+		(*indices)[0]  = 0;
+		(*blocklen)[0] = contiguous_type->size;
+		break;
 
-    /* Note that we extract the optimized version of the data-type */
-    *count = target_derived_type->opt_count;
+	case MPC_DATATYPES_DERIVED:
+		target_derived_type =
+			_mpc_cl_per_mpi_process_ctx_derived_datatype_ts_get(task_specific, datatype);
 
-    *blocklen = sctk_malloc(*count * sizeof(MPI_Aint));
-    *indices = sctk_malloc(*count * sizeof(MPI_Aint));
+		/* Note that we extract the optimized version of the data-type */
+		*count = target_derived_type->opt_count;
 
-    assume(*blocklen != NULL);
-    assume(*indices != NULL);
+		*blocklen = sctk_malloc(*count * sizeof(MPI_Aint));
+		*indices  = sctk_malloc(*count * sizeof(MPI_Aint));
 
-    unsigned int i;
+		assume(*blocklen != NULL);
+		assume(*indices != NULL);
 
-    /* Here we create start, len pairs from begins/ends pairs
-     * note +1 in the extent as those boundaries are INCLUSIVE ! */
-    for (i = 0; i < *count; i++) {
-      (*indices)[i] = target_derived_type->opt_begins[i];
-      (*blocklen)[i] = target_derived_type->opt_ends[i] -
-                       target_derived_type->opt_begins[i] + 1;
-    }
+		unsigned int i;
 
-    break;
+		/* Here we create start, len pairs from begins/ends pairs
+		 * note +1 in the extent as those boundaries are INCLUSIVE ! */
+		for (i = 0; i < *count; i++)
+		{
+			(*indices)[i]  = target_derived_type->opt_begins[i];
+			(*blocklen)[i] = target_derived_type->opt_ends[i]
+			                 - target_derived_type->opt_begins[i] + 1;
+		}
 
-  case MPC_DATATYPES_UNKNOWN:
-    mpc_common_debug_fatal("CANNOT PROCESS AN UNKNOWN DATATYPE");
-    break;
-  }
+		break;
 
-  return MPI_SUCCESS;
+	case MPC_DATATYPES_UNKNOWN:
+		mpc_common_debug_fatal("CANNOT PROCESS AN UNKNOWN DATATYPE");
+		break;
+	}
+
+	return MPI_SUCCESS;
 }
 
 int MPIR_Type_flatten(MPI_Datatype type, MPI_Aint **off_array,
-                      MPI_Aint **size_array, MPI_Aint *array_len_p) {
-  mpc_common_debug_error("Hello flatten");
-  return MPCX_Type_flatten(type, off_array, size_array, array_len_p);
+                      MPI_Aint **size_array, MPI_Aint *array_len_p)
+{
+	mpc_common_debug_error("Hello flatten");
+	return MPCX_Type_flatten(type, off_array, size_array, array_len_p);
 }
 
-MPI_Aint MPCX_Type_get_count(MPI_Datatype datatype) {
-  mpc_mpi_cl_per_mpi_process_ctx_t *task_specific = mpc_cl_per_mpi_process_ctx_get();
-  _mpc_dt_derived_t *target_derived_type;
+MPI_Aint MPCX_Type_get_count(MPI_Datatype datatype)
+{
+	mpc_mpi_cl_per_mpi_process_ctx_t *task_specific = mpc_cl_per_mpi_process_ctx_get();
+	_mpc_dt_derived_t *target_derived_type;
 
 
-  /* Nothing to do */
-  if (datatype == MPI_DATATYPE_NULL) {
-    return MPI_SUCCESS;
-  }
+	/* Nothing to do */
+	if (datatype == MPI_DATATYPE_NULL)
+	{
+		return MPI_SUCCESS;
+	}
 
-  switch (_mpc_dt_get_kind(datatype)) {
-  case MPC_DATATYPES_COMMON:
-    return 1;
-    break;
-  case MPC_DATATYPES_CONTIGUOUS:
-    return 1;
-    break;
+	switch (_mpc_dt_get_kind(datatype))
+	{
+	case MPC_DATATYPES_COMMON:
+		return 1;
 
-  case MPC_DATATYPES_DERIVED:
-    target_derived_type =
-        _mpc_cl_per_mpi_process_ctx_derived_datatype_ts_get(task_specific, datatype);
+		break;
 
-    return target_derived_type->opt_count;
-    break;
+	case MPC_DATATYPES_CONTIGUOUS:
+		return 1;
 
-  case MPC_DATATYPES_UNKNOWN:
-    mpc_common_debug_fatal("CANNOT PROCESS AN UNKNOWN DATATYPE");
-    return 0;
-    break;
-  }
+		break;
 
-  return 0;
+	case MPC_DATATYPES_DERIVED:
+		target_derived_type =
+			_mpc_cl_per_mpi_process_ctx_derived_datatype_ts_get(task_specific, datatype);
+
+		return target_derived_type->opt_count;
+
+		break;
+
+	case MPC_DATATYPES_UNKNOWN:
+		mpc_common_debug_fatal("CANNOT PROCESS AN UNKNOWN DATATYPE");
+		return 0;
+
+		break;
+	}
+
+	return 0;
 }
+
 #endif

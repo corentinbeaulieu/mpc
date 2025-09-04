@@ -57,350 +57,358 @@
 #define MPC_LCP_MMU_HT_SIZE 4096
 
 #define MPC_LCP_MMU_MAX_ENTRIES 1024
-#define MPC_LCP_MMU_MAX_SIZE (size_t)(1024*1024*1024)
+#define MPC_LCP_MMU_MAX_SIZE    (size_t)(1024 * 1024 * 1024)
 
-static struct lcp_mem lcp_mem_dummy_handle = {
-        .base_addr  = 0,
-        .bm         = MPC_BITMAP_INIT,
-        .length     = 0,
-        .flags      = 0,
+static struct lcp_mem lcp_mem_dummy_handle =
+{
+	.base_addr = 0,
+	.bm        = MPC_BITMAP_INIT,
+	.length    = 0,
+	.flags     = 0,
 };
 
-//FIXME: change doc from ctx to mngr
+// FIXME: change doc from ctx to mngr
 
 struct lcp_pinning_entry
 {
-        mpc_common_spinlock_t lock;
-        uint64_t refcount;
-        const void * start;
-        size_t size;
-        lcp_manager_h mngr;
-        lcp_mem_h mem_entry;
+	mpc_common_spinlock_t     lock;
+	uint64_t                  refcount;
+	const void *              start;
+	size_t                    size;
+	lcp_manager_h             mngr;
+	lcp_mem_h                 mem_entry;
 
-        struct lcp_pinning_entry *prev;
-        struct lcp_pinning_entry *next;
+	struct lcp_pinning_entry *prev;
+	struct lcp_pinning_entry *next;
 };
 
-struct lcp_pinning_entry * lcp_pinning_entry_new(const void * start, size_t size, lcp_manager_h mngr, lcp_mem_h mem_entry)
+struct lcp_pinning_entry * lcp_pinning_entry_new(const void *start, size_t size, lcp_manager_h mngr,
+                                                 lcp_mem_h mem_entry)
 {
-        struct lcp_pinning_entry * ret = sctk_malloc(sizeof(struct lcp_pinning_entry));
-        assume(ret);
+	struct lcp_pinning_entry *ret = sctk_malloc(sizeof(struct lcp_pinning_entry));
 
-        ret->refcount = 0;
-        mpc_common_spinlock_init(&ret->lock, 0);
+	assume(ret);
 
-        ret->start = start;
-        ret->size = size;
-        ret->mngr = mngr;
-        ret->mem_entry = mem_entry;
-        /* Backlink to the MMU CTX here */
-        mem_entry->pointer_to_mmu_ctx = ret;
+	ret->refcount = 0;
+	mpc_common_spinlock_init(&ret->lock, 0);
 
-        return ret;
+	ret->start     = start;
+	ret->size      = size;
+	ret->mngr      = mngr;
+	ret->mem_entry = mem_entry;
+	/* Backlink to the MMU CTX here */
+	mem_entry->pointer_to_mmu_ctx = ret;
+
+	return ret;
 }
 
 int lcp_pinning_entry_contains(struct lcp_pinning_entry *entry,
-                               const void * start, size_t size, bmap_t bitmap)
+                               const void *start, size_t size, bmap_t bitmap)
 {
-        if( (entry->start <= start) && ((start + size) <= (entry->start + entry->size))
-            && (entry->size == size) && MPC_BITMAP_AND(entry->mem_entry->bm, bitmap))
-        {
-                mpc_common_nodebug("(%p - %lld) is in (%p -- %lld)", start, size, entry->start, entry->size);
-                return 1;
-        }
+	if ((entry->start <= start) && ((start + size) <= (entry->start + entry->size))
+	    && (entry->size == size) && MPC_BITMAP_AND(entry->mem_entry->bm, bitmap))
+	{
+		mpc_common_nodebug("(%p - %lld) is in (%p -- %lld)", start, size, entry->start, entry->size);
+		return 1;
+	}
 
-        return 0;
+	return 0;
 }
 
 void lcp_pinning_entry_acquire(struct lcp_pinning_entry *entry)
 {
-        mpc_common_spinlock_lock(&entry->lock);
-        entry->refcount++;
-        mpc_common_spinlock_unlock(&entry->lock);
+	mpc_common_spinlock_lock(&entry->lock);
+	entry->refcount++;
+	mpc_common_spinlock_unlock(&entry->lock);
 }
 
 void lcp_pinning_entry_relax(struct lcp_pinning_entry *entry)
 {
-        mpc_common_spinlock_lock(&entry->lock);
-        entry->refcount--;
-        mpc_common_spinlock_unlock(&entry->lock);
+	mpc_common_spinlock_lock(&entry->lock);
+	entry->refcount--;
+	mpc_common_spinlock_unlock(&entry->lock);
 }
 
 uint64_t lcp_pinning_entry_refcount(struct lcp_pinning_entry *entry)
 {
-        uint64_t ret = 0;
-        mpc_common_spinlock_lock(&entry->lock);
-        ret = entry->refcount;
-        mpc_common_spinlock_unlock(&entry->lock);
+	uint64_t ret = 0;
 
-        return ret;
+	mpc_common_spinlock_lock(&entry->lock);
+	ret = entry->refcount;
+	mpc_common_spinlock_unlock(&entry->lock);
+
+	return ret;
 }
 
 int lcp_pinning_entry_list_init(struct lcp_pinning_entry_list *list)
 {
-        list->entry = NULL;
-        list->entries_count = 0;
-        list->total_size = 0;
+	list->entry         = NULL;
+	list->entries_count = 0;
+	list->total_size    = 0;
 
-        list->max_entries_count = _mpc_lowcomm_config_proto_get()->max_mmu_entries;
-        list->max_total_size = _mpc_lowcomm_config_proto_get()->mmu_max_size;
+	list->max_entries_count = _mpc_lowcomm_config_proto_get()->max_mmu_entries;
+	list->max_total_size    = _mpc_lowcomm_config_proto_get()->mmu_max_size;
 
-        mpc_common_rw_lock_init(&list->lock);
-        return 0;
+	mpc_common_rw_lock_init(&list->lock);
+	return 0;
 }
 
 int lcp_pinning_entry_list_release(struct lcp_pinning_entry_list *list, int (*free_cb)(struct lcp_pinning_entry *entry))
 {
-        int rc = MPC_LOWCOMM_SUCCESS;
-        struct lcp_pinning_entry * tmp = list->entry;
-        struct lcp_pinning_entry * to_free = NULL;
+	int rc = MPC_LOWCOMM_SUCCESS;
+	struct lcp_pinning_entry *tmp     = list->entry;
+	struct lcp_pinning_entry *to_free = NULL;
 
-        while(tmp)
-        {
-                to_free = tmp;
-                tmp = tmp->next;
+	while (tmp)
+	{
+		to_free = tmp;
+		tmp     = tmp->next;
 
-                if(free_cb)
-                {
-                        rc = (free_cb)(to_free);
-                        if (rc != MPC_LOWCOMM_SUCCESS) {
-                                goto err;
-                        }
-                }
+		if (free_cb)
+		{
+			rc = (free_cb)(to_free);
+			if (rc != MPC_LOWCOMM_SUCCESS)
+			{
+				goto err;
+			}
+		}
 
-                sctk_free(to_free);
-        }
+		sctk_free(to_free);
+	}
 
 err:
-        return rc;
+	return rc;
 }
 
-
-struct lcp_pinning_entry * lcp_pinning_entry_list_find_no_lock(struct lcp_pinning_entry_list * list,
-                                                               const void * start, size_t size, bmap_t bitmap)
+struct lcp_pinning_entry * lcp_pinning_entry_list_find_no_lock(struct lcp_pinning_entry_list *list,
+                                                               const void *start, size_t size, bmap_t bitmap)
 {
-        struct lcp_pinning_entry * ret = NULL;
+	struct lcp_pinning_entry *ret = NULL;
 
-        struct lcp_pinning_entry * tmp = list->entry;
+	struct lcp_pinning_entry *tmp = list->entry;
 
-        while(tmp)
-        {
-                if(lcp_pinning_entry_contains(tmp, start, size, bitmap))
-                {
-                        ret = tmp;
-                        /* We acquire in the read lock to avoid races */
-                        lcp_pinning_entry_acquire(ret);
+	while (tmp)
+	{
+		if (lcp_pinning_entry_contains(tmp, start, size, bitmap))
+		{
+			ret = tmp;
+			/* We acquire in the read lock to avoid races */
+			lcp_pinning_entry_acquire(ret);
 
-                        break;
-                }
-                tmp = tmp->next;
-        }
+			break;
+		}
+		tmp = tmp->next;
+	}
 
-        return ret;
+	return ret;
 }
 
-struct lcp_pinning_entry * lcp_pinning_entry_list_find(struct lcp_pinning_entry_list * list,
-                                                       const void * start,
+struct lcp_pinning_entry * lcp_pinning_entry_list_find(struct lcp_pinning_entry_list *list,
+                                                       const void *start,
                                                        size_t size, bmap_t bitmap)
 {
-        struct lcp_pinning_entry * ret = NULL;
+	struct lcp_pinning_entry *ret = NULL;
 
-        mpc_common_spinlock_read_lock(&list->lock);
+	mpc_common_spinlock_read_lock(&list->lock);
 
-        ret = lcp_pinning_entry_list_find_no_lock(list, start, size, bitmap);
+	ret = lcp_pinning_entry_list_find_no_lock(list, start, size, bitmap);
 
-        mpc_common_spinlock_read_unlock(&list->lock);
+	mpc_common_spinlock_read_unlock(&list->lock);
 
-        return ret;
+	return ret;
 }
 
-
-
-int __lcp_pinning_entry_list_remove(struct lcp_pinning_entry_list * list, struct lcp_pinning_entry *entry, int do_lock)
+int __lcp_pinning_entry_list_remove(struct lcp_pinning_entry_list *list, struct lcp_pinning_entry *entry, int do_lock)
 {
-        if(do_lock)
-        {
-                mpc_common_spinlock_write_lock(&list->lock);
-        }
+	if (do_lock)
+	{
+		mpc_common_spinlock_write_lock(&list->lock);
+	}
 
-        /* Looked up entry is first elem directly remove */
-        if(!entry->prev)
-        {
-                assume(list->entry == entry);
-                list->entry = entry->next;
-        }
-        else
-        {
-                entry->prev->next = entry->next;
-                if(entry->next)
-                {
-                        entry->next->prev = entry->prev;
-                }
-        }
+	/* Looked up entry is first elem directly remove */
+	if (!entry->prev)
+	{
+		assume(list->entry == entry);
+		list->entry = entry->next;
+	}
+	else
+	{
+		entry->prev->next = entry->next;
+		if (entry->next)
+		{
+			entry->next->prev = entry->prev;
+		}
+	}
 
-        list->entries_count--;
-        list->total_size -= entry->size;
+	list->entries_count--;
+	list->total_size -= entry->size;
 
-        if(do_lock)
-        {
-                mpc_common_spinlock_write_unlock(&list->lock);
-        }
+	if (do_lock)
+	{
+		mpc_common_spinlock_write_unlock(&list->lock);
+	}
 
-        lcp_pinning_mmu_unpin(entry->mngr, entry->mem_entry);
-        sctk_free(entry);
+	lcp_pinning_mmu_unpin(entry->mngr, entry->mem_entry);
+	sctk_free(entry);
 
-        return 0;
+	return 0;
 }
 
-
-int lcp_pinning_entry_list_remove_no_lock(struct lcp_pinning_entry_list * list, struct lcp_pinning_entry *entry)
+int lcp_pinning_entry_list_remove_no_lock(struct lcp_pinning_entry_list *list, struct lcp_pinning_entry *entry)
 {
-        return __lcp_pinning_entry_list_remove(list, entry, 0);
+	return __lcp_pinning_entry_list_remove(list, entry, 0);
 }
 
-int lcp_pinning_entry_list_remove(struct lcp_pinning_entry_list * list, struct lcp_pinning_entry *entry)
+int lcp_pinning_entry_list_remove(struct lcp_pinning_entry_list *list, struct lcp_pinning_entry *entry)
 {
-        return __lcp_pinning_entry_list_remove(list, entry, 1);
+	return __lcp_pinning_entry_list_remove(list, entry, 1);
 }
 
-
-int lcp_pinning_entry_list_decimate_no_lock(struct lcp_pinning_entry_list * list, ssize_t size_to_decimate)
+int lcp_pinning_entry_list_decimate_no_lock(struct lcp_pinning_entry_list *list, ssize_t size_to_decimate)
 {
-        struct lcp_pinning_entry * last = list->entry;
+	struct lcp_pinning_entry *last = list->entry;
 
-        if(last)
-        {
-                while(last->next)
-                {
-                        last = last->next;
-                }
-        }
+	if (last)
+	{
+		while (last->next)
+		{
+			last = last->next;
+		}
+	}
 
-        /* Now we can process from the older elements */
-        while(last && (0<=size_to_decimate))
-        {
-                struct lcp_pinning_entry * upper = last->prev;
+	/* Now we can process from the older elements */
+	while (last && (0 <= size_to_decimate))
+	{
+		struct lcp_pinning_entry *upper = last->prev;
 
-                if(lcp_pinning_entry_refcount(last) == 0)
-                {
-                        size_to_decimate -= (long int)last->size;
-                        mpc_common_tracepoint_fmt("PINNING removing a buffer of %lld", last->size);
-                        lcp_pinning_entry_list_remove_no_lock(list, last);
-                }
+		if (lcp_pinning_entry_refcount(last) == 0)
+		{
+			size_to_decimate -= (long int)last->size;
+			mpc_common_tracepoint_fmt("PINNING removing a buffer of %lld", last->size);
+			lcp_pinning_entry_list_remove_no_lock(list, last);
+		}
 
-                last = upper;
-        }
+		last = upper;
+	}
 
-        return 0;
+	return 0;
 }
 
-struct lcp_pinning_entry * lcp_pinning_entry_list_push(struct lcp_pinning_entry_list * list,
-                                                       const void * buffer, size_t len, lcp_manager_h mngr,
+struct lcp_pinning_entry * lcp_pinning_entry_list_push(struct lcp_pinning_entry_list *list,
+                                                       const void *buffer, size_t len, lcp_manager_h mngr,
                                                        bmap_t bitmap, unsigned flags)
 {
-        struct lcp_pinning_entry * ret = NULL;
+	struct lcp_pinning_entry *ret = NULL;
 
-        mpc_common_spinlock_write_lock(&list->lock);
+	mpc_common_spinlock_write_lock(&list->lock);
 
-        ret = lcp_pinning_entry_list_find_no_lock(list, buffer, len, bitmap);
+	ret = lcp_pinning_entry_list_find_no_lock(list, buffer, len, bitmap);
 
-        if(!ret)
-        {
-                /* Check capacity */
-                if(list->max_entries_count <= list->entries_count)
-                {
-                        /* Decimate one */
-                        mpc_common_debug("PINNING Decimate one due to count limit");
-                        lcp_pinning_entry_list_decimate_no_lock(list, 0);
-                }
+	if (!ret)
+	{
+		/* Check capacity */
+		if (list->max_entries_count <= list->entries_count)
+		{
+			/* Decimate one */
+			mpc_common_debug("PINNING Decimate one due to count limit");
+			lcp_pinning_entry_list_decimate_no_lock(list, 0);
+		}
 
-                if(list->max_total_size <= (list->total_size + len))
-                {
-                        mpc_common_debug("PINNING Decimate many due to size limit MAXSIZE %llu CURRENTTOTAL %llu REQLEN %llu", list->max_total_size, list->total_size, len);
+		if (list->max_total_size <= (list->total_size + len))
+		{
+			mpc_common_debug("PINNING Decimate many due to size limit MAXSIZE %llu CURRENTTOTAL %llu REQLEN %llu",
+				list->max_total_size,
+				list->total_size,
+				len);
 
-                        lcp_pinning_entry_list_decimate_no_lock(list, (list->total_size + len) - list->max_total_size);
-                }
+			lcp_pinning_entry_list_decimate_no_lock(list, (list->total_size + len) - list->max_total_size);
+		}
 
-                int rc;
-                lcp_mem_h mem = NULL;
-                rc = lcp_mem_create(mngr, &mem);
-                if (rc != MPC_LOWCOMM_SUCCESS) {
-                        goto err;
-                }
+		int       rc;
+		lcp_mem_h mem = NULL;
+		rc = lcp_mem_create(mngr, &mem);
+		if (rc != MPC_LOWCOMM_SUCCESS)
+		{
+			goto err;
+		}
 
-                rc = lcp_mem_reg_from_map(mngr, mem,
-                                          bitmap,
-                                          buffer,
-                                          len, flags,
-                                          &mem->bm);
-                if (rc != MPC_LOWCOMM_SUCCESS) {
-                        goto err;
-                }
-                ret = lcp_pinning_entry_new(buffer, len, mngr, mem);
-                lcp_pinning_entry_acquire(ret);
+		rc = lcp_mem_reg_from_map(mngr, mem,
+			bitmap,
+			buffer,
+			len, flags,
+			&mem->bm);
+		if (rc != MPC_LOWCOMM_SUCCESS)
+		{
+			goto err;
+		}
+		ret = lcp_pinning_entry_new(buffer, len, mngr, mem);
+		lcp_pinning_entry_acquire(ret);
 
-                ret->prev = NULL;
-                ret->next = list->entry;
+		ret->prev = NULL;
+		ret->next = list->entry;
 
-                if(list->entry)
-                {
-                        list->entry->prev = ret;
-                }
+		if (list->entry)
+		{
+			list->entry->prev = ret;
+		}
 
-                list->entry = ret;
+		list->entry = ret;
 
-                list->entries_count++;
-                list->total_size += len;
+		list->entries_count++;
+		list->total_size += len;
 
-                mpc_common_debug("PINNING new segment for size %ld @ %p [MMU count : %llu, MMU TOTAL %g MB]", len, buffer, list->entries_count, (double)list->total_size/(1024.0*1024.0));
-
-        }
+		mpc_common_debug("PINNING new segment for size %ld @ %p [MMU count : %llu, MMU TOTAL %g MB]",
+			len,
+			buffer,
+			list->entries_count,
+			(double)list->total_size / (1024.0 * 1024.0));
+	}
 
 err:
-        mpc_common_spinlock_write_unlock(&list->lock);
+	mpc_common_spinlock_write_unlock(&list->lock);
 
-        return ret;
+	return ret;
 }
 
-//FIXME: void return type instead?
+// FIXME: void return type instead?
 int lcp_pinning_mmu_init(struct lcp_pinning_mmu **mmu_p, unsigned flags)
 {
-        UNUSED(flags); //NOTE: for later optimization.
-        int rc = MPC_LOWCOMM_SUCCESS;
-        struct lcp_pinning_mmu *mmu = NULL;
+	UNUSED(flags);     // NOTE: for later optimization.
+	int rc = MPC_LOWCOMM_SUCCESS;
+	struct lcp_pinning_mmu *mmu = NULL;
 
-        mmu = sctk_malloc(sizeof(struct lcp_pinning_mmu));
-        if (mmu == NULL) {
-                mpc_common_debug_error("LCP MEM: could not allocate MMU.");
-                rc = MPC_LOWCOMM_ERROR;
-                goto err;
-        }
+	mmu = sctk_malloc(sizeof(struct lcp_pinning_mmu));
+	if (mmu == NULL)
+	{
+		mpc_common_debug_error("LCP MEM: could not allocate MMU.");
+		rc = MPC_LOWCOMM_ERROR;
+		goto err;
+	}
 
-        lcp_pinning_entry_list_init(&mmu->list);
+	lcp_pinning_entry_list_init(&mmu->list);
 
-        *mmu_p = mmu;
+	*mmu_p = mmu;
 err:
-        return rc;
+	return rc;
 }
 
 int __unpin(struct lcp_pinning_entry *entry)
 {
-        return lcp_mem_deprovision(entry->mngr, entry->mem_entry);
+	return lcp_mem_deprovision(entry->mngr, entry->mem_entry);
 }
 
 int lcp_pinning_mmu_release(struct lcp_pinning_mmu *mmu)
 {
-        lcp_pinning_entry_list_release(&mmu->list, __unpin);
+	lcp_pinning_entry_list_release(&mmu->list, __unpin);
 
-        sctk_free(mmu);
-        mmu = NULL;
+	sctk_free(mmu);
+	mmu = NULL;
 
-        return MPC_LOWCOMM_SUCCESS;
+	return MPC_LOWCOMM_SUCCESS;
 }
 
-
-//NOTE: implements a FIFO like caching algorithm.
-//FIXME: It seems there is a bug whenever a cached memory has been found, then
+// NOTE: implements a FIFO like caching algorithm.
+// FIXME: It seems there is a bug whenever a cached memory has been found, then
 //       it gathers with it previous lower layer memory pins with their
 //       configurations which may not have the same base address or size. Since
 //       put/get operation are performed using the base address the remote key,
@@ -408,226 +416,244 @@ int lcp_pinning_mmu_release(struct lcp_pinning_mmu *mmu)
 lcp_mem_h lcp_pinning_mmu_pin(lcp_manager_h mngr, const void *addr,
                               size_t size, bmap_t bitmap, unsigned flags)
 {
-        struct lcp_pinning_entry * exists = lcp_pinning_entry_list_find(&mngr->mmu->list, addr, size, bitmap);
+	struct lcp_pinning_entry *exists = lcp_pinning_entry_list_find(&mngr->mmu->list, addr, size, bitmap);
 
-        if(exists)
-        {
-                /* Was acquired in the find */
-                mpc_common_debug("MEM: pinning entry exists: addr=%p, "
-                                 "size=%llu, bitmap=%x", addr, size, bitmap);
-                return exists->mem_entry;
-        }
+	if (exists)
+	{
+		/* Was acquired in the find */
+		mpc_common_debug("MEM: pinning entry exists: addr=%p, "
+			             "size=%llu, bitmap=%x", addr, size, bitmap);
+		return exists->mem_entry;
+	}
 
-        exists = lcp_pinning_entry_list_push(&mngr->mmu->list, addr,
-                                             size, mngr, bitmap, flags);
-        assume(exists);
+	exists = lcp_pinning_entry_list_push(&mngr->mmu->list, addr,
+		size, mngr, bitmap, flags);
+	assume(exists);
 
-        return exists->mem_entry;
+	return exists->mem_entry;
 }
 
 int lcp_pinning_mmu_unpin(lcp_manager_h mngr, lcp_mem_h mem)
 {
-        UNUSED(mngr);
-        struct lcp_pinning_entry * mmu_entry = (struct lcp_pinning_entry *)mem->pointer_to_mmu_ctx;
-        assert(mmu_entry != NULL);
-        lcp_pinning_entry_relax(mmu_entry);
+	UNUSED(mngr);
+	struct lcp_pinning_entry *mmu_entry = (struct lcp_pinning_entry *)mem->pointer_to_mmu_ctx;
+	assert(mmu_entry != NULL);
+	lcp_pinning_entry_relax(mmu_entry);
 
-        return 0;
+	return 0;
 }
 
 static int lcp_mem_alloc(lcp_mem_h mem, size_t length, unsigned flags)
 {
-        UNUSED(flags);
-        int rc = MPC_LOWCOMM_SUCCESS;
+	UNUSED(flags);
+	int rc = MPC_LOWCOMM_SUCCESS;
 
-        //NOTE: right now only malloc is supported, later support for shared
-        //      memory can be added.
-        mem->method = LCP_MEM_ALLOC_MALLOC;
+	// NOTE: right now only malloc is supported, later support for shared
+	//      memory can be added.
+	mem->method = LCP_MEM_ALLOC_MALLOC;
 
-        switch (mem->method) {
-        case LCP_MEM_ALLOC_MALLOC:
-                mem->base_addr = (uint64_t)sctk_malloc(length);
-                if ((void *)mem->base_addr == NULL) {
-                        mpc_common_debug_error("LCP MEM: could not allocate "
-                                               "memory base address.");
-                        rc = MPC_LOWCOMM_ERROR;
-                        goto err;
-                }
-                mem->length = length;
-                break;
-        case LCP_MEM_ALLOC_RD:
-                //NOTE: implement Resource Domain allocation to allocate shared
-                //      memory for example.
-                not_implemented();
-                break;
-        case LCP_MEM_ALLOC_MMAP:
-                //NOTE: use MMAP with MAP_FIXED to implement symmetric
-                //      allocation with a unique address. This could avoid
-                //      overloading translation table of the NIC for example
-                //      when a lot of windows need to be created.
-                not_implemented();
-                break;
-        default:
-                mpc_common_debug_error("LCP MEM: unknown allocation method.");
-                rc = MPC_LOWCOMM_ERROR;
-        }
+	switch (mem->method)
+	{
+	case LCP_MEM_ALLOC_MALLOC:
+		mem->base_addr = (uint64_t)sctk_malloc(length);
+		if ((void *)mem->base_addr == NULL)
+		{
+			mpc_common_debug_error("LCP MEM: could not allocate "
+				                   "memory base address.");
+			rc = MPC_LOWCOMM_ERROR;
+			goto err;
+		}
+		mem->length = length;
+		break;
 
-        mem->flags |= LCP_MEM_FLAG_FREE;
+	case LCP_MEM_ALLOC_RD:
+		// NOTE: implement Resource Domain allocation to allocate shared
+		//      memory for example.
+		not_implemented();
+		break;
+
+	case LCP_MEM_ALLOC_MMAP:
+		// NOTE: use MMAP with MAP_FIXED to implement symmetric
+		//      allocation with a unique address. This could avoid
+		//      overloading translation table of the NIC for example
+		//      when a lot of windows need to be created.
+		not_implemented();
+		break;
+
+	default:
+		mpc_common_debug_error("LCP MEM: unknown allocation method.");
+		rc = MPC_LOWCOMM_ERROR;
+	}
+
+	mem->flags |= LCP_MEM_FLAG_FREE;
 err:
-        return rc;
+	return rc;
 }
 
 static void lcp_mem_free(lcp_mem_h mem)
 {
-        switch(mem->method) {
-        case LCP_MEM_ALLOC_MALLOC:
-                sctk_free((void *)mem->base_addr);
-                break;
-        case LCP_MEM_ALLOC_RD:
-                //NOTE: implement Resource Domain allocation to allocate shared
-                //      memory for example.
-                not_implemented();
-                break;
-        case LCP_MEM_ALLOC_MMAP:
-                //NOTE: use MMAP with MAP_FIXED to implement symmetric
-                //      allocation with a unique address. This could avoid
-                //      overloading translation table of the NIC for example
-                //      when a lot of windows need to be created.
-                not_implemented();
-                break;
-        default:
-                mpc_common_debug_error("LCP MEM: unknown allocation method.");
-        }
+	switch (mem->method)
+	{
+	case LCP_MEM_ALLOC_MALLOC:
+		sctk_free((void *)mem->base_addr);
+		break;
+
+	case LCP_MEM_ALLOC_RD:
+		// NOTE: implement Resource Domain allocation to allocate shared
+		//      memory for example.
+		not_implemented();
+		break;
+
+	case LCP_MEM_ALLOC_MMAP:
+		// NOTE: use MMAP with MAP_FIXED to implement symmetric
+		//      allocation with a unique address. This could avoid
+		//      overloading translation table of the NIC for example
+		//      when a lot of windows need to be created.
+		not_implemented();
+		break;
+
+	default:
+		mpc_common_debug_error("LCP MEM: unknown allocation method.");
+	}
 }
 
-//FIXME: A memory range described by lcp_mem_h is unique (same address, same
+// FIXME: A memory range described by lcp_mem_h is unique (same address, same
 //       length). As a consequence, transport memory key will be identical for
 //       homogenous transports, so no need to pack it for all rail in case of
 //       multirail.
 size_t lcp_mem_rkey_pack(lcp_manager_h mngr, lcp_mem_h mem, void *dest)
 {
-        int i;
-        void *rkey_buf;
-        size_t packed_size = 0;
-        sctk_rail_info_t *iface = NULL;
+	int               i;
+	void *            rkey_buf;
+	size_t            packed_size = 0;
+	sctk_rail_info_t *iface       = NULL;
 
-        rkey_buf = dest;
-        *(bmap_t *)rkey_buf = mem->bm;
-        packed_size += sizeof(bmap_t);
-        for (i=0; i < mngr->num_ifaces; i++) {
-                if (MPC_BITMAP_GET(mem->bm, i)) {
-                        iface = mngr->ifaces[i];
-                        //FIXME: no error handling in case returned size is < 0
-                        packed_size += iface->iface_pack_memp(iface, &mem->mems[i],
-                                                              rkey_buf + packed_size);
-                }
-        }
+	rkey_buf            = dest;
+	*(bmap_t *)rkey_buf = mem->bm;
+	packed_size        += sizeof(bmap_t);
+	for (i = 0; i < mngr->num_ifaces; i++)
+	{
+		if (MPC_BITMAP_GET(mem->bm, i))
+		{
+			iface = mngr->ifaces[i];
+			// FIXME: no error handling in case returned size is < 0
+			packed_size += iface->iface_pack_memp(iface, &mem->mems[i],
+				rkey_buf + packed_size);
+		}
+	}
 
-        return packed_size;
+	return packed_size;
 }
 
 int lcp_mem_pack(lcp_manager_h mngr, lcp_mem_h mem,
                  void **rkey_buf_p, int *rkey_len)
 {
-        int i, rc = MPC_LOWCOMM_SUCCESS;
-        size_t packed_size = 0;
-        lcr_rail_attr_t attr;
-        void *rkey_buf;
-        sctk_rail_info_t *iface = NULL;
+	int               i, rc = MPC_LOWCOMM_SUCCESS;
+	size_t            packed_size = 0;
+	lcr_rail_attr_t   attr;
+	void *            rkey_buf;
+	sctk_rail_info_t *iface = NULL;
 
-        packed_size += sizeof(bmap_t);
-        for (i = 0; i < mngr->num_ifaces; i++) {
-                if (MPC_BITMAP_GET(mem->bm, i)) {
-                        iface = mngr->ifaces[i];
-                        iface->iface_get_attr(iface, &attr);
+	packed_size += sizeof(bmap_t);
+	for (i = 0; i < mngr->num_ifaces; i++)
+	{
+		if (MPC_BITMAP_GET(mem->bm, i))
+		{
+			iface = mngr->ifaces[i];
+			iface->iface_get_attr(iface, &attr);
 
-                        packed_size += attr.mem.size_packed_mkey;
-                }
-        }
+			packed_size += attr.mem.size_packed_mkey;
+		}
+	}
 
-        rkey_buf = sctk_malloc(packed_size);
-        if (rkey_buf == NULL) {
-                mpc_common_debug_error("LCP MEM: could not allocate packed key "
-                                       "buffer.");
-                rc = MPC_LOWCOMM_ERROR;
-                goto err;
-        }
+	rkey_buf = sctk_malloc(packed_size);
+	if (rkey_buf == NULL)
+	{
+		mpc_common_debug_error("LCP MEM: could not allocate packed key "
+			                   "buffer.");
+		rc = MPC_LOWCOMM_ERROR;
+		goto err;
+	}
 
-        lcp_mem_rkey_pack(mngr, mem, rkey_buf);
+	lcp_mem_rkey_pack(mngr, mem, rkey_buf);
 
-        *rkey_buf_p = rkey_buf;
-        *rkey_len   = packed_size;
+	*rkey_buf_p = rkey_buf;
+	*rkey_len   = packed_size;
 
 err:
-        return rc;
+	return rc;
 }
 
 void lcp_mem_release_rkey_buf(void *rkey_buffer)
 {
-        sctk_free(rkey_buffer);
-        rkey_buffer = NULL;
+	sctk_free(rkey_buffer);
+	rkey_buffer = NULL;
 }
 
 int lcp_mem_unpack(lcp_manager_h mngr, lcp_mem_h *mem_p,
                    void *src, size_t size)
 {
-        int i, rc = MPC_LOWCOMM_SUCCESS;
-        size_t unpacked_size = 0;
-        sctk_rail_info_t *iface = NULL;
-        void *p = src;
-        lcp_mem_h mem;
+	int               i, rc = MPC_LOWCOMM_SUCCESS;
+	size_t            unpacked_size = 0;
+	sctk_rail_info_t *iface         = NULL;
+	void *            p             = src;
+	lcp_mem_h         mem;
 
-        mem = mpc_mpool_pop(mngr->mem_mp);
-        if (mem == NULL) {
-                mpc_common_debug_error("LCP: could not allocate memory domain.");
-                rc = MPC_LOWCOMM_ERROR;
-                goto err;
-        }
-        mem->flags = LCP_MEM_FLAG_RELEASE_UNPACK;
+	mem = mpc_mpool_pop(mngr->mem_mp);
+	if (mem == NULL)
+	{
+		mpc_common_debug_error("LCP: could not allocate memory domain.");
+		rc = MPC_LOWCOMM_ERROR;
+		goto err;
+	}
+	mem->flags = LCP_MEM_FLAG_RELEASE_UNPACK;
 
-        mem->bm = *(bmap_t *)p; unpacked_size += sizeof(bmap_t);
-        for (i=0; i<mngr->num_ifaces; i++) {
-                if (MPC_BITMAP_GET(mem->bm, i)) {
-                        iface = mngr->ifaces[i];
-                        unpacked_size += iface->iface_unpack_memp(iface,
-                                                                  &mem->mems[i],
-                                                                  p + unpacked_size);
-                }
-        }
+	mem->bm = *(bmap_t *)p; unpacked_size += sizeof(bmap_t);
+	for (i = 0; i < mngr->num_ifaces; i++)
+	{
+		if (MPC_BITMAP_GET(mem->bm, i))
+		{
+			iface          = mngr->ifaces[i];
+			unpacked_size += iface->iface_unpack_memp(iface,
+				&mem->mems[i],
+				p + unpacked_size);
+		}
+	}
 
-        assert(size == unpacked_size);
+	assert(size == unpacked_size);
 
-        *mem_p = mem;
+	*mem_p = mem;
 err:
-        return rc;
+	return rc;
 }
 
 int lcp_mem_create(lcp_manager_h mngr, lcp_mem_h *mem_p)
 {
-        int rc = MPC_LOWCOMM_SUCCESS;
-        lcp_mem_h mem;
+	int       rc = MPC_LOWCOMM_SUCCESS;
+	lcp_mem_h mem;
 
-        mem = mpc_mpool_pop(mngr->mem_mp);
-        if (mem == NULL) {
-                mpc_common_debug_error("LCP MEM: could not allocate memory domain.");
-                rc = MPC_LOWCOMM_ERROR;
-                goto err;
-        }
-        mem->flags = 0;
+	mem = mpc_mpool_pop(mngr->mem_mp);
+	if (mem == NULL)
+	{
+		mpc_common_debug_error("LCP MEM: could not allocate memory domain.");
+		rc = MPC_LOWCOMM_ERROR;
+		goto err;
+	}
+	mem->flags = 0;
 
-        //NOTE: allocation on the number of interfaces even though the memories
-        //      depend on the bitmap. Fits better with the bitmap.
-        mem->pointer_to_mmu_ctx = NULL;
-        memset(mem->mems, 0, mngr->num_ifaces * sizeof(lcr_memp_t));
+	// NOTE: allocation on the number of interfaces even though the memories
+	//      depend on the bitmap. Fits better with the bitmap.
+	mem->pointer_to_mmu_ctx = NULL;
+	memset(mem->mems, 0, mngr->num_ifaces * sizeof(lcr_memp_t));
 
-        *mem_p = mem;
+	*mem_p = mem;
 err:
-        return rc;
+	return rc;
 }
 
 void lcp_mem_delete(lcp_mem_h mem)
 {
-        mpc_mpool_push(mem);
+	mpc_mpool_push(mem);
 }
 
 int lcp_mem_reg_from_map(lcp_manager_h mngr,
@@ -638,146 +664,165 @@ int lcp_mem_reg_from_map(lcp_manager_h mngr,
                          unsigned flags,
                          bmap_t *reg_bm_p)
 {
-        int i, rc = MPC_LOWCOMM_SUCCESS;
-        sctk_rail_info_t *iface = NULL;
-        lcr_rail_attr_t attr;
-        bmap_t reg_bm = MPC_BITMAP_INIT;
+	int i, rc = MPC_LOWCOMM_SUCCESS;
+	sctk_rail_info_t *iface = NULL;
+	lcr_rail_attr_t   attr;
+	bmap_t            reg_bm = MPC_BITMAP_INIT;
 
-        /* Pin the memory and create memory handles */
-        for (i=0; i<mngr->num_ifaces; i++) {
-                if (MPC_BITMAP_GET(bm, i)) {
-                        iface = mngr->ifaces[i];
-                        iface->iface_get_attr(iface, &attr);
+	/* Pin the memory and create memory handles */
+	for (i = 0; i < mngr->num_ifaces; i++)
+	{
+		if (MPC_BITMAP_GET(bm, i))
+		{
+			iface = mngr->ifaces[i];
+			iface->iface_get_attr(iface, &attr);
 
-                        if (!(attr.iface.cap.flags & LCR_IFACE_CAP_RMA)) {
-                               continue;
-                        }
+			if (!(attr.iface.cap.flags & LCR_IFACE_CAP_RMA))
+			{
+				continue;
+			}
 
-                        rc = lcp_iface_do_register_mem(iface, &mem->mems[i],
-                                                       buffer, length,
-                                                       flags);
-                        if (rc != MPC_LOWCOMM_SUCCESS) {
-                                goto err;
-                        }
-                        MPC_BITMAP_SET(reg_bm, i);
-                }
-        }
+			rc = lcp_iface_do_register_mem(iface, &mem->mems[i],
+				buffer, length,
+				flags);
+			if (rc != MPC_LOWCOMM_SUCCESS)
+			{
+				goto err;
+			}
+			MPC_BITMAP_SET(reg_bm, i);
+		}
+	}
 
-        MPC_BITMAP_COPY(*reg_bm_p, reg_bm);
+	MPC_BITMAP_COPY(*reg_bm_p, reg_bm);
 
 err:
-        return rc;
+	return rc;
 }
 
-//FIXME: what append if a memory could not get registered ? Miss error handling:
+// FIXME: what append if a memory could not get registered ? Miss error handling:
 //       if a subset could not be registered, perform the communication on the
 //       successful memory pins ?
 int lcp_mem_provision(lcp_manager_h mngr,
                       lcp_mem_h *mem_p,
                       lcp_mem_param_t *param)
 {
-        int rc = MPC_LOWCOMM_SUCCESS;
-        lcp_mem_h mem;
-        bmap_t reg_bm;
-        unsigned flags = 0;
+	int       rc = MPC_LOWCOMM_SUCCESS;
+	lcp_mem_h mem;
+	bmap_t    reg_bm;
+	unsigned  flags = 0;
 
-        if (param == NULL) {
-                mpc_common_debug_error("LCP MEM: param field must be set.");
-                return MPC_LOWCOMM_ERROR;
-        }
+	if (param == NULL)
+	{
+		mpc_common_debug_error("LCP MEM: param field must be set.");
+		return MPC_LOWCOMM_ERROR;
+	}
 
-        if (!(param->field_mask & LCP_MEM_SIZE_FIELD) ) {
-                mpc_common_debug_error("LCP MEM: must specify size field.");
-                return MPC_LOWCOMM_ERROR;
-        }
+	if (!(param->field_mask & LCP_MEM_SIZE_FIELD))
+	{
+		mpc_common_debug_error("LCP MEM: must specify size field.");
+		return MPC_LOWCOMM_ERROR;
+	}
 
-        if (!(param->field_mask & LCP_MEM_ADDR_FIELD) ) {
-                mpc_common_debug_error("LCP MEM: must specify address field.");
-                return MPC_LOWCOMM_ERROR;
-        }
+	if (!(param->field_mask & LCP_MEM_ADDR_FIELD))
+	{
+		mpc_common_debug_error("LCP MEM: must specify address field.");
+		return MPC_LOWCOMM_ERROR;
+	}
 
-        if (!(param->flags & (LCP_MEM_REGISTER_STATIC |
-                              LCP_MEM_REGISTER_DYNAMIC))) {
-                mpc_common_debug_error("LCP MEM: must specify memory type flags.");
-                return MPC_LOWCOMM_ERROR;
-        }
+	if (!(param->flags & (LCP_MEM_REGISTER_STATIC
+	                      | LCP_MEM_REGISTER_DYNAMIC)))
+	{
+		mpc_common_debug_error("LCP MEM: must specify memory type flags.");
+		return MPC_LOWCOMM_ERROR;
+	}
 
-        if (param->flags & LCP_MEM_REGISTER_ALLOCATE && param->address != NULL) {
-                mpc_common_debug_warning("LCP MEM: provided address not null, will "
-                                         "be overwritten.");
-        }
+	if (param->flags & LCP_MEM_REGISTER_ALLOCATE && param->address != NULL)
+	{
+		mpc_common_debug_warning("LCP MEM: provided address not null, will "
+			                     "be overwritten.");
+	}
 
-        if (param->size == 0) {
-                *mem_p = &lcp_mem_dummy_handle;
-                return MPC_LOWCOMM_SUCCESS;
-        }
+	if (param->size == 0)
+	{
+		*mem_p = &lcp_mem_dummy_handle;
+		return MPC_LOWCOMM_SUCCESS;
+	}
 
-        rc = lcp_mem_create(mngr, &mem);
-        if (rc != MPC_LOWCOMM_SUCCESS) {
-                goto err;
-        }
+	rc = lcp_mem_create(mngr, &mem);
+	if (rc != MPC_LOWCOMM_SUCCESS)
+	{
+		goto err;
+	}
 
-        if (param->flags & LCP_MEM_REGISTER_ALLOCATE) {
-                rc = lcp_mem_alloc(mem, param->size, 0);
-                if (rc != MPC_LOWCOMM_SUCCESS) {
-                        goto err;
-                }
-        } else {
-                mem->base_addr = (uint64_t)param->address;
-                mem->length    = param->size;
-        }
+	if (param->flags & LCP_MEM_REGISTER_ALLOCATE)
+	{
+		rc = lcp_mem_alloc(mem, param->size, 0);
+		if (rc != MPC_LOWCOMM_SUCCESS)
+		{
+			goto err;
+		}
+	}
+	else
+	{
+		mem->base_addr = (uint64_t)param->address;
+		mem->length    = param->size;
+	}
 
-        flags = param->flags & LCP_MEM_REGISTER_DYNAMIC ?
-                LCR_IFACE_REGISTER_MEM_DYN : LCR_IFACE_REGISTER_MEM_STAT;
+	flags = param->flags & LCP_MEM_REGISTER_DYNAMIC
+	        ? LCR_IFACE_REGISTER_MEM_DYN : LCR_IFACE_REGISTER_MEM_STAT;
 
-        /* Compute bitmap registration. Strategy is to register on all
-         * interfaces that have the capability. */
-        MPC_BITMAP_SET_FIRST_N(reg_bm, mngr->num_ifaces);
+	/* Compute bitmap registration. Strategy is to register on all
+	 * interfaces that have the capability. */
+	MPC_BITMAP_SET_FIRST_N(reg_bm, mngr->num_ifaces);
 
-        rc = lcp_mem_reg_from_map(mngr, mem, reg_bm, (void *)mem->base_addr,
-                                  mem->length, flags, &mem->bm);
-        if (rc != MPC_LOWCOMM_SUCCESS) {
-                goto err;
-        }
+	rc = lcp_mem_reg_from_map(mngr, mem, reg_bm, (void *)mem->base_addr,
+		mem->length, flags, &mem->bm);
+	if (rc != MPC_LOWCOMM_SUCCESS)
+	{
+		goto err;
+	}
 
-        if (mpc_bitmap_is_zero(mem->bm)) {
-                mpc_common_debug_error("LCP MEM: no interface found for memory "
-                                       "registration.");
-                rc = MPC_LOWCOMM_ERROR;
-                goto err;
-        }
+	if (mpc_bitmap_is_zero(mem->bm))
+	{
+		mpc_common_debug_error("LCP MEM: no interface found for memory "
+			                   "registration.");
+		rc = MPC_LOWCOMM_ERROR;
+		goto err;
+	}
 
-        *mem_p = mem;
+	*mem_p = mem;
 
 err:
 
-        return rc;
+	return rc;
 }
 
 int lcp_mem_query(lcp_mem_h mem, lcp_mem_attr_t *attr)
 {
-       if (attr->field_mask & LCP_MEM_ADDR_FIELD) {
-               attr->address = (void *)mem->base_addr;
-       }
+	if (attr->field_mask & LCP_MEM_ADDR_FIELD)
+	{
+		attr->address = (void *)mem->base_addr;
+	}
 
-       if (attr->field_mask & LCP_MEM_SIZE_FIELD) {
-               attr->size = mem->length;
-       }
+	if (attr->field_mask & LCP_MEM_SIZE_FIELD)
+	{
+		attr->size = mem->length;
+	}
 
-       return MPC_LOWCOMM_SUCCESS;
+	return MPC_LOWCOMM_SUCCESS;
 }
 
 /**
  * @brief Post a buffer
  *
- * @param ctx lcp context
- * @param mem_p memory pointer
- * @param buffer buffer to post
- * @param length length of buffer
- * @param tag tag of post
- * @param flags flag of post
- * @param tag_ctx tag context
- * @return int MPC_LOWCOMM_SUCCESS in case of success
+ * @param  ctx     lcp context
+ * @param  mem_p   memory pointer
+ * @param  buffer  buffer to post
+ * @param  length  length of buffer
+ * @param  tag     tag of post
+ * @param  flags   flag of post
+ * @param  tag_ctx tag context
+ * @return         int MPC_LOWCOMM_SUCCESS in case of success
  */
 int lcp_mem_post_from_map(lcp_manager_h mngr,
                           lcp_mem_h mem,
@@ -788,119 +833,135 @@ int lcp_mem_post_from_map(lcp_manager_h mngr,
                           unsigned flags,
                           lcr_tag_context_t *tag_ctx)
 {
-        int rc = MPC_LOWCOMM_SUCCESS;
-        int i = 0, k, nb_posted = 0, nb_ifaces = 0;
-        lcr_rail_attr_t attr;
-        lcr_tag_t ign = { 0 };
-        size_t iovcnt = 0;
-        struct iovec iov[1];
-        sctk_rail_info_t *iface = mngr->ifaces[mngr->priority_iface];
+	int               rc = MPC_LOWCOMM_SUCCESS;
+	int               i = 0, k, nb_posted = 0, nb_ifaces = 0;
+	lcr_rail_attr_t   attr;
+	lcr_tag_t         ign    = { 0 };
+	size_t            iovcnt = 0;
+	struct iovec      iov[1];
+	sctk_rail_info_t *iface = mngr->ifaces[mngr->priority_iface];
 
-        //FIXME: check 0 length memory registration
+	// FIXME: check 0 length memory registration
 
-        /* Count the number of interface to use */
-        for (k = 0; k < mngr->num_ifaces; k++) {
-                if (MPC_BITMAP_GET(bm, i)) {
-                        nb_ifaces++;
-                }
-        }
+	/* Count the number of interface to use */
+	for (k = 0; k < mngr->num_ifaces; k++)
+	{
+		if (MPC_BITMAP_GET(bm, i))
+		{
+			nb_ifaces++;
+		}
+	}
 
-        mem->length     = length;
-        mem->base_addr  = (uint64_t)buffer;
-        mem->flags      = flags;
-        mem->bm         = bm;
+	mem->length    = length;
+	mem->base_addr = (uint64_t)buffer;
+	mem->flags     = flags;
+	mem->bm        = bm;
 
-        iov[0].iov_base = buffer;
-        iov[0].iov_len  = length;
-        iovcnt++;
+	iov[0].iov_base = buffer;
+	iov[0].iov_len  = length;
+	iovcnt++;
 
-        iface->iface_get_attr(iface, &attr);
+	iface->iface_get_attr(iface, &attr);
 
-        //FIXME: this behavior is multirail specific while is should not be.
-        while (length > nb_posted * attr.iface.cap.rndv.max_get_zcopy) {
-                if (!MPC_BITMAP_GET(bm, i)) {
-                        i = (i + 1) % mngr->num_ifaces;
-                        continue;
-                }
-                iface = mngr->ifaces[i];
-                rc = iface->post_tag_zcopy(iface, tag, ign, iov,
-                                           iovcnt, flags, tag_ctx);
-                if (rc != MPC_LOWCOMM_SUCCESS) {
-                        mpc_common_debug_error("LCP MEM: could not post on "
-                                               "interface");
-                        goto err;
-                }
+	// FIXME: this behavior is multirail specific while is should not be.
+	while (length > nb_posted * attr.iface.cap.rndv.max_get_zcopy)
+	{
+		if (!MPC_BITMAP_GET(bm, i))
+		{
+			i = (i + 1) % mngr->num_ifaces;
+			continue;
+		}
+		iface = mngr->ifaces[i];
+		rc    = iface->post_tag_zcopy(iface, tag, ign, iov,
+			iovcnt, flags, tag_ctx);
+		if (rc != MPC_LOWCOMM_SUCCESS)
+		{
+			mpc_common_debug_error("LCP MEM: could not post on "
+				                   "interface");
+			goto err;
+		}
 
-                /* If memory is persistent, only one post per iface. */
-                if ((++nb_posted == nb_ifaces) &&
-                    (flags & LCR_IFACE_TM_PERSISTENT_MEM)) {
-                        break;
-                }
-                i++;
-        }
+		/* If memory is persistent, only one post per iface. */
+		if ((++nb_posted == nb_ifaces)
+		    && (flags & LCR_IFACE_TM_PERSISTENT_MEM))
+		{
+			break;
+		}
+		i++;
+	}
 
 err:
-        return rc;
+	return rc;
 }
 
 int lcp_mem_unpost(lcp_manager_h mngr, lcp_mem_h mem, lcr_tag_t tag)
 {
-        int i;
-        int rc = MPC_LOWCOMM_SUCCESS;
-        sctk_rail_info_t *iface = NULL;
+	int i;
+	int rc = MPC_LOWCOMM_SUCCESS;
+	sctk_rail_info_t *iface = NULL;
 
-        /* Memory should be unposted only if it has been previously posted as
-         * persistent */
-        if (!(mem->flags & LCR_IFACE_TM_PERSISTENT_MEM)) {
-                return MPC_LOWCOMM_SUCCESS;
-        }
+	/* Memory should be unposted only if it has been previously posted as
+	 * persistent */
+	if (!(mem->flags & LCR_IFACE_TM_PERSISTENT_MEM))
+	{
+		return MPC_LOWCOMM_SUCCESS;
+	}
 
-        for (i=0; i < mngr->num_ifaces; i++) {
-                if (MPC_BITMAP_GET(mem->bm, i)) {
-                        iface = mngr->ifaces[i];
-                        rc = iface->unpost_tag_zcopy(iface, tag);
-                        if (rc != MPC_LOWCOMM_SUCCESS) {
-                               goto err;
-                        }
-                }
-        }
+	for (i = 0; i < mngr->num_ifaces; i++)
+	{
+		if (MPC_BITMAP_GET(mem->bm, i))
+		{
+			iface = mngr->ifaces[i];
+			rc    = iface->unpost_tag_zcopy(iface, tag);
+			if (rc != MPC_LOWCOMM_SUCCESS)
+			{
+				goto err;
+			}
+		}
+	}
 
-        lcp_mem_delete(mem);
+	lcp_mem_delete(mem);
 
 err:
-        return rc;
+	return rc;
 }
 
 int lcp_mem_deprovision(lcp_manager_h mngr, lcp_mem_h mem)
 {
-        int i;
-        int rc = MPC_LOWCOMM_SUCCESS;
+	int i;
+	int rc = MPC_LOWCOMM_SUCCESS;
 
-        if (mem == &lcp_mem_dummy_handle) {
-                return MPC_LOWCOMM_SUCCESS;
-        }
+	if (mem == &lcp_mem_dummy_handle)
+	{
+		return MPC_LOWCOMM_SUCCESS;
+	}
 
-        if (mem->flags & LCP_MEM_FLAG_RELEASE_UNPACK) {
-                goto delete;
-        }
+	if (mem->flags & LCP_MEM_FLAG_RELEASE_UNPACK)
+	{
+		goto delete;
+	}
 
-        for (i=0; i<mngr->num_ifaces; i++) {
-                if (MPC_BITMAP_GET(mem->bm, i)) {
-                        rc = lcp_iface_do_unregister_mem(mngr->ifaces[i],
-                                                         &mem->mems[i]);
-                        if (rc != MPC_LOWCOMM_SUCCESS) {
-                                goto err;
-                        }
-                }
-        }
+	for (i = 0; i < mngr->num_ifaces; i++)
+	{
+		if (MPC_BITMAP_GET(mem->bm, i))
+		{
+			rc = lcp_iface_do_unregister_mem(mngr->ifaces[i],
+				&mem->mems[i]);
+			if (rc != MPC_LOWCOMM_SUCCESS)
+			{
+				goto err;
+			}
+		}
+	}
 
-        if (mem->flags & LCP_MEM_FLAG_FREE) {
-                lcp_mem_free(mem);
-        }
+	if (mem->flags & LCP_MEM_FLAG_FREE)
+	{
+		lcp_mem_free(mem);
+	}
 
 delete:
-        lcp_mem_delete(mem);
+	lcp_mem_delete(mem);
 
 err:
-        return rc;
+	return rc;
 }

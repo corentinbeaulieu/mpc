@@ -29,7 +29,7 @@
 #define MPC_COMMON_SRC_TOPOLOGY_DEVICE_H_
 
 #ifdef __cplusplus
-extern "C" {
+	extern "C" {
 #endif
 
 #include <mpc_topology_device.h>
@@ -43,7 +43,7 @@ extern "C" {
  *
  * @param topology reference topology
  */
-void _mpc_topology_device_init( hwloc_topology_t topology );
+void _mpc_topology_device_init(hwloc_topology_t topology);
 
 /**
  * @brief Release device topology
@@ -53,6 +53,6 @@ void _mpc_topology_device_release();
 
 
 #ifdef __cplusplus
-}
+	}
 #endif
 #endif /* MPC_COMMON_SRC_TOPOLOGY_DEVICE_H_ */

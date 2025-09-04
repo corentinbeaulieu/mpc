@@ -38,26 +38,28 @@
 #include <stdint.h>
 #include <mpc_common_helper.h>
 
-struct lcp_tag_data {
-        size_t length;
-        int tag;
-        int32_t src_tid;
-        int32_t dest_tid;
-        uint16_t comm;
-        uint16_t seqn;
+struct lcp_tag_data
+{
+	size_t   length;
+	int      tag;
+	int32_t  src_tid;
+	int32_t  dest_tid;
+	uint16_t comm;
+	uint16_t seqn;
 };
-//FIXME: move tag header over here.
+// FIXME: move tag header over here.
 
-//NOTE: choose the maximum size of all header. Optimal would be to check if
+// NOTE: choose the maximum size of all header. Optimal would be to check if
 //      request is sync etc... But did not want to add this logic.
 // NOLINTBEGIN(clang-diagnostic-unused-function)
 static inline size_t lcp_send_get_total_tag_payload(size_t data_length)
 {
-        size_t hdr_size = mpc_common_max(sizeof(lcp_tag_hdr_t),
-                                  mpc_common_max(sizeof(lcp_tag_sync_hdr_t),
-                                          sizeof(lcp_rndv_hdr_t)));
-        return data_length + hdr_size;
+	size_t hdr_size = mpc_common_max(sizeof(lcp_tag_hdr_t),
+		mpc_common_max(sizeof(lcp_tag_sync_hdr_t), sizeof(lcp_rndv_hdr_t)));
+
+	return data_length + hdr_size;
 }
+
 // NOLINTEND(clang-diagnostic-unused-function)
 
 int lcp_send_eager_sync_ack(lcp_request_t *super, void *data);

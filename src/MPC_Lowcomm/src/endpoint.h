@@ -57,14 +57,14 @@ typedef enum
 /** @brief Network dependent ROUTE information */
 typedef union
 {
-	_mpc_lowcomm_endpoint_info_tcp_t     tcp;    /**< TCP route info */
+	_mpc_lowcomm_endpoint_info_tcp_t     tcp; /**< TCP route info */
 #ifdef MPC_USE_PORTALS
-	_mpc_lowcomm_endpoint_info_ptl_t ptl;    /*< Portals route info */
+		_mpc_lowcomm_endpoint_info_ptl_t ptl; /*< Portals route info */
 #endif
 #ifdef MPC_USE_OFI
-	_mpc_lowcomm_ofi_endpoint_info_t ofi;
+		_mpc_lowcomm_ofi_endpoint_info_t ofi;
 #endif
-	_mpc_lowcomm_shm_endpoint_info_t shm;
+	_mpc_lowcomm_shm_endpoint_info_t     shm;
 } _mpc_lowcomm_endpoint_info_t;
 
 /** @brief State of the Route */
@@ -89,37 +89,37 @@ struct sctk_rail_info_s;
  */
 struct _mpc_lowcomm_endpoint_s
 {
-	mpc_lowcomm_peer_uid_t       dest;              /**< Target UID */
-	_mpc_lowcomm_endpoint_info_t data;              /**< Rail level content */
-	struct sctk_rail_info_s *    parent_rail;       /**< Pointer to the parent rail (called by default if present) */
-	struct sctk_rail_info_s *    rail;              /**< Pointer to the rail owning this endpoint */
-	int                          subrail_id;        /**< The id of the subrail (if applicable otherwise -1) */
-	_mpc_lowcomm_endpoint_type_t type;              /**< Origin of the route entry: static or dynamic route */
-	OPA_int_t                    state;             /**< State of the route \ref _mpc_lowcomm_endpoint_state_t */
-	char                         is_initiator;      /**< Return if the process is the initiator of the remote creation.
-	                                                 *   is set to CHAR_MAX if not set */
-	mpc_common_spinlock_t        lock;              /**< Lock protecting the endpoint */
+	mpc_lowcomm_peer_uid_t       dest;         /**< Target UID */
+	_mpc_lowcomm_endpoint_info_t data;         /**< Rail level content */
+	struct sctk_rail_info_s *    parent_rail;  /**< Pointer to the parent rail (called by default if present) */
+	struct sctk_rail_info_s *    rail;         /**< Pointer to the rail owning this endpoint */
+	int                          subrail_id;   /**< The id of the subrail (if applicable otherwise -1) */
+	_mpc_lowcomm_endpoint_type_t type;         /**< Origin of the route entry: static or dynamic route */
+	OPA_int_t                    state;        /**< State of the route \ref _mpc_lowcomm_endpoint_state_t */
+	char                         is_initiator; /**< Return if the process is the initiator of the remote creation.
+	                                            *   is set to CHAR_MAX if not set */
+	mpc_common_spinlock_t        lock;         /**< Lock protecting the endpoint */
 };
 
 /**
  * @brief Lock and endpoint
  */
-#define _MPC_LOWCOMM_ENDPOINT_LOCK(r)       mpc_common_spinlock_lock(&(r)->lock)
+#define _MPC_LOWCOMM_ENDPOINT_LOCK(r) mpc_common_spinlock_lock(&(r)->lock)
 
 /**
  * @brief UnLock and endpoint
  */
-#define _MPC_LOWCOMM_ENDPOINT_UNLOCK(r)     mpc_common_spinlock_unlock(&(r)->lock)
+#define _MPC_LOWCOMM_ENDPOINT_UNLOCK(r) mpc_common_spinlock_unlock(&(r)->lock)
 
 /**
  * @brief TryLock and endpoint
  */
-#define _MPC_LOWCOMM_ENDPOINT_TRYLOCK(r)    mpc_common_spinlock_trylock(&(r)->lock)
+#define _MPC_LOWCOMM_ENDPOINT_TRYLOCK(r) mpc_common_spinlock_trylock(&(r)->lock)
 
 /**
  * @brief Initialize and endpoint
  *
- * @param edp pointer to the endpoint to initialize
+ * @param edp  pointer to the endpoint to initialize
  * @param dest destination in comm_world of this endpoint
  * @param rail rail the endpoint belongs to
  * @param type type of the endpoint
@@ -132,8 +132,8 @@ void _mpc_lowcomm_endpoint_init(_mpc_lowcomm_endpoint_t *edp,
 /**
  * @brief Return true if the process is the one who initiated route connect
  *
- * @param edp endpoint
- * @return char 0 if not initiator 1 otherwise
+ * @param  edp endpoint
+ * @return     char 0 if not initiator 1 otherwise
  */
 char _mpc_lowcomm_endpoint_is_initiator(_mpc_lowcomm_endpoint_t *edp);
 
@@ -142,7 +142,7 @@ char _mpc_lowcomm_endpoint_is_initiator(_mpc_lowcomm_endpoint_t *edp);
 /**
  * @brief Set the state of a given endpoint
  *
- * @param edp endpoint to set the state of
+ * @param edp   endpoint to set the state of
  * @param state state to be set
  */
 static inline void _mpc_lowcomm_endpoint_set_state(_mpc_lowcomm_endpoint_t *edp, _mpc_lowcomm_endpoint_state_t state)
@@ -153,12 +153,12 @@ static inline void _mpc_lowcomm_endpoint_set_state(_mpc_lowcomm_endpoint_t *edp,
 /**
  * @brief Get the state of a given endpoint
  *
- * @param edp endpoint to get the state of
- * @return _mpc_lowcomm_endpoint_state_t state of the endpoint
+ * @param  edp endpoint to get the state of
+ * @return     _mpc_lowcomm_endpoint_state_t state of the endpoint
  */
 static inline _mpc_lowcomm_endpoint_state_t _mpc_lowcomm_endpoint_get_state(_mpc_lowcomm_endpoint_t *edp)
 {
-	if(!edp)
+	if (!edp)
 	{
 		return _MPC_LOWCOMM_ENDPOINT_DECONNECTED;
 	}
@@ -169,8 +169,8 @@ static inline _mpc_lowcomm_endpoint_state_t _mpc_lowcomm_endpoint_get_state(_mpc
 /**
  * @brief Get endpoint type (STATIC or Dynamic)
  *
- * @param edp endpoint to get type of
- * @return _mpc_lowcomm_endpoint_type_t type of the given endpoint
+ * @param  edp endpoint to get type of
+ * @return     _mpc_lowcomm_endpoint_type_t type of the given endpoint
  */
 static inline _mpc_lowcomm_endpoint_type_t _mpc_lowcomm_endpoint_get_type(_mpc_lowcomm_endpoint_t *tmp)
 {
@@ -205,8 +205,8 @@ _mpc_lowcomm_endpoint_table_t *_mpc_lowcomm_endpoint_table_new();
 /**
  * @brief Check if an endpoint table is empty
  *
- * @param table table to check for emptiness
- * @return int 1 if table is empty
+ * @param  table table to check for emptiness
+ * @return       int 1 if table is empty
  */
 int _mpc_lowcomm_endpoint_table_has_routes(_mpc_lowcomm_endpoint_table_t *table);
 
@@ -230,7 +230,7 @@ void _mpc_lowcomm_endpoint_table_clear(_mpc_lowcomm_endpoint_table_t **table);
  * @brief Add a static endpoint to the table
  *
  * @param table the endpoint table to add to
- * @param edp the new endpoint
+ * @param edp   the new endpoint
  */
 void _mpc_lowcomm_endpoint_table_add_static_route(_mpc_lowcomm_endpoint_table_t *table,
                                                   _mpc_lowcomm_endpoint_t *edp);
@@ -239,7 +239,7 @@ void _mpc_lowcomm_endpoint_table_add_static_route(_mpc_lowcomm_endpoint_table_t 
  * @brief Add a dynamic endpoint to the table
  *
  * @param table the endpoint table to add to
- * @param edp the new endpoint
+ * @param edp   the new endpoint
  */
 void _mpc_lowcomm_endpoint_table_add_dynamic_route(_mpc_lowcomm_endpoint_table_t *table,
                                                    _mpc_lowcomm_endpoint_t *edp);
@@ -248,22 +248,25 @@ void _mpc_lowcomm_endpoint_table_add_dynamic_route(_mpc_lowcomm_endpoint_table_t
  * @brief Add a dynamic endpoint to the table (version without lock)
  *
  * @param table the endpoint table to add to
- * @param edp the new endpoint
+ * @param edp   the new endpoint
  */
 void _mpc_lowcomm_endpoint_table_add_dynamic_route_no_lock(_mpc_lowcomm_endpoint_table_t *table,
                                                            _mpc_lowcomm_endpoint_t *edp);
 
 /* Functions for getting a route */
-_mpc_lowcomm_endpoint_t *_mpc_lowcomm_endpoint_table_get_static_route(_mpc_lowcomm_endpoint_table_t *table, mpc_lowcomm_peer_uid_t dest);
-_mpc_lowcomm_endpoint_t *_mpc_lowcomm_endpoint_table_get_dynamic_route(_mpc_lowcomm_endpoint_table_t *table, mpc_lowcomm_peer_uid_t dest);
-_mpc_lowcomm_endpoint_t *_mpc_lowcomm_endpoint_table_get_dynamic_route_no_lock(_mpc_lowcomm_endpoint_table_t *table, mpc_lowcomm_peer_uid_t dest);
+_mpc_lowcomm_endpoint_t *_mpc_lowcomm_endpoint_table_get_static_route(_mpc_lowcomm_endpoint_table_t *table,
+                                                                      mpc_lowcomm_peer_uid_t dest);
+_mpc_lowcomm_endpoint_t *_mpc_lowcomm_endpoint_table_get_dynamic_route(_mpc_lowcomm_endpoint_table_t *table,
+                                                                       mpc_lowcomm_peer_uid_t dest);
+_mpc_lowcomm_endpoint_t *_mpc_lowcomm_endpoint_table_get_dynamic_route_no_lock(_mpc_lowcomm_endpoint_table_t *table,
+                                                                               mpc_lowcomm_peer_uid_t dest);
 
 /**
  * @brief Call a function on all dynamic endpoints
  *
  * @param table endpoint table to walk
- * @param func function to be called on each endpoint
- * @param arg argument to be passed to the called function
+ * @param func  function to be called on each endpoint
+ * @param arg   argument to be passed to the called function
  */
 void _mpc_lowcomm_endpoint_table_walk_dynamic(_mpc_lowcomm_endpoint_table_t *table,
                                               void (*func)(_mpc_lowcomm_endpoint_t *endpoint, void *arg),
@@ -273,8 +276,8 @@ void _mpc_lowcomm_endpoint_table_walk_dynamic(_mpc_lowcomm_endpoint_table_t *tab
  * @brief Call a function on all static endpoints
  *
  * @param table endpoint table to walk
- * @param func function to be called on each endpoint
- * @param arg argument to be passed to the called function
+ * @param func  function to be called on each endpoint
+ * @param arg   argument to be passed to the called function
  */
 void _mpc_lowcomm_endpoint_table_walk_static(_mpc_lowcomm_endpoint_table_t *table,
                                              void (*func)(_mpc_lowcomm_endpoint_t *endpoint, void *arg),
@@ -284,8 +287,8 @@ void _mpc_lowcomm_endpoint_table_walk_static(_mpc_lowcomm_endpoint_table_t *tabl
  * @brief Call a function on all endpoints
  *
  * @param table endpoint table to walk
- * @param func function to be called on each endpoint
- * @param arg argument to be passed to the called function
+ * @param func  function to be called on each endpoint
+ * @param arg   argument to be passed to the called function
  */
 static inline void _mpc_lowcomm_endpoint_table_walk(_mpc_lowcomm_endpoint_table_t *table,
                                                     void (*func)(_mpc_lowcomm_endpoint_t *endpoint, void *arg),

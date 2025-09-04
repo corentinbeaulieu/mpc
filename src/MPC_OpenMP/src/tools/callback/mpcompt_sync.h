@@ -28,13 +28,9 @@
 
 #if OMPT_SUPPORT
 
-void
-_mpc_omp_ompt_callback_sync_region( ompt_sync_region_t kind,
-                                ompt_scope_endpoint_t endpoint );
+	void _mpc_omp_ompt_callback_sync_region(ompt_sync_region_t kind, ompt_scope_endpoint_t endpoint);
 
-void
-_mpc_omp_ompt_callback_sync_region_wait( ompt_sync_region_t kind,
-                                     ompt_scope_endpoint_t endpoint );
+	void _mpc_omp_ompt_callback_sync_region_wait(ompt_sync_region_t kind, ompt_scope_endpoint_t endpoint);
 
 #endif /* OMPT_SUPPORT */
 #endif /* __MPCOMPT_SYNC_H__ */

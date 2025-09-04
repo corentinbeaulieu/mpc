@@ -14,47 +14,46 @@
 
 int mpc_lowcomm_communicator_handle_ctx_unify(mpc_lowcomm_communicator_t comm, mpc_lowcomm_handle_ctx_t hctx)
 {
-    if(hctx->handle_ctx_id == MPC_LOWCOMM_COMM_NULL_ID)
-    {
-        /* This is the first time we encounter a SESSION ID
-           inside the GROUP Handle CTX then save a new UNIQUE
-           Identifier for the Session */
+	if (hctx->handle_ctx_id == MPC_LOWCOMM_COMM_NULL_ID)
+	{
+		/* This is the first time we encounter a SESSION ID
+		 * inside the GROUP Handle CTX then save a new UNIQUE
+		 * Identifier for the Session */
 
-        /* Now all set their ID to the the source communicator */
-        hctx->handle_ctx_id = mpc_lowcomm_communicator_id(comm);
-    }
+		/* Now all set their ID to the the source communicator */
+		hctx->handle_ctx_id = mpc_lowcomm_communicator_id(comm);
+	}
 
-    return MPC_LOWCOMM_SUCCESS;;
+	return MPC_LOWCOMM_SUCCESS;;
 }
 
 mpc_lowcomm_communicator_id_t mpc_lowcomm_communicator_handle_ctx_id(mpc_lowcomm_handle_ctx_t hctx)
 {
-    if(hctx == MPC_LOWCOMM_HANDLE_CTX_NULL)
-    {
-        return MPC_LOWCOMM_COMM_NULL_ID;
-    }
+	if (hctx == MPC_LOWCOMM_HANDLE_CTX_NULL)
+	{
+		return MPC_LOWCOMM_COMM_NULL_ID;
+	}
 
-    return hctx->handle_ctx_id;
+	return hctx->handle_ctx_id;
 }
 
 int mpc_lowcomm_handle_ctx_equal(mpc_lowcomm_handle_ctx_t a, mpc_lowcomm_handle_ctx_t b)
 {
-    if(a == b)
-    {
-        return 1;
-    }
+	if (a == b)
+	{
+		return 1;
+	}
 
-    mpc_lowcomm_communicator_id_t ida = mpc_lowcomm_communicator_handle_ctx_id(a);
-    mpc_lowcomm_communicator_id_t idb = mpc_lowcomm_communicator_handle_ctx_id(b);
+	mpc_lowcomm_communicator_id_t ida = mpc_lowcomm_communicator_handle_ctx_id(a);
+	mpc_lowcomm_communicator_id_t idb = mpc_lowcomm_communicator_handle_ctx_id(b);
 
-    if(ida != idb)
-    {
-        return 0;
-    }
+	if (ida != idb)
+	{
+		return 0;
+	}
 
-    return 1;
+	return 1;
 }
-
 
 /*****************************************
  * HANDLE CONTEXT ALLOCATION AND FREEING *
@@ -62,55 +61,56 @@ int mpc_lowcomm_handle_ctx_equal(mpc_lowcomm_handle_ctx_t a, mpc_lowcomm_handle_
 
 mpc_lowcomm_handle_ctx_t mpc_lowcomm_handle_ctx_new()
 {
-    mpc_lowcomm_handle_ctx_t ret = sctk_malloc(sizeof(struct mpc_lowcomm_handle_ctx_s));
-    assume(ret != NULL);
-    memset(ret, 0, sizeof(struct mpc_lowcomm_handle_ctx_s));
+	mpc_lowcomm_handle_ctx_t ret = sctk_malloc(sizeof(struct mpc_lowcomm_handle_ctx_s));
 
-    ret->handle_ctx_id = MPC_LOWCOMM_COMM_NULL_ID;
+	assume(ret != NULL);
+	memset(ret, 0, sizeof(struct mpc_lowcomm_handle_ctx_s));
 
-    return ret;
+	ret->handle_ctx_id = MPC_LOWCOMM_COMM_NULL_ID;
+
+	return ret;
 }
 
-int mpc_lowcomm_handle_ctx_free(mpc_lowcomm_handle_ctx_t * hctx)
+int mpc_lowcomm_handle_ctx_free(mpc_lowcomm_handle_ctx_t *hctx)
 {
-    if(!hctx)
-    {
-        return 1;
-    }
+	if (!hctx)
+	{
+		return 1;
+	}
 
-    if(*hctx == MPC_LOWCOMM_HANDLE_CTX_NULL)
-    {
-        return 1;
-    }
+	if (*hctx == MPC_LOWCOMM_HANDLE_CTX_NULL)
+	{
+		return 1;
+	}
 
-    sctk_free(*hctx);
-    *hctx = MPC_LOWCOMM_HANDLE_CTX_NULL;
+	sctk_free(*hctx);
+	*hctx = MPC_LOWCOMM_HANDLE_CTX_NULL;
 
-    return 0;
+	return 0;
 }
 
 /****************************
  * HANDLE CONTEXT ACCESSORS *
  ****************************/
 
-int mpc_lowcomm_handle_ctx_set_session(mpc_lowcomm_handle_ctx_t hctx, void * session)
+int mpc_lowcomm_handle_ctx_set_session(mpc_lowcomm_handle_ctx_t hctx, void *session)
 {
-    if(hctx == MPC_LOWCOMM_HANDLE_CTX_NULL)
-    {
-        return 1;
-    }
+	if (hctx == MPC_LOWCOMM_HANDLE_CTX_NULL)
+	{
+		return 1;
+	}
 
-    hctx->session_ptr = session;
+	hctx->session_ptr = session;
 
-    return 0;
+	return 0;
 }
 
 void * mpc_lowcomm_handle_ctx_get_session(mpc_lowcomm_handle_ctx_t hctx)
 {
-    if(hctx == MPC_LOWCOMM_HANDLE_CTX_NULL)
-    {
-        return NULL;
-    }
+	if (hctx == MPC_LOWCOMM_HANDLE_CTX_NULL)
+	{
+		return NULL;
+	}
 
-    return hctx->session_ptr;
+	return hctx->session_ptr;
 }

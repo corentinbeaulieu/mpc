@@ -30,230 +30,251 @@
 #include "mpcomp_types.h"
 
 #ifdef MPCOMPT_FRAME_ADDRESS_SUPPORT
-#define MPCOMPT_GET_FRAME_ADDRESS __builtin_frame_address( 0 )
+		#define MPCOMPT_GET_FRAME_ADDRESS __builtin_frame_address(0)
 #else
-#define MPCOMPT_GET_FRAME_ADDRESS NULL
+		#define MPCOMPT_GET_FRAME_ADDRESS NULL
 #endif
 
 #ifdef MPCOMPT_RETURN_ADDRESS_SUPPORT
-#define MPCOMPT_GET_RETURN_ADDRESS __builtin_return_address( 0 )
+		#define MPCOMPT_GET_RETURN_ADDRESS __builtin_return_address(0)
 #else
-#define MPCOMPT_GET_RETURN_ADDRESS NULL
+		#define MPCOMPT_GET_RETURN_ADDRESS NULL
 #endif
 
-// NOLINTBEGIN(clang-diagnostic-unused-function)
-static inline void
-_mpc_omp_ompt_frame_set_exit( void* rt_exit_addr ) {
-    mpc_omp_thread_t* thread;
-    mpc_omp_task_t* curr_task;
+	// NOLINTBEGIN(clang-diagnostic-unused-function)
+	static inline void
+	_mpc_omp_ompt_frame_set_exit(void *rt_exit_addr)
+	{
+		mpc_omp_thread_t *thread;
+		mpc_omp_task_t *  curr_task;
 
-    /* Get current thread infos */
-    thread = (mpc_omp_thread_t*) mpc_omp_tls;
-    assert( thread );
-    assert( thread->task_infos.current_task );
+		/* Get current thread infos */
+		thread = (mpc_omp_thread_t *)mpc_omp_tls;
+		assert(thread);
+		assert(thread->task_infos.current_task);
 
-    /* Update current task with enter frame address */
-    curr_task = thread->task_infos.current_task;
-    curr_task->ompt_task_frame.exit_frame.ptr = rt_exit_addr;
-}
+		/* Update current task with enter frame address */
+		curr_task = thread->task_infos.current_task;
+		curr_task->ompt_task_frame.exit_frame.ptr = rt_exit_addr;
+	}
 
-static inline void
-_mpc_omp_ompt_frame_set_enter( void* rt_enter_addr ) {
-    mpc_omp_thread_t* thread;
-    mpc_omp_task_t* curr_task;
+	static inline void
+	_mpc_omp_ompt_frame_set_enter(void *rt_enter_addr)
+	{
+		mpc_omp_thread_t *thread;
+		mpc_omp_task_t *  curr_task;
 
-    /* Get current thread infos */
-    thread = (mpc_omp_thread_t*) mpc_omp_tls;
-    assert( thread );
+		/* Get current thread infos */
+		thread = (mpc_omp_thread_t *)mpc_omp_tls;
+		assert(thread);
 
-    if( thread->task_infos.current_task ) {
-        /* Update current task with enter frame address */
-        curr_task = thread->task_infos.current_task;
-        curr_task->ompt_task_frame.enter_frame.ptr = rt_enter_addr;
-    }
-    else {
-        /* Early call before initial and implicit tasks are created,
-         * save enter address in thread frame infos. */
-        thread->frame_infos.ompt_frame_infos.enter_frame.ptr = rt_enter_addr;
-    }
-}
+		if (thread->task_infos.current_task)
+		{
+			/* Update current task with enter frame address */
+			curr_task = thread->task_infos.current_task;
+			curr_task->ompt_task_frame.enter_frame.ptr = rt_enter_addr;
+		}
+		else
+		{
+			/* Early call before initial and implicit tasks are created,
+			 * save enter address in thread frame infos. */
+			thread->frame_infos.ompt_frame_infos.enter_frame.ptr = rt_enter_addr;
+		}
+	}
 
-static inline void
-_mpc_omp_ompt_frame_set_no_reentrant() {
-    mpc_omp_thread_t* thread;
+	static inline void
+	_mpc_omp_ompt_frame_set_no_reentrant()
+	{
+		mpc_omp_thread_t *thread;
 
-    /* Get current thread infos */
-    thread = (mpc_omp_thread_t*) mpc_omp_tls;
-    assert( thread );
+		/* Get current thread infos */
+		thread = (mpc_omp_thread_t *)mpc_omp_tls;
+		assert(thread);
 
-    /* Indicates that frames infos have already been saved
-     * from runtime outer entry function */
-    thread->frame_infos.outer_caller = 1;
-}
+		/* Indicates that frames infos have already been saved
+		 * from runtime outer entry function */
+		thread->frame_infos.outer_caller = 1;
+	}
 
-static inline void
-_mpc_omp_ompt_frame_unset_no_reentrant() {
-    mpc_omp_thread_t* thread;
+	static inline void
+	_mpc_omp_ompt_frame_unset_no_reentrant()
+	{
+		mpc_omp_thread_t *thread;
 
-    /* Get current thread infos */
-    thread = (mpc_omp_thread_t*) mpc_omp_tls;
-    assert( thread );
+		/* Get current thread infos */
+		thread = (mpc_omp_thread_t *)mpc_omp_tls;
+		assert(thread);
 
-    /* Reset */
-    thread->frame_infos.outer_caller = 0;
-}
+		/* Reset */
+		thread->frame_infos.outer_caller = 0;
+	}
 
-/*
- */
-static inline mpc_omp_ompt_frame_info_t
-_mpc_omp_ompt_frame_reset_infos() {
-    mpc_omp_thread_t* thread;
-    mpc_omp_ompt_frame_info_t prev;
+	/*
+	 */
+	static inline mpc_omp_ompt_frame_info_t
+	_mpc_omp_ompt_frame_reset_infos()
+	{
+		mpc_omp_thread_t *        thread;
+		mpc_omp_ompt_frame_info_t prev;
 
-    /* Get current thread infos */
-    thread = (mpc_omp_thread_t*) mpc_omp_tls;
-    assert( thread );
+		/* Get current thread infos */
+		thread = (mpc_omp_thread_t *)mpc_omp_tls;
+		assert(thread);
 
-    prev = thread->frame_infos;
+		prev = thread->frame_infos;
 
-    memset( &thread->frame_infos, 0, sizeof( mpc_omp_ompt_frame_info_t ));
+		memset(&thread->frame_infos, 0, sizeof(mpc_omp_ompt_frame_info_t));
 
-    return prev;
-}
+		return prev;
+	}
 
-static inline void
-_mpc_omp_ompt_frame_set_infos( mpc_omp_ompt_frame_info_t* frame_infos ) {
-    mpc_omp_thread_t* thread;
+	static inline void
+	_mpc_omp_ompt_frame_set_infos(mpc_omp_ompt_frame_info_t *frame_infos)
+	{
+		mpc_omp_thread_t *thread;
 
-    /* Get current thread infos */
-    thread = (mpc_omp_thread_t*) mpc_omp_tls;
-    assert( thread );
+		/* Get current thread infos */
+		thread = (mpc_omp_thread_t *)mpc_omp_tls;
+		assert(thread);
 
-    thread->frame_infos = *frame_infos;
-}
+		thread->frame_infos = *frame_infos;
+	}
 
-/* Only used once to retrieve frame infos needed by callbacks during
- * initialization of the runtime.
- */
-static inline void
-_mpc_omp_ompt_frame_get_pre_init_infos() {
-    mpc_omp_thread_t* thread;
+	/* Only used once to retrieve frame infos needed by callbacks during
+	 * initialization of the runtime.
+	 */
+	static inline void
+	_mpc_omp_ompt_frame_get_pre_init_infos()
+	{
+		mpc_omp_thread_t *thread;
 
-    /* Get current thread infos */
-    thread = (mpc_omp_thread_t*) mpc_omp_tls;
+		/* Get current thread infos */
+		thread = (mpc_omp_thread_t *)mpc_omp_tls;
 
-    if( !thread ) {
-        /* Allocate thread structure to save frame infos */
-        thread = (mpc_omp_thread_t*) sctk_malloc( sizeof( mpc_omp_thread_t ));
-        assert( thread );
-        memset( thread, 0, sizeof( mpc_omp_thread_t ));
+		if (!thread)
+		{
+			/* Allocate thread structure to save frame infos */
+			thread = (mpc_omp_thread_t *)sctk_malloc(sizeof(mpc_omp_thread_t));
+			assert(thread);
+			memset(thread, 0, sizeof(mpc_omp_thread_t));
 
-        /* Save enter frame address */
-        thread->frame_infos.ompt_frame_infos.enter_frame.ptr =
-            MPCOMPT_GET_FRAME_ADDRESS;
+			/* Save enter frame address */
+			thread->frame_infos.ompt_frame_infos.enter_frame.ptr =
+				MPCOMPT_GET_FRAME_ADDRESS;
 
-        /* Save frame return address */
-        thread->frame_infos.ompt_return_addr =
-            MPCOMPT_GET_RETURN_ADDRESS;
+			/* Save frame return address */
+			thread->frame_infos.ompt_return_addr =
+				MPCOMPT_GET_RETURN_ADDRESS;
 
-        mpc_omp_tls = (void*) thread;
-    }
-}
+			mpc_omp_tls = (void *)thread;
+		}
+	}
 
-/*
- */
-static inline void
-_mpc_omp_ompt_frame_get_infos() {
-    mpc_omp_thread_t* thread;
-    mpc_omp_task_t* curr_task;
-    mpc_omp_ompt_frame_info_t* frame_infos;
+	/*
+	 */
+	static inline void
+	_mpc_omp_ompt_frame_get_infos()
+	{
+		mpc_omp_thread_t *         thread;
+		mpc_omp_task_t *           curr_task;
+		mpc_omp_ompt_frame_info_t *frame_infos;
 
-    /* Get current thread infos */
-    thread = (mpc_omp_thread_t*) mpc_omp_tls;
+		/* Get current thread infos */
+		thread = (mpc_omp_thread_t *)mpc_omp_tls;
 
-    /* 1rst time */
-    if( !thread ) {
-        thread = (mpc_omp_thread_t*) sctk_malloc( sizeof( mpc_omp_thread_t ));
-        assert( thread );
-        memset( thread, 0, sizeof( mpc_omp_thread_t ));
+		/* 1rst time */
+		if (!thread)
+		{
+			thread = (mpc_omp_thread_t *)sctk_malloc(sizeof(mpc_omp_thread_t));
+			assert(thread);
+			memset(thread, 0, sizeof(mpc_omp_thread_t));
 
-        /* Save enter frame address */
-        thread->frame_infos.ompt_frame_infos.enter_frame.ptr =
-            MPCOMPT_GET_FRAME_ADDRESS;
+			/* Save enter frame address */
+			thread->frame_infos.ompt_frame_infos.enter_frame.ptr =
+				MPCOMPT_GET_FRAME_ADDRESS;
 
-        /* Save frame return address */
-        thread->frame_infos.ompt_return_addr =
-            MPCOMPT_GET_RETURN_ADDRESS;
+			/* Save frame return address */
+			thread->frame_infos.ompt_return_addr =
+				MPCOMPT_GET_RETURN_ADDRESS;
 
-        mpc_omp_tls = (void*) thread;
-    }
-    else {
-        frame_infos = &thread->frame_infos;
+			mpc_omp_tls = (void *)thread;
+		}
+		else
+		{
+			frame_infos = &thread->frame_infos;
 
-        if( !frame_infos->outer_caller ) {
-            /* Save enter frame address */
-            curr_task = thread->task_infos.current_task;
-            curr_task->ompt_task_frame.enter_frame.ptr =
-                MPCOMPT_GET_FRAME_ADDRESS;
+			if (!frame_infos->outer_caller)
+			{
+				/* Save enter frame address */
+				curr_task = thread->task_infos.current_task;
+				curr_task->ompt_task_frame.enter_frame.ptr =
+					MPCOMPT_GET_FRAME_ADDRESS;
 
-            /* Save frame return address */
-            frame_infos->ompt_return_addr =
-                MPCOMPT_GET_RETURN_ADDRESS;
-        }
-    }
-}
+				/* Save frame return address */
+				frame_infos->ompt_return_addr =
+					MPCOMPT_GET_RETURN_ADDRESS;
+			}
+		}
+	}
 
-/* Retrieves frame infos at each entry function of the runtime.
- */
-static inline void
-_mpc_omp_ompt_frame_get_wrapper_infos( mpc_omp_ompt_wrapper_t w ) {
-    mpc_omp_thread_t* thread;
-    mpc_omp_task_t* curr_task;
-    mpc_omp_ompt_frame_info_t* frame_infos;
+	/* Retrieves frame infos at each entry function of the runtime.
+	 */
+	static inline void
+	_mpc_omp_ompt_frame_get_wrapper_infos(mpc_omp_ompt_wrapper_t w)
+	{
+		mpc_omp_thread_t *         thread;
+		mpc_omp_task_t *           curr_task;
+		mpc_omp_ompt_frame_info_t *frame_infos;
 
-    /* Get current thread infos */
-    thread = (mpc_omp_thread_t*) mpc_omp_tls;
+		/* Get current thread infos */
+		thread = (mpc_omp_thread_t *)mpc_omp_tls;
 
-    /* 1rst time */
-    if( !thread ) {
-        thread = (mpc_omp_thread_t*) sctk_malloc( sizeof( mpc_omp_thread_t ));
-        assert( thread );
-        memset( thread, 0, sizeof( mpc_omp_thread_t ));
+		/* 1rst time */
+		if (!thread)
+		{
+			thread = (mpc_omp_thread_t *)sctk_malloc(sizeof(mpc_omp_thread_t));
+			assert(thread);
+			memset(thread, 0, sizeof(mpc_omp_thread_t));
 
-        /* Save enter frame address */
-        thread->frame_infos.ompt_frame_infos.enter_frame.ptr =
-            MPCOMPT_GET_FRAME_ADDRESS;
+			/* Save enter frame address */
+			thread->frame_infos.ompt_frame_infos.enter_frame.ptr =
+				MPCOMPT_GET_FRAME_ADDRESS;
 
-        /* Save frame return address */
-        thread->frame_infos.ompt_return_addr =
-            MPCOMPT_GET_RETURN_ADDRESS;
+			/* Save frame return address */
+			thread->frame_infos.ompt_return_addr =
+				MPCOMPT_GET_RETURN_ADDRESS;
 
-        /* 1rst entry point is a pragma directive, save wrapper info */
-        thread->frame_infos.omp_wrapper = w;
+			/* 1rst entry point is a pragma directive, save wrapper info */
+			thread->frame_infos.omp_wrapper = w;
 
-        mpc_omp_tls = (void*) thread;
-    }
-    else {
-        frame_infos = &thread->frame_infos;
+			mpc_omp_tls = (void *)thread;
+		}
+		else
+		{
+			frame_infos = &thread->frame_infos;
 
-        /* Update wrapper info */
-        if( frame_infos->omp_wrapper == MPC_OMP_UNDEF )
-            frame_infos->omp_wrapper = w;
+			/* Update wrapper info */
+			if (frame_infos->omp_wrapper == MPC_OMP_UNDEF)
+			{
+				frame_infos->omp_wrapper = w;
+			}
 
-        if( frame_infos->omp_wrapper == w
-            && !frame_infos->outer_caller ) {
-            /* Save enter frame address */
-            curr_task = thread->task_infos.current_task;
-            curr_task->ompt_task_frame.enter_frame.ptr =
-                MPCOMPT_GET_FRAME_ADDRESS;
+			if (frame_infos->omp_wrapper == w
+			    && !frame_infos->outer_caller)
+			{
+				/* Save enter frame address */
+				curr_task = thread->task_infos.current_task;
+				curr_task->ompt_task_frame.enter_frame.ptr =
+					MPCOMPT_GET_FRAME_ADDRESS;
 
-            /* Save frame return address */
-            frame_infos->ompt_return_addr =
-                MPCOMPT_GET_RETURN_ADDRESS;
-        }
-    }
-}
-// NOLINTEND(clang-diagnostic-unused-function)
+				/* Save frame return address */
+				frame_infos->ompt_return_addr =
+					MPCOMPT_GET_RETURN_ADDRESS;
+			}
+		}
+	}
+
+	// NOLINTEND(clang-diagnostic-unused-function)
 
 #endif /* OMPT_SUPPORT */
 #endif /* __MPCOMPT_FRAME_H__ */

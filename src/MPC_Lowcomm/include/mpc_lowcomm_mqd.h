@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 #ifdef __cplusplus
-extern "C" {
+	extern "C" {
 #endif
 
 /**
@@ -16,11 +16,11 @@ extern "C" {
 extern char MPIR_dll_name[];
 
 /*********
-* TYPES *
-*********/
+ * TYPES *
+ *********/
 
-typedef long   mqs_tword_t;
-typedef size_t mqs_taddr_t;
+typedef long      mqs_tword_t;
+typedef size_t    mqs_taddr_t;
 
 typedef struct
 {
@@ -32,8 +32,8 @@ typedef struct
 }mqs_target_type_sizes;
 
 /**********************
-* CONSTANTS AND ENUM *
-**********************/
+ * CONSTANTS AND ENUM *
+ **********************/
 
 typedef enum
 {
@@ -64,7 +64,7 @@ enum mqs_status
 
 typedef enum
 {
-	mqs_ok              = 0,
+	mqs_ok = 0,
 	mqs_no_information,
 	mqs_end_of_list,
 	mqs_first_user_code = 100
@@ -77,18 +77,18 @@ enum
 
 
 /*************
-* MQS IMAGE *
-*************/
+ * MQS IMAGE *
+ *************/
 
 struct mpc_lowcomm_mqs_image;
-typedef struct mpc_lowcomm_mqs_image *    mqs_image;
+typedef struct mpc_lowcomm_mqs_image *mqs_image;
 
 /***************
-* MQS PROCESS *
-***************/
+ * MQS PROCESS *
+ ***************/
 
 struct mpc_lowcomm_mqs_process;
-typedef struct mpc_lowcomm_mqs_process *  mqs_process;
+typedef struct mpc_lowcomm_mqs_process *mqs_process;
 
 typedef int (*mqs_get_global_rank_ft)(mqs_process *process);
 typedef mqs_image * (*mqs_get_image_ft)(mqs_process *process);
@@ -105,8 +105,8 @@ typedef struct
 }mqs_process_callbacks;
 
 /********************
-* MQS COMMUNICATOR *
-********************/
+ * MQS COMMUNICATOR *
+ ********************/
 
 typedef struct
 {
@@ -117,8 +117,8 @@ typedef struct
 }mqs_communicator;
 
 /*****************
-* MQS OPERATION *
-*****************/
+ * MQS OPERATION *
+ *****************/
 
 typedef struct
 {
@@ -143,8 +143,8 @@ typedef struct
 }mqs_pending_operation;
 
 /**********************
-* DEBUGGER CALLBACKS *
-**********************/
+ * DEBUGGER CALLBACKS *
+ **********************/
 
 /* Not implemented yet
  * as we are inline we are not much
@@ -152,8 +152,8 @@ typedef struct
  * these structs to make the debugger
  * happy just in case */
 
-typedef void * mqs_image_info;
-typedef void * mqs_process_info;
+typedef void *mqs_image_info;
+typedef void *mqs_process_info;
 
 
 typedef struct
@@ -179,8 +179,8 @@ typedef struct
 }mqs_image_callbacks;
 
 /***************************
-* SETUP RELATED FUNCTIONS *
-***************************/
+ * SETUP RELATED FUNCTIONS *
+ ***************************/
 
 void mqs_setup_basic_callbacks(const mqs_basic_callbacks *cb);
 char *mqs_version_string();
@@ -189,16 +189,16 @@ int mqs_dll_taddr_width();
 char *mqs_dll_error_string(int error_code);
 
 /**************************************
-* EXECUTABLE IMAGE RELATED FUNCTIONS *
-**************************************/
+ * EXECUTABLE IMAGE RELATED FUNCTIONS *
+ **************************************/
 
 int mqs_setup_image(mqs_image *image, mqs_image_callbacks *cb);
 int mqs_image_has_queues(mqs_image *image, char **message);
 int mqs_destroy_image_info(mqs_image_info *info);
 
 /*****************************
-* PROCESS RELATED FUNCTIONS *
-*****************************/
+ * PROCESS RELATED FUNCTIONS *
+ *****************************/
 
 int mqsx_rewind_process(void);
 int mqs_setup_process(mqs_process *process, const mqs_process_callbacks *cb);
@@ -206,8 +206,8 @@ int mqs_process_has_queues(mqs_process *process, char **message);
 int mqs_destroy_process_info(mqs_process_info *processinfo);
 
 /*******************
-* QUERY FUNCTIONS *
-*******************/
+ * QUERY FUNCTIONS *
+ *******************/
 
 /* Communicator */
 int mqs_update_communicator_list(mqs_process *process);
@@ -224,14 +224,14 @@ int mqs_next_operation(mqs_process *process, mqs_pending_operation *op);
  * DUMP HELPERS *
  ****************/
 
-void mqsx_dump_communicators(mqs_process * proc);
-void mqsx_dump_comms(mqs_process * proc);
+void mqsx_dump_communicators(mqs_process *proc);
+void mqsx_dump_comms(mqs_process *proc);
 
-int mqsx_dump_communicators_json(mqs_process * proc, FILE *out);
-int mqsx_dump_comms_json(mqs_process * proc, FILE *out);
+int mqsx_dump_communicators_json(mqs_process *proc, FILE *out);
+int mqsx_dump_comms_json(mqs_process *proc, FILE *out);
 
 #ifdef __cplusplus
-}
+	}
 #endif
 
 #endif /* MPC_LOWCOMM_MQD */

@@ -42,41 +42,41 @@ struct mpc_lowcomm_ptp_message_s;
 /* Message not found */
 #define _MPC_LOWCOMM_REORDER_NOT_FOUND 3
 
-int _mpc_lowcomm_reorder_msg_check( struct mpc_lowcomm_ptp_message_s *msg );
-int _mpc_lowcomm_reorder_msg_register( struct mpc_lowcomm_ptp_message_s *msg );
+int _mpc_lowcomm_reorder_msg_check(struct mpc_lowcomm_ptp_message_s *msg);
+int _mpc_lowcomm_reorder_msg_register(struct mpc_lowcomm_ptp_message_s *msg);
 
 typedef struct
 {
-	int key;
+	int                               key;
 	struct mpc_lowcomm_ptp_message_s *msg;
-	UT_hash_handle hh;
+	UT_hash_handle                    hh;
 } mpc_lowcomm_reorder_buffer_t;
 
 typedef struct
 {
 	mpc_lowcomm_peer_uid_t uid;
-	int destination;
+	int                    destination;
 } _mpc_lowcomm_reorder_key_t;
 
 typedef struct _mpc_lowcomm_reorder_table_s
 {
-	_mpc_lowcomm_reorder_key_t key;
+	_mpc_lowcomm_reorder_key_t    key;
 
-	OPA_int_t message_number_src;
-	OPA_int_t message_number_dest;
+	OPA_int_t                     message_number_src;
+	OPA_int_t                     message_number_dest;
 
-	mpc_common_spinlock_t lock;
+	mpc_common_spinlock_t         lock;
 	mpc_lowcomm_reorder_buffer_t *buffer;
 
-	UT_hash_handle hh;
+	UT_hash_handle                hh;
 } _mpc_lowcomm_reorder_table_t;
 
 typedef struct _mpc_lowcomm_reorder_list_s
 {
 	_mpc_lowcomm_reorder_table_t *table;
-	mpc_common_spinlock_t lock;
+	mpc_common_spinlock_t         lock;
 } _mpc_lowcomm_reorder_list_t;
 
-void _mpc_lowcomm_reorder_list_init( _mpc_lowcomm_reorder_list_t *reorder );
+void _mpc_lowcomm_reorder_list_init(_mpc_lowcomm_reorder_list_t *reorder);
 
 #endif

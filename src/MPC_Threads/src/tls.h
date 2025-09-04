@@ -34,68 +34,69 @@
 #include "romio_ctx.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+	extern "C"
+	{
 #endif
 
 
 #if defined(TLS_SUPPORT)
 
-/**
- * Element of destructor list, stored at task-level.
- */
-struct sctk_tls_dtors_s
-{
-	void *                   obj;             /**< the object address */
-	void                     (*dtor)(void *); /**< the associated destructor */
-	struct sctk_tls_dtors_s *next;            /**< the next registered item */
-};
+	/**
+	 * Element of destructor list, stored at task-level.
+	 */
+	struct sctk_tls_dtors_s
+	{
+		void *                   obj;             /**< the object address */
+		void                     (*dtor)(void *); /**< the associated destructor */
+		struct sctk_tls_dtors_s *next;            /**< the next registered item */
+	};
 
-size_t sctk_extls_size();
+	size_t sctk_extls_size();
 
-int sctk_locate_dynamic_initializers();
-int sctk_call_dynamic_initializers();
+	int sctk_locate_dynamic_initializers();
+	int sctk_call_dynamic_initializers();
 
 #ifdef MPC_USE_CUDA
-extern __thread void *sctk_cuda_ctx;
+		extern __thread void *sctk_cuda_ctx;
 #endif
 #ifdef MPC_USE_ROCM
-extern __thread void *sctk_hip_ctx;
+		extern __thread void *sctk_hip_ctx;
 #endif
 
 #if defined (MPC_OpenMP)
-extern __thread void *mpc_omp_tls;
+		extern __thread void *mpc_omp_tls;
 #endif
 
 #if defined (MPC_USE_DMTCP)
-extern __thread int sctk_ft_critical_section;
+		extern __thread int sctk_ft_critical_section;
 #endif
 
-extern __thread void *sctk_extls_storage;
-extern __thread char *mpc_user_tls_1;
-extern unsigned long  mpc_user_tls_1_offset;
-extern unsigned long  mpc_user_tls_1_entry_number;
+	extern __thread void *sctk_extls_storage;
+	extern __thread char *mpc_user_tls_1;
+	extern unsigned long  mpc_user_tls_1_offset;
+	extern unsigned long  mpc_user_tls_1_entry_number;
 #endif
 
 #ifdef MPC_Threads
 
-/* Note storage of this variable is in rank.c in MPC_Common to
- * avoid circular link dependencies */
-extern __thread int __mpc_task_rank;
+	/* Note storage of this variable is in rank.c in MPC_Common to
+	 * avoid circular link dependencies */
+	extern __thread int __mpc_task_rank;
 #endif
 
 #ifdef MPC_MPI
-extern __thread struct mpc_mpi_cl_per_thread_ctx_s *___mpc_p_per_thread_comm_ctx;
+	extern __thread struct mpc_mpi_cl_per_thread_ctx_s *___mpc_p_per_thread_comm_ctx;
 #endif
 
 /** macro copying the global value to the context */
-#define tls_save(a)       ucp->a = a;
+#define tls_save(a) ucp->a = a;
 /** macro copying the context value in the current environment */
-#define tls_restore(a)    a = ucp->a;
+#define tls_restore(a) a = ucp->a;
 /** initialize the context field to NULL */
-#define tls_init(a)       ucp->a = NULL;
+#define tls_init(a) ucp->a = NULL;
 
 /* NOLINTBEGIN(clang-diagnostic-unused-function): False positives */
+
 /**
  * Save the current TLS environment in the given context.
  * This function is called in sctk_context.c.
@@ -105,47 +106,47 @@ static inline void sctk_context_save_tls(sctk_mctx_t *ucp)
 {
 #if defined(TLS_SUPPORT)
 #if defined (MPC_OpenMP)
-	/* MPC OpenMP TLS */
-	tls_save(mpc_omp_tls);
+			/* MPC OpenMP TLS */
+			tls_save(mpc_omp_tls);
 #endif
-	tls_save(mpc_user_tls_1);
+		    tls_save(mpc_user_tls_1);
 
 #ifdef MPC_MPI
-	tls_save(___mpc_p_per_thread_comm_ctx);
+			tls_save(___mpc_p_per_thread_comm_ctx);
 #endif
 
 #ifdef MPC_MPIIO
-	tls_save(mpc_thread_romio_ctx_storage);
+			tls_save(mpc_thread_romio_ctx_storage);
 #endif
 
 #ifdef MPC_Lowcomm
-	tls_save(__mpc_task_rank);
+			tls_save(__mpc_task_rank);
 #endif
 
 #ifdef MPC_USE_CUDA
-	sctk_accl_cuda_pop_context();
-	tls_save(sctk_cuda_ctx);
+			sctk_accl_cuda_pop_context();
+			tls_save(sctk_cuda_ctx);
 #endif
 #ifdef MPC_USE_ROCM
-	sctk_accl_hip_pop_context();
-	tls_save(sctk_hip_ctx);
+			sctk_accl_hip_pop_context();
+			tls_save(sctk_hip_ctx);
 #endif
 
 
 #if defined MPC_USE_DMTCP
-	tls_save(sctk_ft_critical_section);
+			tls_save(sctk_ft_critical_section);
 #endif
 
 
-	/* the tls vector is restored by copy and cannot be changed
-	 * It is then useless to save it at this time
-	 */
+		/* the tls vector is restored by copy and cannot be changed
+		 * It is then useless to save it at this time
+		 */
 #ifdef MPC_USE_EXTLS
-	ucp->tls_ctx = (extls_ctx_t *)sctk_extls_storage;
-	if(ucp->tls_ctx != NULL)
-	{
-		extls_ctx_save(ucp->tls_ctx);
-	}
+			ucp->tls_ctx = (extls_ctx_t *)sctk_extls_storage;
+			if (ucp->tls_ctx != NULL)
+			{
+				extls_ctx_save(ucp->tls_ctx);
+			}
 #endif
 #endif  /* TLS_SUPPORT */
 }
@@ -159,49 +160,51 @@ static inline void sctk_context_restore_tls(sctk_mctx_t *ucp)
 {
 #if defined(TLS_SUPPORT)
 #if defined (MPC_OpenMP)
-	tls_restore(mpc_omp_tls);
+			tls_restore(mpc_omp_tls);
 #endif
-	tls_restore(mpc_user_tls_1);
+		    tls_restore(mpc_user_tls_1);
 
 #if defined (MPC_USE_EXTLS)
-	if(ucp->tls_ctx != NULL)
-	{
-		extls_ctx_restore(ucp->tls_ctx);
-	}
+			if (ucp->tls_ctx != NULL)
+			{
+				extls_ctx_restore(ucp->tls_ctx);
+			}
 #endif
 
 #ifdef MPC_MPI
-	tls_restore(___mpc_p_per_thread_comm_ctx);
+			tls_restore(___mpc_p_per_thread_comm_ctx);
 #endif
 
 #ifdef MPC_MPIIO
-	tls_restore(mpc_thread_romio_ctx_storage);
+			tls_restore(mpc_thread_romio_ctx_storage);
 #endif
 
 
 #ifdef MPC_Lowcomm
-	tls_restore(__mpc_task_rank);
+			tls_restore(__mpc_task_rank);
 #endif
 
 #if defined MPC_USE_DMTCP
-	tls_restore(sctk_ft_critical_section);
+			tls_restore(sctk_ft_critical_section);
 #endif
 
 
 #ifdef MPC_USE_CUDA
-	tls_restore(sctk_cuda_ctx);
-	// if the thread to be scheduled has an attached CUDA ctx:
-	if(sctk_cuda_ctx)
-		sctk_accl_cuda_push_context();
+			tls_restore(sctk_cuda_ctx);
+			// if the thread to be scheduled has an attached CUDA ctx:
+			if (sctk_cuda_ctx)
+			{
+				sctk_accl_cuda_push_context();
+			}
 #endif
 #ifdef MPC_USE_ROCM
-	tls_restore(sctk_hip_ctx);
-	// if the thread to be scheduled has an attached HIP ctx:
-	if(sctk_hip_ctx)
-		sctk_accl_hip_push_context();
+			tls_restore(sctk_hip_ctx);
+			// if the thread to be scheduled has an attached HIP ctx:
+			if (sctk_hip_ctx)
+			{
+				sctk_accl_hip_push_context();
+			}
 #endif
-
-
 #endif
 }
 
@@ -213,57 +216,57 @@ static inline void sctk_context_restore_tls(sctk_mctx_t *ucp)
 static inline void sctk_context_init_tls(sctk_mctx_t *ucp)
 {
 #if defined(TLS_SUPPORT)
-
-	/* Create a new TLS context, probably not the place it has to be.
-	 * more suited to be in sctk_thread.c w/ thread creation.
-	 * Moreover, it should use ctx_herit instead of ctx_init (need to reference process level)
-	 */
-	/* Nothing should have to be done here. The init is done per thread in sctk_thread.c */
+		/* Create a new TLS context, probably not the place it has to be.
+		 * more suited to be in sctk_thread.c w/ thread creation.
+		 * Moreover, it should use ctx_herit instead of ctx_init (need to reference process level)
+		 */
+		/* Nothing should have to be done here. The init is done per thread in sctk_thread.c */
 #ifdef MPC_USE_EXTLS
-	ucp->tls_ctx = (extls_ctx_t *)sctk_extls_storage;
+			ucp->tls_ctx = (extls_ctx_t *)sctk_extls_storage;
 #endif
 
 #if defined (MPC_OpenMP)
-	/* MPC OpenMP TLS */
-	tls_init(mpc_omp_tls);
+			/* MPC OpenMP TLS */
+			tls_init(mpc_omp_tls);
 #endif
 
-	ucp->mpc_user_tls_1 = mpc_user_tls_1;
+		ucp->mpc_user_tls_1 = mpc_user_tls_1;
 
 #ifdef MPC_MPI
-	tls_init(___mpc_p_per_thread_comm_ctx);
+			tls_init(___mpc_p_per_thread_comm_ctx);
 #endif
 
 #ifdef MPC_MPIIO
-	ucp->mpc_thread_romio_ctx_storage = _mpc_thread_romio_ctx_init();
+			ucp->mpc_thread_romio_ctx_storage = _mpc_thread_romio_ctx_init();
 #endif
 
 
 #ifdef MPC_Lowcomm
-	ucp->__mpc_task_rank = -2;
+			ucp->__mpc_task_rank = -2;
 #endif
 
 #ifdef MPC_USE_CUDA
-	tls_init(sctk_cuda_ctx);
+			tls_init(sctk_cuda_ctx);
 #endif
 #ifdef MPC_USE_ROCM
-	tls_init(sctk_hip_ctx);
+			tls_init(sctk_hip_ctx);
 #endif
 
 
 #if defined MPC_USE_DMTCP
-	sctk_ft_critical_section = 0;
+			sctk_ft_critical_section = 0;
 #endif
 #endif
 }
+
 /* NOLINTEND(clang-diagnostic-unused-function) */
 
 void sctk_tls_dtors_init(struct sctk_tls_dtors_s **head);
-void sctk_tls_dtors_add(struct sctk_tls_dtors_s **head, void *obj, void (*func)(void *) );
+void sctk_tls_dtors_add(struct sctk_tls_dtors_s **head, void *obj, void (*func)(void *));
 void sctk_tls_dtors_free(struct sctk_tls_dtors_s *head);
-void *sctk_get_ctx_addr(void);   /* to be visible from launch.c */
+void *sctk_get_ctx_addr(void); /* to be visible from launch.c */
 
 #ifdef __cplusplus
-}
+	}
 #endif
 #endif

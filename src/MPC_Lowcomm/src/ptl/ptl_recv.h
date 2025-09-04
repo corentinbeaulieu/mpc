@@ -35,14 +35,15 @@
 
 #include "ptl.h"
 
-typedef struct lcr_ptl_recv_block {
-        void                *start;
-        size_t               size;
+typedef struct lcr_ptl_recv_block
+{
+	void *               start;
+	size_t               size;
 
-        lcr_ptl_rail_info_t *rail;
-        ptl_handle_me_t      meh;
-        lcr_ptl_op_t         op;
-        mpc_list_elem_t      elem;
+	lcr_ptl_rail_info_t *rail;
+	ptl_handle_me_t      meh;
+	lcr_ptl_op_t         op;
+	mpc_list_elem_t      elem;
 } lcr_ptl_recv_block_t;
 
 int lcr_ptl_recv_block_activate(lcr_ptl_recv_block_t *block,

@@ -28,13 +28,13 @@
 
 struct mpc_lowcomm_handle_ctx_s
 {
-    /** This is the communicator parent of all these handles providing its ID */
-    mpc_lowcomm_communicator_id_t handle_ctx_id;
-    void * session_ptr; /**< Note that the sessions handle is opaque in Lowcomm */
+	/** This is the communicator parent of all these handles providing its ID */
+	mpc_lowcomm_communicator_id_t handle_ctx_id;
+	void *                        session_ptr; /**< Note that the sessions handle is opaque in Lowcomm */
 };
 
 #ifdef __cplusplus
-}
+	}
 #endif
 
 #endif /* _HANDLE_CTX_H_ */

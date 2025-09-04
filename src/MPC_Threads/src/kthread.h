@@ -33,28 +33,29 @@
 #endif
 
 #ifdef __cplusplus
-extern "C"
-{
+	extern "C"
+	{
 #endif
 
 
 #ifdef SCTK_KERNEL_THREAD_USE_TLS
 
-#define _mpc_thread_kthread_key_create(key, destr_function)    (*(key) ) = NULL
-#define _mpc_thread_kthread_key_delete(key)                    (void)(0)
+	#define _mpc_thread_kthread_key_create(key, destr_function) (*(key)) = NULL
+	#define _mpc_thread_kthread_key_delete(key)                 (void)(0)
 
-#define _mpc_thread_kthread_setspecific(key, pointer)          ( (key) = (pointer) )
-#define _mpc_thread_kthread_getspecific(key)                   (key)
+	#define _mpc_thread_kthread_setspecific(key, pointer) ((key) = (pointer))
+	#define _mpc_thread_kthread_getspecific(key)          (key)
 
 #else
 
-int _mpc_thread_kthread_key_create(mpc_thread_keys_t *key, void (*destr_function)(void *) );
-int _mpc_thread_kthread_key_delete(mpc_thread_keys_t key);
-int _mpc_thread_kthread_setspecific(mpc_thread_keys_t key, const void *pointer);
-void *_mpc_thread_kthread_getspecific(mpc_thread_keys_t key);
+	int _mpc_thread_kthread_key_create(mpc_thread_keys_t *key, void (*destr_function)(void *));
+	int _mpc_thread_kthread_key_delete(mpc_thread_keys_t key);
+	int _mpc_thread_kthread_setspecific(mpc_thread_keys_t key, const void *pointer);
+	void *_mpc_thread_kthread_getspecific(mpc_thread_keys_t key);
+
 #endif
 
-typedef mpc_thread_t   mpc_thread_kthread_t;
+typedef mpc_thread_t mpc_thread_kthread_t;
 
 int mpc_thread_kthread_pthread_create(pthread_t *thread, const pthread_attr_t *attr,
                                       void *(*start_routine)(void *), void *arg);
@@ -71,14 +72,14 @@ int _mpc_thread_kthread_sigmask(int how, const sigset_t *newmask, sigset_t *oldm
 static inline void kthread_usleep(unsigned long usec)
 {
 #ifndef WINDOWS_SYS
-	usleep(usec);
+		usleep(usec);
 #else
-	Sleep(usec);
+		Sleep(usec);
 #endif
 }
 
 #ifdef __cplusplus
-}
+	}
 #endif
 
 #endif /* KTHREAD_H_ */

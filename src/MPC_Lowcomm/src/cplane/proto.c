@@ -9,7 +9,7 @@
 _mpc_lowcomm_monitor_wrap_t *_mpc_lowcomm_monitor_wrap_new(mpc_lowcomm_monitor_command_t cmd,
                                                            int is_response,
                                                            mpc_lowcomm_peer_uid_t dest,
-														   mpc_lowcomm_peer_uid_t from,
+                                                           mpc_lowcomm_peer_uid_t from,
                                                            uint64_t match_key,
                                                            size_t size)
 {
@@ -37,30 +37,35 @@ int _mpc_lowcomm_monitor_wrap_free(_mpc_lowcomm_monitor_wrap_t *wr)
 	return 0;
 }
 
-char * _mpc_lowcomm_monitor_wrap_debug(_mpc_lowcomm_monitor_wrap_t * cmd, char *state, char * buffer, int len)
+char * _mpc_lowcomm_monitor_wrap_debug(_mpc_lowcomm_monitor_wrap_t *cmd, char *state, char *buffer, int len)
 {
 	char meb[32], fromb[32], tob[32];
-	snprintf(buffer, len,"%s [%s] COMMAND %s from %s to %s (IDX %lu)",mpc_lowcomm_peer_format_r(mpc_lowcomm_monitor_get_uid(), meb, 32),
-																				state,
-																				mpc_lowcomm_monitor_command_tostring(cmd->command),
-																				mpc_lowcomm_peer_format_r(cmd->from, fromb, 32),
-																				mpc_lowcomm_peer_format_r(cmd->dest, tob, 32),
-																				cmd->match_key );
+
+	snprintf(buffer, len, "%s [%s] COMMAND %s from %s to %s (IDX %lu)",
+		mpc_lowcomm_peer_format_r(mpc_lowcomm_monitor_get_uid(),
+			meb,
+			32),
+		state,
+		mpc_lowcomm_monitor_command_tostring(cmd->command),
+		mpc_lowcomm_peer_format_r(cmd->from, fromb, 32),
+		mpc_lowcomm_peer_format_r(cmd->dest, tob,   32),
+		cmd->match_key);
 
 	return buffer;
 }
 
-void _mpc_lowcomm_monitor_wrap_print(_mpc_lowcomm_monitor_wrap_t * cmd, char *state)
+void _mpc_lowcomm_monitor_wrap_print(_mpc_lowcomm_monitor_wrap_t *cmd, char *state)
 {
 	char buff[128];
+
 	mpc_common_debug_warning("%s", _mpc_lowcomm_monitor_wrap_debug(cmd, state, buff, 128));
 }
 
 int _mpc_lowcomm_monitor_wrap_send(int socket, _mpc_lowcomm_monitor_wrap_t *wr)
 {
-	ssize_t ret = mpc_common_io_safe_write(socket, wr, _mpc_lowcomm_monitor_wrap_total_size(wr) );
+	ssize_t ret = mpc_common_io_safe_write(socket, wr, _mpc_lowcomm_monitor_wrap_total_size(wr));
 
-	if(ret < 0)
+	if (ret < 0)
 	{
 		return -1;
 	}
@@ -74,12 +79,12 @@ _mpc_lowcomm_monitor_wrap_t *_mpc_lowcomm_monitor_recv(int socket)
 {
 	_mpc_lowcomm_monitor_wrap_t incoming_wr;
 
-	if(mpc_common_io_safe_read(socket, &incoming_wr, sizeof(_mpc_lowcomm_monitor_wrap_t) ) <= 0)
+	if (mpc_common_io_safe_read(socket, &incoming_wr, sizeof(_mpc_lowcomm_monitor_wrap_t)) <= 0)
 	{
 		return NULL;
 	}
 
-	if(incoming_wr.magick != 1337)
+	if (incoming_wr.magick != 1337)
 	{
 		return NULL;
 	}
@@ -89,10 +94,10 @@ _mpc_lowcomm_monitor_wrap_t *_mpc_lowcomm_monitor_recv(int socket)
 	size_t full_size = _mpc_lowcomm_monitor_wrap_total_size(&incoming_wr);
 	_mpc_lowcomm_monitor_wrap_t *ret = sctk_malloc(full_size);
 	assume(ret != NULL);
-	memcpy(ret, &incoming_wr, sizeof(_mpc_lowcomm_monitor_wrap_t) );
+	memcpy(ret, &incoming_wr, sizeof(_mpc_lowcomm_monitor_wrap_t));
 
 	/* Receive payload */
-	if(mpc_common_io_safe_read(socket, ret->content, incoming_wr.size) <= 0)
+	if (mpc_common_io_safe_read(socket, ret->content, incoming_wr.size) <= 0)
 	{
 		sctk_free(ret);
 		return NULL;

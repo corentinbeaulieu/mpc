@@ -61,8 +61,8 @@ void _mpc_dt_release();
  *  \param extra_state Extra pointer to be stored in the keyval
  *  \return MPI_SUCCESS if ok
  */
-int _mpc_dt_keyval_create(MPC_Type_copy_attr_function * copy_func,
-                          MPC_Type_delete_attr_function * delete_func,
+int _mpc_dt_keyval_create(MPC_Type_copy_attr_function *copy_func,
+                          MPC_Type_delete_attr_function *delete_func,
                           int *type_keyval, void *extra_state);
 
 /** \brief Delete a keyval
@@ -95,12 +95,13 @@ struct _mpc_dt_footprint
 {
 	/* Internal ref-counting handling */
 
-	mpc_lowcomm_datatype_t  internal_type; /**< This is the internal type when types are built on top of each other happens for hvector and hindexed */
+	mpc_lowcomm_datatype_t internal_type;       /**< This is the internal type when types are built on top of each other
+	                                             * happens for hvector and hindexed */
 
 	/* MPI_get_envelope */
-	MPC_Type_combiner       combiner; /**< Combiner used to build the datatype */
-	int                     count;    /**< Number of item (as given in the data-type call) */
-	int                     ndims;    /**< Number of dimensions (as given in the data-type call) */
+	MPC_Type_combiner      combiner;            /**< Combiner used to build the datatype */
+	int                    count;               /**< Number of item (as given in the data-type call) */
+	int                    ndims;               /**< Number of dimensions (as given in the data-type call) */
 
 	/* These three arrays are those returned by MPI_Type_get_contents
 	 * they are defined in the standard as a pack of the
@@ -194,7 +195,11 @@ void _mpc_dt_context_set(struct _mpc_dt_footprint *ctx, struct _mpc_dt_context *
  *  of the standard as ni, na, nd.
  *
  */
-int _mpc_dt_fill_envelope(struct _mpc_dt_footprint *ctx, int *num_integers, int *num_addresses, int *num_datatypes, int *combiner);
+int _mpc_dt_fill_envelope(struct _mpc_dt_footprint *ctx,
+                          int *num_integers,
+                          int *num_addresses,
+                          int *num_datatypes,
+                          int *combiner);
 
 /************************************************************************/
 /* Datatype  Layout                                                     */
@@ -242,8 +247,8 @@ void _mpc_dt_contiguous_create(mpc_lowcomm_datatype_t *type, const size_t id_ran
 /************************************************************************/
 
 /** \brief Theses macros allow us to manipulate the datatype refcounter more simply */
-#define _MPC_DT_USER_IS_FREE(datatype_ptr)    ((datatype_ptr)->ref_count == 0)
-#define _MPC_DT_USER_IS_USED(datatype_ptr)    ((datatype_ptr)->ref_count)
+#define _MPC_DT_USER_IS_FREE(datatype_ptr) ((datatype_ptr)->ref_count == 0)
+#define _MPC_DT_USER_IS_USED(datatype_ptr) ((datatype_ptr)->ref_count)
 
 /** \brief Create a general datatype
  *
@@ -368,9 +373,9 @@ void _mpc_dt_general_display(mpc_lowcomm_datatype_t target_type);
  */
 typedef enum
 {
-	MPC_DATATYPES_UNKNOWN,   /**< This key is used to detect faulty datatypes */
-	MPC_DATATYPES_COMMON,    /**< These are the common datatypes defined in \ref __mpc_common_types_init */
-	MPC_DATATYPES_USER       /**< These are user defined datatypes of type \ref _mpc_dt_general_t */
+	MPC_DATATYPES_UNKNOWN, /**< This key is used to detect faulty datatypes */
+	MPC_DATATYPES_COMMON,  /**< These are the common datatypes defined in \ref __mpc_common_types_init */
+	MPC_DATATYPES_USER     /**< These are user defined datatypes of type \ref _mpc_dt_general_t */
 } mpc_dt_kind_t;
 
 /*
@@ -385,7 +390,7 @@ typedef enum
  */
 static inline bool _mpc_dt_is_boundary(mpc_lowcomm_datatype_t data_in)
 {
-	if( (data_in == MPC_UB) || (data_in == MPC_LB) )
+	if ((data_in == MPC_UB) || (data_in == MPC_LB))
 	{
 		return true;
 	}
@@ -421,11 +426,11 @@ static inline bool mpc_dt_is_valid(mpc_lowcomm_datatype_t datatype)
  * */
 static inline bool mpc_dt_is_committed(mpc_lowcomm_datatype_t datatype)
 {
-	if(!mpc_dt_is_valid(datatype) )
+	if (!mpc_dt_is_valid(datatype))
 	{
 		return false;
 	}
-	if(_mpc_dt_is_user_defined(datatype) && !datatype->is_committed)
+	if (_mpc_dt_is_user_defined(datatype) && !datatype->is_committed)
 	{
 		return false;
 	}
@@ -444,11 +449,11 @@ static inline mpc_dt_kind_t _mpc_dt_get_kind(mpc_lowcomm_datatype_t datatype)
 {
 	mpc_dt_kind_t ret = MPC_DATATYPES_UNKNOWN;
 
-	if(mpc_lowcomm_datatype_is_common(datatype) || _mpc_dt_is_boundary(datatype) )
+	if (mpc_lowcomm_datatype_is_common(datatype) || _mpc_dt_is_boundary(datatype))
 	{
 		ret = MPC_DATATYPES_COMMON;
 	}
-	else if(_mpc_dt_is_user_defined(datatype) )
+	else if (_mpc_dt_is_user_defined(datatype))
 	{
 		ret = MPC_DATATYPES_USER;
 	}
@@ -466,9 +471,9 @@ static inline mpc_lowcomm_datatype_t _mpc_dt_get_datatype(mpc_lowcomm_datatype_t
 {
 	mpc_lowcomm_datatype_t type = MPC_LOWCOMM_DATATYPE_NULL;
 
-	if(mpc_dt_is_valid(datatype) )
+	if (mpc_dt_is_valid(datatype))
 	{
-		if(mpc_lowcomm_datatype_is_common_predefined(datatype) )
+		if (mpc_lowcomm_datatype_is_common_predefined(datatype))
 		{
 			type = mpc_lowcomm_datatype_common_get_type_struct(datatype);
 		}
@@ -491,8 +496,8 @@ static inline int _mpc_dt_is_contig_mem(mpc_lowcomm_datatype_t data_in)
 {
 	/* Note that the general assumption can be optimized
 	 * for single segment general with no LB/UB */
-	return mpc_dt_is_valid(data_in) &&
-	   _mpc_dt_get_datatype(data_in)->opt_count == 1;
+	return mpc_dt_is_valid(data_in)
+	       && _mpc_dt_get_datatype(data_in)->opt_count == 1;
 }
 
 /* NOLINTEND(clang-diagnostic-unused-function) */
@@ -508,8 +513,8 @@ static inline int _mpc_dt_is_contig_mem(mpc_lowcomm_datatype_t data_in)
  */
 struct _mpc_dt_storage
 {
-	_mpc_lowcomm_general_datatype_t general_user_types[SCTK_USER_DATA_TYPES_MAX];     /**< general datatype array */
-	mpc_common_spinlock_t           datatype_lock;                                    /**< A lock protecting datatypes */
+	_mpc_lowcomm_general_datatype_t general_user_types[SCTK_USER_DATA_TYPES_MAX]; /**< general datatype array */
+	mpc_common_spinlock_t           datatype_lock;                                /**< A lock protecting datatypes */
 };
 
 /** \brief Initializes the datatype array
@@ -541,7 +546,8 @@ void _mpc_dt_storage_release(struct _mpc_dt_storage *da);
  *
  *  \warning The datatype must be a general datatype
  */
-_mpc_lowcomm_general_datatype_t *_mpc_dt_storage_get_general_datatype(struct _mpc_dt_storage *da, const size_t datatype_idx);
+_mpc_lowcomm_general_datatype_t *_mpc_dt_storage_get_general_datatype(struct _mpc_dt_storage *da,
+                                                                      const size_t datatype_idx);
 
 /** \brief Sets a pointer to a datatype in the datatype array
  *
@@ -551,7 +557,9 @@ _mpc_lowcomm_general_datatype_t *_mpc_dt_storage_get_general_datatype(struct _mp
  *
  *  \warning The datatype must be a general datatype
  */
-void _mpc_dt_storage_set_general_datatype(struct _mpc_dt_storage *da, const size_t datatype_idx, mpc_lowcomm_datatype_t value);
+void _mpc_dt_storage_set_general_datatype(struct _mpc_dt_storage *da,
+                                          const size_t datatype_idx,
+                                          mpc_lowcomm_datatype_t value);
 
 /************************************************************************/
 /* Datatype  Attribute Getters                                          */

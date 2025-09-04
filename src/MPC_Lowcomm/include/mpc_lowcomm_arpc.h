@@ -25,7 +25,7 @@
 #define MPC_ARPC_H
 
 #ifdef __cplusplus
-extern "C" {
+	extern "C" {
 #endif
 
 #include <stdlib.h>
@@ -34,16 +34,25 @@ struct sctk_arpc_context_s;
 struct sctk_ptl_am_msg_s;
 
 int mpc_arpc_init_ptl(int);
-int mpc_arpc_register_service_ptl(void* pool, int srvcode);
+int mpc_arpc_register_service_ptl(void *pool, int srvcode);
 
-int mpc_arpc_emit_call_ptl(struct sctk_arpc_context_s* ctx, const void* input, size_t req_size, void** response, size_t*resp_size);
-int mpc_arpc_recv_call_ptl(struct sctk_arpc_context_s* ctx, const void* input, size_t req_size, void** response, size_t*resp_size, struct sctk_ptl_am_msg_s*);
+int mpc_arpc_emit_call_ptl(struct sctk_arpc_context_s *ctx,
+                           const void *input,
+                           size_t req_size,
+                           void **response,
+                           size_t *resp_size);
+int mpc_arpc_recv_call_ptl(struct sctk_arpc_context_s *ctx,
+                           const void *input,
+                           size_t req_size,
+                           void **response,
+                           size_t *resp_size,
+                           struct sctk_ptl_am_msg_s *);
 
-int mpc_arpc_polling_request_ptl(struct sctk_arpc_context_s* ctx);
-int mpc_arpc_free_response_ptl(void* resp_addr);
+int mpc_arpc_polling_request_ptl(struct sctk_arpc_context_s *ctx);
+int mpc_arpc_free_response_ptl(void *resp_addr);
 
 #ifdef __cplusplus
-}
+	}
 #endif
 
 #endif

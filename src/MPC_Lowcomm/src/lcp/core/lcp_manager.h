@@ -34,7 +34,7 @@
 
 #include <lcr_def.h>
 
-#include <tag/lcp_pending.h> //FIXME: try to remove this.
+#include <tag/lcp_pending.h> // FIXME: try to remove this.
 
 #include <mpc_common_datastructure.h>
 
@@ -44,9 +44,9 @@
 #include <mpc_mempool.h>
 
 #define LCP_MANAGER_LOCK(_mngr) \
-	mpc_common_spinlock_lock_yield(&( (_mngr)->mngr_lock) )
+		mpc_common_spinlock_lock_yield(&((_mngr)->mngr_lock))
 #define LCP_MANAGER_UNLOCK(_mngr) \
-	mpc_common_spinlock_unlock(&( (_mngr)->mngr_lock) )
+		mpc_common_spinlock_unlock(&((_mngr)->mngr_lock))
 
 /**
  * @brief handler holding a callback and a flag
@@ -58,11 +58,11 @@ typedef struct lcp_am_handler
 	uint64_t          flags;
 } lcp_am_handler_t;
 
-#define LCP_DEFINE_AM(_id, _cb, _flags)              \
-	MPC_STATIC_INIT {                            \
-		lcp_am_handlers[_id].cb    = _cb;    \
-		lcp_am_handlers[_id].flags = _flags; \
-	}
+#define LCP_DEFINE_AM(_id, _cb, _flags)          \
+		MPC_STATIC_INIT {                        \
+			lcp_am_handlers[_id].cb    = _cb;    \
+			lcp_am_handlers[_id].flags = _flags; \
+		}
 
 extern lcp_am_handler_t lcp_am_handlers[];
 
@@ -72,33 +72,34 @@ extern lcp_am_handler_t lcp_am_handlers[];
  */
 typedef struct lcp_ep_ctx
 {
-	uint64_t       ep_key;
-	lcp_ep_h       ep;
+	uint64_t ep_key;
+	lcp_ep_h ep;
 } lcp_ep_ctx_t;
 
-struct lcp_manager {
-        lcp_context_h         ctx;
-        unsigned              flags;
+struct lcp_manager
+{
+	lcp_context_h               ctx;
+	unsigned                    flags;
 
-        int                   id;  /* Manager identifier. */
+	int                         id;            /* Manager identifier. */
 
-	int                   num_eps;       /* number of endpoints created */
-	struct mpc_common_hashtable eps; /* Hash table of endpoints for other sets */
+	int                         num_eps;       /* number of endpoints created */
+	struct mpc_common_hashtable eps;           /* Hash table of endpoints for other sets */
 
-	OPA_int_t             muid;          /* matching unique identifier */
-	lcp_pending_table_t  *match_ht;      /* ht of matching request */
+	OPA_int_t                   muid;          /* matching unique identifier */
+	lcp_pending_table_t *       match_ht;      /* ht of matching request */
 
-	mpc_common_spinlock_t mngr_lock;      /* Manager lock */
-        mpc_common_spinlock_t atomic_lock;
+	mpc_common_spinlock_t       mngr_lock;     /* Manager lock */
+	mpc_common_spinlock_t       atomic_lock;
 
-        mpc_list_elem_t       progress_head; /* List of interface registered for progress */
+	mpc_list_elem_t             progress_head; /* List of interface registered for progress */
 
-        struct lcp_pinning_mmu *mmu;
-        mpc_mempool_t        *mem_mp;
+	struct lcp_pinning_mmu *    mmu;
+	mpc_mempool_t *             mem_mp;
 
-        int                   num_ifaces;
-        sctk_rail_info_t    **ifaces;  /* Table of manager interfaces. */
-        int                   priority_iface;
+	int                         num_ifaces;
+	sctk_rail_info_t **         ifaces; /* Table of manager interfaces. */
+	int                         priority_iface;
 };
 
 #endif

@@ -37,12 +37,13 @@
 extern __thread void *sctk_hip_ctx;
 
 
-static int sctk_accl_hip_check_devices() {
+static int sctk_accl_hip_check_devices()
+{
 	int num_devices = sctk_accl_get_nb_hip_devices();
 
-	// if HIP support is loaded but the current configuration does not
-	// provide a GPU: stop
-	if (num_devices <= 0) {
+	// if HIP support is loaded but the current configuration does not provide a GPU: stop
+	if (num_devices <= 0)
+	{
 		mpc_common_nodebug("HIP: support enabled but no GPU found !");
 		return 0;
 	}
@@ -59,7 +60,7 @@ static int sctk_accl_hip_check_devices() {
  * Retrieve the best device to select for the thread cpu_id.
  *
  * This function mainly uses two sctk_device_topology calls:
- *   - <b>sctk_device_matrix_get_list_closest_from_pu(...)</b>: 
+ *   - <b>sctk_device_matrix_get_list_closest_from_pu(...)</b>:
  *     Returns a list of devices, each device being at the same distance from
  *     the PU than others
  *   - <b>sctk_device_attach_freest_device_from</b>: From the previously
@@ -67,23 +68,25 @@ static int sctk_accl_hip_check_devices() {
  *     resources to it (ie. PU). This call must be thread-safe.
  *
  * @param[in] cpu_id the CPU for whom we pick up a device
- * @return the device_id for the elected device
+ * @return           the device_id for the elected device
  */
-static int sctk_accl_hip_get_closest_device(int cpu_id) {
+static int sctk_accl_hip_get_closest_device(int cpu_id)
+{
 	int num_devices;
+
 	if ((num_devices = sctk_accl_hip_check_devices()) == 0)
+	{
 		return 0;
+	}
 
 	// else, we try to find the closest device for the current thread
 	// to use, num_devices contains the number of minimum distance device
 	mpc_topology_device_t **closest_devices = NULL;
-	closest_devices = mpc_topology_device_matrix_get_list_closest_from_pu(
-	                      cpu_id, "rocm-enabled-card*", &num_devices);
+	closest_devices = mpc_topology_device_matrix_get_list_closest_from_pu(cpu_id, "rocm-enabled-card*", &num_devices);
 
 	// once the list is filtered with the nearest ones,
 	// we need to elected the one with the minimum number of attached resources
-	mpc_topology_device_t *elected =
-		mpc_topology_device_attach_freest_device_from(closest_devices, num_devices);
+	mpc_topology_device_t *elected = mpc_topology_device_attach_freest_device_from(closest_devices, num_devices);
 	assert(elected != NULL);
 	int nearest_id = elected->device_id;
 
@@ -95,28 +98,30 @@ static int sctk_accl_hip_get_closest_device(int cpu_id) {
 
 /**
  * Initialize a HIP context for the calling thread.
- * @return
- *  - 0 if the init succeeded
- *  - 1 otherwise
+ * @retval 0 if the init succeeded
+ * @retval 1 otherwise
  */
-void sctk_accl_hip_init_context() {
+void sctk_accl_hip_init_context()
+{
 	mpc_thread_yield();
 	int num_devices;
 	if ((num_devices = sctk_accl_hip_check_devices()) == 0)
+	{
 		return;
+	}
 
 	/* we init HIP TLS context */
-	hip_ctx_t *hip = (hip_ctx_t *) sctk_hip_ctx;
-	hip = (hip_ctx_t *) sctk_malloc(sizeof(hip_ctx_t));
+	hip_ctx_t *hip = (hip_ctx_t *)sctk_hip_ctx;
+	hip         = (hip_ctx_t *)sctk_malloc(sizeof(hip_ctx_t));
 	hip->pushed = 0;
 	hip->cpu_id = mpc_topology_get_current_cpu();
 
 	mpc_common_nodebug("HIP: (MALLOC) pushed?%d, cpu_id=%d, address=%p",
-	                   hip->pushed, hip->cpu_id, hip);
+		hip->pushed, hip->cpu_id, hip);
 
 	// cast from int -> hipDevice_t (which is a typedef to a int)
 	hipDevice_t nearest_device =
-		(hipDevice_t) sctk_accl_hip_get_closest_device(hip->cpu_id);
+		(hipDevice_t)sctk_accl_hip_get_closest_device(hip->cpu_id);
 
 
 	safe_hip(
@@ -128,7 +133,7 @@ void sctk_accl_hip_init_context() {
 	hipDevice_t device;
 	safe_hip(hipCtxGetDevice(&device));
 	mpc_common_debug("HIP: (INIT) PU %d bound to device %d (%d)\n",
-	                 hip->cpu_id, device, nearest_device);
+		hip->cpu_id, device, nearest_device);
 
 	// Set the current pointer as default one for the current thread
 	sctk_hip_ctx = hip;
@@ -139,34 +144,36 @@ void sctk_accl_hip_init_context() {
  * Popping the HIP context for the calling thread from the associated GPU.
  *
  * Popping a context means we request HIP to detach the current ctx from the
- * calling thread. This is done when saving the thread, before yielding it with
- * another one (save())
+ * calling thread. This is done when saving the thread, before yielding it with another one (save())
  *
- * @return
- *   - 0 if the popping succeeded
- *   - 1 otherwise
+ * @retval 0 if the popping succeeded
+ * @retval 1 otherwise
  */
-int sctk_accl_hip_pop_context() {
+int sctk_accl_hip_pop_context()
+{
 	int num_devices;
+
 	if ((num_devices = sctk_accl_hip_check_devices()) == 0)
+	{
 		return 1;
+	}
 
 	// get The HIP context for the current thread
-	hip_ctx_t *hip = (hip_ctx_t *) sctk_hip_ctx;
+	hip_ctx_t *hip = (hip_ctx_t *)sctk_hip_ctx;
 
-	// if the calling thread does not provide a HIP ctx, this thread is
-	// supposed to not execute GPU code
+	// if the calling thread does not provide a HIP ctx, this thread is supposed to not execute GPU code
 	if (hip == NULL)
+	{
 		return 1;
+	}
 
 	// if the associated HIP context is pushed on the GPU
-	// This allow us to maintain save()/restore() operations independent
-	// from each other
-	if (hip->pushed) {
-		//hipDevice_t device;
-		//safe_hip(hipCtxGetDevice(&device));
-		//mpc_common_debug("HIP: (POP) PU %d bound to device %d\n",
-		//                 hip->cpu_id, device);
+	// This allow us to maintain save()/restore() operations independent from each other
+	if (hip->pushed)
+	{
+		// hipDevice_t device;
+		// safe_hip(hipCtxGetDevice(&device));
+		// mpc_common_debug("HIP: (POP) PU %d bound to device %d\n", hip->cpu_id, device);
 
 		safe_hip(hipCtxPopCurrent(&hip->context));
 		hip->pushed = 0;
@@ -181,31 +188,36 @@ int sctk_accl_hip_pop_context() {
  * Pushing a context means attaching the calling thread context to HIP.
  * This is done when a thread is restored, its context is pushed to the GPU
  *
- * @return
- *  - 0 if succeeded
- *  - 1 otherwise
+ * @retval 0 if succeeded
+ * @retval 1 otherwise
  */
-int sctk_accl_hip_push_context() {
+int sctk_accl_hip_push_context()
+{
 	int num_devices;
+
 	if ((num_devices = sctk_accl_hip_check_devices()) == 0)
+	{
 		return 1;
+	}
 
 	// else, we try to push a ctx in GPU queue
-	hip_ctx_t *hip = (hip_ctx_t *) sctk_hip_ctx;
+	hip_ctx_t *hip = (hip_ctx_t *)sctk_hip_ctx;
 
 	// it the current thread does not have a HIP ctx, skip...
 	if (hip == NULL)
+	{
 		return 1;
+	}
 
 	// if the context is not already on the GPU
-	if (!hip->pushed) {
+	if (!hip->pushed)
+	{
 		safe_hip(hipCtxPushCurrent(hip->context));
 		hip->pushed = 1;
 
-		//hipDevice_t device;
-		//safe_hip(hipCtxGetDevice(&device));
-		//mpc_common_debug("HIP: (PUSH) PU %d bound to device %d\n",
-		//                 hip->cpu_id, device);
+		// hipDevice_t device;
+		// safe_hip(hipCtxGetDevice(&device));
+		// mpc_common_debug("HIP: (PUSH) PU %d bound to device %d\n", hip->cpu_id, device);
 	}
 	return 0;
 }
@@ -215,7 +227,8 @@ int sctk_accl_hip_push_context() {
  *
  * @return 0 if succeeded, 1 otherwise
  */
-int sctk_accl_hip_init() {
+int sctk_accl_hip_init()
+{
 	if (mpc_common_get_flags()->enable_rocm)
 	{
 		safe_hip(hipInit(0));
@@ -223,49 +236,6 @@ int sctk_accl_hip_init() {
 	}
 	return 1;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /**
  * Release the HIP contexts with MPC
@@ -277,36 +247,32 @@ void sctk_accl_hip_release_context()
 	{
 		int num_devices;
 		if ((num_devices = sctk_accl_hip_check_devices()) == 0)
+		{
 			return;
+		}
 
-		hip_ctx_t *hip = (hip_ctx_t *) sctk_hip_ctx;
+		hip_ctx_t *hip = (hip_ctx_t *)sctk_hip_ctx;
 
 		hipDevice_t device;
 		safe_hip(hipCtxGetDevice(&device));
-		mpc_common_debug("HIP: (RELEASE) PU %d bound to device %d\n",
-		                 hip->cpu_id, device);
+		mpc_common_debug("HIP: (RELEASE) PU %d bound to device %d\n", hip->cpu_id, device);
 
 		hipCtxDestroy(hip->context);
 		sctk_hip_ctx = NULL;
 	}
-
 }
 
 /*********************************
  * MPC HIP INIT FUNCTION *
  *********************************/
 
-void mpc_accelerator_hip_register_function() __attribute__( ( constructor ) );
+void mpc_accelerator_hip_register_function() __attribute__((constructor));
 
 void mpc_accelerator_hip_register_function()
 {
 	MPC_INIT_CALL_ONLY_ONCE
 
-	mpc_common_init_callback_register("VP Thread Start",
-	                                  "Init per VP HIP context",
-	                                  sctk_accl_hip_init_context, 26);
+	mpc_common_init_callback_register("VP Thread Start", "Init per VP HIP context", sctk_accl_hip_init_context, 26);
 
-	mpc_common_init_callback_register("VP Thread End",
-	                                  "Release per VP HIP context",
-	                                  sctk_accl_hip_release_context, 21);
+	mpc_common_init_callback_register("VP Thread End", "Release per VP HIP context", sctk_accl_hip_release_context, 21);
 }

@@ -31,7 +31,7 @@
 #include "coll.h"
 #include "shm_coll.h"
 
-#define MPC_INITIAL_TOPO_COMMS_SIZE    10
+#define MPC_INITIAL_TOPO_COMMS_SIZE 10
 
 /**
  * @brief This is the struct for the information needed for topological collectives
@@ -64,8 +64,8 @@ typedef struct MPI_ABI_Comm
 	int                           is_comm_self;   /**< 1 if the group is comm_self */
 
 	/* Collective comm */
-	struct mpc_lowcomm_coll_s *   coll;             /**< This holds the collectives for this comm */
-	struct sctk_comm_coll *       shm_coll;         /**< This holds the SHM collectives for this comm */
+	struct mpc_lowcomm_coll_s *   coll;           /**< This holds the collectives for this comm */
+	struct sctk_comm_coll *       shm_coll;       /**< This holds the SHM collectives for this comm */
 
 	/* Intercomms */
 
@@ -73,19 +73,21 @@ typedef struct MPI_ABI_Comm
 	 * intercomms. If the group is NULL
 	 * it means the communicator is an intercomm
 	 * and then functions will refer to these functions */
-	mpc_lowcomm_communicator_t    left_comm;        /**< The left comm for intercomms. This must always be the local communicator. */
-	mpc_lowcomm_communicator_t    right_comm;       /**< The right comm for intercomms. This must always be the remote communicator. */
+	mpc_lowcomm_communicator_t left_comm;     /**< The left comm for intercomms. This must always be the local
+	                                           * communicator. */
+	mpc_lowcomm_communicator_t right_comm;    /**< The right comm for intercomms. This must always be the remote
+	                                           * communicator. */
 
 	/* Topological comm */
-	mpc_lowcomm_topo_comms *      topo_comms; /**< Topological communicators. */
+	mpc_lowcomm_topo_comms *   topo_comms;    /**< Topological communicators. */
 
 	/* Extra context (sessions) */
-	mpc_lowcomm_handle_ctx_t      extra_ctx_ptr;
+	mpc_lowcomm_handle_ctx_t   extra_ctx_ptr;
 }mpc_lowcomm_internal_communicator_t;
 
 /*********************************
-* COMMUNICATOR INIT AND RELEASE *
-*********************************/
+ * COMMUNICATOR INIT AND RELEASE *
+ *********************************/
 
 /**
  * @brief Initialize base communicators (WORLD and SELF)
@@ -109,14 +111,14 @@ void _mpc_lowcomm_communicator_acquire(mpc_lowcomm_internal_communicator_t *comm
 /**
  * @brief Decrement refcounting on a comm
  *
- * @param comm the comm to relax
- * @return int the value before decrementing
+ * @param  comm the comm to relax
+ * @return      int the value before decrementing
  */
 int _mpc_lowcomm_communicator_relax(mpc_lowcomm_internal_communicator_t *comm);
 
 /***************************
-* LOCAL PLACEMENT GETTERS *
-***************************/
+ * LOCAL PLACEMENT GETTERS *
+ ***************************/
 
 /**
  * @brief Get the first local task in comm_world for this process
@@ -133,15 +135,16 @@ int _mpc_lowcomm_communicator_world_first_local_task();
 int _mpc_lowcomm_communicator_world_last_local_task();
 
 /**********************
-* COLLECTIVE GETTERS *
-**********************/
+ * COLLECTIVE GETTERS *
+ **********************/
 
 
 /* NOLINTBEGIN(clang-diagnostic-unused-function): False positives */
+
 /**
  * This method get the collectives related to the communicator.
- * @param communicator Identification number of the local communicator.
- * @return the structure containing the collectives.
+ * @param  communicator Identification number of the local communicator.
+ * @return              the structure containing the collectives.
  **/
 static inline struct mpc_lowcomm_coll_s *_mpc_comm_get_internal_coll(const mpc_lowcomm_communicator_t comm)
 {
@@ -152,7 +155,7 @@ static inline struct mpc_lowcomm_coll_s *_mpc_comm_get_internal_coll(const mpc_l
 
 /**
  * This method set the collectives related to the communicator.
- * @param id Identification number of the local communicator.
+ * @param id   Identification number of the local communicator.
  * @param coll structure containing the collectives.
  **/
 static inline void _mpc_comm_set_internal_coll(mpc_lowcomm_communicator_t comm, struct mpc_lowcomm_coll_s *coll)
@@ -164,12 +167,12 @@ static inline void _mpc_comm_set_internal_coll(mpc_lowcomm_communicator_t comm, 
 /**
  * @brief Inline version of the communicator ID getter
  *
- * @param comm the communicator
- * @return mpc_lowcomm_communicator_id_t the corresponding ID of the given comm
+ * @param  comm the communicator
+ * @return      mpc_lowcomm_communicator_id_t the corresponding ID of the given comm
  */
 static inline mpc_lowcomm_communicator_id_t _mpc_lowcomm_communicator_id(mpc_lowcomm_internal_communicator_t *comm)
 {
-	if(comm != MPC_COMM_NULL)
+	if (comm != MPC_COMM_NULL)
 	{
 		comm = __mpc_lowcomm_communicator_from_predefined(comm);
 		return comm->id;
@@ -177,6 +180,7 @@ static inline mpc_lowcomm_communicator_id_t _mpc_lowcomm_communicator_id(mpc_low
 
 	return MPC_LOWCOMM_COMM_NULL_ID;
 }
+
 /* NOLINTEND(clang-diagnostic-unused-function) */
 
 #endif /* COMMUNICATOR_H */

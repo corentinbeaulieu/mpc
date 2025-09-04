@@ -33,26 +33,25 @@
 #include "mpc_common_helper.h"
 #include <zlib.h>
 
-static short int checksum_enabled;
+	static short int checksum_enabled;
 
-unsigned long _mpc_lowcomm_checksum_message(mpc_lowcomm_ptp_message_t *send,
-                                            mpc_lowcomm_ptp_message_t *recv)
-{
-	unsigned long adler = 0;
-
-	if(!checksum_enabled)
+	unsigned long _mpc_lowcomm_checksum_message(mpc_lowcomm_ptp_message_t *send, mpc_lowcomm_ptp_message_t *recv)
 	{
-		return 0;
-	}
+		unsigned long adler = 0;
 
-	switch(recv->tail.message_type)
-	{
+		if (!checksum_enabled)
+		{
+			return 0;
+		}
+
+		switch (recv->tail.message_type)
+		{
 		case MPC_LOWCOMM_MESSAGE_CONTIGUOUS:
 		{
 			size_t size;
 			size = SCTK_MSG_SIZE(send);
 
-			if(size > recv->tail.message.contiguous.size)
+			if (size > recv->tail.message.contiguous.size)
 			{
 				size = recv->tail.message.contiguous.size;
 			}
@@ -79,16 +78,16 @@ unsigned long _mpc_lowcomm_checksum_message(mpc_lowcomm_ptp_message_t *send,
 			size_t j;
 			size_t size;
 
-			for(i = 0; i < recv->tail.message.pack.count; i++)
+			for (i = 0; i < recv->tail.message.pack.count; i++)
 			{
-				for(j = 0; j < recv->tail.message.pack.list.std[i].count; j++)
+				for (j = 0; j < recv->tail.message.pack.list.std[i].count; j++)
 				{
-					size = (recv->tail.message.pack.list.std[i].ends[j] -
-					        recv->tail.message.pack.list.std[i].begins[j] +
-					        1) * recv->tail.message.pack.list.std[i].elem_size;
-					adler = adler32(adler, ( ( unsigned char * )(recv->tail.message.pack.list.std[i].addr) ) +
-					                recv->tail.message.pack.list.std[i].begins[j] *
-					                recv->tail.message.pack.list.std[i].elem_size, size);
+					size = (recv->tail.message.pack.list.std[i].ends[j]
+					        - recv->tail.message.pack.list.std[i].begins[j]
+					        + 1) * recv->tail.message.pack.list.std[i].elem_size;
+					adler = adler32(adler, (( unsigned char * )(recv->tail.message.pack.list.std[i].addr))
+						+ recv->tail.message.pack.list.std[i].begins[j]
+						* recv->tail.message.pack.list.std[i].elem_size, size);
 				}
 			}
 
@@ -101,16 +100,16 @@ unsigned long _mpc_lowcomm_checksum_message(mpc_lowcomm_ptp_message_t *send,
 			size_t j;
 			size_t size;
 
-			for(i = 0; i < recv->tail.message.pack.count; i++)
+			for (i = 0; i < recv->tail.message.pack.count; i++)
 			{
-				for(j = 0; j < recv->tail.message.pack.list.absolute[i].count; j++)
+				for (j = 0; j < recv->tail.message.pack.list.absolute[i].count; j++)
 				{
-					size = (recv->tail.message.pack.list.absolute[i].ends[j] -
-					        recv->tail.message.pack.list.absolute[i].begins[j] +
-					        1) * recv->tail.message.pack.list.absolute[i].elem_size;
-					adler = adler32(adler, ( ( unsigned char * )(recv->tail.message.pack.list.absolute[i].addr) ) +
-					                recv->tail.message.pack.list.absolute[i].begins[j] *
-					                recv->tail.message.pack.list.absolute[i].elem_size, size);
+					size = (recv->tail.message.pack.list.absolute[i].ends[j]
+					        - recv->tail.message.pack.list.absolute[i].begins[j] + 1)
+					       * recv->tail.message.pack.list.absolute[i].elem_size;
+					adler = adler32(adler, (( unsigned char * )(recv->tail.message.pack.list.absolute[i].addr))
+						+ recv->tail.message.pack.list.absolute[i].begins[j]
+						* recv->tail.message.pack.list.absolute[i].elem_size, size);
 				}
 			}
 
@@ -119,29 +118,28 @@ unsigned long _mpc_lowcomm_checksum_message(mpc_lowcomm_ptp_message_t *send,
 
 		default:
 			not_reachable();
+		}
+
+		return adler;
 	}
 
-	return adler;
-}
-
-unsigned long _mpc_lowcomm_checksum_buffer(char *body,
-                                           mpc_lowcomm_ptp_message_t *msg)
-{
-	uLong adler = 0;
-
-	if(!checksum_enabled)
+	unsigned long _mpc_lowcomm_checksum_buffer(char *body, mpc_lowcomm_ptp_message_t *msg)
 	{
-		return 0;
-	}
+		uLong adler = 0;
 
-	switch(msg->tail.message_type)
-	{
+		if (!checksum_enabled)
+		{
+			return 0;
+		}
+
+		switch (msg->tail.message_type)
+		{
 		case MPC_LOWCOMM_MESSAGE_CONTIGUOUS:
 		{
 			size_t size;
 			size = SCTK_MSG_SIZE(msg);
 
-			if(size > msg->tail.message.contiguous.size)
+			if (size > msg->tail.message.contiguous.size)
 			{
 				size = msg->tail.message.contiguous.size;
 			}
@@ -157,13 +155,13 @@ unsigned long _mpc_lowcomm_checksum_buffer(char *body,
 			size_t j;
 			size_t size;
 
-			for(i = 0; i < msg->tail.message.pack.count; i++)
+			for (i = 0; i < msg->tail.message.pack.count; i++)
 			{
-				for(j = 0; j < msg->tail.message.pack.list.std[i].count; j++)
+				for (j = 0; j < msg->tail.message.pack.list.std[i].count; j++)
 				{
-					size = (msg->tail.message.pack.list.std[i].ends[j] -
-					        msg->tail.message.pack.list.std[i].begins[j] +
-					        1) * msg->tail.message.pack.list.std[i].elem_size;
+					size = (msg->tail.message.pack.list.std[i].ends[j]
+					        - msg->tail.message.pack.list.std[i].begins[j]
+					        + 1) * msg->tail.message.pack.list.std[i].elem_size;
 					adler = adler32(adler, ( unsigned char * )body, size);
 					body += size;
 				}
@@ -178,13 +176,13 @@ unsigned long _mpc_lowcomm_checksum_buffer(char *body,
 			size_t j;
 			size_t size;
 
-			for(i = 0; i < msg->tail.message.pack.count; i++)
+			for (i = 0; i < msg->tail.message.pack.count; i++)
 			{
-				for(j = 0; j < msg->tail.message.pack.list.absolute[i].count; j++)
+				for (j = 0; j < msg->tail.message.pack.list.absolute[i].count; j++)
 				{
-					size = (msg->tail.message.pack.list.absolute[i].ends[j] -
-					        msg->tail.message.pack.list.absolute[i].begins[j] +
-					        1) * msg->tail.message.pack.list.absolute[i].elem_size;
+					size = (msg->tail.message.pack.list.absolute[i].ends[j]
+					        - msg->tail.message.pack.list.absolute[i].begins[j]
+					        + 1) * msg->tail.message.pack.list.absolute[i].elem_size;
 
 					adler = adler32(adler, ( unsigned char * )body, size);
 					body += size;
@@ -196,59 +194,59 @@ unsigned long _mpc_lowcomm_checksum_buffer(char *body,
 
 		default:
 			not_reachable();
-	}
-
-	return adler;
-}
-
-void _mpc_lowcomm_checksum_register(mpc_lowcomm_ptp_message_t *msg)
-{
-	msg->body.checksum = _mpc_lowcomm_checksum_message(msg, msg);
-}
-
-void _mpc_lowcomm_checksum_unregister(mpc_lowcomm_ptp_message_t *msg)
-{
-	msg->body.checksum = 0;
-}
-
-unsigned long _mpc_lowcomm_checksum_verify(mpc_lowcomm_ptp_message_t *send, mpc_lowcomm_ptp_message_t *recv)
-{
-	unsigned long adler = 0;
-
-	if(!checksum_enabled)
-	{
-		return 0;
-	}
-
-	/* If Checksum != 0, we verify it because the user asked for it */
-	if(send->body.checksum)
-	{
-		adler = _mpc_lowcomm_checksum_message(send, recv);
-
-		if(adler != send->body.checksum)
-		{
-			mpc_common_debug_error("Got wrong checksum (got:%lu, expected:%lu)", adler, send->body.checksum);
-			mpc_common_debug_abort();
 		}
-		else
-		{
-			mpc_common_debug("Got GOOD checksum (got:%lu, expected:%lu)", adler, send->body.checksum);
-		}
+
+		return adler;
 	}
 
-	return adler;
-}
-
-void _mpc_lowcomm_checksum_init()
-{
-	if(mpc_common_get_process_rank() == 0)
+	void _mpc_lowcomm_checksum_register(mpc_lowcomm_ptp_message_t *msg)
 	{
-		fprintf(stderr, MPC_COLOR_BOLD_RED(WARNING: inter - node message checking enabled !) "\n");
+		msg->body.checksum = _mpc_lowcomm_checksum_message(msg, msg);
 	}
 
-	checksum_enabled = _mpc_lowcomm_conf_get()->checksum;
-	;
-}
+	void _mpc_lowcomm_checksum_unregister(mpc_lowcomm_ptp_message_t *msg)
+	{
+		msg->body.checksum = 0;
+	}
+
+	unsigned long _mpc_lowcomm_checksum_verify(mpc_lowcomm_ptp_message_t *send, mpc_lowcomm_ptp_message_t *recv)
+	{
+		unsigned long adler = 0;
+
+		if (!checksum_enabled)
+		{
+			return 0;
+		}
+
+		/* If Checksum != 0, we verify it because the user asked for it */
+		if (send->body.checksum)
+		{
+			adler = _mpc_lowcomm_checksum_message(send, recv);
+
+			if (adler != send->body.checksum)
+			{
+				mpc_common_debug_error("Got wrong checksum (got:%lu, expected:%lu)", adler, send->body.checksum);
+				mpc_common_debug_abort();
+			}
+			else
+			{
+				mpc_common_debug("Got GOOD checksum (got:%lu, expected:%lu)", adler, send->body.checksum);
+			}
+		}
+
+		return adler;
+	}
+
+	void _mpc_lowcomm_checksum_init()
+	{
+		if (mpc_common_get_process_rank() == 0)
+		{
+			fprintf(stderr, MPC_COLOR_BOLD_RED(WARNING: inter - node message checking enabled !) "\n");
+		}
+
+		checksum_enabled = _mpc_lowcomm_conf_get()->checksum;
+		;
+	}
 
 #else
 void _mpc_lowcomm_checksum_init()

@@ -30,57 +30,65 @@
 #include "mpcomp_core.h"
 #include "mpcomp_task.h"
 
-void
-_mpc_omp_ompt_callback_task_create( mpc_omp_task_t *task,
-                                int flags,
-                                int has_dependences );
+	void
+	_mpc_omp_ompt_callback_task_create(mpc_omp_task_t *task,
+	                                   int flags,
+	                                   int has_dependences);
 
-void
-_mpc_omp_ompt_callback_dependences( mpc_omp_task_t *task,
-                                const ompt_dependence_t *deps,
-                                int ndeps );
+	void
+	_mpc_omp_ompt_callback_dependences(mpc_omp_task_t *task,
+	                                   const ompt_dependence_t *deps,
+	                                   int ndeps);
 
-void
-_mpc_omp_ompt_callback_task_dependence( ompt_data_t *src_task_data,
-                                    ompt_data_t *sink_task_data );
+	void
+	_mpc_omp_ompt_callback_task_dependence(ompt_data_t *src_task_data,
+	                                       ompt_data_t *sink_task_data);
 
-void
-_mpc_omp_ompt_callback_task_schedule( ompt_data_t *prior_task_data,
-                                  ompt_task_status_t prior_task_status,
-                                  ompt_data_t *next_task_data );
+	void
+	_mpc_omp_ompt_callback_task_schedule(ompt_data_t *prior_task_data,
+	                                     ompt_task_status_t prior_task_status,
+	                                     ompt_data_t *next_task_data);
 
-void
-_mpc_omp_ompt_callback_implicit_task( ompt_scope_endpoint_t endpoint,
-                                  unsigned int actual_parallelism,
-                                  unsigned int index,
-                                  int flags );
+	void
+	_mpc_omp_ompt_callback_implicit_task(ompt_scope_endpoint_t endpoint,
+	                                     unsigned int actual_parallelism,
+	                                     unsigned int index,
+	                                     int flags);
 
 
-/* NOLINTBEGIN(clang-diagnostic-unused-function): False positives */
-static inline ompt_task_flag_t
-__mpc_omp_ompt_get_task_flags( mpc_omp_thread_t * thread, mpc_omp_task_t *new_task ) {
-    ompt_task_flag_t flags = ompt_task_explicit;
-    int task_nesting_max = mpc_omp_conf_get()->task_depth_threshold;
+	/* NOLINTBEGIN(clang-diagnostic-unused-function): False positives */
+	static inline ompt_task_flag_t
+	__mpc_omp_ompt_get_task_flags(mpc_omp_thread_t *thread, mpc_omp_task_t *new_task)
+	{
+		ompt_task_flag_t flags = ompt_task_explicit;
+		int task_nesting_max   = mpc_omp_conf_get()->task_depth_threshold;
 
-    if( mpc_omp_task_property_isset( new_task->property, MPC_OMP_TASK_PROP_UNDEFERRED ))
-        flags |= ompt_task_undeferred;
+		if (mpc_omp_task_property_isset(new_task->property, MPC_OMP_TASK_PROP_UNDEFERRED))
+		{
+			flags |= ompt_task_undeferred;
+		}
 
-    if( mpc_omp_task_property_isset( new_task->property, MPC_OMP_TASK_PROP_FINAL ))
-        flags |= ompt_task_final;
+		if (mpc_omp_task_property_isset(new_task->property, MPC_OMP_TASK_PROP_FINAL))
+		{
+			flags |= ompt_task_final;
+		}
 
-    if( !( flags & ompt_task_undeferred )
-        && ( thread->info.num_threads == 1
-             || MPC_OMP_TASK_THREAD_GET_CURRENT_TASK(thread)->depth > task_nesting_max ))
-        flags |= ompt_task_undeferred;
+		if (!(flags & ompt_task_undeferred)
+		    && (thread->info.num_threads == 1
+		        || MPC_OMP_TASK_THREAD_GET_CURRENT_TASK(thread)->depth > task_nesting_max))
+		{
+			flags |= ompt_task_undeferred;
+		}
 
-    /* NOTE: One case not handled: if task list has reached the maximum capacity
-     *       of delayed tasks the new task will be undeferred in method task process
-     *       and we cannot currently manage it.
-     */
+		/* NOTE: One case not handled: if task list has reached the maximum capacity
+		 *       of delayed tasks the new task will be undeferred in method task process
+		 *       and we cannot currently manage it.
+		 */
 
-    return flags;
-}
-/* NOLINTEND(clang-diagnostic-unused-function) */
+		return flags;
+	}
+
+	/* NOLINTEND(clang-diagnostic-unused-function) */
 
 #endif /* OMPT_SUPPORT */
 #endif /* __MPCOMPT_TASK_H__ */

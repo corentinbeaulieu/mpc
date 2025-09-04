@@ -30,7 +30,7 @@
 /* Error Handler                                                        */
 /************************************************************************/
 
-#define MAX_ERROR_HANDLERS    32 /**< 4 predefined + 8 user */
+#define MAX_ERROR_HANDLERS 32    /**< 4 predefined + 8 user */
 
 typedef void (*_mpc_mpi_generic_errhandler_func_t)(void *phandle, int *error_code, ...);
 typedef struct MPI_ABI_Errhandler
@@ -41,22 +41,22 @@ typedef struct MPI_ABI_Errhandler
 
 /** @brief Retrieves the errhandler at the given index
  *
- *  @param idx  The index of the errhandler to retrieve
- *  @return     A valid errhandler if the index is correct, the entry otherwise
+ * @param  idx The index of the errhandler to retrieve
+ * @return     A valid errhandler if the index is correct, the entry otherwise
  */
 _mpc_mpi_errhandler_t _mpc_mpi_errhandler_from_idx(const long idx);
 
 /** @brief Retrieves the index of a given errhandler
  *
- *  @param errh  The errhandler of which we want the index in the global table
- *  @return      A valid index
+ * @param  errh The errhandler of which we want the index in the global table
+ * @return      A valid index
  */
 long _mpc_mpi_errhandler_to_idx(const _mpc_mpi_errhandler_t errh);
 
 /** @brief Checks if an errhandler is valid (registered)
  *
- *  @param errh    The errhandler to check
- *  @return        true if the errhandler is valid, false otherwise
+ * @param  errh The errhandler to check
+ * @return      true if the errhandler is valid, false otherwise
  */
 bool _mpc_mpi_errhandler_is_valid(const _mpc_mpi_errhandler_t errh);
 
@@ -73,7 +73,7 @@ int _mpc_mpi_errhandler_free(_mpc_mpi_errhandler_t errh);
 /* MPI Handles                                                          */
 /************************************************************************/
 
-#define SCTK_BOOKED_HANDLES    (10000)
+#define SCTK_BOOKED_HANDLES (10000)
 
 typedef size_t sctk_handle;
 
@@ -112,10 +112,8 @@ sctk_handle _mpc_mpi_handle_new(sctk_handle_type type);
 int _mpc_mpi_handle_free(sctk_handle id, sctk_handle_type type);
 
 
-_mpc_mpi_errhandler_t _mpc_mpi_handle_get_errhandler(sctk_handle id,
-                                                     sctk_handle_type type);
+_mpc_mpi_errhandler_t _mpc_mpi_handle_get_errhandler(sctk_handle id, sctk_handle_type type);
 
-int _mpc_mpi_handle_set_errhandler(sctk_handle id, sctk_handle_type type,
-                                   _mpc_mpi_errhandler_t errh);
+int _mpc_mpi_handle_set_errhandler(sctk_handle id, sctk_handle_type type, _mpc_mpi_errhandler_t errh);
 
 #endif /* MPC_MPI_ERROR_H */

@@ -35,10 +35,10 @@
 #include <dmtcp.h>
 
 
-/** Number of checkpoints done since the application starts */
-static int nb_checkpoints = 0;
-/** Number of restarts done since the application starts */
-static int nb_restarts = 0;
+	/** Number of checkpoints done since the application starts */
+	static int nb_checkpoints = 0;
+	/** Number of restarts done since the application starts */
+	static int nb_restarts = 0;
 
 
 #endif
@@ -57,7 +57,6 @@ int dmtcp_get_ckpt_signal()
 	mpc_common_debug_fatal("This function should be called outside of running wrapped by DMTPC")
 	return 2;
 }
-
 
 #ifdef MPC_USE_DMTCP
 
@@ -85,15 +84,15 @@ static inline void __sctk_ft_post_restart()
 static inline void __sctk_ft_set_ckptdir()
 {
 #ifdef MPC_USE_DMTCP
-        char path[256], *dummy=NULL;
-        memset(path, 0, 256);
-        dummy = getcwd(path, 256);
-        assert(dummy);
+		char path[256], *dummy = NULL;
+		memset(path, 0, 256);
+		dummy = getcwd(path, 256);
+		assert(dummy);
 
-	dmtcp_set_global_ckpt_dir(path);
-	dmtcp_set_coord_ckpt_dir(path);
-	mpc_common_debug("DMTCP commented dmtcp_set_tmpdir() func");
-	//dmtcp_set_tmpdir(dir);
+		dmtcp_set_global_ckpt_dir(path);
+		dmtcp_set_coord_ckpt_dir(path);
+		mpc_common_debug("DMTCP commented dmtcp_set_tmpdir() func");
+		// dmtcp_set_tmpdir(dir);
 #endif
 }
 
@@ -106,22 +105,22 @@ static inline void __sctk_ft_set_ckptdir()
 void sctk_ft_init()
 {
 #ifdef MPC_USE_DMTCP
-	if(dmtcp_is_enabled())
-	{
-		__sctk_ft_set_ckptdir();
-
-		if(dmtcp_get_ckpt_signal() == SIGUSR1)
+		if (dmtcp_is_enabled())
 		{
-			mpc_common_debug_error("DMTCP and MPC both set an handler for SIGUSR1");
-			mpc_common_debug_fatal("Signal value: %d", dmtcp_get_ckpt_signal());
-		}
+			__sctk_ft_set_ckptdir();
 
-		mpc_common_get_flags()->checkpoint_model = "C/R (DMTCP) ENABLED";
-	}
-	else
-	{
-		mpc_common_get_flags()->checkpoint_model = "C/R (DMTCP) Disabled";
-	}
+			if (dmtcp_get_ckpt_signal() == SIGUSR1)
+			{
+				mpc_common_debug_error("DMTCP and MPC both set an handler for SIGUSR1");
+				mpc_common_debug_fatal("Signal value: %d", dmtcp_get_ckpt_signal());
+			}
+
+			mpc_common_get_flags()->checkpoint_model = "C/R (DMTCP) ENABLED";
+		}
+		else
+		{
+			mpc_common_get_flags()->checkpoint_model = "C/R (DMTCP) Disabled";
+		}
 #endif
 }
 
@@ -132,9 +131,9 @@ void sctk_ft_init()
 int sctk_ft_enabled()
 {
 #ifdef MPC_USE_DMTCP
-	return dmtcp_is_enabled();
+		return dmtcp_is_enabled();
 #else
-	return 0;
+		return 0;
 #endif
 }
 
@@ -143,16 +142,16 @@ int sctk_ft_enabled()
  */
 void sctk_ft_checkpoint_init()
 {
-        /* IMPORTANT: After this function, the calling thread
-         * should never call a function leading to a critical section.
-         * In this case, mpc_thread_yield (for ethread_mxn) should not
-         * be called for waiting. This thread should not be preempted
-         * (leading to deadlock to acquire read after write).
-         */
+	/* IMPORTANT: After this function, the calling thread
+	 * should never call a function leading to a critical section.
+	 * In this case, mpc_thread_yield (for ethread_mxn) should not
+	 * be called for waiting. This thread should not be preempted
+	 * (leading to deadlock to acquire read after write).
+	 */
 	mpc_common_spinlock_write_lock_yield(&checkpoint_lock);
 #ifdef MPC_USE_DMTCP
-	/* retrieve old value (we will wait for their increment to simulate a barrier) */
-	dmtcp_get_local_status(&nb_checkpoints, &nb_restarts);
+		/* retrieve old value (we will wait for their increment to simulate a barrier) */
+		dmtcp_get_local_status(&nb_checkpoints, &nb_restarts);
 #endif
 }
 
@@ -168,15 +167,19 @@ void sctk_ft_checkpoint_prepare()
 	size_t i;
 
 	/* iterate over each rail */
-	for (i = 0; i < nb; ++i) {
-		sctk_rail_info_t* rail = sctk_rail_get_by_id(i);
-		if(!rail) continue;
-#ifdef MPC_USE_DMTCP
-		/* condition (that could be extended (Portals?) */
-                if(SCTK_RAIL_TYPE(rail) == SCTK_RTCFG_net_driver_infiniband)
+	for (i = 0; i < nb; ++i)
+	{
+		sctk_rail_info_t *rail = sctk_rail_get_by_id(i);
+		if (!rail)
 		{
-			sctk_rail_disable(rail);
+			continue;
 		}
+#ifdef MPC_USE_DMTCP
+			/* condition (that could be extended (Portals?) */
+			if (SCTK_RAIL_TYPE(rail) == SCTK_RTCFG_net_driver_infiniband)
+			{
+				sctk_rail_disable(rail);
+			}
 #endif
 	}
 }
@@ -195,20 +198,19 @@ void sctk_ft_checkpoint_prepare()
  */
 int sctk_ft_no_suspend_start()
 {
-
-        int old = sctk_ft_critical_section++;
+	int old = sctk_ft_critical_section++;
 
 	/* if i'm the first to request the critical section */
-        if(old == 0)
-        {
+	if (old == 0)
+	{
 		/* And I cannot take the lock --> skip to create the section */
-                if(mpc_common_spinlock_read_trylock(&checkpoint_lock) != 0)
-                {
-                        sctk_ft_critical_section--;
-                        return 0;
-                }
-        }
-        return 1;
+		if (mpc_common_spinlock_read_trylock(&checkpoint_lock) != 0)
+		{
+			sctk_ft_critical_section--;
+			return 0;
+		}
+	}
+	return 1;
 }
 
 /**
@@ -226,12 +228,12 @@ int sctk_ft_no_suspend_start()
  */
 void sctk_ft_no_suspend_end()
 {
-        int nw = --sctk_ft_critical_section;
+	int nw = --sctk_ft_critical_section;
 
-        if(nw == 0)
-        {
-                mpc_common_spinlock_read_unlock(&checkpoint_lock);
-        }
+	if (nw == 0)
+	{
+		mpc_common_spinlock_read_unlock(&checkpoint_lock);
+	}
 }
 
 /**
@@ -242,8 +244,8 @@ void sctk_ft_no_suspend_end()
 void sctk_ft_checkpoint()
 {
 #ifdef MPC_USE_DMTCP
-	/* don't care about the return value because we have our own 'uniform' way to retrieve the state */
-	dmtcp_checkpoint();
+		/* don't care about the return value because we have our own 'uniform' way to retrieve the state */
+		dmtcp_checkpoint();
 #endif
 }
 
@@ -255,28 +257,34 @@ void sctk_ft_checkpoint()
 void sctk_ft_checkpoint_finalize()
 {
 #ifdef MPC_USE_DMTCP
-	/* we have to reinit PMI from MPC, each time */
- mpc_launch_pmi_init();
+		/* we have to reinit PMI from MPC, each time */
+		mpc_launch_pmi_init();
 
-	/* depending on status, deferring the work to the FT system */
-	switch(__state)
-	{
+		/* depending on status, deferring the work to the FT system */
+		switch (__state)
+		{
 		case MPC_STATE_CHECKPOINT: __sctk_ft_post_checkpoint(); break;
+
 		case MPC_STATE_RESTART:    __sctk_ft_post_restart(); break;
+
 		default: break;
-	}
+		}
 #endif
 
 	unsigned int i;
-	size_t nb = sctk_rail_count();
-	for (i = 0; i < nb; ++i) {
-		sctk_rail_info_t* rail = sctk_rail_get_by_id(i);
-		if(!rail) continue;
-#ifdef MPC_USE_DMTCP
-                if(SCTK_RAIL_TYPE(rail) == SCTK_RTCFG_net_driver_infiniband)
+	size_t       nb = sctk_rail_count();
+	for (i = 0; i < nb; ++i)
+	{
+		sctk_rail_info_t *rail = sctk_rail_get_by_id(i);
+		if (!rail)
 		{
-			sctk_rail_enable(rail);
+			continue;
 		}
+#ifdef MPC_USE_DMTCP
+			if (SCTK_RAIL_TYPE(rail) == SCTK_RTCFG_net_driver_infiniband)
+			{
+				sctk_rail_enable(rail);
+			}
 #endif
 	}
 	/* recall driver init function & update mpc_common_get_flags()->sctk_network_description_string string */
@@ -292,9 +300,9 @@ void sctk_ft_checkpoint_finalize()
 int sctk_ft_disable()
 {
 #ifdef MPC_USE_DMTCP
-	return dmtcp_disable_ckpt();
+		return dmtcp_disable_ckpt();
 #else
-	return 0;
+		return 0;
 #endif
 }
 
@@ -306,9 +314,9 @@ int sctk_ft_disable()
 int sctk_ft_enable()
 {
 #ifdef MPC_USE_DMTCP
-	return dmtcp_enable_ckpt();
+		return dmtcp_enable_ckpt();
 #else
-	return 0;
+		return 0;
 #endif
 }
 
@@ -331,16 +339,14 @@ int sctk_ft_finalize()
 mpc_lowcomm_checkpoint_state_t sctk_ft_checkpoint_wait()
 {
 #ifdef MPC_USE_DMTCP
-	int new_nb_checkpoints, new_nb_restarts;
-	/* old values have been loaded when calling _init() */
-	do
-	{
-		dmtcp_get_local_status(&new_nb_checkpoints, &new_nb_restarts);
-	}
-	while(new_nb_checkpoints == nb_checkpoints && new_nb_restarts == nb_restarts);
+		int new_nb_checkpoints, new_nb_restarts;
+		/* old values have been loaded when calling _init() */
+		do
+		{
+			dmtcp_get_local_status(&new_nb_checkpoints, &new_nb_restarts);
+		}while (new_nb_checkpoints == nb_checkpoints && new_nb_restarts == nb_restarts);
 
-	__state = (new_nb_restarts == nb_restarts) ? MPC_STATE_CHECKPOINT : MPC_STATE_RESTART;
-
+		__state = (new_nb_restarts == nb_restarts) ? MPC_STATE_CHECKPOINT : MPC_STATE_RESTART;
 #endif
 	return __state;
 }
@@ -349,9 +355,10 @@ mpc_lowcomm_checkpoint_state_t sctk_ft_checkpoint_wait()
  * Stringify the C/R state to human-readable format.
  * \return the string to print
  */
-char* sctk_ft_str_status(mpc_lowcomm_checkpoint_state_t s)
+char * sctk_ft_str_status(mpc_lowcomm_checkpoint_state_t s)
 {
-	static  char * state_names[] = {
+	static char *state_names[] =
+	{
 		"MPC_STATE_ERROR",
 		"MPC_STATE_CHECKPOINT",
 		"MPC_STATE_RESTART",
@@ -363,18 +370,14 @@ char* sctk_ft_str_status(mpc_lowcomm_checkpoint_state_t s)
 	return strdup(state_names[s]);
 }
 
-
-
-
 void mpc_cl_ft_init() __attribute__((constructor));
 
 void mpc_cl_ft_init()
 {
-        MPC_INIT_CALL_ONLY_ONCE
+	MPC_INIT_CALL_ONLY_ONCE
 
 	/* Runtime start */
-        mpc_common_init_callback_register("Base Runtime Init Done",
-                                          "Init Profiling keys",
-                                          sctk_ft_init, 128);
-
+	mpc_common_init_callback_register("Base Runtime Init Done",
+	                                  "Init Profiling keys",
+	                                  sctk_ft_init, 128);
 }

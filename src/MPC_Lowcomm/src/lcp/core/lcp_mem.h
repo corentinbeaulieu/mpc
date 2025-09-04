@@ -43,42 +43,45 @@
 
 struct lcp_pinning_entry_list
 {
-        struct lcp_pinning_entry *entry;
-        uint64_t total_size;
-        uint64_t entries_count;
+	struct lcp_pinning_entry *entry;
+	uint64_t                  total_size;
+	uint64_t                  entries_count;
 
-        uint64_t max_entries_count;
-        uint64_t max_total_size;
+	uint64_t                  max_entries_count;
+	uint64_t                  max_total_size;
 
-        mpc_common_rwlock_t lock;
+	mpc_common_rwlock_t       lock;
 };
 
 struct lcp_pinning_mmu
 {
-        struct lcp_pinning_entry_list list;
-        /* In case we want to improve in the future */
+	struct lcp_pinning_entry_list list;
+	/* In case we want to improve in the future */
 };
 
-enum {
-        LCP_MEM_FLAG_FREE           = MPC_BIT(0),
-        LCP_MEM_FLAG_RELEASE_UNPACK = MPC_BIT(1),
+enum
+{
+	LCP_MEM_FLAG_FREE           = MPC_BIT(0),
+	LCP_MEM_FLAG_RELEASE_UNPACK = MPC_BIT(1),
 };
 
-typedef enum {
-        LCP_MEM_ALLOC_MMAP = 0, /* Use Unix mmap. */
-        LCP_MEM_ALLOC_MALLOC,   /* Use malloc.    */
-        LCP_MEM_ALLOC_RD        /* Use resource domain, shmem for example. */
+typedef enum
+{
+	LCP_MEM_ALLOC_MMAP = 0,     /* Use Unix mmap. */
+	LCP_MEM_ALLOC_MALLOC,       /* Use malloc.    */
+	LCP_MEM_ALLOC_RD            /* Use resource domain, shmem for example. */
 } lcp_mem_alloc_method_t;
 
-struct lcp_mem {
-        uint64_t base_addr;
-        size_t length;
-        bmap_t bm;
-        unsigned flags;
-        lcp_mem_alloc_method_t method;
-        void * pointer_to_mmu_ctx; /* When handled by the MMU this
-                                      points to the management slot */
-        lcr_memp_t mems[0]; /* table of memp pointers */
+struct lcp_mem
+{
+	uint64_t               base_addr;
+	size_t                 length;
+	bmap_t                 bm;
+	unsigned               flags;
+	lcp_mem_alloc_method_t method;
+	void *                 pointer_to_mmu_ctx; /* When handled by the MMU this
+	                                            * points to the management slot */
+	lcr_memp_t             mems[0];            /* table of memp pointers */
 };
 
 int lcp_mem_create(lcp_manager_h mngr, lcp_mem_h *mem_p);

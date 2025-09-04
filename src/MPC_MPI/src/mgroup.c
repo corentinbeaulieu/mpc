@@ -33,8 +33,8 @@
 #endif
 
 /******************
-* WEAK FUNCTIONS *
-******************/
+ * WEAK FUNCTIONS *
+ ******************/
 
 #pragma weak MPI_Group_size = PMPI_Group_size
 #pragma weak MPI_Group_rank = PMPI_Group_rank
@@ -54,28 +54,32 @@
 #pragma weak MPI_Comm_create_from_group = PMPI_Comm_create_from_group
 
 /** MPI_GROUP_EMPTY to mpc_lowcomm_group_empty() translators **/
-#define MPC_EMPTY_GROUP_TO_LOWCOMM(group) \
-	if(group == MPI_GROUP_EMPTY){     \
-		group = mpc_lowcomm_group_empty(); }
+#define MPC_EMPTY_GROUP_TO_LOWCOMM(group)      \
+		if (group == MPI_GROUP_EMPTY)          \
+		{                                      \
+			group = mpc_lowcomm_group_empty(); \
+		}
 
-#define MPC_EMPTY_GROUP_FROM_LOWCOMM(group)      \
-	if(group == mpc_lowcomm_group_empty() ){ \
-		group = MPI_GROUP_EMPTY; }
+#define MPC_EMPTY_GROUP_FROM_LOWCOMM(group)     \
+		if (group == mpc_lowcomm_group_empty()) \
+		{                                       \
+			group = MPI_GROUP_EMPTY;            \
+		}
 
 /*****************************************
-* GROUP-BASED COMMUNICATOR CONSTRUCTORS *
-*****************************************/
+ * GROUP-BASED COMMUNICATOR CONSTRUCTORS *
+ *****************************************/
 
 int PMPI_Comm_create_group(MPI_Comm comm, MPI_Group group, int tag, MPI_Comm *newcomm)
 {
-	if(mpc_lowcomm_communicator_is_intercomm(comm) )
+	if (mpc_lowcomm_communicator_is_intercomm(comm))
 	{
 		MPI_ERROR_REPORT(comm, MPI_ERR_COMM, "PMPI_Comm_create_group not possible on intercoms");
 	}
 
 	*newcomm = MPC_COMM_NULL;
 
-	if(mpc_lowcomm_communicator_create_group(comm, group, tag, newcomm) != MPC_LOWCOMM_SUCCESS)
+	if (mpc_lowcomm_communicator_create_group(comm, group, tag, newcomm) != MPC_LOWCOMM_SUCCESS)
 	{
 		MPI_ERROR_REPORT(comm, MPI_ERR_OTHER, "PMPI_Comm_create_group failed");
 	}
@@ -85,14 +89,18 @@ int PMPI_Comm_create_group(MPI_Comm comm, MPI_Group group, int tag, MPI_Comm *ne
 	MPI_ERROR_SUCCESS();
 }
 
-int PMPI_Comm_create_from_group(MPI_Group group, const char *stringtag, MPI_Info info __UNUSED__, MPI_Errhandler errhandler, MPI_Comm *newcomm)
+int PMPI_Comm_create_from_group(MPI_Group group,
+                                const char *stringtag,
+                                MPI_Info info __UNUSED__,
+                                MPI_Errhandler errhandler,
+                                MPI_Comm *newcomm)
 {
-	if(group == MPI_GROUP_NULL)
+	if (group == MPI_GROUP_NULL)
 	{
 		MPI_ERROR_REPORT(MPI_COMM_WORLD, MPI_ERR_GROUP, "");
 	}
 
-	if(group == MPI_GROUP_EMPTY)
+	if (group == MPI_GROUP_EMPTY)
 	{
 		*newcomm = MPI_COMM_NULL;
 		return MPI_SUCCESS;
@@ -105,7 +113,7 @@ int PMPI_Comm_create_from_group(MPI_Group group, const char *stringtag, MPI_Info
 
 	MPI_HANDLE_ERROR(res, MPI_COMM_SELF, "Failed creating the comm group");
 
-	if( (errhandler != MPI_ERRHANDLER_NULL) && (*newcomm != MPI_COMM_NULL) )
+	if ((errhandler != MPI_ERRHANDLER_NULL) && (*newcomm != MPI_COMM_NULL))
 	{
 		res = PMPI_Comm_set_errhandler(*newcomm, errhandler);
 		MPI_HANDLE_ERROR(res, *newcomm, "Failed attaching the comm errhandler");
@@ -117,34 +125,36 @@ int PMPI_Comm_create_from_group(MPI_Group group, const char *stringtag, MPI_Info
 	mpc_lowcomm_handle_ctx_t gctx = mpc_lowcomm_group_get_context_pointer(group);
 
 	/* First Make sure all handles have the same value */
-	if(*newcomm != MPI_COMM_NULL)
+	if (*newcomm != MPI_COMM_NULL)
 	{
 		mpc_lowcomm_communicator_id_t roots_id = MPC_LOWCOMM_COMM_NULL_ID;
 		mpc_lowcomm_communicator_id_t my_id    = mpc_lowcomm_communicator_handle_ctx_id(gctx);
 
-		if(mpc_lowcomm_communicator_rank(*newcomm) == 0)
+		if (mpc_lowcomm_communicator_rank(*newcomm) == 0)
 		{
 			roots_id = mpc_lowcomm_communicator_handle_ctx_id(gctx);
 		}
 
 		mpc_lowcomm_bcast(&roots_id, sizeof(mpc_lowcomm_communicator_id_t), 0, *newcomm);
 
-		if(roots_id != my_id)
+		if (roots_id != my_id)
 		{
 			/* Here is a subtlety if the mismatching session has a NULL handle
 			 * it means it wants to "join" this previously initialized session
 			 * and therefore it is not erroneous, what is are two already
 			 * diverged sessions trying to join */
-			if(my_id == MPC_LOWCOMM_COMM_NULL_ID)
+			if (my_id == MPC_LOWCOMM_COMM_NULL_ID)
 			{
-				MPI_ERROR_REPORT(*newcomm, MPI_ERR_ARG, "Handles from different sessions called PMPI_Comm_create_from_group");
+				MPI_ERROR_REPORT(*newcomm,
+					MPI_ERR_ARG,
+					"Handles from different sessions called PMPI_Comm_create_from_group");
 			}
 		}
 
-		if(gctx)
+		if (gctx)
 		{
 			res = mpc_lowcomm_communicator_handle_ctx_unify(*newcomm, gctx);
-			if(res != MPC_LOWCOMM_SUCCESS)
+			if (res != MPC_LOWCOMM_SUCCESS)
 			{
 				MPI_ERROR_REPORT(*newcomm, MPI_ERR_COMM, "Incoherent parameters on Session info");
 			}
@@ -156,17 +166,17 @@ int PMPI_Comm_create_from_group(MPI_Group group, const char *stringtag, MPI_Info
 }
 
 /************************
-* GROUP IMPLEMENTATION *
-************************/
+ * GROUP IMPLEMENTATION *
+ ************************/
 
-//#define DEBUG_GROUP_RANGES
+// #define DEBUG_GROUP_RANGES
 
 int PMPI_Comm_remote_group(MPI_Comm comm, MPI_Group *mpi_group)
 {
 	mpc_common_nodebug("Enter Comm_remote_group");
 
 	mpi_check_comm(comm);
-	if(mpc_lowcomm_communicator_is_intercomm(comm) == 0)
+	if (mpc_lowcomm_communicator_is_intercomm(comm) == 0)
 	{
 		MPI_ERROR_REPORT(comm, MPI_ERR_COMM, "");
 	}
@@ -180,7 +190,7 @@ int PMPI_Comm_remote_group(MPI_Comm comm, MPI_Group *mpi_group)
 
 int PMPI_Comm_group(MPI_Comm comm, MPI_Group *mpi_group)
 {
-	//mpc_lowcomm_communicator_print(comm, 1);
+	// mpc_lowcomm_communicator_print(comm, 1);
 
 	mpc_common_nodebug("Enter Comm_group");
 	mpi_check_comm(comm);
@@ -192,19 +202,19 @@ int PMPI_Comm_group(MPI_Comm comm, MPI_Group *mpi_group)
 
 int PMPI_Group_free(MPI_Group *group)
 {
-	if(*group == MPI_GROUP_NULL)
+	if (*group == MPI_GROUP_NULL)
 	{
 		MPI_ERROR_REPORT(MPI_COMM_WORLD, MPI_ERR_GROUP, "");
 	}
 
-	if(*group == MPI_GROUP_EMPTY)
+	if (*group == MPI_GROUP_EMPTY)
 	{
 		return MPI_SUCCESS;
 	}
 
 	int ret = mpc_lowcomm_group_free(group);
 
-	if(ret != MPC_LOWCOMM_SUCCESS)
+	if (ret != MPC_LOWCOMM_SUCCESS)
 	{
 		MPI_ERROR_REPORT(MPI_COMM_WORLD, MPI_ERR_GROUP, "Could not free group");
 	}
@@ -216,7 +226,7 @@ int PMPI_Group_free(MPI_Group *group)
 
 int PMPI_Group_compare(MPI_Group group1, MPI_Group group2, int *result)
 {
-	if( (group1 == MPI_GROUP_NULL) || (group2 == MPI_GROUP_NULL) )
+	if ((group1 == MPI_GROUP_NULL) || (group2 == MPI_GROUP_NULL))
 	{
 		MPI_ERROR_REPORT(MPI_COMM_WORLD, MPI_ERR_GROUP, "");
 	}
@@ -232,12 +242,12 @@ int PMPI_Group_compare(MPI_Group group1, MPI_Group group2, int *result)
 
 int PMPI_Group_translate_ranks(MPI_Group group1, int n, const int ranks1[], MPI_Group group2, int ranks2[])
 {
-	if(n < 0)
+	if (n < 0)
 	{
 		MPI_ERROR_REPORT(MPI_COMM_WORLD, MPI_ERR_ARG, "Negative n to PMPI_Group_translate_ranks");
 	}
 
-	if( (group1 == MPI_GROUP_NULL) || (group2 == MPI_GROUP_NULL) )
+	if ((group1 == MPI_GROUP_NULL) || (group2 == MPI_GROUP_NULL))
 	{
 		MPI_ERROR_REPORT(MPI_COMM_WORLD, MPI_ERR_GROUP, "");
 	}
@@ -246,9 +256,9 @@ int PMPI_Group_translate_ranks(MPI_Group group1, int n, const int ranks1[], MPI_
 
 	int i = 0;
 
-	for(i = 0; i < n; i++)
+	for (i = 0; i < n; i++)
 	{
-		if( (ranks1[i] < 0) || (mpc_lowcomm_group_size(group1) <= (unsigned int)ranks1[i]) )
+		if ((ranks1[i] < 0) || (mpc_lowcomm_group_size(group1) <= (unsigned int)ranks1[i]))
 		{
 			MPI_ERROR_REPORT(MPI_COMM_WORLD, MPI_ERR_RANK, "Invalid rank passed to PMPI_Group_translate_ranks");
 		}
@@ -256,7 +266,7 @@ int PMPI_Group_translate_ranks(MPI_Group group1, int n, const int ranks1[], MPI_
 
 	int ret = mpc_lowcomm_group_translate_ranks(group1, n, ranks1, group2, ranks2);
 
-	if(ret != MPC_LOWCOMM_SUCCESS)
+	if (ret != MPC_LOWCOMM_SUCCESS)
 	{
 		MPI_ERROR_REPORT(MPI_COMM_WORLD, MPI_ERR_GROUP, "Could not translate ranks");
 	}
@@ -273,24 +283,24 @@ static inline int __check_ranks_arrays(MPI_Group group, int n, const int ranks[]
 	int i = 0;
 	int j = 0;
 
-	for(i = 0; i < n; i++)
+	for (i = 0; i < n; i++)
 	{
 		/* In group */
-		if( (ranks[i] < 0) || (size <= ranks[i]) )
+		if ((ranks[i] < 0) || (size <= ranks[i]))
 		{
 			mpc_common_debug_error("rank[%d] == %d", i, ranks[i]);
 			return MPI_ERR_RANK;
 		}
 
-		for(j = 0; j < n; j++)
+		for (j = 0; j < n; j++)
 		{
-			if(i == j)
+			if (i == j)
 			{
 				continue;
 			}
 
 			/* Not duplicate */
-			if(ranks[i] == ranks[j])
+			if (ranks[i] == ranks[j])
 			{
 				mpc_common_debug_error("rank[%d] == ranks[%d] == %d", i, j, ranks[i]);
 				return MPI_ERR_RANK;
@@ -303,12 +313,12 @@ static inline int __check_ranks_arrays(MPI_Group group, int n, const int ranks[]
 
 int PMPI_Group_excl(MPI_Group group, int n, const int ranks[], MPI_Group *newgroup)
 {
-	if(n < 0)
+	if (n < 0)
 	{
 		MPI_ERROR_REPORT(MPI_COMM_WORLD, MPI_ERR_ARG, "Negative n to PMPI_Group_excl");
 	}
 
-	if(group == MPI_GROUP_NULL)
+	if (group == MPI_GROUP_NULL)
 	{
 		MPI_ERROR_REPORT(MPI_COMM_WORLD, MPI_ERR_GROUP, "Invalid group in PMPI_Group_excl");
 	}
@@ -317,17 +327,17 @@ int PMPI_Group_excl(MPI_Group group, int n, const int ranks[], MPI_Group *newgro
 	MPI_HANDLE_ERROR(__check_ranks_arrays(group, n, ranks), MPI_COMM_WORLD, "Invalid Ranks");
 
 #ifdef DEBUG_GROUP_RANGES
-	int i;
+		int i;
 
-	for(i = 0; i < n; i++)
-	{
-		mpc_common_debug_warning("RANKS[%d] = %d", i, ranks[i]);
-	}
+		for (i = 0; i < n; i++)
+		{
+			mpc_common_debug_warning("RANKS[%d] = %d", i, ranks[i]);
+		}
 #endif
 
 	*newgroup = mpc_lowcomm_group_excl(group, n, ranks);
 
-	if(*newgroup == NULL)
+	if (*newgroup == NULL)
 	{
 		MPI_ERROR_REPORT(MPI_COMM_WORLD, MPI_ERR_GROUP, "Could not exclude ranks");
 	}
@@ -338,12 +348,12 @@ int PMPI_Group_excl(MPI_Group group, int n, const int ranks[], MPI_Group *newgro
 
 int PMPI_Group_incl(MPI_Group group, int n, const int ranks[], MPI_Group *newgroup)
 {
-	if(n < 0)
+	if (n < 0)
 	{
 		MPI_ERROR_REPORT(MPI_COMM_WORLD, MPI_ERR_ARG, "Negative n to PMPI_Group_incl");
 	}
 
-	if(group == MPI_GROUP_NULL)
+	if (group == MPI_GROUP_NULL)
 	{
 		MPI_ERROR_REPORT(MPI_COMM_WORLD, MPI_ERR_GROUP, "Invalid group in PMPI_Group_incl");
 	}
@@ -352,17 +362,17 @@ int PMPI_Group_incl(MPI_Group group, int n, const int ranks[], MPI_Group *newgro
 	MPI_HANDLE_ERROR(__check_ranks_arrays(group, n, ranks), MPI_COMM_WORLD, "Invalid Ranks");
 
 #ifdef DEBUG_GROUP_RANGES
-	int i;
+		int i;
 
-	for(i = 0; i < n; i++)
-	{
-		mpc_common_debug_warning("RANKS[%d] = %d", i, ranks[i]);
-	}
+		for (i = 0; i < n; i++)
+		{
+			mpc_common_debug_warning("RANKS[%d] = %d", i, ranks[i]);
+		}
 #endif
 
 	*newgroup = mpc_lowcomm_group_incl(group, n, ranks);
 
-	if(*newgroup == NULL)
+	if (*newgroup == NULL)
 	{
 		MPI_ERROR_REPORT(MPI_COMM_WORLD, MPI_ERR_GROUP, "Could not include ranks");
 	}
@@ -373,7 +383,7 @@ int PMPI_Group_incl(MPI_Group group, int n, const int ranks[], MPI_Group *newgro
 
 int PMPI_Group_rank(MPI_Group group, int *rank)
 {
-	if(group == MPI_GROUP_NULL)
+	if (group == MPI_GROUP_NULL)
 	{
 		MPI_ERROR_REPORT(MPI_COMM_WORLD, MPI_ERR_GROUP, "");
 	}
@@ -381,7 +391,7 @@ int PMPI_Group_rank(MPI_Group group, int *rank)
 
 	*rank = mpc_lowcomm_group_rank(group);
 
-	if(*rank == MPC_PROC_NULL)
+	if (*rank == MPC_PROC_NULL)
 	{
 		*rank = MPI_UNDEFINED;
 	}
@@ -391,7 +401,7 @@ int PMPI_Group_rank(MPI_Group group, int *rank)
 
 int PMPI_Group_size(MPI_Group group, int *size)
 {
-	if(group == MPI_GROUP_NULL)
+	if (group == MPI_GROUP_NULL)
 	{
 		MPI_ERROR_REPORT(MPI_COMM_WORLD, MPI_ERR_GROUP, "");
 	}
@@ -403,7 +413,7 @@ int PMPI_Group_size(MPI_Group group, int *size)
 
 int PMPI_Group_difference(MPI_Group group1, MPI_Group group2, MPI_Group *newgroup)
 {
-	if( (group1 == MPI_GROUP_NULL) || (group2 == MPI_GROUP_NULL) )
+	if ((group1 == MPI_GROUP_NULL) || (group2 == MPI_GROUP_NULL))
 	{
 		MPI_ERROR_REPORT(MPI_COMM_WORLD, MPI_ERR_GROUP, "");
 	}
@@ -412,7 +422,7 @@ int PMPI_Group_difference(MPI_Group group1, MPI_Group group2, MPI_Group *newgrou
 
 	*newgroup = mpc_lowcomm_group_difference(group1, group2);
 
-	if(*newgroup == NULL)
+	if (*newgroup == NULL)
 	{
 		MPI_ERROR_REPORT(MPI_COMM_WORLD, MPI_ERR_GROUP, "Could not subtract ranks");
 	}
@@ -423,7 +433,7 @@ int PMPI_Group_difference(MPI_Group group1, MPI_Group group2, MPI_Group *newgrou
 
 int PMPI_Group_intersection(MPI_Group group1, MPI_Group group2, MPI_Group *newgroup)
 {
-	if( (group1 == MPI_GROUP_NULL) || (group2 == MPI_GROUP_NULL) )
+	if ((group1 == MPI_GROUP_NULL) || (group2 == MPI_GROUP_NULL))
 	{
 		MPI_ERROR_REPORT(MPI_COMM_WORLD, MPI_ERR_GROUP, "");
 	}
@@ -432,7 +442,7 @@ int PMPI_Group_intersection(MPI_Group group1, MPI_Group group2, MPI_Group *newgr
 
 	*newgroup = mpc_lowcomm_group_intersection(group1, group2);
 
-	if(*newgroup == NULL)
+	if (*newgroup == NULL)
 	{
 		MPI_ERROR_REPORT(MPI_COMM_WORLD, MPI_ERR_GROUP, "Could not instersect ranks");
 	}
@@ -443,7 +453,7 @@ int PMPI_Group_intersection(MPI_Group group1, MPI_Group group2, MPI_Group *newgr
 
 int PMPI_Group_union(MPI_Group group1, MPI_Group group2, MPI_Group *newgroup)
 {
-	if( (group1 == MPI_GROUP_NULL) || (group2 == MPI_GROUP_NULL) )
+	if ((group1 == MPI_GROUP_NULL) || (group2 == MPI_GROUP_NULL))
 	{
 		MPI_ERROR_REPORT(MPI_COMM_WORLD, MPI_ERR_GROUP, "");
 	}
@@ -452,7 +462,7 @@ int PMPI_Group_union(MPI_Group group1, MPI_Group group2, MPI_Group *newgroup)
 
 	*newgroup = mpc_lowcomm_group_union(group1, group2);
 
-	if(*newgroup == NULL)
+	if (*newgroup == NULL)
 	{
 		MPI_ERROR_REPORT(MPI_COMM_WORLD, MPI_ERR_GROUP, "Could not instersect ranks");
 	}
@@ -470,21 +480,21 @@ int __check_ranges(MPI_Group group, int n, int ranges[][3])
 	PMPI_Group_size(group, &size);
 
 
-	for(i = 0; i < n; i++)
+	for (i = 0; i < n; i++)
 	{
 		int j = 0;
 
-		if(ranges[i][2] == 0)
+		if (ranges[i][2] == 0)
 		{
 			/* Null stride */
 			return MPI_ERR_ARG;
 		}
 
 
-		if(ranges[i][2] < 0)
+		if (ranges[i][2] < 0)
 		{
 			/* Neg Stride */
-			if(ranges[i][0] < ranges[i][1])
+			if (ranges[i][0] < ranges[i][1])
 			{
 				return MPI_ERR_ARG;
 			}
@@ -492,15 +502,15 @@ int __check_ranges(MPI_Group group, int n, int ranges[][3])
 		else
 		{
 			/* Pos Stride */
-			if(ranges[i][0] > ranges[i][1])
+			if (ranges[i][0] > ranges[i][1])
 			{
 				return MPI_ERR_ARG;
 			}
 		}
 
-		for(j = 0; j < 2; j++)
+		for (j = 0; j < 2; j++)
 		{
-			if( (ranges[i][j] < 0) || (size <= ranges[i][j]) )
+			if ((ranges[i][j] < 0) || (size <= ranges[i][j]))
 			{
 				return MPI_ERR_ARG;
 			}
@@ -516,9 +526,9 @@ int *__linearize_ranges(int n, int ranges[][3], int *new_size)
 
 	int i = 0;
 
-	for(i = 0; i < n; i++)
+	for (i = 0; i < n; i++)
 	{
-		if(ranges[i][2] < 0)
+		if (ranges[i][2] < 0)
 		{
 			max_array_size += ranges[i][0] - ranges[i][1] + 1;
 		}
@@ -528,19 +538,19 @@ int *__linearize_ranges(int n, int ranges[][3], int *new_size)
 		}
 	}
 
-	int *ret = sctk_malloc(max_array_size * sizeof(int) );
+	int *ret = sctk_malloc(max_array_size * sizeof(int));
 
 	assume(ret != NULL);
 
 	int cnt = 0;
 
-	for(i = 0; i < n; i++)
+	for (i = 0; i < n; i++)
 	{
 		int j = 0;
 
-		if(ranges[i][2] < 0)
+		if (ranges[i][2] < 0)
 		{
-			for(j = ranges[i][0]; j >= ranges[i][1]; j = j + ranges[i][2])
+			for (j = ranges[i][0]; j >= ranges[i][1]; j = j + ranges[i][2])
 			{
 				ret[cnt] = j;
 				cnt++;
@@ -549,7 +559,7 @@ int *__linearize_ranges(int n, int ranges[][3], int *new_size)
 		}
 		else
 		{
-			for(j = ranges[i][0]; j <= ranges[i][1]; j = j + ranges[i][2])
+			for (j = ranges[i][0]; j <= ranges[i][1]; j = j + ranges[i][2])
 			{
 				ret[cnt] = j;
 				cnt++;
@@ -565,24 +575,24 @@ int *__linearize_ranges(int n, int ranges[][3], int *new_size)
 
 int PMPI_Group_range_excl(MPI_Group group, int n, int ranges[][3], MPI_Group *newgroup)
 {
-	if(n < 0)
+	if (n < 0)
 	{
 		MPI_ERROR_REPORT(MPI_COMM_WORLD, MPI_ERR_ARG, "Negative n to PMPI_Group_range_excl");
 	}
 
-	if(group == MPI_GROUP_NULL)
+	if (group == MPI_GROUP_NULL)
 	{
 		MPI_ERROR_REPORT(MPI_COMM_WORLD, MPI_ERR_GROUP, "");
 	}
 	MPC_EMPTY_GROUP_TO_LOWCOMM(group);
 
 #ifdef DEBUG_GROUP_RANGES
-	int i;
+		int i;
 
-	for(i = 0; i < n; i++)
-	{
-		mpc_common_debug_warning("RANGES[%d] = [%d , %d , %d]", i, ranges[i][0], ranges[i][1], ranges[i][2]);
-	}
+		for (i = 0; i < n; i++)
+		{
+			mpc_common_debug_warning("RANGES[%d] = [%d , %d , %d]", i, ranges[i][0], ranges[i][1], ranges[i][2]);
+		}
 #endif
 
 	MPI_HANDLE_ERROR(__check_ranges(group, n, ranges), MPI_COMM_WORLD, "Invalid ranges");
@@ -601,24 +611,24 @@ int PMPI_Group_range_excl(MPI_Group group, int n, int ranges[][3], MPI_Group *ne
 
 int PMPI_Group_range_incl(MPI_Group group, int n, int ranges[][3], MPI_Group *newgroup)
 {
-	if(n < 0)
+	if (n < 0)
 	{
 		MPI_ERROR_REPORT(MPI_COMM_WORLD, MPI_ERR_ARG, "Negative n to PMPI_Group_range_incl");
 	}
 
-	if(group == MPI_GROUP_NULL)
+	if (group == MPI_GROUP_NULL)
 	{
 		MPI_ERROR_REPORT(MPI_COMM_WORLD, MPI_ERR_GROUP, "");
 	}
 	MPC_EMPTY_GROUP_TO_LOWCOMM(group);
 
 #ifdef DEBUG_GROUP_RANGES
-	int i;
+		int i;
 
-	for(i = 0; i < n; i++)
-	{
-		mpc_common_debug_warning("RANGES[%d] = [%d , %d , %d]", i, ranges[i][0], ranges[i][1], ranges[i][2]);
-	}
+		for (i = 0; i < n; i++)
+		{
+			mpc_common_debug_warning("RANGES[%d] = [%d , %d , %d]", i, ranges[i][0], ranges[i][1], ranges[i][2]);
+		}
 #endif
 
 	MPI_HANDLE_ERROR(__check_ranges(group, n, ranges), MPI_COMM_WORLD, "Invalid ranges");

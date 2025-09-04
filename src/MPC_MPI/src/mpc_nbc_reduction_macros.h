@@ -24,7 +24,7 @@
 #define __MPC_REDUCTION_H_
 
 #ifdef __cplusplus
-extern "C" {
+	extern "C" {
 #endif
 
 #include "nbc.h"
@@ -32,41 +32,45 @@ extern "C" {
 /**
  * Start a chain of reduction macros with \ref MPC_NBC_OP_LOOP.
  */
-#define MPC_NBC_OP_START\
-	if (0) {}
+#define MPC_NBC_OP_START \
+		if (0)           \
+		{                \
+		}
 
 /**
  * End a chain of reduction macros with \ref MPC_NBC_OP_LOOP.
  */
-#define MPC_NBC_OP_END\
-	else {\
-		return NBC_OP_NOT_SUPPORTED;\
-	}
+#define MPC_NBC_OP_END                   \
+		else                             \
+		{                                \
+			return NBC_OP_NOT_SUPPORTED; \
+		}
 
 /**
  * Innermost reduction macro, see \ref MPC_NBC_OP_COMPARE_REDUCE
  * and \ref MPC_NBC_OP_REDUCE.
  */
-#define MPC_NBC_OP_LOOP(_mpi_op, _body)\
-	else if (op == _mpi_op)\
-	{\
-		for ( i = 0; i < count; i++ )\
-		{\
-			_body\
-		}\
-	}\
+#define MPC_NBC_OP_LOOP(_mpi_op, _body) \
+		else if (op == _mpi_op)         \
+		{                               \
+			for (i = 0; i < count; i++) \
+			{                           \
+				_body                   \
+			}                           \
+		}                               \
+
 
 /**
  * Reduction shorthand for comparison-assignment macros `c = (a OP b) ? b : a`,
  * i.e. min and max.
  */
-#define MPC_NBC_OP_COMPARE_REDUCE(_mpi_op, _c_op, _c_type)\
-	MPC_NBC_OP_LOOP(_mpi_op,\
-	{\
-		if ( *( ( (_c_type *) buf1 ) + i ) _c_op *( ( (_c_type *) buf2 ) + i ) )\
-			*( ( (_c_type *) buf3 ) + i ) = *( ( (_c_type *) buf2 ) + i );\
-		else\
-			*( ( (_c_type *) buf3 ) + i ) = *( ( (_c_type *) buf1 ) + i );\
+#define MPC_NBC_OP_COMPARE_REDUCE(_mpi_op, _c_op, _c_type)            \
+		MPC_NBC_OP_LOOP(_mpi_op,                                      \
+	{                                                                 \
+		if (*(((_c_type *)buf1) + i) _c_op * (((_c_type *)buf2) + i)) \
+		*(((_c_type *)buf3) + i) = *(((_c_type *)buf2) + i);          \
+		else                                                          \
+		* (((_c_type *)buf3) + i) = *(((_c_type *)buf1) + i);         \
 	})
 
 /**
@@ -74,41 +78,41 @@ extern "C" {
  * which also store the index of the matching element in a distinct field,
  * i.e. minloc or maxloc.
  */
-#define MPC_NBC_OP_COMPARE_REDUCE_LOC(_mpi_op, _c_op, _c_type, _c_type_name)\
-	MPC_NBC_OP_LOOP(_mpi_op,\
-	{\
-		typedef struct\
-		{\
-			_c_type val;\
-			int rank;\
-		} _c_type_name##_int;\
-		_c_type_name##_int *ptr1;\
-		_c_type_name##_int *ptr2;\
-		_c_type_name##_int *ptr3;\
-\
-		ptr1 = ( (_c_type_name##_int *) buf1 ) + i;\
-		ptr2 = ( (_c_type_name##_int *) buf2 ) + i;\
-		ptr3 = ( (_c_type_name##_int *) buf3 ) + i;\
-\
-		if ( ptr1->val _c_op ptr2->val )\
-		{\
-			ptr3->val = ptr2->val;\
-			ptr3->rank = ptr2->rank;\
-		}\
-		else\
-		{\
-			ptr3->val = ptr1->val;\
-			ptr3->rank = ptr1->rank;\
-		}\
+#define MPC_NBC_OP_COMPARE_REDUCE_LOC(_mpi_op, _c_op, _c_type, _c_type_name) \
+		MPC_NBC_OP_LOOP(_mpi_op,                                             \
+	{                                                                        \
+		typedef struct                                                       \
+		{                                                                    \
+			_c_type val;                                                     \
+			int rank;                                                        \
+		} _c_type_name ## _int;                                              \
+		_c_type_name ## _int *ptr1;                                          \
+		_c_type_name ## _int *ptr2;                                          \
+		_c_type_name ## _int *ptr3;                                          \
+                                                                             \
+		ptr1 = ((_c_type_name ## _int *)buf1) + i;                           \
+		ptr2 = ((_c_type_name ## _int *)buf2) + i;                           \
+		ptr3 = ((_c_type_name ## _int *)buf3) + i;                           \
+                                                                             \
+		if (ptr1->val _c_op ptr2->val)                                       \
+		{                                                                    \
+			ptr3->val  = ptr2->val;                                          \
+			ptr3->rank = ptr2->rank;                                         \
+		}                                                                    \
+		else                                                                 \
+		{                                                                    \
+			ptr3->val  = ptr1->val;                                          \
+			ptr3->rank = ptr1->rank;                                         \
+		}                                                                    \
 	})
 
 /**
  * Reduction shorthand for macros `c = a OP b`, e.g. sum or product.
  */
-#define MPC_NBC_OP_REDUCE(_mpi_op, _c_op, _c_type)\
-	MPC_NBC_OP_LOOP(_mpi_op,\
-	{\
-		*( ( (_c_type *) buf3 ) + i ) = *( ( (_c_type *) buf1 ) + i ) _c_op *( ( (_c_type *) buf2 ) + i );\
+#define MPC_NBC_OP_REDUCE(_mpi_op, _c_op, _c_type)                                           \
+		MPC_NBC_OP_LOOP(_mpi_op,                                                             \
+	{                                                                                        \
+		*(((_c_type *)buf3) + i) = *(((_c_type *)buf1) + i) _c_op * (((_c_type *)buf2) + i); \
 	})
 
 /**
@@ -117,11 +121,11 @@ extern "C" {
  * prior to calling OP.
  * Only used for logical XOR (LXOR).
  */
-#define MPC_NBC_OP_REDUCE_NORM_LOGICAL(_mpi_op, _c_op, _c_type)\
-	MPC_NBC_OP_LOOP(_mpi_op,\
-	{\
-		*( ( (_c_type *) buf3 ) + i ) = ( *( ( (_c_type *) buf1 ) + i ) ? 1 : 0)\
-			_c_op ( *( ( (_c_type *) buf2 ) + i ) ? 1 : 0);\
+#define MPC_NBC_OP_REDUCE_NORM_LOGICAL(_mpi_op, _c_op, _c_type)             \
+		MPC_NBC_OP_LOOP(_mpi_op,                                            \
+	{                                                                       \
+		*(((_c_type *)buf3) + i) = (*(((_c_type *)buf1) + i) ? 1 : 0)       \
+								   _c_op(*(((_c_type *)buf2) + i) ? 1 : 0); \
 	})
 
 /*
@@ -153,144 +157,144 @@ extern "C" {
  * Define the list of reduction operators allowed for the "C Integer" group of
  * MPI basic datatypes, as defined in the MPI Standard 4.1, Section 6.9.2.
  */
-#define MPC_NBC_OP_DEFINE_C_INTEGER(_c_type)\
-	{\
-		MPC_NBC_OP_START\
-\
-		/* Min, max */\
-		MPC_NBC_OP_MIN(_c_type)\
-		MPC_NBC_OP_MAX(_c_type)\
-\
-		/* Sum, product */\
-		MPC_NBC_OP_SUM(_c_type)\
-		MPC_NBC_OP_PROD(_c_type)\
-\
-		/* Logical And, Or, Xor */\
-		MPC_NBC_OP_LAND(_c_type)\
-		MPC_NBC_OP_LOR(_c_type)\
-		MPC_NBC_OP_LXOR(_c_type)\
-\
-		/* Binary And, Or, Xor */\
-		MPC_NBC_OP_BAND(_c_type)\
-		MPC_NBC_OP_BOR(_c_type)\
-		MPC_NBC_OP_BXOR(_c_type)\
-\
-		MPC_NBC_OP_END\
-	}
+#define MPC_NBC_OP_DEFINE_C_INTEGER(_c_type) \
+		{                                    \
+			MPC_NBC_OP_START                 \
+                                             \
+			/* Min, max */                   \
+			MPC_NBC_OP_MIN(_c_type)          \
+			MPC_NBC_OP_MAX(_c_type)          \
+                                             \
+			/* Sum, product */               \
+			MPC_NBC_OP_SUM(_c_type)          \
+			MPC_NBC_OP_PROD(_c_type)         \
+                                             \
+			/* Logical And, Or, Xor */       \
+			MPC_NBC_OP_LAND(_c_type)         \
+			MPC_NBC_OP_LOR(_c_type)          \
+			MPC_NBC_OP_LXOR(_c_type)         \
+                                             \
+			/* Binary And, Or, Xor */        \
+			MPC_NBC_OP_BAND(_c_type)         \
+			MPC_NBC_OP_BOR(_c_type)          \
+			MPC_NBC_OP_BXOR(_c_type)         \
+                                             \
+			MPC_NBC_OP_END                   \
+		}
 
 /**
  * Define the list of reduction operators allowed for the "Floating Point" group of
  * MPI basic datatypes, as defined in the MPI Standard 4.1, Section 6.9.2.
  */
-#define MPC_NBC_OP_DEFINE_FLOATING_POINT(_c_type)\
-	{\
-		MPC_NBC_OP_START\
-\
-		/* Min, max */\
-		MPC_NBC_OP_MIN(_c_type)\
-		MPC_NBC_OP_MAX(_c_type)\
-\
-		/* Sum, product */\
-		MPC_NBC_OP_SUM(_c_type)\
-		MPC_NBC_OP_PROD(_c_type)\
-\
-		MPC_NBC_OP_END\
-	}
+#define MPC_NBC_OP_DEFINE_FLOATING_POINT(_c_type) \
+		{                                         \
+			MPC_NBC_OP_START                      \
+                                                  \
+			/* Min, max */                        \
+			MPC_NBC_OP_MIN(_c_type)               \
+			MPC_NBC_OP_MAX(_c_type)               \
+                                                  \
+			/* Sum, product */                    \
+			MPC_NBC_OP_SUM(_c_type)               \
+			MPC_NBC_OP_PROD(_c_type)              \
+                                                  \
+			MPC_NBC_OP_END                        \
+		}
 
 /**
  * Define the list of reduction operators allowed for the "Logical" group of
  * MPI basic datatypes, as defined in the MPI Standard 4.1, Section 6.9.2.
  */
-#define MPC_NBC_OP_DEFINE_LOGICAL(_c_type)\
-	{\
-		MPC_NBC_OP_START\
-\
-		/* Logical And, Or, Xor */\
-		MPC_NBC_OP_LAND(_c_type)\
-		MPC_NBC_OP_LOR(_c_type)\
-		MPC_NBC_OP_LXOR(_c_type)\
-\
-		MPC_NBC_OP_END\
-	}
+#define MPC_NBC_OP_DEFINE_LOGICAL(_c_type) \
+		{                                  \
+			MPC_NBC_OP_START               \
+                                           \
+			/* Logical And, Or, Xor */     \
+			MPC_NBC_OP_LAND(_c_type)       \
+			MPC_NBC_OP_LOR(_c_type)        \
+			MPC_NBC_OP_LXOR(_c_type)       \
+                                           \
+			MPC_NBC_OP_END                 \
+		}
 
 /**
  * Define the list of reduction operators allowed for the "Complex" group of
  * MPI basic datatypes, as defined in the MPI Standard 4.1, Section 6.9.2.
  */
-#define MPC_NBC_OP_DEFINE_COMPLEX(_c_type)\
-	{\
-		MPC_NBC_OP_START\
-\
-		/* Sum, product */\
-		MPC_NBC_OP_SUM(_c_type)\
-		MPC_NBC_OP_PROD(_c_type)\
-\
-		MPC_NBC_OP_END\
-	}
+#define MPC_NBC_OP_DEFINE_COMPLEX(_c_type) \
+		{                                  \
+			MPC_NBC_OP_START               \
+                                           \
+			/* Sum, product */             \
+			MPC_NBC_OP_SUM(_c_type)        \
+			MPC_NBC_OP_PROD(_c_type)       \
+                                           \
+			MPC_NBC_OP_END                 \
+		}
 
 /**
  * Define the list of reduction operators allowed for the "Byte" group of
  * MPI basic datatypes, as defined in the MPI Standard 4.1, Section 6.9.2.
  */
-#define MPC_NBC_OP_DEFINE_BYTE(_c_type)\
-	{\
-		MPC_NBC_OP_START\
-\
-		/* Binary And, Or, Xor */\
-		MPC_NBC_OP_BAND(_c_type)\
-		MPC_NBC_OP_BOR(_c_type)\
-		MPC_NBC_OP_BXOR(_c_type)\
-\
-		MPC_NBC_OP_END\
-	}
+#define MPC_NBC_OP_DEFINE_BYTE(_c_type) \
+		{                               \
+			MPC_NBC_OP_START            \
+                                        \
+			/* Binary And, Or, Xor */   \
+			MPC_NBC_OP_BAND(_c_type)    \
+			MPC_NBC_OP_BOR(_c_type)     \
+			MPC_NBC_OP_BXOR(_c_type)    \
+                                        \
+			MPC_NBC_OP_END              \
+		}
 
 /**
  * Define the list of reduction operators allowed for the "Multi-language types" group of
  * MPI basic datatypes, as defined in the MPI Standard 4.1, Section 6.9.2.
  */
-#define MPC_NBC_OP_DEFINE_MULTI_LANG(_c_type)\
-	{\
-		MPC_NBC_OP_START\
-\
-		/* Min, max */\
-		MPC_NBC_OP_MIN(_c_type)\
-		MPC_NBC_OP_MAX(_c_type)\
-\
-		/* Sum, product */\
-		MPC_NBC_OP_SUM(_c_type)\
-		MPC_NBC_OP_PROD(_c_type)\
-\
-		/* Binary And, Or, Xor */\
-		MPC_NBC_OP_BAND(_c_type)\
-		MPC_NBC_OP_BOR(_c_type)\
-		MPC_NBC_OP_BXOR(_c_type)\
-\
-		MPC_NBC_OP_END\
-	}
+#define MPC_NBC_OP_DEFINE_MULTI_LANG(_c_type) \
+		{                                     \
+			MPC_NBC_OP_START                  \
+                                              \
+			/* Min, max */                    \
+			MPC_NBC_OP_MIN(_c_type)           \
+			MPC_NBC_OP_MAX(_c_type)           \
+                                              \
+			/* Sum, product */                \
+			MPC_NBC_OP_SUM(_c_type)           \
+			MPC_NBC_OP_PROD(_c_type)          \
+                                              \
+			/* Binary And, Or, Xor */         \
+			MPC_NBC_OP_BAND(_c_type)          \
+			MPC_NBC_OP_BOR(_c_type)           \
+			MPC_NBC_OP_BXOR(_c_type)          \
+                                              \
+			MPC_NBC_OP_END                    \
+		}
 
 /**
  * Define the list of reduction operators allowed for the minloc/maxloc tuple types,
  * as defined in the MPI Standard 4.1, Section 6.9.4.
  *
- * @param _c_type The actual C type name, e.g `double` or `long double`
+ * @param _c_type      The actual C type name, e.g `double` or `long double`
  * @param _c_type_name The C type name with no whitespace, e.g. `double` or `long_double`
- * @see MPC_NBC_OP_DEFINE_LOC if _c_type does not contain any whitespace, i.e. _c_type == _c_type_name
+ * @see                MPC_NBC_OP_DEFINE_LOC if _c_type does not contain any whitespace, i.e. _c_type == _c_type_name
  */
-#define MPC_NBC_OP_DEFINE_LOC_NAME(_c_type, _c_type_name)\
-	{\
-		MPC_NBC_OP_START\
-\
-		/* Minloc, maxloc */\
-		MPC_NBC_OP_MINLOC(_c_type, _c_type_name)\
-		MPC_NBC_OP_MAXLOC(_c_type, _c_type_name)\
-\
-		MPC_NBC_OP_END\
-	}
+#define MPC_NBC_OP_DEFINE_LOC_NAME(_c_type, _c_type_name) \
+		{                                                 \
+			MPC_NBC_OP_START                              \
+                                                          \
+			/* Minloc, maxloc */                          \
+			MPC_NBC_OP_MINLOC(_c_type, _c_type_name)      \
+			MPC_NBC_OP_MAXLOC(_c_type, _c_type_name)      \
+                                                          \
+			MPC_NBC_OP_END                                \
+		}
 
 #define MPC_NBC_OP_DEFINE_LOC(_c_type) MPC_NBC_OP_DEFINE_LOC_NAME(_c_type, _c_type)
 
 #ifdef __cplusplus
-}
+	}
 #endif
 
 #endif

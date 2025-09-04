@@ -37,7 +37,7 @@
  * THE REQUEST CACHE *
  *********************/
 
-#define MPC_OFI_IOVEC_SIZE 16
+#define MPC_OFI_IOVEC_SIZE  16
 #define MPC_OFI_REQUEST_PAD 64
 
 struct _mpc_ofi_request_cache_t;
@@ -46,35 +46,35 @@ struct _mpc_ofi_domain_t;
 
 struct _mpc_ofi_request_t
 {
-   /* State and lock */
-   volatile int done;
-   volatile int free;
-   mpc_common_spinlock_t lock;
-   char _pad_[MPC_OFI_REQUEST_PAD];
-   /* Internal completion callback */
-   void * arg;
-   int (*completion_cb)(struct _mpc_ofi_request_t * req, void * arg);
-   /* External completion callback */
-   void * arg_ext;
-   int (*completion_cb_ext)(struct _mpc_ofi_request_t * req, void * arg_ext);
-   /* MR to be freed */
-   struct fid_mr *mr[MPC_OFI_IOVEC_SIZE];
-   unsigned int mr_count;
-   struct _mpc_ofi_domain_t * domain;
-   short was_allocated;
+	/* State and lock */
+	volatile int              done;
+	volatile int              free;
+	mpc_common_spinlock_t     lock;
+	char                      _pad_[MPC_OFI_REQUEST_PAD];
+	/* Internal completion callback */
+	void *                    arg;
+	int                       (*completion_cb)(struct _mpc_ofi_request_t *req, void *arg);
+	/* External completion callback */
+	void *                    arg_ext;
+	int                       (*completion_cb_ext)(struct _mpc_ofi_request_t *req, void *arg_ext);
+	/* MR to be freed */
+	struct fid_mr *           mr[MPC_OFI_IOVEC_SIZE];
+	unsigned int              mr_count;
+	struct _mpc_ofi_domain_t *domain;
+	short                     was_allocated;
 };
 
-__UNUSED__ static int _mpc_ofi_request_test(struct _mpc_ofi_request_t*req)
+__UNUSED__ static int _mpc_ofi_request_test(struct _mpc_ofi_request_t *req)
 {
-   return req->done;
+	return req->done;
 }
 
 struct _mpc_ofi_request_cache_t
 {
-   unsigned int request_count;
-   struct _mpc_ofi_request_t *requests;
-   struct _mpc_ofi_domain_t *domain;
-   mpc_common_spinlock_t lock;
+	unsigned int               request_count;
+	struct _mpc_ofi_request_t *requests;
+	struct _mpc_ofi_domain_t * domain;
+	mpc_common_spinlock_t      lock;
 };
 
 
@@ -82,44 +82,43 @@ int _mpc_ofi_request_cache_init(struct _mpc_ofi_request_cache_t *cache, struct _
 
 
 struct _mpc_ofi_request_t * _mpc_ofi_request_acquire(struct _mpc_ofi_request_cache_t *cache,
-                                                   int (*completion_cb)(struct _mpc_ofi_request_t *, void *),
-                                                   void *arg,
-                                                   int (*completion_cb_ext)(struct _mpc_ofi_request_t *, void *),
-                                                   void *arg_ext);
+                                                     int (*completion_cb)(struct _mpc_ofi_request_t *, void *),
+                                                     void *arg,
+                                                     int (*completion_cb_ext)(struct _mpc_ofi_request_t *, void *),
+                                                     void *arg_ext);
 
 
 __UNUSED__ static int _mpc_ofi_request_done(struct _mpc_ofi_request_t *request)
 {
-   int ret = 0;
+	int ret = 0;
 
-   mpc_common_spinlock_lock_yield(&request->lock);
+	mpc_common_spinlock_lock_yield(&request->lock);
 
-   assume(!request->free);
+	assume(!request->free);
 
-   /* Call request completion CB if present */
-   if(request->completion_cb)
-   {
-      ret = (request->completion_cb)(request, request->arg);
-   }
+	/* Call request completion CB if present */
+	if (request->completion_cb)
+	{
+		ret = (request->completion_cb)(request, request->arg);
+	}
 
-   if(request->completion_cb_ext)
-   {
-      ret = (request->completion_cb_ext)(request, request->arg_ext);
-   }
+	if (request->completion_cb_ext)
+	{
+		ret = (request->completion_cb_ext)(request, request->arg_ext);
+	}
 
-   request->done = 1;
-   request->free = 1;
+	request->done = 1;
+	request->free = 1;
 
-   mpc_common_spinlock_unlock(&request->lock);
+	mpc_common_spinlock_unlock(&request->lock);
 
-   if(request->was_allocated)
-   {
-      sctk_free(request);
-   }
+	if (request->was_allocated)
+	{
+		sctk_free(request);
+	}
 
-   return ret;
+	return ret;
 }
-
 
 int _mpc_ofi_request_cache_release(struct _mpc_ofi_request_cache_t *cache);
 

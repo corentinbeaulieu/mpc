@@ -14,9 +14,7 @@ void MPIR_Err_get_string(int errcode, char *msg, int maxlen, MPIR_Err_get_class_
 
 int MPIR_Err_is_fatal(int a);
 
-void MPIR_Get_file_error_routine(MPI_Errhandler a,
-                                 void(**errr)(void *, int *, ...),
-                                 int *b);
+void MPIR_Get_file_error_routine(MPI_Errhandler a, void(**errr)(void *, int *, ...), int *b);
 
 int MPIR_Abort(MPI_Comm comm, int mpi_errno, int exit_code, const char *error_msg);
 
@@ -28,7 +26,6 @@ int MPIR_Status_set_bytes(MPI_Status *status, MPI_Datatype datatype, MPI_Count n
 
 int MPIR_Get_node_id(MPI_Comm comm, int rank, int *id);
 
-int MPIR_File_call_cxx_errhandler( void *fh, int *errorcode,
-			           void (*c_errhandler)(void  *, int *, ... ) );
+int MPIR_File_call_cxx_errhandler(void *fh, int *errorcode, void (*c_errhandler)(void *, int *, ...));
 
 #endif /* MPIR_EXT */

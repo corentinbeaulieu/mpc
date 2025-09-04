@@ -40,51 +40,57 @@
 #include <stdatomic.h>
 
 #define LCP_TASK_LOCK(_task) \
-	mpc_common_spinlock_lock(&((_task)->task_lock))
+		mpc_common_spinlock_lock(&((_task)->task_lock))
 #define LCP_TASK_UNLOCK(_task) \
-	mpc_common_spinlock_unlock(&((_task)->task_lock))
+		mpc_common_spinlock_unlock(&((_task)->task_lock))
 
 #define LCP_TASK_MAX_COMM_CONTEXT 512
 
-typedef struct lcp_am_user_handler {
-        lcp_am_callback_t cb; /* User defined callback */
-        void *user_arg; /* User data */
-        uint64_t flags;
+typedef struct lcp_am_user_handler
+{
+	lcp_am_callback_t cb;       /* User defined callback */
+	void *            user_arg; /* User data */
+	uint64_t          flags;
 } lcp_am_user_handler_t;
 
-//FIXME: study the possibility of using a union. A priori not possible since AM
+// FIXME: study the possibility of using a union. A priori not possible since AM
 //       and TAG are already being used together.
-typedef struct lcp_task_comm_context {
-        struct {
-                int                    num_queues; /* Number of queues. */
-                mpc_queue_head_t      *umqs; /* Unexpected Matching Queues. */
-                mpc_queue_head_t      *prqs; /* Posted Receive Queues. */
-        } tag;
-        struct {
-                lcp_am_user_handler_t *handlers; /* Table of user AM callbacks */
-        } am;
-        struct {
-                uint32_t flush_counter;
-                uint64_t outstandings;
-        } rma;
+typedef struct lcp_task_comm_context
+{
+	struct
+	{
+		int               num_queues;    /* Number of queues. */
+		mpc_queue_head_t *umqs;          /* Unexpected Matching Queues. */
+		mpc_queue_head_t *prqs;          /* Posted Receive Queues. */
+	} tag;
+	struct
+	{
+		lcp_am_user_handler_t *handlers; /* Table of user AM callbacks */
+	} am;
+	struct
+	{
+		uint32_t flush_counter;
+		uint64_t outstandings;
+	} rma;
 } lcp_task_comm_context_t;
 
-struct lcp_task {
-        int tid; /* task identifier */
-        uint64_t uid;
+struct lcp_task
+{
+	int                       tid;  /* task identifier */
+	uint64_t                  uid;
 
-        lcp_context_h ctx; /* global context. */
+	lcp_context_h             ctx;  /* global context. */
 
-        atomic_uint_fast32_t num_managers;
-        lcp_task_comm_context_t **tcct; /* Task Communication Context table. */
+	atomic_uint_fast32_t      num_managers;
+	lcp_task_comm_context_t **tcct; /* Task Communication Context table. */
 
-        mpc_common_spinlock_t task_lock;
-        //TODO: investigate the bug when memory pools are not allocated
-        //      dynamically with Concurrency Kit
-        mpc_mempool_t req_mp;   /* Request memory pool */
-        mpc_mempool_t unexp_mp; /* Unexpected memory pool */
+	mpc_common_spinlock_t     task_lock;
+	// TODO: investigate the bug when memory pools are not allocated
+	//      dynamically with Concurrency Kit
+	mpc_mempool_t             req_mp;   /* Request memory pool */
+	mpc_mempool_t             unexp_mp; /* Unexpected memory pool */
 
-        //TODO: implement reordering.
+	// TODO: implement reordering.
 };
 
 /* Function for sending data between two tasks */

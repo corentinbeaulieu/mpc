@@ -29,9 +29,9 @@
 
 #if 0
 #if (__GNUC__ == 4) && (__GNUC_MINOR__ == 4) && (__GNUC_PATCHLEVEL__ == 0)
-/* Optim bug with BUG GCC4.4.0: remove restrict keyword*/
+		/* Optim bug with BUG GCC4.4.0: remove restrict keyword*/
 #undef  restrict
-#define  restrict
+		#define  restrict
 #endif
 #endif
 
@@ -40,8 +40,8 @@ mpc_no_exec(const void * restrict in, void * restrict inout, size_t size,
             mpc_lowcomm_datatype_t datatype, int line, char * restrict file)
 {
 	fprintf(stderr,
-	        "Internal error: This can not be run at line %d in %s in %p out %p size %lu, datatype %d\n",
-	        line, file, in, inout, (unsigned long)size, (int)datatype->id);
+		"Internal error: This can not be run at line %d in %s in %p out %p size %lu, datatype %d\n",
+		line, file, in, inout, (unsigned long)size, (int)datatype->id);
 	not_reachable();
 }
 
@@ -52,208 +52,290 @@ mpc_reduction_check_type(__UNUSED__ mpc_lowcomm_datatype_t a, __UNUSED__ mpc_low
 	mpc_common_nodebug("%d == %d", a, b);
 }
 
-#define MPC_PROTOTYPES_IMPL(name)                                                                                                    \
-	void MPC_ ## name ## _func(const void *  restrict in, void *  restrict inout, size_t size, mpc_lowcomm_datatype_t datatype){ \
-		mpc_no_exec(in, inout, size, datatype, __LINE__, __FILE__);                                                          \
-	}
+#define MPC_PROTOTYPES_IMPL(name)                                       \
+		void MPC_ ## name ## _func(const void *  restrict in,           \
+	void *  restrict inout,                                             \
+	size_t size,                                                        \
+	mpc_lowcomm_datatype_t datatype)                                    \
+		{                                                               \
+			mpc_no_exec(in, inout, size, datatype, __LINE__, __FILE__); \
+		}
 
 
 /* Min, max */
 
-#define MPC_DEFINED_FUNCS_MIN_MAX_IMPL(t, tt)                                           \
-	void MPC_MIN_func_ ## t(const tt * restrict in, tt * restrict inout,    \
-	                        size_t size, mpc_lowcomm_datatype_t datatype){  \
-		unsigned int i;                                                 \
-		mpc_reduction_check_type(datatype, t);                           \
-		for(i = 0; i < size; i++){                                      \
-			if(inout[i] > in[i])                                    \
-			inout[i] = in[i];                                       \
-		}                                                               \
-	}\
-	void MPC_MAX_func_ ## t(const tt * restrict in, tt * restrict inout,    \
-	                        size_t size, mpc_lowcomm_datatype_t datatype){  \
-		unsigned int i;                                                 \
-		mpc_reduction_check_type(datatype, t);                           \
-		for(i = 0; i < size; i++){                                      \
-			if(inout[i] < in[i])                                    \
-			inout[i] = in[i];                                       \
-		}                                                               \
-	}
+#define MPC_DEFINED_FUNCS_MIN_MAX_IMPL(t, tt)                                \
+		void MPC_MIN_func_ ## t(const tt * restrict in, tt * restrict inout, \
+	size_t size, mpc_lowcomm_datatype_t datatype)                            \
+		{                                                                    \
+			unsigned int i;                                                  \
+			mpc_reduction_check_type(datatype, t);                           \
+			for (i = 0; i < size; i++)                                       \
+			{                                                                \
+				if (inout[i] > in[i])                                        \
+				inout[i] = in[i];                                            \
+			}                                                                \
+		}                                                                    \
+		void MPC_MAX_func_ ## t(const tt * restrict in, tt * restrict inout, \
+	size_t size, mpc_lowcomm_datatype_t datatype)                            \
+		{                                                                    \
+			unsigned int i;                                                  \
+			mpc_reduction_check_type(datatype, t);                           \
+			for (i = 0; i < size; i++)                                       \
+			{                                                                \
+				if (inout[i] < in[i])                                        \
+				inout[i] = in[i];                                            \
+			}                                                                \
+		}
 
-#define MPC_DEFINED_FUNCS_MIN_MAX_NOIMPL(t, tt)                                                                                         \
-	void MPC_MIN_func_ ## t(const tt *   restrict in, tt *  restrict inout, size_t size, mpc_lowcomm_datatype_t datatype){  \
-		mpc_no_exec(in, inout, size, datatype, __LINE__, __FILE__);                                                     \
-	}                                                                                                                       \
-	void MPC_MAX_func_ ## t(const tt *   restrict in, tt *  restrict inout, size_t size, mpc_lowcomm_datatype_t datatype){  \
-		mpc_no_exec(in, inout, size, datatype, __LINE__, __FILE__);                                                     \
-	}
+#define MPC_DEFINED_FUNCS_MIN_MAX_NOIMPL(t, tt)                         \
+		void MPC_MIN_func_ ## t(const tt *   restrict in,               \
+	tt *  restrict inout,                                               \
+	size_t size,                                                        \
+	mpc_lowcomm_datatype_t datatype)                                    \
+		{                                                               \
+			mpc_no_exec(in, inout, size, datatype, __LINE__, __FILE__); \
+		}                                                               \
+		void MPC_MAX_func_ ## t(const tt *   restrict in,               \
+	tt *  restrict inout,                                               \
+	size_t size,                                                        \
+	mpc_lowcomm_datatype_t datatype)                                    \
+		{                                                               \
+			mpc_no_exec(in, inout, size, datatype, __LINE__, __FILE__); \
+		}
 
 
 /* Sum, product */
 
-#define MPC_DEFINED_FUNCS_SUM_PROD_IMPL(t, tt)                                           \
-	void MPC_SUM_func_ ## t(const tt * restrict in, tt * restrict inout,    \
-	                        size_t size, mpc_lowcomm_datatype_t datatype){  \
-		unsigned int i;                                                 \
-		mpc_reduction_check_type(datatype, t);                           \
-		for(i = 0; i < size; i++){                                      \
-			inout[i] = in[i] + inout[i];                            \
+#define MPC_DEFINED_FUNCS_SUM_PROD_IMPL(t, tt)                                \
+		void MPC_SUM_func_ ## t(const tt * restrict in, tt * restrict inout,  \
+	size_t size, mpc_lowcomm_datatype_t datatype)                             \
+		{                                                                     \
+			unsigned int i;                                                   \
+			mpc_reduction_check_type(datatype, t);                            \
+			for (i = 0; i < size; i++)                                        \
+			{                                                                 \
+				inout[i] = in[i] + inout[i];                                  \
+			}                                                                 \
+		}                                                                     \
+		void MPC_PROD_func_ ## t(const tt * restrict in, tt * restrict inout, \
+	size_t size, mpc_lowcomm_datatype_t datatype)                             \
+		{                                                                     \
+			unsigned int i;                                                   \
+			mpc_reduction_check_type(datatype, t);                            \
+			for (i = 0; i < size; i++)                                        \
+			{                                                                 \
+				inout[i] = in[i] * inout[i];                                  \
+			}                                                                 \
+		}
+
+#define MPC_DEFINED_FUNCS_SUM_PROD_IMPL_COMPLEX(mpi_type, c_type)             \
+		void MPC_SUM_func_ ## mpi_type(const c_type *  restrict in,           \
+	c_type *  restrict inout, size_t size,                                    \
+	mpc_lowcomm_datatype_t datatype)                                          \
+		{                                                                     \
+			size_t i;                                                         \
+                                                                              \
+			mpc_reduction_check_type(datatype, mpi_type);                     \
+			for (i = 0; i < size; i++)                                        \
+			{                                                                 \
+				inout[i].a = in[i].a + inout[i].a;                            \
+				inout[i].b = in[i].b + inout[i].b;                            \
+			}                                                                 \
+		}                                                                     \
+                                                                              \
+		void MPC_PROD_func_ ## mpi_type(const c_type *  restrict in,          \
+	c_type *  restrict inout, size_t size,                                    \
+	mpc_lowcomm_datatype_t datatype)                                          \
+		{                                                                     \
+			size_t i;                                                         \
+                                                                              \
+			mpc_reduction_check_type(datatype, mpi_type);                     \
+			for (i = 0; i < size; i++)                                        \
+			{                                                                 \
+				inout[i].a = (in[i].a * inout[i].a) - (in[i].b * inout[i].b); \
+				inout[i].b = (in[i].b * inout[i].a) + (in[i].a * inout[i].b); \
+			}                                                                 \
+		}
+
+
+#define MPC_DEFINED_FUNCS_SUM_PROD_NOIMPL(t, tt)                        \
+		void MPC_SUM_func_ ## t(const tt *   restrict in,               \
+	tt *  restrict inout,                                               \
+	size_t size,                                                        \
+	mpc_lowcomm_datatype_t datatype)                                    \
+		{                                                               \
+			mpc_no_exec(in, inout, size, datatype, __LINE__, __FILE__); \
 		}                                                               \
-	}                                                                       \
-	void MPC_PROD_func_ ## t(const tt * restrict in, tt * restrict inout,   \
-	                         size_t size, mpc_lowcomm_datatype_t datatype){ \
-		unsigned int i;                                                 \
-		mpc_reduction_check_type(datatype, t);                           \
-		for(i = 0; i < size; i++){                                      \
-			inout[i] = in[i] * inout[i];                            \
-		}                                                               \
-	}
-
-#define MPC_DEFINED_FUNCS_SUM_PROD_IMPL_COMPLEX(mpi_type, c_type)\
-	void MPC_SUM_func_ ## mpi_type (const c_type *  restrict in,\
-                          c_type *  restrict inout, size_t size,\
-                          mpc_lowcomm_datatype_t datatype)\
-	{\
-		size_t i;\
-		\
-		mpc_reduction_check_type(datatype, mpi_type);\
-		for(i = 0; i < size; i++)\
-		{\
-			inout[i].a = in[i].a + inout[i].a;\
-			inout[i].b = in[i].b + inout[i].b;\
-		}\
-	}\
-	\
-	void MPC_PROD_func_ ## mpi_type (const c_type *  restrict in,\
-                          c_type *  restrict inout, size_t size,\
-                          mpc_lowcomm_datatype_t datatype)\
-	{\
-		size_t i;\
-		\
-		mpc_reduction_check_type(datatype, mpi_type);\
-		for(i = 0; i < size; i++)\
-		{\
-			inout[i].a = (in[i].a * inout[i].a) - (in[i].b * inout[i].b);\
-			inout[i].b = (in[i].b * inout[i].a) + (in[i].a * inout[i].b);\
-		}\
-	}
-
-
-#define MPC_DEFINED_FUNCS_SUM_PROD_NOIMPL(t, tt)                                                                                         \
-	void MPC_SUM_func_ ## t(const tt *   restrict in, tt *  restrict inout, size_t size, mpc_lowcomm_datatype_t datatype){  \
-		mpc_no_exec(in, inout, size, datatype, __LINE__, __FILE__);                                                     \
-	}                                                                                                                       \
-	void MPC_PROD_func_ ## t(const tt *   restrict in, tt *  restrict inout, size_t size, mpc_lowcomm_datatype_t datatype){ \
-		mpc_no_exec(in, inout, size, datatype, __LINE__, __FILE__);                                                     \
-	}
+		void MPC_PROD_func_ ## t(const tt *   restrict in,              \
+	tt *  restrict inout,                                               \
+	size_t size,                                                        \
+	mpc_lowcomm_datatype_t datatype)                                    \
+		{                                                               \
+			mpc_no_exec(in, inout, size, datatype, __LINE__, __FILE__); \
+		}
 
 
 /* Binary operations */
 
-#define MPC_DEFINED_FUNCS_BINARY_OP_IMPL(t, tt)                                                                                          \
-	void MPC_BAND_func_ ## t(const tt *   restrict in, tt *  restrict inout, size_t size, mpc_lowcomm_datatype_t datatype){ \
-		size_t i;                                                                                                       \
-		mpc_reduction_check_type(datatype, t);                                                                           \
-		for(i = 0; i < size; i++){                                                                                      \
-			inout[i] = (tt)(in[i] & inout[i]);                                                                      \
-		}                                                                                                               \
-	}                                                                                                                       \
-	void MPC_BXOR_func_ ## t(const tt *   restrict in, tt *  restrict inout, size_t size, mpc_lowcomm_datatype_t datatype){ \
-		size_t i;                                                                                                       \
-		mpc_reduction_check_type(datatype, t);                                                                           \
-		for(i = 0; i < size; i++){                                                                                      \
-			inout[i] = (tt)(in[i] ^ inout[i]);                                                                      \
-		}                                                                                                               \
-	}                                                                                                                       \
-	void MPC_BOR_func_ ## t(const tt *   restrict in, tt *  restrict inout, size_t size, mpc_lowcomm_datatype_t datatype){  \
-		size_t i;                                                                                                       \
-		mpc_reduction_check_type(datatype, t);                                                                           \
-		for(i = 0; i < size; i++){                                                                                      \
-			inout[i] = (tt)(in[i] | inout[i]);                                                                      \
-		}                                                                                                               \
-	}
+#define MPC_DEFINED_FUNCS_BINARY_OP_IMPL(t, tt)            \
+		void MPC_BAND_func_ ## t(const tt *   restrict in, \
+	tt *  restrict inout,                                  \
+	size_t size,                                           \
+	mpc_lowcomm_datatype_t datatype)                       \
+		{                                                  \
+			size_t i;                                      \
+			mpc_reduction_check_type(datatype, t);         \
+			for (i = 0; i < size; i++)                     \
+			{                                              \
+				inout[i] = (tt)(in[i] &inout[i]);          \
+			}                                              \
+		}                                                  \
+		void MPC_BXOR_func_ ## t(const tt *   restrict in, \
+	tt *  restrict inout,                                  \
+	size_t size,                                           \
+	mpc_lowcomm_datatype_t datatype)                       \
+		{                                                  \
+			size_t i;                                      \
+			mpc_reduction_check_type(datatype, t);         \
+			for (i = 0; i < size; i++)                     \
+			{                                              \
+				inout[i] = (tt)(in[i] ^ inout[i]);         \
+			}                                              \
+		}                                                  \
+		void MPC_BOR_func_ ## t(const tt *   restrict in,  \
+	tt *  restrict inout,                                  \
+	size_t size,                                           \
+	mpc_lowcomm_datatype_t datatype)                       \
+		{                                                  \
+			size_t i;                                      \
+			mpc_reduction_check_type(datatype, t);         \
+			for (i = 0; i < size; i++)                     \
+			{                                              \
+				inout[i] = (tt)(in[i] | inout[i]);         \
+			}                                              \
+		}
 
-#define MPC_DEFINED_FUNCS_BINARY_OP_NOIMPL(t, tt)                                                                   \
-	void MPC_BAND_func_ ## t(const tt * in, tt * inout, size_t size, mpc_lowcomm_datatype_t datatype){ \
-		mpc_no_exec(in, inout, size, datatype, __LINE__, __FILE__);                                \
-	}                                                                                                  \
-	void MPC_BXOR_func_ ## t(const tt * in, tt * inout, size_t size, mpc_lowcomm_datatype_t datatype){ \
-		mpc_no_exec(in, inout, size, datatype, __LINE__, __FILE__);                                \
-	}                                                                                                  \
-	void MPC_BOR_func_ ## t(const tt * in, tt * inout, size_t size, mpc_lowcomm_datatype_t datatype){  \
-		mpc_no_exec(in, inout, size, datatype, __LINE__, __FILE__);                                \
-	}
+#define MPC_DEFINED_FUNCS_BINARY_OP_NOIMPL(t, tt)                                                         \
+		void MPC_BAND_func_ ## t(const tt * in, tt * inout, size_t size, mpc_lowcomm_datatype_t datatype) \
+		{                                                                                                 \
+			mpc_no_exec(in, inout, size, datatype, __LINE__, __FILE__);                                   \
+		}                                                                                                 \
+		void MPC_BXOR_func_ ## t(const tt * in, tt * inout, size_t size, mpc_lowcomm_datatype_t datatype) \
+		{                                                                                                 \
+			mpc_no_exec(in, inout, size, datatype, __LINE__, __FILE__);                                   \
+		}                                                                                                 \
+		void MPC_BOR_func_ ## t(const tt * in, tt * inout, size_t size, mpc_lowcomm_datatype_t datatype)  \
+		{                                                                                                 \
+			mpc_no_exec(in, inout, size, datatype, __LINE__, __FILE__);                                   \
+		}
 
 
 /* Logical operations */
 
-#define MPC_DEFINED_FUNCS_LOGICAL_OP_IMPL(t, tt)                                                                                          \
-	void MPC_LAND_func_ ## t(const tt *   restrict in, tt *  restrict inout, size_t size, mpc_lowcomm_datatype_t datatype){ \
-		size_t i;                                                                                                       \
-		mpc_reduction_check_type(datatype, t);                                                                           \
-		for(i = 0; i < size; i++){                                                                                      \
-			inout[i] = (tt)(in[i] && inout[i]);                                                                     \
-		}                                                                                                               \
-	}                                                                                                                       \
-	void MPC_LXOR_func_ ## t(const tt *   restrict in, tt *  restrict inout, size_t size, mpc_lowcomm_datatype_t datatype){ \
-		size_t i;                                                                                                       \
-		mpc_reduction_check_type(datatype, t);                                                                           \
-		for(i = 0; i < size; i++){                                                                                      \
-			inout[i] = (tt)( (in[i] && !(inout[i]) ) || (!(in[i])                                                   \
-			                                             && inout[i]) );                                            \
-		}                                                                                                               \
-	}                                                                                                                       \
-	void MPC_LOR_func_ ## t(const tt *   restrict in, tt *  restrict inout, size_t size, mpc_lowcomm_datatype_t datatype){  \
-		size_t i;                                                                                                       \
-		mpc_reduction_check_type(datatype, t);                                                                           \
-		for(i = 0; i < size; i++){                                                                                      \
-			inout[i] = (tt)(in[i] || inout[i]);                                                                     \
-		}                                                                                                               \
-	}
+#define MPC_DEFINED_FUNCS_LOGICAL_OP_IMPL(t, tt)                          \
+		void MPC_LAND_func_ ## t(const tt *   restrict in,                \
+	tt *  restrict inout,                                                 \
+	size_t size,                                                          \
+	mpc_lowcomm_datatype_t datatype)                                      \
+		{                                                                 \
+			size_t i;                                                     \
+			mpc_reduction_check_type(datatype, t);                        \
+			for (i = 0; i < size; i++)                                    \
+			{                                                             \
+				inout[i] = (tt)(in[i] && inout[i]);                       \
+			}                                                             \
+		}                                                                 \
+		void MPC_LXOR_func_ ## t(const tt *   restrict in,                \
+	tt *  restrict inout,                                                 \
+	size_t size,                                                          \
+	mpc_lowcomm_datatype_t datatype)                                      \
+		{                                                                 \
+			size_t i;                                                     \
+			mpc_reduction_check_type(datatype, t);                        \
+			for (i = 0; i < size; i++)                                    \
+			{                                                             \
+				inout[i] = (tt)((in[i] && !(inout[i])) || (!(in[i])       \
+														   && inout[i])); \
+			}                                                             \
+		}                                                                 \
+		void MPC_LOR_func_ ## t(const tt *   restrict in,                 \
+	tt *  restrict inout,                                                 \
+	size_t size,                                                          \
+	mpc_lowcomm_datatype_t datatype)                                      \
+		{                                                                 \
+			size_t i;                                                     \
+			mpc_reduction_check_type(datatype, t);                        \
+			for (i = 0; i < size; i++)                                    \
+			{                                                             \
+				inout[i] = (tt)(in[i] || inout[i]);                       \
+			}                                                             \
+		}
 
-#define MPC_DEFINED_FUNCS_LOGICAL_OP_NOIMPL(t, tt)                                                                   \
-	void MPC_LAND_func_ ## t(const tt * in, tt * inout, size_t size, mpc_lowcomm_datatype_t datatype){ \
-		mpc_no_exec(in, inout, size, datatype, __LINE__, __FILE__);                                \
-	}                                                                                                  \
-	void MPC_LXOR_func_ ## t(const tt * in, tt * inout, size_t size, mpc_lowcomm_datatype_t datatype){ \
-		mpc_no_exec(in, inout, size, datatype, __LINE__, __FILE__);                                \
-	}                                                                                                  \
-	void MPC_LOR_func_ ## t(const tt * in, tt * inout, size_t size, mpc_lowcomm_datatype_t datatype){  \
-		mpc_no_exec(in, inout, size, datatype, __LINE__, __FILE__);                                \
-	}
+#define MPC_DEFINED_FUNCS_LOGICAL_OP_NOIMPL(t, tt)                                                        \
+		void MPC_LAND_func_ ## t(const tt * in, tt * inout, size_t size, mpc_lowcomm_datatype_t datatype) \
+		{                                                                                                 \
+			mpc_no_exec(in, inout, size, datatype, __LINE__, __FILE__);                                   \
+		}                                                                                                 \
+		void MPC_LXOR_func_ ## t(const tt * in, tt * inout, size_t size, mpc_lowcomm_datatype_t datatype) \
+		{                                                                                                 \
+			mpc_no_exec(in, inout, size, datatype, __LINE__, __FILE__);                                   \
+		}                                                                                                 \
+		void MPC_LOR_func_ ## t(const tt * in, tt * inout, size_t size, mpc_lowcomm_datatype_t datatype)  \
+		{                                                                                                 \
+			mpc_no_exec(in, inout, size, datatype, __LINE__, __FILE__);                                   \
+		}
 
 
 /* Minloc, maxloc */
 
-#define MPC_DEFINED_FUNCS_MIN_MAX_LOC_IMPL(t, tt)                                                                                            \
-	void MPC_MAXLOC_func_ ## t(const tt *   restrict in, tt *  restrict inout, size_t size, mpc_lowcomm_datatype_t datatype){ \
-		size_t i;                                                                                                         \
-		mpc_reduction_check_type(datatype, t);                                                                             \
-		for(i = 0; i < size; i++){                                                                                        \
-			if(inout[i].a < in[i].a)                                                                                  \
-			inout[i] = in[i];                                                                                         \
-			if( (inout[i].a == in[i].a) && (inout[i].b > in[i].b) )                                                   \
-			inout[i] = in[i];                                                                                         \
-		}                                                                                                                 \
-	}                                                                                                                         \
-	void MPC_MINLOC_func_ ## t(const tt *   restrict in, tt *  restrict inout, size_t size, mpc_lowcomm_datatype_t datatype){ \
-		size_t i;                                                                                                         \
-		mpc_reduction_check_type(datatype, t);                                                                             \
-		for(i = 0; i < size; i++){                                                                                        \
-			if(inout[i].a > in[i].a)                                                                                  \
-			inout[i] = in[i];                                                                                         \
-			if( (inout[i].a == in[i].a) && (inout[i].b > in[i].b) )                                                   \
-			inout[i] = in[i];                                                                                         \
-		}                                                                                                                 \
-	}
+#define MPC_DEFINED_FUNCS_MIN_MAX_LOC_IMPL(t, tt)                      \
+		void MPC_MAXLOC_func_ ## t(const tt *   restrict in,           \
+	tt *  restrict inout,                                              \
+	size_t size,                                                       \
+	mpc_lowcomm_datatype_t datatype)                                   \
+		{                                                              \
+			size_t i;                                                  \
+			mpc_reduction_check_type(datatype, t);                     \
+			for (i = 0; i < size; i++)                                 \
+			{                                                          \
+				if (inout[i].a < in[i].a)                              \
+				inout[i] = in[i];                                      \
+				if ((inout[i].a == in[i].a) && (inout[i].b > in[i].b)) \
+				inout[i] = in[i];                                      \
+			}                                                          \
+		}                                                              \
+		void MPC_MINLOC_func_ ## t(const tt *   restrict in,           \
+	tt *  restrict inout,                                              \
+	size_t size,                                                       \
+	mpc_lowcomm_datatype_t datatype)                                   \
+		{                                                              \
+			size_t i;                                                  \
+			mpc_reduction_check_type(datatype, t);                     \
+			for (i = 0; i < size; i++)                                 \
+			{                                                          \
+				if (inout[i].a > in[i].a)                              \
+				inout[i] = in[i];                                      \
+				if ((inout[i].a == in[i].a) && (inout[i].b > in[i].b)) \
+				inout[i] = in[i];                                      \
+			}                                                          \
+		}
 
-#define MPC_DEFINED_FUNCS_MIN_MAX_LOC_NOIMPL(t, tt)                                                                                          \
-	void MPC_MAXLOC_func_ ## t(const tt *   restrict in, tt *  restrict inout, size_t size, mpc_lowcomm_datatype_t datatype){ \
-		mpc_no_exec(in, inout, size, datatype, __LINE__, __FILE__);                                                       \
-	}                                                                                                                         \
-	void MPC_MINLOC_func_ ## t(const tt *   restrict in, tt *  restrict inout, size_t size, mpc_lowcomm_datatype_t datatype){ \
-		mpc_no_exec(in, inout, size, datatype, __LINE__, __FILE__);                                                       \
-	}
+#define MPC_DEFINED_FUNCS_MIN_MAX_LOC_NOIMPL(t, tt)                     \
+		void MPC_MAXLOC_func_ ## t(const tt *   restrict in,            \
+	tt *  restrict inout,                                               \
+	size_t size,                                                        \
+	mpc_lowcomm_datatype_t datatype)                                    \
+		{                                                               \
+			mpc_no_exec(in, inout, size, datatype, __LINE__, __FILE__); \
+		}                                                               \
+		void MPC_MINLOC_func_ ## t(const tt *   restrict in,            \
+	tt *  restrict inout,                                               \
+	size_t size,                                                        \
+	mpc_lowcomm_datatype_t datatype)                                    \
+		{                                                               \
+			mpc_no_exec(in, inout, size, datatype, __LINE__, __FILE__); \
+		}
 
 MPC_PROTOTYPES_IMPL(MIN)
 MPC_PROTOTYPES_IMPL(MAX)

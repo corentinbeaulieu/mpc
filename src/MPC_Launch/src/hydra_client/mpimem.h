@@ -14,12 +14,12 @@
 #include <stdio.h>
 #include <string.h>
 
-#define MPIU_Snprintf snprintf
-#define MPIU_Exit exit
+#define MPIU_Snprintf              snprintf
+#define MPIU_Exit                  exit
 #define MPIU_Internal_error_printf printf
 
-int MPIU_Strncpy( char *outstr, const char *instr, size_t maxlen );
-int MPIU_Strnapp( char *, const char *, size_t );
+int MPIU_Strncpy(char *outstr, const char *instr, size_t maxlen);
+int MPIU_Strnapp(char *, const char *, size_t);
 
 
 #endif /* MPIMEM_H_ */

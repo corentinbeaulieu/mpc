@@ -27,40 +27,40 @@
 
 
 #ifdef __cplusplus
-extern "C"
-{
+	extern "C"
+	{
 #endif
 
 /**
-* @brief Print MPC's Banner Only visible with -v
-*
-* @param restarting true if from checkpoint
-*/
-void mpc_launch_print_banner( short int restarting );
+ * @brief Print MPC's Banner Only visible with -v
+ *
+ * @param restarting true if from checkpoint
+ */
+void mpc_launch_print_banner(short int restarting);
 
 /**
-* @brief This is the main entry point to initialize MPC
-*
-*/
+ * @brief This is the main entry point to initialize MPC
+ *
+ */
 void mpc_launch_init_runtime();
 
 /**
-* @brief This is the main entry point to finalize MPC
-*
-*/
+ * @brief This is the main entry point to finalize MPC
+ *
+ */
 void mpc_launch_release_runtime();
 
 /**
-* @brief Main wrapper for MPC launch (calling INIT/RELEASE)
-*
-* @param argc number of arguments
-* @param argv Arguments
-* @return int return value
-*/
-int mpc_launch_main( int argc, char **argv );
+ * @brief Main wrapper for MPC launch (calling INIT/RELEASE)
+ *
+ * @param  argc number of arguments
+ * @param  argv Arguments
+ * @return      int return value
+ */
+int mpc_launch_main(int argc, char **argv);
 
 #ifdef __cplusplus
-}
+	}
 #endif
 
 #endif /* MPC_LAUNCH_H */

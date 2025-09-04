@@ -24,19 +24,19 @@
 /* ######################################################################## */
 
 #ifndef __SCTK__CHECKSUM_H_
-#define __SCTK__CHECKSUM_H_
+	#define __SCTK__CHECKSUM_H_
 
-//#define SCTK_USE_CHECKSUM
+	// #define SCTK_USE_CHECKSUM
 
 #include "comm.h"
 
-unsigned long _mpc_lowcomm_checksum_message(mpc_lowcomm_ptp_message_t *send,
-                                            mpc_lowcomm_ptp_message_t *recv);
-unsigned long _mpc_lowcomm_checksum_buffer(char *body, struct mpc_lowcomm_ptp_message_s *msg);
-unsigned long _mpc_lowcomm_checksum_verify(mpc_lowcomm_ptp_message_t *send, mpc_lowcomm_ptp_message_t *recv);
+	unsigned long _mpc_lowcomm_checksum_message(mpc_lowcomm_ptp_message_t *send,
+	                                            mpc_lowcomm_ptp_message_t *recv);
+	unsigned long _mpc_lowcomm_checksum_buffer(char *body, struct mpc_lowcomm_ptp_message_s *msg);
+	unsigned long _mpc_lowcomm_checksum_verify(mpc_lowcomm_ptp_message_t *send, mpc_lowcomm_ptp_message_t *recv);
 
-void _mpc_lowcomm_checksum_register(mpc_lowcomm_ptp_message_t *msg);
-void _mpc_lowcomm_checksum_unregister(mpc_lowcomm_ptp_message_t *msg);
+	void _mpc_lowcomm_checksum_register(mpc_lowcomm_ptp_message_t *msg);
+	void _mpc_lowcomm_checksum_unregister(mpc_lowcomm_ptp_message_t *msg);
 
 #endif
 void _mpc_lowcomm_checksum_init();

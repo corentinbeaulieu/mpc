@@ -35,7 +35,8 @@ double mpc_arch_get_timestamp_gettimeofday()
 static inline double __get_timestamp()
 {
 	unsigned long t;
-	__asm__ volatile ("mov %0=ar%1" : "=r" (t) : "i" (44) );
+
+	__asm__ volatile ("mov %0=ar%1" : "=r" (t) : "i" (44));
 
 	return (double)t;
 }
@@ -44,7 +45,8 @@ static inline double __get_timestamp()
 static inline double __get_timestamp()
 {
 	unsigned long long t;
-	__asm__ volatile ("rdtsc" : "=A" (t) );
+
+	__asm__ volatile ("rdtsc" : "=A" (t));
 
 	return (double)t;
 }
@@ -55,9 +57,10 @@ static inline double __get_timestamp()
 	unsigned int  a;
 	unsigned int  d;
 	unsigned long t;
-	__asm__ volatile ("rdtsc" : "=a" (a), "=d" (d) );
 
-	t = ( (unsigned long)a) | ( ( (unsigned long)d) << 32);
+	__asm__ volatile ("rdtsc" : "=a" (a), "=d" (d));
+
+	t = ((unsigned long)a) | (((unsigned long)d) << 32);
 	return (double)t;
 }
 
@@ -69,10 +72,11 @@ static inline double __get_timestamp()
 
 #else
 #warning "Use get time of day for profiling"
-static inline double __get_timestamp()
-{
-	return mpc_arch_get_timestamp_gettimeofday();
-}
+	static inline double __get_timestamp()
+	{
+		return mpc_arch_get_timestamp_gettimeofday();
+	}
+
 #endif
 
 static double __cpu_freq = 0;
@@ -88,7 +92,7 @@ void mpc_arch_tsc_freq_compute_start()
 
 void mpc_arch_tsc_freq_compute()
 {
-	if(!__begin_tsc)
+	if (!__begin_tsc)
 	{
 		mpc_arch_tsc_freq_compute_start();
 		usleep(10000);
@@ -97,9 +101,9 @@ void mpc_arch_tsc_freq_compute()
 	double end_tsc       = __get_timestamp();
 	double end_timeofday = mpc_arch_get_timestamp_gettimeofday();
 
-	__cpu_freq = (end_tsc - __begin_tsc) / ( (end_timeofday - __start_gettimeofday) / 1e6);
+	__cpu_freq = (end_tsc - __begin_tsc) / ((end_timeofday - __start_gettimeofday) / 1e6);
 
-	if(__cpu_freq < 1)
+	if (__cpu_freq < 1)
 	{
 		__cpu_freq = 1;
 	}
@@ -107,7 +111,7 @@ void mpc_arch_tsc_freq_compute()
 
 double mpc_arch_tsc_freq_get()
 {
-	if(__cpu_freq == 0)
+	if (__cpu_freq == 0)
 	{
 		mpc_arch_tsc_freq_compute();
 	}

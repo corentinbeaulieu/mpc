@@ -5,22 +5,22 @@
 
 
 /****************************************
-* Fortran MPI_Status related constants *
-****************************************/
+ * Fortran MPI_Status related constants *
+ ****************************************/
 
 struct MPI_F08_status_s;
 typedef struct MPI_F08_status_s MPI_F08_status;
 
-#define MPI_F_STATUS_SIZE          8
-#define MPI_F_SOURCE               0
-#define MPI_F_TAG                  1
-#define MPI_F_ERROR                2
+#define MPI_F_STATUS_SIZE 8
+#define MPI_F_SOURCE      0
+#define MPI_F_TAG         1
+#define MPI_F_ERROR       2
 
-#define MPI_F_STATUS_IGNORE        (MPI_Fint *)0
-#define MPI_F_STATUSES_IGNORE      (MPI_Fint *)0
+#define MPI_F_STATUS_IGNORE   (MPI_Fint *)0
+#define MPI_F_STATUSES_IGNORE (MPI_Fint *)0
 
-#define MPI_F08_STATUS_IGNORE      (MPI_F08_status *)0
-#define MPI_F08_STATUSES_IGNORE    (MPI_F08_status *)0
+#define MPI_F08_STATUS_IGNORE   (MPI_F08_status *)0
+#define MPI_F08_STATUSES_IGNORE (MPI_F08_status *)0
 
 
 /*************************************

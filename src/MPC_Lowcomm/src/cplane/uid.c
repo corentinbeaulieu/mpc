@@ -17,8 +17,8 @@ static char  __set_dir[512]        = { 0 };
 static short __set_dir_initialized = 0;
 
 
-#define __UID_WIDTH     20
-#define __RANK_WIDTH    12
+#define __UID_WIDTH  20
+#define __RANK_WIDTH 12
 
 typedef union
 {
@@ -27,7 +27,7 @@ typedef union
 	{
 		unsigned int uid  : __UID_WIDTH;
 		unsigned int rank : __RANK_WIDTH;
-	}                      members;
+	} members;
 }__set_uid_t;
 
 void __set_descriptor_fill(struct _mpc_lowcomm_uid_descriptor_s *sd, char *uri, mpc_lowcomm_set_uid_t set_uid)
@@ -46,7 +46,7 @@ int _mpc_lowcomm_uid_descriptor_save(struct _mpc_lowcomm_uid_descriptor_s *sd, c
 {
 	FILE *desc = fopen(path, "w");
 
-	if(!desc)
+	if (!desc)
 	{
 		/* Failed */
 		return -1;
@@ -54,7 +54,7 @@ int _mpc_lowcomm_uid_descriptor_save(struct _mpc_lowcomm_uid_descriptor_s *sd, c
 
 	int ret = fwrite(sd, sizeof(struct _mpc_lowcomm_uid_descriptor_s), 1, desc);
 
-	if(ret != 1)
+	if (ret != 1)
 	{
 		/* failed */
 		fclose(desc);
@@ -70,7 +70,7 @@ int _mpc_lowcomm_uid_descriptor_load(struct _mpc_lowcomm_uid_descriptor_s *sd, c
 {
 	FILE *desc = fopen(path, "r");
 
-	if(!desc)
+	if (!desc)
 	{
 		/* Failed */
 		return -1;
@@ -78,7 +78,7 @@ int _mpc_lowcomm_uid_descriptor_load(struct _mpc_lowcomm_uid_descriptor_s *sd, c
 
 	int ret = fread(sd, sizeof(struct _mpc_lowcomm_uid_descriptor_s), 1, desc);
 
-	if(ret != 1)
+	if (ret != 1)
 	{
 		/* failed */
 		perror("fread");
@@ -95,10 +95,10 @@ static inline int __check_for_dir_or_create(char *path)
 {
 	struct stat statbuf;
 
-	if(stat(path, &statbuf) < 0)
+	if (stat(path, &statbuf) < 0)
 	{
 		/* Try to create */
-		if(mkdir(path, 0700) < 0)
+		if (mkdir(path, 0700) < 0)
 		{
 			perror("mkdir");
 			return -1;
@@ -107,7 +107,7 @@ static inline int __check_for_dir_or_create(char *path)
 		return 0;
 	}
 
-	if(S_ISDIR(statbuf.st_mode) )
+	if (S_ISDIR(statbuf.st_mode))
 	{
 		/* All ok it is a directory */
 		return 0;
@@ -120,13 +120,13 @@ static inline int __is_file(char *path)
 {
 	struct stat statbuf;
 
-	if(stat(path, &statbuf) < 0)
+	if (stat(path, &statbuf) < 0)
 	{
 		/* Something bad happened */
 		return 0;
 	}
 
-	if(S_ISREG(statbuf.st_mode) )
+	if (S_ISREG(statbuf.st_mode))
 	{
 		/* All ok it is a file */
 		return 1;
@@ -137,9 +137,9 @@ static inline int __is_file(char *path)
 
 static inline char *__get_set_directory(void)
 {
-	if(__set_dir_initialized)
+	if (__set_dir_initialized)
 	{
-		assert(0 < strlen(__set_dir) );
+		assert(0 < strlen(__set_dir));
 		return __set_dir;
 	}
 
@@ -147,21 +147,21 @@ static inline char *__get_set_directory(void)
 
 	struct passwd *pwd_info = getpwuid(my_uid);
 
-	if(!pwd_info)
+	if (!pwd_info)
 	{
 		mpc_common_debug_fatal("Could not retrieve user's home directory");
 	}
 
 	snprintf(__set_dir, 512, "%s/.mpc/", pwd_info->pw_dir);
 
-	if(__check_for_dir_or_create(__set_dir) < 0)
+	if (__check_for_dir_or_create(__set_dir) < 0)
 	{
 		mpc_common_debug_fatal("Could not create %s directory", __set_dir);
 	}
 
 	snprintf(__set_dir, 512, "%s/.mpc/sets", pwd_info->pw_dir);
 
-	if(__check_for_dir_or_create(__set_dir) < 0)
+	if (__check_for_dir_or_create(__set_dir) < 0)
 	{
 		mpc_common_debug_fatal("Could not create %s directory", __set_dir);
 	}
@@ -182,7 +182,7 @@ static inline char *__set_path(char *buff, int len, uint32_t set_uid)
 
 	uid_t uid = getuid();
 
-	if(sid.members.uid != uid)
+	if (sid.members.uid != uid)
 	{
 		mpc_common_debug_warning("UID mismatch in set name %d != %d", sid.members.uid, uid);
 	}
@@ -191,7 +191,7 @@ static inline char *__set_path(char *buff, int len, uint32_t set_uid)
 	snprintf(buff, len, "%s/%u", set_path, r);
 
 
-	//mpc_common_debug_error("PATH : %s", buff);
+	// mpc_common_debug_error("PATH : %s", buff);
 
 	return buff;
 }
@@ -203,9 +203,9 @@ static inline int32_t __uid_valid(char *uid, int *valid)
 
 	int i;
 
-	for(i = 0; i < len; i++)
+	for (i = 0; i < len; i++)
 	{
-		if(!isdigit(uid[i]) )
+		if (!isdigit(uid[i]))
 		{
 			return 0;
 		}
@@ -214,7 +214,7 @@ static inline int32_t __uid_valid(char *uid, int *valid)
 	int id = atoi(uid);
 
 	/* Now check that it fits in UID range */
-	if( ( (1 << __RANK_WIDTH) - 1) <= id)
+	if (((1 << __RANK_WIDTH) - 1) <= id)
 	{
 		return 0;
 	}
@@ -224,9 +224,9 @@ static inline int32_t __uid_valid(char *uid, int *valid)
 	return id;
 }
 
-int _mpc_lowcomm_uid_scan(int (*uid_cb)(uint32_t uid, char *path) )
+int _mpc_lowcomm_uid_scan(int (*uid_cb)(uint32_t uid, char *path))
 {
-	if(!uid_cb)
+	if (!uid_cb)
 	{
 		return -1;
 	}
@@ -236,7 +236,7 @@ int _mpc_lowcomm_uid_scan(int (*uid_cb)(uint32_t uid, char *path) )
 	DIR *          set_dir = opendir(set_path);
 	struct dirent *file    = NULL;
 
-	if(!set_dir)
+	if (!set_dir)
 	{
 		perror("opendir");
 		mpc_common_debug_fatal("Failed scanning the set directory");
@@ -244,9 +244,9 @@ int _mpc_lowcomm_uid_scan(int (*uid_cb)(uint32_t uid, char *path) )
 
 	char path[1024];
 
-	while( (file = readdir(set_dir) ) ) // if dp is null, there's no more content to read
+	while ((file = readdir(set_dir)))   // if dp is null, there's no more content to read
 	{
-		if(!strcmp(file->d_name, ".") || !strcmp(file->d_name, "..") )
+		if (!strcmp(file->d_name, ".") || !strcmp(file->d_name, ".."))
 		{
 			continue;
 		}
@@ -257,7 +257,7 @@ int _mpc_lowcomm_uid_scan(int (*uid_cb)(uint32_t uid, char *path) )
 		int     is_valid = 0;
 		int32_t id       = __uid_valid(file->d_name, &is_valid);
 
-		if(!is_valid)
+		if (!is_valid)
 		{
 			mpc_common_debug_warning("Set list %s seems invalid", path);
 			continue;
@@ -266,7 +266,7 @@ int _mpc_lowcomm_uid_scan(int (*uid_cb)(uint32_t uid, char *path) )
 
 		int ret = (uid_cb)(id, path);
 
-		if(ret != 0)
+		if (ret != 0)
 		{
 			/* Done */
 			break;
@@ -282,7 +282,7 @@ static inline int32_t __get_free_rank_slot(__set_uid_t *set_id, char *uri)
 {
 	uid_t my_uid = getuid();
 
-	if( ( (1 << __UID_WIDTH) - 1) <= my_uid)
+	if (((1 << __UID_WIDTH) - 1) <= my_uid)
 	{
 		mpc_common_debug_warning("UID overflows the %d bits allowed using truncated value", __UID_WIDTH);
 	}
@@ -301,14 +301,14 @@ static inline int32_t __get_free_rank_slot(__set_uid_t *set_id, char *uri)
 	srand(pid);
 	int offset = rand();
 
-	for(i = 0; i < max_rank_id; i++)
+	for (i = 0; i < max_rank_id; i++)
 	{
 		uint32_t target_id = 1 + (offset + i) % (max_rank_id - 1);
 
 		char path[1024];
 		snprintf(path, 1024, "%s/%d", set_path, target_id);
 
-		if(__is_file(path) )
+		if (__is_file(path))
 		{
 			continue;
 		}
@@ -319,7 +319,7 @@ static inline int32_t __get_free_rank_slot(__set_uid_t *set_id, char *uri)
 		struct _mpc_lowcomm_uid_descriptor_s sd;
 		__set_descriptor_fill(&sd, uri, set_id->value);
 
-		if(_mpc_lowcomm_uid_descriptor_save(&sd, path) < 0)
+		if (_mpc_lowcomm_uid_descriptor_save(&sd, path) < 0)
 		{
 			/* Failed to write */
 			continue;
@@ -327,12 +327,12 @@ static inline int32_t __get_free_rank_slot(__set_uid_t *set_id, char *uri)
 
 		/* Now check for race */
 		struct _mpc_lowcomm_uid_descriptor_s loadsd;
-		if(_mpc_lowcomm_uid_descriptor_load(&loadsd, path) < 0)
+		if (_mpc_lowcomm_uid_descriptor_load(&loadsd, path) < 0)
 		{
 			continue;
 		}
 
-		if(loadsd.cookie != sd.cookie)
+		if (loadsd.cookie != sd.cookie)
 		{
 			/* We had a race skip */
 			continue;
@@ -350,15 +350,15 @@ uint32_t _mpc_lowcomm_uid_new(char *rank_zero_uri)
 {
 	__set_uid_t set_id = { 0 };
 
-	assume(sizeof(set_id.members) == sizeof(set_id.value) );
+	assume(sizeof(set_id.members) == sizeof(set_id.value));
 
 
-	if(__get_free_rank_slot(&set_id, rank_zero_uri) != 0)
+	if (__get_free_rank_slot(&set_id, rank_zero_uri) != 0)
 	{
 		mpc_common_debug_fatal("Could not allocate a slot in UID set directory");
 	}
 
-	//mpc_common_debug_warning("==> %u (%u, %u)", set_id.value, set_id.members.uid, set_id.members.rank);
+	// mpc_common_debug_warning("==> %u (%u, %u)", set_id.value, set_id.members.uid, set_id.members.rank);
 
 	return set_id.value;
 }
@@ -369,7 +369,7 @@ int _mpc_lowcomm_uid_clear(uint64_t uid)
 
 	__set_path(pathbuf, 517, uid);
 
-	if(__is_file(pathbuf) )
+	if (__is_file(pathbuf))
 	{
 		unlink(pathbuf);
 		return 0;

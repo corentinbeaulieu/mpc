@@ -31,7 +31,7 @@ struct sctk_rail_info_s;
 void sctk_net_init_task_level(int taskid, int vp);
 void sctk_net_finalize_task_level(int taskid, int vp);
 
-int sctk_net_is_mode_hybrid ();
-int sctk_net_set_mode_hybrid ();
+int sctk_net_is_mode_hybrid();
+int sctk_net_set_mode_hybrid();
 
 #endif

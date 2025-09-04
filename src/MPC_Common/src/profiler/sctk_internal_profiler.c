@@ -33,8 +33,8 @@
 #include "sctk_profile_render.h"
 
 /* Profiling switch */
-int sctk_profiler_internal_switch = 0;
-__thread void* mpc_profiler;
+int            sctk_profiler_internal_switch = 0;
+__thread void *mpc_profiler;
 
 /* Profiler Meta */
 struct sctk_profile_meta sctk_internal_profiler_meta;
@@ -44,7 +44,6 @@ struct sctk_profile_meta *sctk_internal_profiler_get_meta()
 	return &sctk_internal_profiler_meta;
 }
 
-
 /* Target structure for reduction */
 static struct sctk_profiler_array *reduce_array = NULL;
 
@@ -52,7 +51,7 @@ struct sctk_profiler_array * sctk_profiler_get_reduce_array()
 {
 	int rank = mpc_common_get_task_rank();
 
-	if(!reduce_array && !rank)
+	if (!reduce_array && !rank)
 	{
 		reduce_array = sctk_profiler_array_new();
 	}
@@ -63,36 +62,34 @@ struct sctk_profiler_array * sctk_profiler_get_reduce_array()
 static void sctk_internal_profiler_check_config()
 {
 	/* Check for at least one color */
-	if( sctk_profile_get_config()->level_colors_size < 1 )
+	if (sctk_profile_get_config()->level_colors_size < 1)
 	{
 		mpc_common_debug_error("You should provide at least one level color to MPC Profiler");
 		abort();
 	}
 }
 
-
-
 void sctk_internal_profiler_init()
 {
-  if (mpc_profiler == NULL) {
-    /* Check config options validity */
-    sctk_internal_profiler_check_config();
+	if (mpc_profiler == NULL)
+	{
+		/* Check config options validity */
+		sctk_internal_profiler_check_config();
 
-    /* Setup the TLS */
-    mpc_profiler = (void *) sctk_profiler_array_new();
+		/* Setup the TLS */
+		mpc_profiler = (void *)sctk_profiler_array_new();
 
-    /* Fill in the meta information */
-    sctk_profile_meta_init(&sctk_internal_profiler_meta);
+		/* Fill in the meta information */
+		sctk_profile_meta_init(&sctk_internal_profiler_meta);
 
-    //	__MPC_Barrier(MPC_COMM_WORLD);
+		//	__MPC_Barrier(MPC_COMM_WORLD);
 
-    /* Start Program */
-    sctk_profile_meta_begin_compute(&sctk_internal_profiler_meta);
+		/* Start Program */
+		sctk_profile_meta_begin_compute(&sctk_internal_profiler_meta);
 
-    sctk_profiler_set_initialize_time();
-  }
+		sctk_profiler_set_initialize_time();
+	}
 }
-
 
 /* Defined in sctk_launch.c */
 
@@ -100,7 +97,7 @@ void sctk_internal_profiler_render()
 {
 	int rank = mpc_common_get_task_rank();
 
-  	sctk_profiler_set_finalize_time();
+	sctk_profiler_set_finalize_time();
 
 	/* fprintf(stderr,"%s \n",mpc_common_get_flags()->profiler_outputs); */
 
@@ -109,52 +106,51 @@ void sctk_internal_profiler_render()
 
 	mpc_common_init_trigger("MPC Profile reduce");
 
-	if( rank == 0 )
+	if (rank == 0)
 	{
-		sctk_profiler_array_unify( reduce_array );
+		sctk_profiler_array_unify(reduce_array);
 
 		struct sctk_profile_renderer renderer;
 
-		sctk_profile_renderer_init( &renderer, reduce_array, mpc_common_get_flags()->profiler_outputs );
+		sctk_profile_renderer_init(&renderer, reduce_array, mpc_common_get_flags()->profiler_outputs);
 
-		sctk_profile_renderer_render( &renderer );
+		sctk_profile_renderer_render(&renderer);
 
-		sctk_profile_renderer_release( &renderer );
-
+		sctk_profile_renderer_release(&renderer);
 	}
 
 
 	/* Free reduce array in rank 0 */
-	if( reduce_array && rank == 0 )
+	if (reduce_array && rank == 0)
 	{
-		free( reduce_array );
+		free(reduce_array);
 	}
-
 }
-
 
 void sctk_internal_profiler_release()
 {
 	sctk_profiler_internal_disable();
 
-	if( mpc_profiler )
+	if (mpc_profiler)
+	{
 		sctk_profiler_array_release(mpc_profiler);
+	}
 
-	if( reduce_array  )
+	if (reduce_array)
+	{
 		sctk_profiler_array_release(reduce_array);
+	}
 }
-
-
 
 static inline void __set_profiler_output()
 {
-	char * arg = mpc_common_get_flags()->profiler_outputs;
+	char *arg = mpc_common_get_flags()->profiler_outputs;
 
-	if ( strcmp( arg, "undef" ) != 0 )
+	if (strcmp(arg, "undef") != 0)
 	{
-		if ( sctk_profile_renderer_check_render_list( arg ) )
+		if (sctk_profile_renderer_check_render_list(arg))
 		{
-			mpc_common_debug_error( "Provided profiling output syntax is not correct: %s", arg );
+			mpc_common_debug_error("Provided profiling output syntax is not correct: %s", arg);
 			abort();
 		}
 	}
@@ -164,25 +160,25 @@ void mpc_cl_internal_profiler_init() __attribute__((constructor));
 
 void mpc_cl_internal_profiler_init()
 {
-        MPC_INIT_CALL_ONLY_ONCE
+	MPC_INIT_CALL_ONLY_ONCE
 
 	/* Runtime start */
-        mpc_common_init_callback_register("Base Runtime Init Done",
-                                          "Init Profiling keys",
-                                          __set_profiler_output, 24);
+	mpc_common_init_callback_register("Base Runtime Init Done",
+	                                  "Init Profiling keys",
+	                                  __set_profiler_output, 24);
 
-        mpc_common_init_callback_register("Base Runtime Init Done",
-                                          "Init Profiling keys",
-                                          sctk_internal_profiler_init, 25);
+	mpc_common_init_callback_register("Base Runtime Init Done",
+		"Init Profiling keys",
+		sctk_internal_profiler_init, 25);
 
 	/* Main start */
-        mpc_common_init_callback_register("Before Starting VPs",
-                                          "Init Profiling keys",
-                                          sctk_profiler_array_init_parent_keys, 24);
+	mpc_common_init_callback_register("Before Starting VPs",
+		"Init Profiling keys",
+		sctk_profiler_array_init_parent_keys, 24);
 
-        mpc_common_init_callback_register("VP Thread Start",
-                                          "Init Profiling keys",
-                                          sctk_internal_profiler_init, 24);
+	mpc_common_init_callback_register("VP Thread Start",
+		"Init Profiling keys",
+		sctk_internal_profiler_init, 24);
 }
 
 #endif /* MPC_Profiler */

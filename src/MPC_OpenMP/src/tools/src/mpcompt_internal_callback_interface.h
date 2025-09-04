@@ -28,30 +28,33 @@
 #include "mpcomp_types.h"
 #include "mpc_common_debug.h"
 
-static inline int
-__mpc_omp_ompt_isActive( mpc_omp_thread_t* thread ) {
-    return thread->tool_status == active;
-}
+	static inline int
+	__mpc_omp_ompt_isActive(mpc_omp_thread_t *thread)
+	{
+		return thread->tool_status == active;
+	}
 
-static inline ompt_callback_t
-__mpc_omp_ompt_get_callback( mpc_omp_thread_t* thread,
-                         ompt_callbacks_t event ) {
-    ompt_callback_t* callbacks;
-    ompt_callback_t callback = NULL;
+	static inline ompt_callback_t
+	__mpc_omp_ompt_get_callback(mpc_omp_thread_t *thread,
+	                            ompt_callbacks_t event)
+	{
+		ompt_callback_t *callbacks;
+		ompt_callback_t  callback = NULL;
 
-    assert( thread );
-    assert( thread->tool_instance );
+		assert(thread);
+		assert(thread->tool_instance);
 
-    /* Get tool instance callback array */
-    callbacks = thread->tool_instance->callbacks;
+		/* Get tool instance callback array */
+		callbacks = thread->tool_instance->callbacks;
 
-    /* Get event callback */
-    if( callbacks ) {
-        callback = callbacks[event];
-    }
+		/* Get event callback */
+		if (callbacks)
+		{
+			callback = callbacks[event];
+		}
 
-    return callback;
-}
+		return callback;
+	}
 
 #endif /* OMPT_SUPPORT */
 #endif /* __MPCOMPT_INTERNAL_CALLBACK_INTERFACE_H__ */

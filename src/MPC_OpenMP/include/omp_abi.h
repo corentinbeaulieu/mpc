@@ -33,18 +33,18 @@
 #define __omp_abi__H
 
 #ifdef __cplusplus
-extern "C"
-{
+	extern "C"
+	{
 #endif
 
 #include <mpc_omp_abi.h>
 
-  /* Dummy file.
-     See mpc_omp_abi.h for OpenMP compiler ABI
-   */
+/* Dummy file.
+ * See mpc_omp_abi.h for OpenMP compiler ABI
+ */
 
 #ifdef __cplusplus
-}
+	}
 #endif
 
 #endif

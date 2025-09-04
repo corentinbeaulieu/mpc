@@ -26,17 +26,19 @@
 #ifdef MPC_THREAD_ENABLED
 
 	/* atexit forward declaration is needed by mpc.h.
-	stdlib is not included since it would prevent it
-	from recognizing _GNU_SOURCE when defined by users.
-	This is due to mpc.h being included with -include 
-	and thus included before any other file and especially
-	 user sources containing _GNU_SOURCE definitions.*/
+	 * stdlib is not included since it would prevent it
+	 * from recognizing _GNU_SOURCE when defined by users.
+	 * This is due to mpc.h being included with -include
+	 * and thus included before any other file and especially
+	 * user sources containing _GNU_SOURCE definitions.*/
 
 #if defined(__CUDACC__)
-	/*to resolve atexit conflicting definition when compiling with mpc_nvcc*/
-	extern int atexit (void (*__func) (void)) throw();
+		/*to resolve atexit conflicting definition when compiling with mpc_nvcc*/
+		extern int atexit(void (*__func) (void)) throw();
+
 #else
-	extern int atexit (void (*__func) (void));
+		extern int atexit(void (*__func) (void));
+
 #endif
 
 	#define atexit mpc_thread_atexit
@@ -45,12 +47,12 @@
 #ifndef MPC_NO_AUTO_MAIN_REDEF
 	#undef main
 	#ifdef __cplusplus
-		#define main(...) long mpc_user_main_dummy__ (); extern "C" int mpc_user_main__(__VA_ARGS__)
+		#define main(...) long mpc_user_main_dummy__(); extern "C" int mpc_user_main__(__VA_ARGS__)
 	#else
 		#define main(...) mpc_user_main__(__VA_ARGS__)
 		#if defined(MPC_TLS_DLWRAP) && defined(MPC_USE_EXTLS)
-			#define dlopen extls_dlopen
-			#define dlsym extls_dlsym
+			#define dlopen  extls_dlopen
+			#define dlsym   extls_dlsym
 			#define dlclose extls_dlclose
 		#endif
 	#endif

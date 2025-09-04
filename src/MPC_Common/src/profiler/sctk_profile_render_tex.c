@@ -30,40 +30,34 @@
 
 
 
-
-
-
-void sctk_profile_render_tex_register( struct sctk_profile_renderer *rd )
+void sctk_profile_render_tex_register(struct sctk_profile_renderer *rd)
 {
-	rd->setup = sctk_profile_render_tex_setup;
+	rd->setup    = sctk_profile_render_tex_setup;
 	rd->teardown = sctk_profile_render_tex_teardown;
 
-	rd->setup_profile = sctk_profile_render_tex_setup_profile;
-	rd->render_profile = sctk_profile_render_tex_render_profile;
+	rd->setup_profile    = sctk_profile_render_tex_setup_profile;
+	rd->render_profile   = sctk_profile_render_tex_render_profile;
 	rd->teardown_profile = sctk_profile_render_tex_teardown_profile;
 
-	rd->setup_meta = sctk_profile_render_tex_setup_meta;
-	rd->render_meta = sctk_profile_render_tex_render_meta;
+	rd->setup_meta    = sctk_profile_render_tex_setup_meta;
+	rd->render_meta   = sctk_profile_render_tex_render_meta;
 	rd->teardown_meta = sctk_profile_render_tex_setup_meta;
-
-
 }
 
-
-void sctk_profile_render_tex_setup( struct sctk_profile_renderer *rd )
+void sctk_profile_render_tex_setup(struct sctk_profile_renderer *rd)
 {
 	char buff[300];
 	char output_file[500];
 
-	sctk_profile_render_filename( output_file, "tex" );
+	sctk_profile_render_filename(output_file, "tex");
 
 
-	rd->output_file = fopen( output_file, "w" );
+	rd->output_file = fopen(output_file, "w");
 
-	if( !rd->output_file )
+	if (!rd->output_file)
 	{
-		mpc_common_debug_error( "Failed to open profile file : %s ", output_file );
-		perror( " fopen " );
+		mpc_common_debug_error("Failed to open profile file : %s ", output_file);
+		perror(" fopen ");
 		abort();
 	}
 
@@ -78,98 +72,86 @@ void sctk_profile_render_tex_setup( struct sctk_profile_renderer *rd )
 		"\\usepackage[table]{xcolor}\n");
 
 
-		int i = 0;
+	int i = 0;
 
-		for( i = 0 ; i < sctk_profile_get_config()->level_colors_size ; i++ )
-		{
-			struct MPC_prof_color col = sctk_profile_renderer_to_rgb( sctk_profile_get_config()->level_colors[i] );
-			fprintf(rd->output_file, "\\definecolor{%c}{RGB}{%d,%d,%d}\n", 'A'+i, col.r, col.g, col.b );
-		}
+	for (i = 0 ; i < sctk_profile_get_config()->level_colors_size ; i++)
+	{
+		struct MPC_prof_color col = sctk_profile_renderer_to_rgb(sctk_profile_get_config()->level_colors[i]);
+		fprintf(rd->output_file, "\\definecolor{%c}{RGB}{%d,%d,%d}\n", 'A' + i, col.r, col.g, col.b);
+	}
 
-		fprintf(rd->output_file,
+	fprintf(rd->output_file,
 		"\\usepackage{hyperref}\n"
 		"\\usepackage[latin9]{inputenc}\n"
 		"\\usepackage{geometry}\n"
 		"\\geometry{lmargin=2cm,rmargin=2cm}\n"
 		"\\title{MPC Profile %s}\n"
 		"\\begin{document}\n"
-		"\\maketitle\n", sctk_profile_renderer_date_clean( buff ));
+		"\\maketitle\n", sctk_profile_renderer_date_clean(buff));
 }
 
-
-void sctk_profile_render_tex_teardown( struct sctk_profile_renderer *rd )
+void sctk_profile_render_tex_teardown(struct sctk_profile_renderer *rd)
 {
 	fprintf(rd->output_file, "\\end{document}\n");
-	fclose( rd->output_file );
+	fclose(rd->output_file);
 	rd->output_file = NULL;
-
 }
 
-
-void sctk_profile_render_tex_setup_meta( struct sctk_profile_renderer *rd )
+void sctk_profile_render_tex_setup_meta(struct sctk_profile_renderer *rd)
 {
-
-
-
 }
 
-
-void sctk_profile_render_tex_render_meta( struct sctk_profile_renderer *rd, struct sctk_profile_meta *meta )
+void sctk_profile_render_tex_render_meta(struct sctk_profile_renderer *rd, struct sctk_profile_meta *meta)
 {
-
-
 }
 
-
-void sctk_profile_render_tex_teardown_meta( struct sctk_profile_renderer *rd )
+void sctk_profile_render_tex_teardown_meta(struct sctk_profile_renderer *rd)
 {
-
-
-
 }
 
-
-
-
-void sctk_profile_render_tex_setup_profile( struct sctk_profile_renderer *rd )
+void sctk_profile_render_tex_setup_profile(struct sctk_profile_renderer *rd)
 {
 	fprintf(rd->output_file,
-			"\\begin{center}\n"
-			"\\begin{tabular}{lccccccc}\n"
-			"Name & Hits & Total & Average & Minimum & Maximum & Section & Global \\\\\n");
+		"\\begin{center}\n"
+		"\\begin{tabular}{lccccccc}\n"
+		"Name & Hits & Total & Average & Minimum & Maximum & Section & Global \\\\\n");
 }
 
-
-void sctk_profile_render_tex_render_profile( struct sctk_profiler_array *array, int id, int parent_id, int depth, int going_up, struct sctk_profile_renderer *rd )
+void sctk_profile_render_tex_render_profile(struct sctk_profiler_array *array,
+                                            int id, int parent_id,
+                                            int depth, int going_up,
+                                            struct sctk_profile_renderer *rd)
 {
 	char buffA[100], buffB[100], buffC[100], buffD[100];
 
 	const char *prefix[3] = { "\\textbf", " ", "\\textit" };
 
-	int prefix_id = (depth<sctk_profile_get_config()->level_colors_size)?depth:sctk_profile_get_config()->level_colors_size - 1;
+	int prefix_id = (depth < sctk_profile_get_config()->level_colors_size)
+	                ? depth
+	                : sctk_profile_get_config()->level_colors_size - 1;
 
-	int format_id = (prefix_id < 3)?prefix_id:2;
+	int format_id = (prefix_id < 3) ? prefix_id : 2;
 
 	char *to_unit_total = NULL;
-	char *to_unit_avg = NULL;
-	char *to_unit_min = NULL;
-	char *to_unit_max = NULL;
+	char *to_unit_avg   = NULL;
+	char *to_unit_min   = NULL;
+	char *to_unit_max   = NULL;
 
-	if( sctk_profiler_array_get_type( id ) != SCTK_PROFILE_COUNTER_PROBE  )
+	if (sctk_profiler_array_get_type(id) != SCTK_PROFILE_COUNTER_PROBE)
 	{
-		if( sctk_profiler_array_get_type( id ) == SCTK_PROFILE_COUNTER_SIZE_PROBE)
+		if (sctk_profiler_array_get_type(id) == SCTK_PROFILE_COUNTER_SIZE_PROBE)
 		{
-			to_unit_total = sctk_profile_renderer_convert_to_size( sctk_profiler_array_get_value(array, id) , buffA );
-			to_unit_avg = sctk_profile_renderer_convert_to_size( rd->ptree.entry_average_time[id] , buffB );
-			to_unit_min = sctk_profile_renderer_convert_to_size( sctk_profiler_array_get_min(array, id) , buffC );
-			to_unit_max = sctk_profile_renderer_convert_to_size( sctk_profiler_array_get_max(array, id) , buffD );
+			to_unit_total = sctk_profile_renderer_convert_to_size(sctk_profiler_array_get_value(array, id), buffA);
+			to_unit_avg   = sctk_profile_renderer_convert_to_size(rd->ptree.entry_average_time[id], buffB);
+			to_unit_min   = sctk_profile_renderer_convert_to_size(sctk_profiler_array_get_min(array, id), buffC);
+			to_unit_max   = sctk_profile_renderer_convert_to_size(sctk_profiler_array_get_max(array, id), buffD);
 		}
-		else if( sctk_profiler_array_get_type( id ) == SCTK_PROFILE_TIME_PROBE )
+		else if (sctk_profiler_array_get_type(id) == SCTK_PROFILE_TIME_PROBE)
 		{
-			to_unit_total = sctk_profile_renderer_convert_to_time( sctk_profiler_array_get_value(array, id) , buffA );
-			to_unit_avg = sctk_profile_renderer_convert_to_time( rd->ptree.entry_average_time[id] , buffB );
-			to_unit_min = sctk_profile_renderer_convert_to_time( sctk_profiler_array_get_min(array, id) , buffC );
-			to_unit_max = sctk_profile_renderer_convert_to_time( sctk_profiler_array_get_max(array, id) , buffD );
+			to_unit_total = sctk_profile_renderer_convert_to_time(sctk_profiler_array_get_value(array, id), buffA);
+			to_unit_avg   = sctk_profile_renderer_convert_to_time(rd->ptree.entry_average_time[id], buffB);
+			to_unit_min   = sctk_profile_renderer_convert_to_time(sctk_profiler_array_get_min(array, id), buffC);
+			to_unit_max   = sctk_profile_renderer_convert_to_time(sctk_profiler_array_get_max(array, id), buffD);
 		}
 	}
 	else
@@ -187,29 +169,38 @@ void sctk_profile_render_tex_render_profile( struct sctk_profiler_array *array, 
 		to_unit_max = buffD;
 	}
 
-	char *desc = sctk_profile_render_sanitize_string( sctk_profiler_array_get_desc( id ) );
+	char *desc = sctk_profile_render_sanitize_string(sctk_profiler_array_get_desc(id));
 
-	if( sctk_profiler_array_get_hits( array, id ) )
+	if (sctk_profiler_array_get_hits(array, id))
 	{
-		fprintf( rd->output_file,"\\rowcolor{%c} %s{%s} & %s{%llu} & %s{%s} & %s{%s} & %s{%s} & %s{%s} & %s{ %g } & %s{ %g } \\\\\n",'A'+prefix_id, prefix[ format_id ], desc,
-																						   prefix[ format_id ], (unsigned long long int )sctk_profiler_array_get_hits( array, id ),
-																						   prefix[ format_id ], to_unit_total,
-																						   prefix[ format_id ], to_unit_avg,
-																						   prefix[ format_id ], to_unit_min,
-																						   prefix[ format_id ], to_unit_max,
-																						   prefix[ format_id ], rd->ptree.entry_relative_percentage_time[id] * 100,
-																						   prefix[ format_id ], rd->ptree.entry_total_percentage_time[id] * 100 );
+		fprintf(rd->output_file,
+			"\\rowcolor{%c} %s{%s} & %s{%llu} & %s{%s} & %s{%s} & %s{%s} & %s{%s} & %s{ %g } & %s{ %g } \\\\\n",
+			'A' + prefix_id,
+			prefix[format_id],
+			desc,
+			prefix[format_id],
+			(unsigned long long int )sctk_profiler_array_get_hits(array, id),
+			prefix[format_id],
+			to_unit_total,
+			prefix[format_id],
+			to_unit_avg,
+			prefix[format_id],
+			to_unit_min,
+			prefix[format_id],
+			to_unit_max,
+			prefix[format_id],
+			rd->ptree.entry_relative_percentage_time[id] * 100,
+			prefix[format_id],
+			rd->ptree.entry_total_percentage_time[id] * 100);
 	}
 
 	free(desc);
 }
 
-
-
-void sctk_profile_render_tex_teardown_profile( struct sctk_profile_renderer *rd )
+void sctk_profile_render_tex_teardown_profile(struct sctk_profile_renderer *rd)
 {
 	fprintf(rd->output_file, "\\end{tabular}\n"
-							 "\\end{center}\n");
+		                     "\\end{center}\n");
 }
 
 #endif /* MPC_Profiler */

@@ -25,8 +25,8 @@
 #include "uthash.h"
 
 /***************
-* MPC_Info_key *
-***************/
+ * MPC_Info_key *
+ ***************/
 
 /**
  * \brief List of keys and values
@@ -36,9 +36,9 @@
  */
 struct MPC_Info_key
 {
-	char * key, *value; /**< Key and value of the stored data */
-	struct MPC_Info_key * prev; /**< DL list prev links */
-	struct MPC_Info_key * next; /**< DL list next links */
+	char *               key, *value; /**< Key and value of the stored data */
+	struct MPC_Info_key *prev;        /**< DL list prev links */
+	struct MPC_Info_key *next;        /**< DL list next links */
 };
 
 /* Init an release */
@@ -50,7 +50,7 @@ struct MPC_Info_key
  *
  * 	\return A pointer to a newly allocated key object (NULL on error)
  */
-struct MPC_Info_key * MPC_Info_key_init( char * key, char * value );
+struct MPC_Info_key * MPC_Info_key_init(char *key, char *value);
 
 /** \brief Release a single key entry
  *
@@ -59,14 +59,14 @@ struct MPC_Info_key * MPC_Info_key_init( char * key, char * value );
  *  \param tofree Entry to be freed (also frees the container !)
  *
  */
-void MPC_Info_key_release( struct MPC_Info_key * tofree );
+void MPC_Info_key_release(struct MPC_Info_key *tofree);
 
 /** \brief Frees a full list of key by calling \ref MPC_Info_key_release recursively
  *
  *  \param tofree HEAD of the list to be freed
  *
  */
-void MPC_Info_key_release_recursive( struct MPC_Info_key * tofree );
+void MPC_Info_key_release_recursive(struct MPC_Info_key *tofree);
 
 /* Getters and setters */
 
@@ -78,7 +78,7 @@ void MPC_Info_key_release_recursive( struct MPC_Info_key * tofree );
  * 	\return A pointer to a \ref MPC_Info_key if found NULL otherwise
  *
  */
-struct MPC_Info_key * MPC_Info_key_get( struct MPC_Info_key * head, char * key );
+struct MPC_Info_key * MPC_Info_key_get(struct MPC_Info_key *head, char *key);
 
 /** \brief Set or creates the entry associated with a key
  *
@@ -89,7 +89,7 @@ struct MPC_Info_key * MPC_Info_key_get( struct MPC_Info_key * head, char * key )
  * 	\return The new head if it has been updated
  *
  */
-struct MPC_Info_key * MPC_Info_key_set( struct MPC_Info_key * head, char * key, char * value );
+struct MPC_Info_key * MPC_Info_key_set(struct MPC_Info_key *head, char *key, char *value);
 
 /** \brief Get the nth entry in the key list
  *
@@ -99,7 +99,7 @@ struct MPC_Info_key * MPC_Info_key_set( struct MPC_Info_key * head, char * key, 
  * 	\return A pointer to a \ref MPC_Info_key if found NULL otherwise
  *
  */
-struct MPC_Info_key * MPC_Info_key_get_nth( struct MPC_Info_key * head, int n );
+struct MPC_Info_key * MPC_Info_key_get_nth(struct MPC_Info_key *head, int n);
 
 /** \brief Get number of keys in the list
  *
@@ -108,16 +108,16 @@ struct MPC_Info_key * MPC_Info_key_get_nth( struct MPC_Info_key * head, int n );
  * 	\return The number of keys in the list
  *
  */
-int MPC_Info_key_count( struct MPC_Info_key * head );
+int MPC_Info_key_count(struct MPC_Info_key *head);
 
 /* Methods */
 
-struct MPC_Info_key * MPC_Info_key_pop( struct MPC_Info_key * topop );
-struct MPC_Info_key * MPC_Info_key_delete( struct MPC_Info_key * head, char * key , int * flag );
+struct MPC_Info_key * MPC_Info_key_pop(struct MPC_Info_key *topop);
+struct MPC_Info_key * MPC_Info_key_delete(struct MPC_Info_key *head, char *key, int *flag);
 
 /****************
-* MPC_Info_cell *
-****************/
+ * MPC_Info_cell *
+ ****************/
 
 /**
  * \brief This is the actual structure shadowed by \ref MPI_Info and MPC_Info
@@ -126,11 +126,13 @@ struct MPC_Info_key * MPC_Info_key_delete( struct MPC_Info_key * head, char * ke
  */
 struct MPC_Info_cell
 {
-	int rank; /**< Rank of the process which created the info just to make sure it is not passed around */
-	int id;  /**< Identifier of the info in order to allow lookup by int */
+	int                  rank; /**< Rank of the process which created the info just to make sure it is not passed around
+	                            */
+	int                  id;   /**< Identifier of the info in order to allow lookup by int */
 
-	struct MPC_Info_key * keys; /**< Here is the actual payload which is a list of keys */
-	UT_hash_handle hh; /**< This dummy data structure is required by UTHash is order to make this data structure hashable */
+	struct MPC_Info_key *keys; /**< Here is the actual payload which is a list of keys */
+	UT_hash_handle       hh;   /**< This dummy data structure is required by UTHash is order to make this data structure
+	                            * hashable */
 };
 
 
@@ -139,7 +141,7 @@ struct MPC_Info_cell
 /** \brief Initializes an empty info cell
  * 	\param id Unique id for this info cell as provided by \ref MPC_Info_factory
  * */
-struct MPC_Info_cell * MPC_Info_cell_init( int id );
+struct MPC_Info_cell * MPC_Info_cell_init(int id);
 
 /** \brief Releases an info cell and all its keys
  *  \param cell pointer to the cell to be released
@@ -147,7 +149,7 @@ struct MPC_Info_cell * MPC_Info_cell_init( int id );
  *
  * 	\warning Be careful the cell is not freed (only its content)
  */
-void MPC_Info_cell_release( struct MPC_Info_cell * cell );
+void MPC_Info_cell_release(struct MPC_Info_cell *cell);
 
 /* Getters and setters */
 
@@ -163,7 +165,7 @@ void MPC_Info_cell_release( struct MPC_Info_cell * cell );
  *
  *   \warning Note that if dest is too small (as defined by maxlen) buffer is truncated
  */
-int MPC_Info_cell_get( struct MPC_Info_cell * cell , char * key , char * dest, int maxlen, int * flag );
+int MPC_Info_cell_get(struct MPC_Info_cell *cell, char *key, char *dest, int maxlen, int *flag);
 
 /** \brief Set a value in the cell
  *
@@ -177,7 +179,7 @@ int MPC_Info_cell_get( struct MPC_Info_cell * cell , char * key , char * dest, i
  * 	 \return 1 on error 0 otherwise
  *
  */
-int MPC_Info_cell_set( struct MPC_Info_cell * cell , char * key, char * value, int overwrite );
+int MPC_Info_cell_set(struct MPC_Info_cell *cell, char *key, char *value, int overwrite);
 
 /* Methods */
 
@@ -189,13 +191,13 @@ int MPC_Info_cell_set( struct MPC_Info_cell * cell , char * key, char * value, i
  * 	 \return 1 on error 0 otherwise
  *
  */
-int MPC_Info_cell_delete( struct MPC_Info_cell * cell , char * key );
+int MPC_Info_cell_delete(struct MPC_Info_cell *cell, char *key);
 
 
 
 /*******************
-* MPC_Info_factory *
-*******************/
+ * MPC_Info_factory *
+ *******************/
 
 /**
  * \brief Matches an integer ID with an actual \ref MPC_Info_cell
@@ -210,15 +212,16 @@ int MPC_Info_cell_delete( struct MPC_Info_cell * cell , char * key );
  * */
 struct MPC_Info_factory
 {
-	int current_id; /**< Id which is incremented each time a new MPI_Info object is created */
-	struct MPC_Info_cell * infos; /**< This is a UTHash hash table used to match IDs with \ref MPC_Info_cell */
+	int                   current_id; /**< Id which is incremented each time a new MPI_Info object is created */
+	struct MPC_Info_cell *infos;      /**< This is a UTHash hash table used to match IDs with \ref MPC_Info_cell */
 };
 
 /* Init and Release */
+
 /** \brief Initialises the MPC_Info factory
  *  \param fact A pointer to the factory
  */
-void MPC_Info_factory_init( struct MPC_Info_factory * fact );
+void MPC_Info_factory_init(struct MPC_Info_factory *fact);
 
 /** \brief releases the MPC_Info factory
  *  \param fact A pointer to the factory
@@ -226,7 +229,7 @@ void MPC_Info_factory_init( struct MPC_Info_factory * fact );
  *  \warning After this call every MPI_Info are released.
  *
  */
-void MPC_Info_factory_release( struct MPC_Info_factory * fact );
+void MPC_Info_factory_release(struct MPC_Info_factory *fact);
 
 
 /* Methods */
@@ -238,7 +241,7 @@ void MPC_Info_factory_release( struct MPC_Info_factory * fact );
  *  \return The id of the newly created factory
  *
  */
-int MPC_Info_factory_create( struct MPC_Info_factory * fact );
+int MPC_Info_factory_create(struct MPC_Info_factory *fact);
 
 /** \brief Deletes and MPI_Info from the factory
  *
@@ -247,7 +250,7 @@ int MPC_Info_factory_create( struct MPC_Info_factory * fact );
  *
  *  \return 0 on success ,  1 on error
  */
-int MPC_Info_factory_delete(  struct MPC_Info_factory * fact, int id );
+int MPC_Info_factory_delete(struct MPC_Info_factory *fact, int id);
 
 /** \brief Translates an MPI_Info/MPC_Info id to a pointer to an \ref MPC_Info_cell
  *
@@ -256,7 +259,7 @@ int MPC_Info_factory_delete(  struct MPC_Info_factory * fact, int id );
  *
  * 	\return A pointer to the MPC_Info_cell matching the ID , NULL if not found
  */
-struct MPC_Info_cell * MPC_Info_factory_resolve(   struct MPC_Info_factory * fact , int id );
+struct MPC_Info_cell * MPC_Info_factory_resolve(struct MPC_Info_factory *fact, int id);
 
 
 
