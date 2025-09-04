@@ -29,8 +29,8 @@ SCRIPTPATH=$(dirname "$SCRIPT")
 command -v uncrustify
 
 if test "x$?" = "x0"; then
-	echo "Formatting with uncrustify config ${SCRIPTPATH}/uncrustify.cfg"
-	uncrustify -c "${SCRIPTPATH}/uncrustify.cfg" --replace "$@"
+	echo "Formatting with uncrustify config ${SCRIPTPATH}/../uncrustify.cfg"
+	uncrustify -c "${SCRIPTPATH}/../uncrustify.cfg" --replace "$@"
 	exit 0
 fi
 
