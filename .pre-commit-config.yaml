@@ -9,7 +9,6 @@ repos:
     -   id: no-commit-to-branch
         args: [--branch, devel, --branch, master]
     -   id: check-yaml
-        exclude: .gitlab-ci.yml # Error caused by syntax "<<: *run_by_main"
     -   id: end-of-file-fixer
     -   id: trailing-whitespace
         args: [--markdown-linebreak-ext=md]

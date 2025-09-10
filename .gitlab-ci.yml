@@ -58,7 +58,7 @@ workflow:
     # If it is a release
     - if: '$CI_COMMIT_TAG && $CI_COMMIT_BRANCH == "master"'
 
-.uses_slurm: &uses_slurm
+.slurm_tag:
   tags:
     - slurm
 
@@ -139,7 +139,7 @@ Privatization Installation:
 #
 
 Process Mode Simple Run:
-  <<: *uses_slurm
+  extends: ['.slurm_tag']
   stage: Basic Testing
   needs:
     - [Process Mode Installation]
@@ -150,7 +150,7 @@ Process Mode Simple Run:
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/trivial/"
 
 Privatization Simple Run:
-  <<: *uses_slurm
+  extends: ['.slurm_tag']
   stage: Basic Testing
   needs:
     - [Privatization Installation]
@@ -161,7 +161,7 @@ Privatization Simple Run:
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/trivial/"
 
 Privatization:
-  <<: *uses_slurm
+  extends: ['.slurm_tag']
   stage: Additionnal Tests
   needs: [Privatization Installation]
   variables:
@@ -176,7 +176,7 @@ Privatization:
 #
 
 Process Mode Lowcomm:
-  <<: *uses_slurm
+  extends: ['.slurm_tag']
   stage: Regular Testing
   needs:
     - [Process Mode Simple Run]
@@ -187,7 +187,7 @@ Process Mode Lowcomm:
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/lowcomm/"
 
 Process Mode MPI Simple C:
-  <<: *uses_slurm
+  extends: ['.slurm_tag']
   stage: Regular Testing
   needs:
     - [Process Mode Simple Run]
@@ -198,7 +198,7 @@ Process Mode MPI Simple C:
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/MPI/simple/c/"
 
 Process Mode MPI Simple Fortran:
-  <<: *uses_slurm
+  extends: ['.slurm_tag']
   stage: Regular Testing
   needs:
     - [Process Mode Simple Run]
@@ -209,7 +209,7 @@ Process Mode MPI Simple Fortran:
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/MPI/simple/fortran/"
 
 Process Mode OpenMP Tasking examples:
-  <<: *uses_slurm
+  extends: ['.slurm_tag']
   stage: Regular Testing
   needs:
     - [Process Mode Simple Run]
@@ -220,7 +220,7 @@ Process Mode OpenMP Tasking examples:
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/OpenMP/task/examples"
 
 Process Mode OpenMP Tasking cholesky:
-  <<: *uses_slurm
+  extends: ['.slurm_tag']
   stage: Regular Testing
   needs:
     - [Process Mode Simple Run]
@@ -233,7 +233,7 @@ Process Mode OpenMP Tasking cholesky:
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/OpenMP/task/cholesky"
 
 Privatization Lowcomm:
-  <<: *uses_slurm
+  extends: ['.slurm_tag']
   stage: Regular Testing
   needs:
     - [Privatization Simple Run]
@@ -244,7 +244,7 @@ Privatization Lowcomm:
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/lowcomm/"
 
 Privatization MPI Simple C:
-  <<: *uses_slurm
+  extends: ['.slurm_tag']
   stage: Regular Testing
   needs:
     - [Privatization Simple Run]
@@ -255,7 +255,7 @@ Privatization MPI Simple C:
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/MPI/simple/c/"
 
 Privatization MPI Simple Fortran:
-  <<: *uses_slurm
+  extends: ['.slurm_tag']
   stage: Regular Testing
   needs:
     - [Privatization Simple Run]
@@ -266,7 +266,7 @@ Privatization MPI Simple Fortran:
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/MPI/simple/fortran/"
 
 Privatization OpenMP Tasking examples:
-  <<: *uses_slurm
+  extends: ['.slurm_tag']
   stage: Regular Testing
   needs:
     - [Privatization Simple Run]
@@ -277,7 +277,7 @@ Privatization OpenMP Tasking examples:
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/OpenMP/task/examples"
 
 Privatization OpenMP Tasking cholesky:
-  <<: *uses_slurm
+  extends: ['.slurm_tag']
   stage: Regular Testing
   needs:
     - [Privatization Simple Run]
@@ -294,7 +294,7 @@ Privatization OpenMP Tasking cholesky:
 #
 
 Process Mode MPI IMB-MPI 2017:
-  <<: *uses_slurm
+  extends: ['.slurm_tag']
   stage: Benchmarks
   needs:
     - [Process Mode Lowcomm, Process Mode MPI Simple C, Process Mode MPI Simple Fortran]
@@ -305,7 +305,7 @@ Process Mode MPI IMB-MPI 2017:
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/MPI/IMB_2017/check-mpi/"
 
 Process Mode MPI IMB-NBC 2017:
-  <<: *uses_slurm
+  extends: ['.slurm_tag']
   stage: Benchmarks
   needs:
     - [Process Mode Lowcomm, Process Mode MPI Simple C, Process Mode MPI Simple Fortran]
@@ -316,7 +316,7 @@ Process Mode MPI IMB-NBC 2017:
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/MPI/IMB_2017/check-nbc/"
 
 Process Mode MPI NBC:
-  <<: *uses_slurm
+  extends: ['.slurm_tag']
   stage: Benchmarks
   needs:
     - [Process Mode Lowcomm, Process Mode MPI Simple C, Process Mode MPI Simple Fortran]
@@ -327,7 +327,7 @@ Process Mode MPI NBC:
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/MPI/NBC/"
 
 Process Mode NAS-MZ MPI:
-  <<: *uses_slurm
+  extends: ['.slurm_tag']
   stage: Applications
   needs:
     - [Process Mode Lowcomm, Process Mode MPI Simple C, Process Mode MPI Simple Fortran]
@@ -338,7 +338,7 @@ Process Mode NAS-MZ MPI:
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/hybrid/NAS/MZ-MPI/"
 
 Process Mode Lulesh:
-  <<: *uses_slurm
+  extends: ['.slurm_tag']
   stage: Applications
   needs:
     - [Process Mode Lowcomm, Process Mode MPI Simple C, Process Mode MPI Simple Fortran]
@@ -350,7 +350,7 @@ Process Mode Lulesh:
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/corals/lulesh-2.0.3/"
 
 Process Mode miniFe:
-  <<: *uses_slurm
+  extends: ['.slurm_tag']
   stage: Applications
   needs:
     - [Process Mode Lowcomm, Process Mode MPI Simple C, Process Mode MPI Simple Fortran]
@@ -362,7 +362,7 @@ Process Mode miniFe:
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/corals/miniFe/"
 
 Process Mode OMP NAS-MZ:
-  <<: *uses_slurm
+  extends: ['.slurm_tag']
   stage: Applications
   needs:
     - [Process Mode OpenMP Tasking cholesky, Process Mode OpenMP Tasking examples]
@@ -374,7 +374,7 @@ Process Mode OMP NAS-MZ:
 
 
 Privatization MPI IMB-MPI 2017:
-  <<: *uses_slurm
+  extends: ['.slurm_tag']
   stage: Benchmarks
   needs:
     - [Privatization Lowcomm, Privatization MPI Simple C, Privatization MPI Simple Fortran]
@@ -385,7 +385,7 @@ Privatization MPI IMB-MPI 2017:
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/MPI/IMB_2017/check-mpi/"
 
 Privatization MPI IMB-NBC 2017:
-  <<: *uses_slurm
+  extends: ['.slurm_tag']
   stage: Benchmarks
   needs:
     - [Privatization Lowcomm, Privatization MPI Simple C, Privatization MPI Simple Fortran]
@@ -396,7 +396,7 @@ Privatization MPI IMB-NBC 2017:
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/MPI/IMB_2017/check-nbc/"
 
 Privatization MPI NBC:
-  <<: *uses_slurm
+  extends: ['.slurm_tag']
   stage: Benchmarks
   needs:
     - [Privatization Lowcomm, Privatization MPI Simple C, Privatization MPI Simple Fortran]
@@ -407,7 +407,7 @@ Privatization MPI NBC:
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/MPI/NBC/"
 
 Privatization MPI NAS-MZ:
-  <<: *uses_slurm
+  extends: ['.slurm_tag']
   stage: Applications
   needs:
     - [Privatization Lowcomm, Privatization MPI Simple C, Privatization MPI Simple Fortran]
@@ -418,7 +418,7 @@ Privatization MPI NAS-MZ:
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/hybrid/NAS/MZ-MPI/"
 
 Privatization Lulesh:
-  <<: *uses_slurm
+  extends: ['.slurm_tag']
   stage: Applications
   needs:
     - [Privatization Lowcomm, Privatization MPI Simple C, Privatization MPI Simple Fortran]
@@ -430,7 +430,7 @@ Privatization Lulesh:
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/corals/lulesh-2.0.3/"
 
 Privatization miniFe:
-  <<: *uses_slurm
+  extends: ['.slurm_tag']
   stage: Applications
   needs:
     - [Privatization Lowcomm, Privatization MPI Simple C, Privatization MPI Simple Fortran]
@@ -442,7 +442,7 @@ Privatization miniFe:
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/corals/miniFe/"
 
 Privatization OMP NAS-MZ:
-  <<: *uses_slurm
+  extends: ['.slurm_tag']
   stage: Applications
   needs:
     - [Privatization OpenMP Tasking cholesky, Privatization OpenMP Tasking examples]
