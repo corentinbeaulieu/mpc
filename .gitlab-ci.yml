@@ -81,7 +81,6 @@ Env Sanitize:
     - mkdir -p $GL_PIPELINE_PATH
 
 Resource Relinquishing:
-  <<: *uses_slurm
   stage: .post
   when: always
   script:
