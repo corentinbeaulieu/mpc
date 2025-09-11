@@ -13,6 +13,27 @@ repos:
       - id: 'trailing-whitespace'
         args: ['--markdown-linebreak-ext=md']
         exclude: '.gitlab/issue_templates/bugreport.md'
+  - repo: 'https://github.com/crate-ci/typos'
+    rev: 'v1.36.2'
+    hooks:
+      - id: 'typos'
+        args: ['-c', 'utils/.typos.toml']
+        exclude: |-
+          (?x)
+            ^.clang-tidy$|
+            ^config/|
+            ^src/MPC_Common/include/mpc_common_profiler_keys\.h$|
+            ^src/MPC_Lowcomm/src/portals|
+            ^src/MPC_Fortran|
+            ^src/MPC_Thread_db/src/gdb/linux-thread-db\.c$|
+            ^src/MPC_Common/include/sctk_no_alloc\.h$|
+            ^src/MPC_Tests|
+            ^src/MPC_Thread_db/src/sctk_lib_thread_db\.c$|
+            ^src/MPC_Thread_db/src/test/|
+            ^cmake/example/t.c$|
+            ^tests/|
+            hwloc|
+            \.(m4|in|3in|f90)$
   - repo: 'https://github.com/pocc/pre-commit-hooks.git'
     rev: 'v1.3.5'
     hooks:
@@ -21,12 +42,7 @@ repos:
         args: ['--extra-arg=-Wnounused-command-line-argument', '--quiet', '--use-color']
         exclude: |
           (?x)
-            ^src/MPC_IO/src/romio|
-            ^src/MPC_MPI/src/dataloop|
-            ^src/MPC_MPI/src/mpitypes|
             ^src/MPC_Common/include/mpc_common_profiler_keys\.h$|
-            ^src/MPC_OpenMP/include/omp_lib\.h$|
-            ^src/MPC_OpenMP/include/omp_lib_kinds\.h$|
             ^src/MPC_Fortran|
             ^src/MPC_Thread_db/src/gdb/linux-thread-db\.c$|
             ^src/MPC_Common/include/sctk_no_alloc\.h$|
@@ -40,7 +56,7 @@ repos:
           # 1. sctk_lib_thread_db.c contains unmuteable false positives on "ambiguous" calls
           #     with  # pragma weak and extern functions. This a known LLVM issue, see
           #    https://github.com/llvm/llvm-project/issues/16067
-          # 3. dataloop and mpitypes contain files from an external library
+          # 2. dataloop and mpitypes contain files from an external library
           #    adapted to MPC. Within those files, there are a number of errors
           #    and warning that would probably require a large refactoring.
   - repo: 'local'
@@ -54,4 +70,10 @@ repos:
         minimum_pre_commit_version: '0'
 exclude: |-
   (?x)
-    ^src/MPC_Fortran/src/pregenerated
+    ^src/MPC_IO/src/romio|
+    ^src/MPC_MPI/src/dataloop|
+    ^src/MPC_MPI/src/mpitypes|
+    ^src/MPC_OpenMP/include/omp_lib\.h$|
+    ^src/MPC_OpenMP/include/omp_lib_kinds\.h$|
+    hwloc|
+    \.(m4|in|3in|f90)$
