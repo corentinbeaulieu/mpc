@@ -11,7 +11,7 @@ stages:
   - Basic Testing
   - Regular Testing
   - Applications
-  - Benchmarks 
+  - Benchmarks
   - Configurations
   - Additionnal Tests
   - Release
@@ -51,7 +51,7 @@ workflow:
       when: never
     # If it is a merge request => do
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-    # If it is triggered on the web page => do 
+    # If it is triggered on the web page => do
     - if: '$CI_PIPELINE_SOURCE == "web"'
     # If it is a scheduled pipepine => do
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
@@ -134,7 +134,7 @@ Privatization Installation:
 
 #
 # Basic Testing
-# to stop the pipeline early in case of major issue 
+# to stop the pipeline early in case of major issue
 # (not able to compile/run a simple test)
 #
 
@@ -477,7 +477,7 @@ Configurations:
   after_script:
     - rm -rf ${GL_LOCAL_INSTALL_DIR} ${GL_LOCAL_BUILD_DIR}
 
-# FIXME: We have to update Workshare for this test to pass 
+# FIXME: We have to update Workshare for this test to pass
 # MPC Compilation Workshare:
 #   stage: Configurations
 #   variables:

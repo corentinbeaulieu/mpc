@@ -74,4 +74,3 @@ lib_LTLIBRARIES += libiomp5.la libgomp.la libomp.la
 libiomp5_la_SOURCES = ./fakelib/fakelib.c
 libgomp_la_SOURCES = ./fakelib/fakelib.c
 libomp_la_SOURCES = ./fakelib/fakelib.c
-

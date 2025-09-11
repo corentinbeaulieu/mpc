@@ -66,4 +66,3 @@ libmpcthread_la_SOURCES +=  ./accelerator/rocm.c
 endif
 
 libmpcthread_la_LIBADD = ../../MPC_Launch/src/libmpclaunch.la  -lpthread
-

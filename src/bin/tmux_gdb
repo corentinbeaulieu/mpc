@@ -26,4 +26,3 @@ do
 done
 
 rm "${TMUX_GDB_TMP}/$port"
-
