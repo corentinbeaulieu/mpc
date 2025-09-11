@@ -1129,7 +1129,7 @@ mpc_lowcomm_monitor_retcode_t _mpc_lowcomm_monitor_release(struct _mpc_lowcomm_m
 	_mpc_lowcomm_kernel_thread_join(&monitor->server_thread);
 
 	mpc_common_hashtable_release(&monitor->client_contexts);
-	// mutex should not be destry,
+	// mutex should not be destroy,
 	// other threads may still try to lock it to remove client.
 	pthread_mutex_unlock(&monitor->client_lock);
 	// pthread_mutex_destroy(&monitor->client_lock);

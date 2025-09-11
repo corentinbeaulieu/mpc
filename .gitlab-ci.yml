@@ -13,10 +13,10 @@ stages:
   - Applications
   - Benchmarks
   - Configurations
-  - Additionnal Tests
+  - Additional Tests
   - Release
 
-# Add clone variables for concurent PIPELINES
+# Add clone variables for concurrent PIPELINES
 variables:
   GL_PIPELINE_PATH: $CI_BUILDS_DIR/GL_$CI_PIPELINE_ID
   GL_BUILD_DIR: $GL_PIPELINE_PATH/build
@@ -162,7 +162,7 @@ Privatization Simple Run:
 
 Privatization:
   extends: ['.slurm_tag']
-  stage: Additionnal Tests
+  stage: Additional Tests
   needs: [Privatization Installation]
   variables:
     GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_privatization
@@ -498,7 +498,7 @@ Configurations:
 # to ensure MPC to compile in a large variety of environments
 
 Debian Stretch:
-  stage: Additionnal Tests
+  stage: Additional Tests
   script: "docker run --rm -it paratoolsfrance/mpc-env:debian-stretch $HOME/docker/run_installmpc.sh"
   tags:
     - "docker"
@@ -507,7 +507,7 @@ Debian Stretch:
       - $MPC_CI_MODE == "multibuild"
 
 Centos 7:
-  stage: Additionnal Tests
+  stage: Additional Tests
   script: "docker run --rm -it paratoolsfrance/mpc-env:centos-7 $HOME/docker/run_installmpc.sh"
   tags:
     - "docker"
