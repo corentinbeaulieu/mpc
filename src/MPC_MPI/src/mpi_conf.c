@@ -481,45 +481,45 @@ static inline void __load_coll_function( char *family, char *func_name, int ( **
 
 void _mpc_mpi_config_coll_array_resolve( struct _mpc_mpi_config_coll_array *coll, char *family )
 {
-	__load_coll_function( family, coll->barrier_name, &coll->barrier );
-	__load_coll_function( family, coll->bcast_name, &coll->bcast );
-	__load_coll_function( family, coll->allgather_name, &coll->allgather );
-	__load_coll_function( family, coll->allgatherv_name, &coll->allgatherv );
-	__load_coll_function( family, coll->alltoall_name, &coll->alltoall );
-	__load_coll_function( family, coll->alltoallv_name, &coll->alltoallv );
-	__load_coll_function( family, coll->alltoallw_name, &coll->alltoallw );
-	__load_coll_function( family, coll->gather_name, &coll->gather );
-	__load_coll_function( family, coll->gatherv_name, &coll->gatherv );
-	__load_coll_function( family, coll->scatter_name, &coll->scatter );
-	__load_coll_function( family, coll->scatterv_name, &coll->scatterv );
-	__load_coll_function( family, coll->reduce_name, &coll->reduce );
-	__load_coll_function( family, coll->allreduce_name, &coll->allreduce );
-	__load_coll_function( family, coll->reduce_scatter_name, &coll->reduce_scatter );
-	__load_coll_function( family, coll->reduce_scatter_block_name, &coll->reduce_scatter_block );
-	__load_coll_function( family, coll->exscan_name, &coll->exscan );
-	__load_coll_function( family, coll->scan_name, &coll->scan );
+	__load_coll_function( family, coll->barrier_name,              (int (**)()) &coll->barrier );
+	__load_coll_function( family, coll->bcast_name,                (int (**)()) &coll->bcast );
+	__load_coll_function( family, coll->allgather_name,            (int (**)()) &coll->allgather );
+	__load_coll_function( family, coll->allgatherv_name,           (int (**)()) &coll->allgatherv );
+	__load_coll_function( family, coll->alltoall_name,             (int (**)()) &coll->alltoall );
+	__load_coll_function( family, coll->alltoallv_name,            (int (**)()) &coll->alltoallv );
+	__load_coll_function( family, coll->alltoallw_name,            (int (**)()) &coll->alltoallw );
+	__load_coll_function( family, coll->gather_name,               (int (**)()) &coll->gather );
+	__load_coll_function( family, coll->gatherv_name,              (int (**)()) &coll->gatherv );
+	__load_coll_function( family, coll->scatter_name,              (int (**)()) &coll->scatter );
+	__load_coll_function( family, coll->scatterv_name,             (int (**)()) &coll->scatterv );
+	__load_coll_function( family, coll->reduce_name,               (int (**)()) &coll->reduce );
+	__load_coll_function( family, coll->allreduce_name,            (int (**)()) &coll->allreduce );
+	__load_coll_function( family, coll->reduce_scatter_name,       (int (**)()) &coll->reduce_scatter );
+	__load_coll_function( family, coll->reduce_scatter_block_name, (int (**)()) &coll->reduce_scatter_block );
+	__load_coll_function( family, coll->exscan_name,               (int (**)()) &coll->exscan );
+	__load_coll_function( family, coll->scan_name,                 (int (**)()) &coll->scan );
 
 }
 
 void _mpc_mpi_config_coll_algorithm_array_resolve( struct _mpc_mpi_config_coll_algorithm_array *coll, char *family )
 {
-	__load_coll_function( family, coll->barrier_name, &coll->barrier );
-	__load_coll_function( family, coll->bcast_name, &coll->bcast );
-	__load_coll_function( family, coll->allgather_name, &coll->allgather );
-	__load_coll_function( family, coll->allgatherv_name, &coll->allgatherv );
-	__load_coll_function( family, coll->alltoall_name, &coll->alltoall );
-	__load_coll_function( family, coll->alltoallv_name, &coll->alltoallv );
-	__load_coll_function( family, coll->alltoallw_name, &coll->alltoallw );
-	__load_coll_function( family, coll->gather_name, &coll->gather );
-	__load_coll_function( family, coll->gatherv_name, &coll->gatherv );
-	__load_coll_function( family, coll->scatter_name, &coll->scatter );
-	__load_coll_function( family, coll->scatterv_name, &coll->scatterv );
-	__load_coll_function( family, coll->reduce_name, &coll->reduce );
-	__load_coll_function( family, coll->allreduce_name, &coll->allreduce );
-	__load_coll_function( family, coll->reduce_scatter_name, &coll->reduce_scatter );
-	__load_coll_function( family, coll->reduce_scatter_block_name, &coll->reduce_scatter_block );
-	__load_coll_function( family, coll->exscan_name, &coll->exscan );
-	__load_coll_function( family, coll->scan_name, &coll->scan );
+	__load_coll_function( family, coll->barrier_name,              (int (**)()) &coll->barrier );
+	__load_coll_function( family, coll->bcast_name,                (int (**)()) &coll->bcast );
+	__load_coll_function( family, coll->allgather_name,            (int (**)()) &coll->allgather );
+	__load_coll_function( family, coll->allgatherv_name,           (int (**)()) &coll->allgatherv );
+	__load_coll_function( family, coll->alltoall_name,             (int (**)()) &coll->alltoall );
+	__load_coll_function( family, coll->alltoallv_name,            (int (**)()) &coll->alltoallv );
+	__load_coll_function( family, coll->alltoallw_name,            (int (**)()) &coll->alltoallw );
+	__load_coll_function( family, coll->gather_name,               (int (**)()) &coll->gather );
+	__load_coll_function( family, coll->gatherv_name,              (int (**)()) &coll->gatherv );
+	__load_coll_function( family, coll->scatter_name,              (int (**)()) &coll->scatter );
+	__load_coll_function( family, coll->scatterv_name,             (int (**)()) &coll->scatterv );
+	__load_coll_function( family, coll->reduce_name,               (int (**)()) &coll->reduce );
+	__load_coll_function( family, coll->allreduce_name,            (int (**)()) &coll->allreduce );
+	__load_coll_function( family, coll->reduce_scatter_name,       (int (**)()) &coll->reduce_scatter );
+	__load_coll_function( family, coll->reduce_scatter_block_name, (int (**)()) &coll->reduce_scatter_block );
+	__load_coll_function( family, coll->exscan_name,               (int (**)()) &coll->exscan );
+	__load_coll_function( family, coll->scan_name,                 (int (**)()) &coll->scan );
 }
 
 static inline void _mpc_mpi_config_coll_override_topo_settings( int max_level, int topo_value )

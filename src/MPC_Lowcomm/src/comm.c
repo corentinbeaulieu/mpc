@@ -2631,8 +2631,9 @@ void mpc_lowcomm_egreq_poll_set_trampoline(void (*trampoline)(void) )
 	__egreq_poll_trampoline = trampoline;
 }
 
-static inline void __egreq_poll()
+static inline void __egreq_poll(void *arg)
 {
+	UNUSED(arg);
 	if(__egreq_poll_trampoline)
 	{
 		(__egreq_poll_trampoline)();

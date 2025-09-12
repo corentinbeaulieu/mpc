@@ -190,15 +190,16 @@ static inline void _mpc_mpi_config_coll_route(MPI_Comm comm,
 /* NOLINTEND(clang-diagnostic-unused-function) */
 
 
-#define MPC_MPI_CONFIG_ROUTE_COLL(pointer, comm, coll_name) do{\
-                                                            _mpc_mpi_config_coll_route(comm, \
-                                                                                       _mpc_mpi_config()->coll_intercomm.coll_name,  \
-                                                                                       _mpc_mpi_config()->coll_intracomm_shm.coll_name, \
-                                                                                       _mpc_mpi_config()->coll_intracomm_shared_node.coll_name,\
-                                                                                       _mpc_mpi_config()->coll_intracomm.coll_name, \
-                                                                                       (int (**)())&pointer);\
-                                                            assume(pointer != NULL);\
-                                                            }while(0)
+#define MPC_MPI_CONFIG_ROUTE_COLL(pointer, comm, coll_name) \
+	do{\
+		_mpc_mpi_config_coll_route(comm, \
+			((int (*)())  _mpc_mpi_config()->coll_intercomm.coll_name),  \
+			((int (*)())  _mpc_mpi_config()->coll_intracomm_shm.coll_name), \
+			((int (*)())  _mpc_mpi_config()->coll_intracomm_shared_node.coll_name), \
+			((int (*)())  _mpc_mpi_config()->coll_intracomm.coll_name), \
+			((int (**)()) &pointer));\
+		assume(pointer != NULL);\
+    }while(0)
 
 /**********************************
  * TOPOLOGICAL COLLECTIVE OPTIONS *

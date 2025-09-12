@@ -67,8 +67,7 @@ __thread void *sctk_extls_storage = NULL;
 int sctk_locate_dynamic_initializers()
 {
 #ifdef MPC_USE_EXTLS
-	char *      ckpt_wrapper = (mpc_common_get_flags()->checkpoint_enabled) ? "dmtcp_nocheckpoint" : "";
-	extls_ret_t ret          = extls_locate_dynamic_initializers(ckpt_wrapper);
+	extls_ret_t ret          = extls_locate_dynamic_initializers();
 	return (ret == EXTLS_SUCCESS) ? 0 : 1;
 
 #else

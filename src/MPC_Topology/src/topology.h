@@ -126,7 +126,7 @@ int _mpc_topology_convert_logical_pu_to_os(hwloc_topology_t target_topo, int cpu
 
 /** @brief Returns the complete allowed cpu set for this process
 */
-hwloc_const_cpuset_t _mpc_topology_get_process_cpuset();
+hwloc_const_cpuset_t _mpc_topology_get_process_cpuset(hwloc_topology_t target_topo);
 
 /** @brief Return the cpuset of the node containing the PU with pu_id
  * if not numa it behaves like  _mpc_topology_get_process_cpuset
