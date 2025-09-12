@@ -22,36 +22,18 @@ repos:
           (?x)
             ^.clang-tidy$|
             ^config/|
-            ^src/MPC_Common/include/mpc_common_profiler_keys\.h$|
-            ^src/MPC_Lowcomm/src/portals|
-            ^src/MPC_Fortran|
-            ^src/MPC_Thread_db/src/gdb/linux-thread-db\.c$|
-            ^src/MPC_Common/include/sctk_no_alloc\.h$|
-            ^src/MPC_Tests|
-            ^src/MPC_Thread_db/src/sctk_lib_thread_db\.c$|
-            ^src/MPC_Thread_db/src/test/|
             ^cmake/example/t.c$|
-            ^tests/|
-            hwloc|
-            \.(m4|in|3in|f90)$
+            ^tests/
   - repo: 'https://github.com/pocc/pre-commit-hooks.git'
     rev: 'v1.3.5'
     hooks:
       - id: 'clang-tidy'
         # Mute linker warning on unused flags "-Wl,-rpath=<mpc-install>/lib64"
         args: ['--extra-arg=-Wnounused-command-line-argument', '--quiet', '--use-color']
-        exclude: |
+        exclude: |-
           (?x)
-            ^src/MPC_Common/include/mpc_common_profiler_keys\.h$|
-            ^src/MPC_Fortran|
-            ^src/MPC_Thread_db/src/gdb/linux-thread-db\.c$|
-            ^src/MPC_Common/include/sctk_no_alloc\.h$|
-            ^src/MPC_Tests|
-            ^src/MPC_Thread_db/src/sctk_lib_thread_db\.c$|
-            ^src/MPC_Thread_db/src/test/|
             ^cmake/example/t.c$|
-            ^tests/|
-            \.(m4|in|3in|f90)$
+            ^tests/
           # FIXME:
           # 1. sctk_lib_thread_db.c contains unmuteable false positives on "ambiguous" calls
           #     with  # pragma weak and extern functions. This a known LLVM issue, see
@@ -61,11 +43,13 @@ repos:
           #    and warning that would probably require a large refactoring.
       - id: 'uncrustify'
         args: ['-c', 'uncrustify.cfg', '-q']
-        exclude: |
+        exclude: |-
           (?x)
-            ^src/MPC_OpenMP/include/omp_lib\.h$|
-            ^src/MPC_OpenMP/include/omp_lib_kinds\.h$|
-            ^src/MPC_Fortran
+            ^src/MPC_Lowcomm/src/cplane/auth|
+            ^src/MPC_Common/src/debugger.c$|
+            ^src/MPC_OpenMP/src/mpcomp_alloc\.c$|
+            ^cmake/example/t.c$|
+            ^tests/
   - repo: 'local'
     hooks:
       - id: 'git-blame-ignore-revs'
@@ -77,10 +61,25 @@ repos:
         minimum_pre_commit_version: '0'
 exclude: |-
   (?x)
+    uthash\.h$|
+    utlist\.h$|
+    utarray\.h$|
+    ^src/MPC_Common/include/sctk_no_alloc\.h$|
+    ^src/MPC_Common/include/mpc_common_profiler_keys\.h$|
+    ^src/MPC_Fortran|
     ^src/MPC_IO/src/romio|
+    ^src/MPC_Lowcomm/src/portals|
+    modex|
     ^src/MPC_MPI/src/dataloop|
     ^src/MPC_MPI/src/mpitypes|
+    ^src/MPC_MPI/include/nbc\.h$|
+    ^src/MPC_MPI/src/mpc_nbc\.c$|
     ^src/MPC_OpenMP/include/omp_lib\.h$|
     ^src/MPC_OpenMP/include/omp_lib_kinds\.h$|
+    ^src/MPC_OpenMP/tools/|
+    ^src/MPC_Tests|
+    ^src/MPC_Thread_db/src/gdb/linux-thread-db\.c$|
+    ^src/MPC_Thread_db/src/sctk_lib_thread_db\.c$|
+    ^src/MPC_Thread_db/src/test/|
     hwloc|
-    \.(m4|in|3in|f90)$
+    \.(m4|3in|f90)$
