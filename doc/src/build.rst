@@ -7,5 +7,5 @@ Building & Installing MPC
 
    build/build_options
    build/build_spack
-   build/build_networks
    build/build_tips
+.. build/build_networks
