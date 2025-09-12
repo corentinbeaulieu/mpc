@@ -29,7 +29,7 @@
 
 #include "osc_win_attr.h"
 #include <sctk_alloc.h>
-#include <communicator.h>// FIXME: is this good include?
+#include <communicator.h> // FIXME: is this good include?
 #include <mpc_common_progress.h>
 
 extern lcp_context_h         lcp_ctx_loc;
@@ -117,7 +117,7 @@ static int _win_setup(mpc_win_t *win, void **base, size_t size,
 
 	PMPI_Allreduce(MPI_IN_PLACE, values, 2, MPI_LONG, MPI_MIN, comm);
 
-	if (values[0] == -values[1])/* Every one has the same disp_unit, store only one. */
+	if (values[0] == -values[1]) /* Every one has the same disp_unit, store only one. */
 	{
 		module->disp_unit = disp_unit;
 	}

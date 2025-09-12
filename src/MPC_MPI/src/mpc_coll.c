@@ -2411,7 +2411,7 @@ static inline int ___collectives_create_children_counts(MPI_Comm comm, Sched_inf
 				buf = info->hardware_info_ptr->children_data_count[i];
 			}
 
-			if (i == 0)// Every top-level process receives data_count (used for top-level allgather, alltoall, ...)
+			if (i == 0) // Every top-level process receives data_count (used for top-level allgather, alltoall, ...)
 			{
 				_mpc_mpi_config()->coll_algorithm_intracomm.allgather(&data_count,
 					1,
@@ -3225,7 +3225,7 @@ int __INTERNAL__collectives_bcast_topo_depth(void *buffer,
 		int rank_split;
 		_mpc_cl_comm_rank(info->hardware_info_ptr->hwcomm[k + 1], &rank_split);
 
-		if (!rank_split)/* if master */
+		if (!rank_split) /* if master */
 		{
 			MPI_Comm master_comm = info->hardware_info_ptr->rootcomm[k];
 
@@ -5352,7 +5352,7 @@ int ___collectives_allreduce_vector_halving_distance_doubling(const void *sendbu
 		int start_even[INT_BIT], start_odd[INT_BIT], count_even[INT_BIT], count_odd[INT_BIT];
 #undef INT_BIT
 
-		for (i = 0; i < maxr; i++)/* Buffer halving */
+		for (i = 0; i < maxr; i++) /* Buffer halving */
 		{
 			start_even[i] = x_start;
 			count_even[i] = x_count / 2;
@@ -5361,7 +5361,7 @@ int ___collectives_allreduce_vector_halving_distance_doubling(const void *sendbu
 
 			int peer = OLDRANK(vrank ^ (1 << i), r);
 
-			if ((vrank & (1 << i)) == 0)/* Even */
+			if ((vrank & (1 << i)) == 0) /* Even */
 			{
 				x_start = start_even[i];
 				x_count = count_even[i];
@@ -5379,7 +5379,7 @@ int ___collectives_allreduce_vector_halving_distance_doubling(const void *sendbu
 
 				pointer_swap(tmp_sendbuf, tmp_recvbuf, swap);
 			}
-			else/* Odd */
+			else /* Odd */
 			{
 				x_start = start_odd[i];
 				x_count = count_odd[i];
@@ -5404,11 +5404,11 @@ int ___collectives_allreduce_vector_halving_distance_doubling(const void *sendbu
 		/* ALLGATHER */
 		/* Step 6 */
 
-		for (i = maxr - 1; i >= 0; i--)/* Buffer doubling */
+		for (i = maxr - 1; i >= 0; i--) /* Buffer doubling */
 		{
 			int peer = OLDRANK(vrank ^ (1 << i), r);
 
-			if ((vrank & (1 << i)) == 0)/* Even */
+			if ((vrank & (1 << i)) == 0) /* Even */
 			{
 				___collectives_send_type(recvbuf + start_even[i] * ext, count_even[i],
 					datatype, peer, MPC_ALLREDUCE_TAG, comm, coll_type, schedule, info);
@@ -5416,7 +5416,7 @@ int ___collectives_allreduce_vector_halving_distance_doubling(const void *sendbu
 					datatype, peer, MPC_ALLREDUCE_TAG, comm, coll_type, schedule, info);
 				___collectives_barrier_type(coll_type, schedule, info);
 			}
-			else/* Odd */
+			else /* Odd */
 			{
 				___collectives_recv_type(recvbuf + start_even[i] * ext, count_even[i],
 					datatype, peer, MPC_ALLREDUCE_TAG, comm, coll_type, schedule, info);
@@ -5425,22 +5425,22 @@ int ___collectives_allreduce_vector_halving_distance_doubling(const void *sendbu
 				___collectives_barrier_type(coll_type, schedule, info);
 			}
 		}
-	}/* End of if(vrank >= 0) */
+	} /* End of if(vrank >= 0) */
 
 #undef OLDRANK
 
 	/* Step 7 */
-	if (rank < 2 * r)/* Propagate results to the 2^maxr-size unused processes */
+	if (rank < 2 * r) /* Propagate results to the 2^maxr-size unused processes */
 	{
 		int peer;
 
-		if ((rank & 1) == 0)/* Even */
+		if ((rank & 1) == 0) /* Even */
 		{
 			peer = rank + 1;
 			___collectives_send_type(recvbuf, count, datatype, peer, MPC_ALLREDUCE_TAG,
 				comm, coll_type, schedule, info);
 		}
-		else/* Odd */
+		else /* Odd */
 		{
 			peer = rank - 1;
 			___collectives_recv_type(recvbuf, count, datatype, peer, MPC_ALLREDUCE_TAG,
@@ -5614,7 +5614,7 @@ int ___collectives_allreduce_binary_block(const void *sendbuf,
 
 		mid = (start + end + 1) >> 1;
 
-		if (peer_vrank > vrank)// send second part of buffer
+		if (peer_vrank > vrank) // send second part of buffer
 		{
 			tmp_sendbuf  = (resbuf) + mid * ext;
 			send_bufsize = end - mid;
@@ -5664,7 +5664,7 @@ int ___collectives_allreduce_binary_block(const void *sendbuf,
 
 			end = mid;
 		}
-		else// send first part of buffer
+		else // send first part of buffer
 		{
 			tmp_sendbuf  = (resbuf) + start * ext;
 			send_bufsize = mid - start;
@@ -5899,7 +5899,7 @@ int ___collectives_allreduce_binary_block(const void *sendbuf,
 			recv_bufsize = group_ends[peer_vrank] - group_starts[peer_vrank];
 		}
 
-		if (peer_vrank > vrank)// receive second part of buffer
+		if (peer_vrank > vrank) // receive second part of buffer
 		{
 			tmp_recvbuf = (recvbuf) + end * ext;
 
@@ -5925,7 +5925,7 @@ int ___collectives_allreduce_binary_block(const void *sendbuf,
 
 			end += recv_bufsize;
 		}
-		else// receive first part of buffer
+		else // receive first part of buffer
 		{
 			tmp_recvbuf = (recvbuf) + (start - recv_bufsize) * ext;
 
@@ -11609,7 +11609,7 @@ int ___collectives_allgather_bruck(const void *sendbuf,
 
 
 
-	for (step = 0; step < d; step++, base_distance *= nports + 1)// TODO: ignore step d-1 with atomic spreading
+	for (step = 0; step < d; step++, base_distance *= nports + 1) // TODO: ignore step d-1 with atomic spreading
 	{
 		for (int i = 1; i <= nports; i++)
 		{
@@ -11968,11 +11968,11 @@ int ___collectives_allgather_topo_gather_allgather_broadcast(const void *sendbuf
 		___collectives_create_swap_array(comm, info);
 	}
 
-	int shallowest_level = 1;// Gather & bcast do not handle level 0 (allgather at level 0)
+	int shallowest_level = 1; // Gather & bcast do not handle level 0 (allgather at level 0)
 
 	/* GATHER: levels max_depth -> 1 */
 	res = __INTERNAL__collectives_gather_topo_depth(tmp_sendbuf, tmp_sendcount, tmp_sendtype,
-		NULL, 0, recvtype,// recvbuf is only used at level 0, not here (shallowest_level == 1)
+		NULL, 0, recvtype, // recvbuf is only used at level 0, not here (shallowest_level == 1)
 		root, comm, coll_type, schedule, info,
 		shallowest_level, tmpbuf);
 	if (res != MPI_SUCCESS)
@@ -11993,7 +11993,7 @@ int ___collectives_allgather_topo_gather_allgather_broadcast(const void *sendbuf
 	int rank_split;
 	_mpc_cl_comm_rank(info->hardware_info_ptr->hwcomm[i + 1], &rank_split);
 
-	if (!rank_split)// Level 0 processes
+	if (!rank_split) // Level 0 processes
 	{
 		MPI_Comm master_comm = info->hardware_info_ptr->rootcomm[i];
 

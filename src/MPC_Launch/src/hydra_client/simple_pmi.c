@@ -88,8 +88,8 @@ static int PMI_keylen_max  = 0;
 static int PMI_vallen_max  = 0;
 
 static int PMI_debug      = 0;
-static int PMI_debug_init = 0;/* Set this to true to debug the init
-                               * handshakes */
+static int PMI_debug_init = 0; /* Set this to true to debug the init
+                                * handshakes */
 static int PMI_spawned    = 0;
 
 /* Function prototypes for internal routines */
@@ -846,7 +846,7 @@ int PMI_Spawn_multiple(int count,
 				*lead = '\0';
 			}
 			errors[num_errcodes_found++] = atoi(lag);
-			lag = lead + 1;/* move past the null char */
+			lag = lead + 1; /* move past the null char */
 			PMIU_Assert(num_errcodes_found <= total_num_processes);
 		} while (lead != NULL);
 		PMIU_Assert(num_errcodes_found == total_num_processes);
@@ -887,7 +887,7 @@ static int PMII_getmaxes(int *kvsname_max, int *keylen_max, int *vallen_max)
 		PMIU_printf(1, "Unable to write to PMI_fd\n");
 		return PMI_FAIL;
 	}
-	buf[0] = 0;/* Ensure buffer is empty if read fails */
+	buf[0] = 0; /* Ensure buffer is empty if read fails */
 	err    = PMIU_readline(PMI_fd, buf, PMIU_MAXLINE);
 	if (err < 0)
 	{
@@ -1462,7 +1462,7 @@ static int GetResponse(const char request[], const char expectedCmd[],
 		{
 			return -1;
 		}
-		PMI_initialized = SINGLETON_INIT_WITH_PM;/* do this right away */
+		PMI_initialized = SINGLETON_INIT_WITH_PM; /* do this right away */
 		PMI_size        = 1;
 		PMI_rank        = 0;
 		PMI_debug       = 0;
@@ -1491,7 +1491,7 @@ static int GetResponse(const char request[], const char expectedCmd[],
 			new_sock = accept(list_sock, (struct sockaddr *)&from, &len);
 			if (new_sock == -1)
 			{
-				if (errno == EINTR)/* interrupted? If so, try again */
+				if (errno == EINTR) /* interrupted? If so, try again */
 				{
 					continue;
 				}

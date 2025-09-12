@@ -570,7 +570,7 @@ int mpc_lowcomm_is_remote_rank(int dest)
 	 */
 	static inline int ___mpc_comm_ptp_task_perform(unsigned int key, unsigned int depth)
 	{
-		int nb_messages_copied = 0;/* Number of messages processed */
+		int nb_messages_copied = 0; /* Number of messages processed */
 		int target_list        = key & PTP_TASKING_QUEUE_COUNT;
 
 		/* Each element of this list has already been matched */
@@ -3080,7 +3080,7 @@ __mpc_comm_probe_source_tag_class_func(int destination, int source, int tag,
 
 			break;
 
-		default:/* not found AND at least one rail does not support low-level probing */
+		default: /* not found AND at least one rail does not support low-level probing */
 			*status       = 0;
 			msg->msg_size = 0;
 			break;
