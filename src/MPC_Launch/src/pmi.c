@@ -1019,6 +1019,7 @@ int mpc_launch_pmi_get_global_rank_from_local(const int remote)
 
 	// Get the layout for the local node
 	HASH_FIND_INT(pmi_context.process_nb_from_node_rank, &node_rank, layout);
+	assume(layout != NULL);
 	assume(layout->nb_process > remote);
 	// Get the global id associated with the local id remote
 	return layout->process_list[remote];

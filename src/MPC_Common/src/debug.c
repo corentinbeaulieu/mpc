@@ -542,7 +542,11 @@ static inline void __parse_log_filter_rules(void)
 
 char * strstr_case_insensitive(const char *haystack, const char *needle)
 {
-	if (!*needle)
+	if (!*needle || needle == NULL)
+	{
+		return (char *)haystack;
+	}
+	if (haystack == NULL)
 	{
 		return (char *)haystack;
 	}

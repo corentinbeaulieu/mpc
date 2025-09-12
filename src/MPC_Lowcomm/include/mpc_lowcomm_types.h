@@ -176,18 +176,17 @@ typedef struct mpc_lowcomm_request_s
 {
 	mpc_lowcomm_communicator_t        comm;
 	volatile int                      completion_flag;
-	char                              pad[128];
-	int                               request_type;
+	char                              pad[116];    /**< Padding to next 128 bytes alignment */
 	mpc_lowcomm_request_header_t      header;
 	struct mpc_lowcomm_ptp_message_s *msg;
 	mpc_lowcomm_datatype_t            source_type; /**< Type in the remote message */
 	mpc_lowcomm_datatype_t            dest_type;   /**< Type in the local message */
+	int                               request_type;
 	int                               is_null;
 	int                               truncated;
 	int                               status_error;
 	/* int ref rank */
 	/* Generalized Request context  */
-	int                               grequest_rank;
 	void *                            progress_unit;
 	sctk_Grequest_query_function *    query_fn;
 	sctk_Grequest_cancel_function *   cancel_fn;
@@ -197,6 +196,7 @@ typedef struct mpc_lowcomm_request_s
 	sctk_Grequest_poll_fn *           poll_fn;
 	sctk_Grequest_wait_fn *           wait_fn;
 
+	int                               grequest_rank;
 	int                               count;
 	mpc_lowcomm_datatype_t            datatype;
 	void *                            buffer;
@@ -216,15 +216,17 @@ typedef struct mpc_lowcomm_request_s
 	mpc_lowcomm_request_pack_t dt;
 	int                        dt_magic;
 	mpc_lowcomm_rtype_t        dt_type;
-	unsigned int               is_allocated;
 	void *                     packed_buf;
 	size_t                     packed_size;
+	unsigned int               is_allocated;
 	unsigned                   flags;
 	void *                     ptr_to_pin_ctx;
 	int (*request_completion_fn)(struct mpc_lowcomm_request_s *);
 	int (*request_complete)(struct mpc_lowcomm_request_s *);
-	// force protocol in lowcomm
-	int                        synchronized;
+
+	int                        synchronized;  // force protocol in lowcomm
+
+	char                       final_pad[92]; /**< Pad to next 128 bytes alignment (should be 512) */
 }mpc_lowcomm_request_t;
 
 struct mpc_lowcomm_request_s *mpc_lowcomm_request_null(void);

@@ -29,6 +29,7 @@
 /* ######################################################################## */
 
 #include "mpit.h"
+#include "mpc_keywords.h"
 #include "mpc_mpi_internal.h"
 #include "mpc_common_spinlock.h"
 
@@ -1010,6 +1011,7 @@ int PMPI_T_cvar_get_info(int cvar_index,
                          int *bind,
                          int *scope)
 {
+	UNUSED(enumtype);
 	if (__mpit.cvar_count <= cvar_index)
 	{
 		MPI_ERROR_REPORT(MPI_COMM_SELF, MPI_T_ERR_INVALID_INDEX, "Bad cvar index");
@@ -1437,15 +1439,21 @@ int PMPI_T_source_get_num(int *num_sources)
 #pragma weak MPI_T_source_get_info = PMPI_T_source_get_info
 
 int PMPI_T_source_get_info(int source_index,
-                           char *name,
-                           int *name_len,
-                           char *desc,
-                           int *desc_len,
+                           char *name, int *name_len,
+                           char *desc, int *desc_len,
                            MPI_T_source_order *ordering,
-                           MPI_Count *ticks_per_second,
-                           MPI_Count *max_ticks,
+                           MPI_Count *ticks_per_second, MPI_Count *max_ticks,
                            MPI_Info *info)
 {
+	UNUSED(source_index);
+	UNUSED(name);
+	UNUSED(name_len);
+	UNUSED(desc);
+	UNUSED(desc_len);
+	UNUSED(ordering);
+	UNUSED(ticks_per_second);
+	UNUSED(max_ticks);
+	UNUSED(info);
 	/* not supported */
 	return MPI_T_ERR_NOT_SUPPORTED;
 }
@@ -1454,6 +1462,7 @@ int PMPI_T_source_get_info(int source_index,
 
 int PMPI_T_source_get_timestamp(int source_index, MPI_Count *timestamp)
 {
+	UNUSED(timestamp);
 	if (__mpit.event_source_count <= source_index)
 	{
 		MPI_ERROR_REPORT(MPI_COMM_SELF, MPI_T_ERR_INVALID_INDEX, "Bad source index");
@@ -1472,8 +1481,6 @@ int PMPI_T_source_get_timestamp(int source_index, MPI_Count *timestamp)
 
 int PMPI_T_event_get_num(int *num_events)
 {
-	_mpc_mpi_mpit_event_source_t **event_sources;
-
 	*num_events = __mpit.event_count;
 	return MPI_SUCCESS;
 }
@@ -1493,7 +1500,7 @@ int PMPI_T_event_get_info(int event_index, char *name, int *name_len, int *verbo
 
 	if (name != NULL)
 	{
-		snprintf(name, *name_len, event->name);
+		snprintf(name, *name_len, "%s", event->name);
 	}
 
 	if (name_len != NULL)
@@ -1515,7 +1522,7 @@ int PMPI_T_event_get_info(int event_index, char *name, int *name_len, int *verbo
 
 	if (desc != NULL)
 	{
-		snprintf(desc, *desc_len, event->descr);
+		snprintf(desc, *desc_len, "%s", event->descr);
 	}
 	if (desc_len != NULL)
 	{
@@ -1531,12 +1538,11 @@ int PMPI_T_event_get_info(int event_index, char *name, int *name_len, int *verbo
 	/* Not supported yet */
 	if (info != NULL)
 	{
-		info = event->info;
+		*info = *event->info;
 	}
 
 	if (num_elements != NULL)
 	{
-		int i;
 		int limit_loop = 0;
 		if (*num_elements > event->num_elements_datatype)
 		{
@@ -1606,6 +1612,8 @@ int PMPI_T_event_handle_alloc(int event_index, void *obj_handle, MPI_Info info,
 
 int PMPI_T_event_handle_set_info(MPI_T_event_registration event_registration, MPI_Info info)
 {
+	UNUSED(event_registration);
+	UNUSED(info);
 	return MPI_SUCCESS;
 }
 
@@ -1613,6 +1621,8 @@ int PMPI_T_event_handle_set_info(MPI_T_event_registration event_registration, MP
 
 int PMPI_T_event_handle_get_info(MPI_T_event_registration event_registration, MPI_Info *info_used)
 {
+	UNUSED(event_registration);
+	UNUSED(info_used);
 	return MPI_SUCCESS;
 }
 
@@ -1621,6 +1631,7 @@ int PMPI_T_event_handle_get_info(MPI_T_event_registration event_registration, MP
 int PMPI_T_event_register_callback(MPI_T_event_registration event_registration, MPI_T_cb_safety cb_safety,
                                    MPI_Info info, void *user_data, MPI_T_event_cb_function event_cb_function)
 {
+	UNUSED(info);
 	int i;
 
 	for (i = 0; i < __mpit.event_registration_count; i++)
@@ -1672,6 +1683,9 @@ int PMPI_T_event_register_callback(MPI_T_event_registration event_registration, 
 int PMPI_T_event_callback_set_info(MPI_T_event_registration event_registration, MPI_T_cb_safety cb_safety,
                                    MPI_Info info)
 {
+	UNUSED(event_registration);
+	UNUSED(cb_safety);
+	UNUSED(info);
 	return MPI_SUCCESS;
 }
 
@@ -1681,6 +1695,9 @@ int PMPI_T_event_callback_get_info(MPI_T_event_registration event_registration,
                                    MPI_T_cb_safety cb_safety,
                                    MPI_Info *info_used)
 {
+	UNUSED(event_registration);
+	UNUSED(cb_safety);
+	UNUSED(info_used);
 	return MPI_SUCCESS;
 }
 
@@ -1759,11 +1776,11 @@ int PMPI_T_event_set_dropped_handler(MPI_T_event_registration event_registration
 int PMPI_T_event_read(MPI_T_event_instance event_instance, int element_index, void *buffer)
 {
 	/* TODO error and bad arguments handling */
-	_mpc_mpi_mpit_event_t *event    = __mpit.events[event_instance.ptr_event_registration->index_type];
-	MPI_Datatype           mpi_type = event->array_of_datatypes[element_index];
-	int displ = event->array_of_displacements[element_index];
+	_mpc_mpi_mpit_event_t *event         = __mpit.events[event_instance.ptr_event_registration->index_type];
+	const size_t           mpi_type_size = sizeof(event->array_of_datatypes[element_index]);
+	const int displ = event->array_of_displacements[element_index];
 
-	memcpy((void *)((char *)buffer), (void *)((char *)event_instance.data + displ), sizeof(mpi_type));
+	memcpy((void *)((char *)buffer), (void *)((char *)event_instance.data + displ), mpi_type_size);
 	return MPI_SUCCESS;
 }
 
@@ -1778,16 +1795,16 @@ int PMPI_T_event_copy(MPI_T_event_instance event_instance, void *buffer)
 
 	for (i = 0; i < num_elems; i++)
 	{
-		MPI_Datatype mpi_type = event->array_of_datatypes[i];
-		MPI_Aint     displ    = event->array_of_displacements[i];
+		const size_t   mpi_type_size = sizeof(event->array_of_datatypes[i]);
+		const MPI_Aint displ         = event->array_of_displacements[i];
 		// fprintf(stderr, "buffer + displ %d i %d\n",*((char*)event_instance.data + displ), i);
 		if (i == 0)
 		{
-			memcpy(buffer, event_instance.data, sizeof(mpi_type));
+			memcpy(buffer, event_instance.data, mpi_type_size);
 		}
 		else
 		{
-			memcpy((void *)((char *)buffer + displ), (void *)((char *)event_instance.data + displ), sizeof(mpi_type));
+			memcpy((void *)((char *)buffer + displ), (void *)((char *)event_instance.data + displ), mpi_type_size);
 		}
 	}
 
@@ -1808,5 +1825,7 @@ int PMPI_T_event_get_timestamp(MPI_T_event_instance event_instance, MPI_Count *e
 
 int PMPI_T_event_get_source(MPI_T_event_instance event_instance, int *source_index)
 {
+	UNUSED(event_instance);
+	UNUSED(source_index);
 	return MPI_SUCCESS;
 }

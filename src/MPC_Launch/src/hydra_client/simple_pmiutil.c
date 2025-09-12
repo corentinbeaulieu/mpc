@@ -91,6 +91,11 @@ void PMIU_printf(int print_flag, const char *fmt, ...)
 			{
 				logfile = fopen("testserver.out", "w");
 			}
+			if (logfile == NULL)
+			{
+				perror("fopen failed: defaulting to stderr");
+				logfile = stderr;
+			}
 		}
 		else
 		{

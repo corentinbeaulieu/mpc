@@ -87,30 +87,37 @@ static int PMI_kvsname_max = 0;
 static int PMI_keylen_max  = 0;
 static int PMI_vallen_max  = 0;
 
-static int PMI_debug      = 0;
-static int PMI_debug_init = 0; /* Set this to true to debug the init
-                                * handshakes */
-static int PMI_spawned    = 0;
+static int PMI_debug   = 0;
+static int PMI_spawned = 0;
 
 /* Function prototypes for internal routines */
 static int PMII_getmaxes(int *kvsname_max, int *keylen_max, int *vallen_max);
-static int PMII_Set_from_port(int /*fd*/, int /*id*/);
-static int PMII_Connect_to_pm(char * /*hostname*/, int /*portnum*/);
 
 static int GetResponse(const char /*request*/[], const char /*expectedCmd*/[], int /*checkRc*/);
 static int getPMIFD(int *  /*notset*/);
 
+static int PMIi_InitIfSingleton(void);
+
 #ifdef USE_PMI_PORT
+	static int PMII_Set_from_port(int /*fd*/, int /*id*/);
+	static int PMII_Connect_to_pm(char * /*hostname*/, int /*portnum*/);
+	static int accept_one_connection(int /*list_sock*/);
 	static int PMII_singinit(void);
 
-	static int PMI_totalview = 0;
+	static int PMI_totalview  = 0;
+	static int PMI_debug_init = 0; /* Set this to true to debug the init
+                                    * handshakes */
+	static char singinit_kvsname[256];
+#else
+static int PMIi_InitIfSingleton(void)
+{
+	return 0;
+}
+
 #endif
-static int PMIi_InitIfSingleton(void);
-static int accept_one_connection(int /*list_sock*/);
 
 static char cached_singinit_key[PMIU_MAXLINE];
 static char cached_singinit_val[PMIU_MAXLINE];
-static char singinit_kvsname[256];
 
 /******************************** Group functions *************************/
 
@@ -1295,6 +1302,11 @@ static int GetResponse(const char request[], const char expectedCmd[],
 		sin.sin_addr.s_addr  = INADDR_ANY;
 		sin.sin_port         = htons(0); /* anonymous port */
 		singinit_listen_sock = socket(AF_INET, SOCK_STREAM, 0);
+		if (singinit_listen_sock == -1)
+		{
+			perror("PMII_singinit: socket failed");
+			exit(-1);
+		}
 		rc = bind(singinit_listen_sock, (struct sockaddr *)&sin, sizeof(sin));
 		if (rc)
 		{
@@ -1531,7 +1543,9 @@ static int getPMIFD(int *notset)
 		return 0;
 	}
 
-#ifdef USE_PMI_PORT
+#ifndef USE_PMI_PORT
+		UNUSED(notset);
+#else
 		p = getenv("PMI_PORT");
 		if (p)
 		{

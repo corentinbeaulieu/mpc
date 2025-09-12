@@ -1128,6 +1128,7 @@ static inline int __read_environ(mpc_conf_env_manager_t *envm)
 
 	if (env_len == 0)
 	{
+		fclose(fprocenv);
 		free(envdat);
 		return 1;
 	}
@@ -1135,6 +1136,8 @@ static inline int __read_environ(mpc_conf_env_manager_t *envm)
 	if (env_len == ENV_STATIC_SIZE)
 	{
 		_utils_verbose_output(0, "environment was too large (large than %ld bytes)\n", (long int)ENV_STATIC_SIZE);
+		fclose(fprocenv);
+		free(envdat);
 		return 1;
 	}
 
@@ -1164,8 +1167,8 @@ static inline int __read_environ(mpc_conf_env_manager_t *envm)
 		cur_entry = (cur_entry + entry_len) + 1;
 	}
 
-	free(envdat);
 	fclose(fprocenv);
+	free(envdat);
 
 	return 0;
 }

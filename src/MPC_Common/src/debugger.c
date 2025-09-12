@@ -81,7 +81,13 @@ static void determine_elf_class(char *name, elf_class_t *c)
 
 		if (c->fd)
 		{
-			rewind(c->fd);
+			ret = fseek(c->fd, 0L, SEEK_SET); // Rewind the stream
+			if (ret != 0)
+			{
+				perror("rewind failed");
+				fclose(c->fd);
+				c->fd = NULL;
+			}
 		}
 	}
 	else
@@ -182,6 +188,11 @@ static void read_map()
 	pid = getpid();
 	sprintf(name, "/proc/%d/maps", pid);
 	in = fopen(name, "r");
+	if (in == NULL)
+	{
+		perror("fopen failed");
+		exit(-1);
+	}
 
 	do
 	{

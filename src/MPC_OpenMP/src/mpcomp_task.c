@@ -489,6 +489,11 @@ __task_list_pop(mpc_omp_task_list_t *list)
 
 		sprintf(filepath, "%lf-%p-%s-tree.dot", omp_get_wtime(), tree, label);
 		FILE *f = fopen(filepath, "w");
+		if (f == NULL)
+		{
+			perror("fopen failed");
+			return;
+		}
 
 		fprintf(f, "digraph g {\n");
 		__task_pqueue_dump_node(tree->root, f);

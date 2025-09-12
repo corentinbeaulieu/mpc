@@ -362,6 +362,7 @@ char * _utils_read_whole_file(char *path, size_t *file_size)
 	if (!ret)
 	{
 		perror("malloc");
+		fclose(file);
 		return NULL;
 	}
 
@@ -372,6 +373,7 @@ char * _utils_read_whole_file(char *path, size_t *file_size)
 	{
 		_utils_verbose_output(0, "fread was truncated for %s (expected %ld bytes)\n", path, size);
 		free(ret);
+		fclose(file);
 		return NULL;
 	}
 
