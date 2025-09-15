@@ -178,46 +178,56 @@ err:
 	 * Flush operations.
 	 *################################################*/
 
-	int lcr_ptl_flush_txq(lcr_ptl_mem_t *mem, lcr_ptl_txq_t *txq, int64_t completed)
+	int64_t lcr_ptl_flush_txq(lcr_ptl_mem_t *mem, lcr_ptl_txq_t *txq, int64_t completed)
 	{
 		UNUSED(mem);
 		lcr_ptl_op_t *   op;
 		mpc_queue_iter_t iter;
+		int64_t          still_pending = 0;
 
 		mpc_common_spinlock_lock(&txq->lock);
 
-		/* Loop over pending operations and complete if identifier is lower than
-		 * number of completed operations. */
+		/* Loop over pending operations and complete if identifier is lower than number of completed operations. */
 		mpc_queue_for_each_safe(op, iter, lcr_ptl_op_t, &txq->ops, elem)
 		{
-			if (op->id < completed)
+			if (op->type == LCR_PTL_OP_RMA_FLUSH)
 			{
-				mpc_queue_del_iter(&txq->ops, iter);
-				lcr_ptl_complete_op(op);
+				if (still_pending == 0)
+				{
+					mpc_queue_del_iter(&txq->ops, iter);
+					lcr_ptl_complete_op(op);
+				}
+			}
+			else
+			{
+				if (op->id < completed)
+				{
+					mpc_queue_del_iter(&txq->ops, iter);
+				}
+				else
+				{
+					still_pending++;
+				}
 			}
 		}
 
 		mpc_common_spinlock_unlock(&txq->lock);
 
-		return MPC_LOWCOMM_SUCCESS;
+		return still_pending;
 	}
 
-	int lcr_ptl_exec_flush_mem_ep(lcr_ptl_mem_t *mem, lcr_ptl_ep_info_t *ep,
-	                              lcr_ptl_op_t *flush_op)
+	int lcr_ptl_exec_flush_mem_ep(lcr_ptl_mem_t *mem, lcr_ptl_ep_info_t *ep, lcr_ptl_op_t *flush_op)
 	{
-		int     rc = MPC_LOWCOMM_SUCCESS;
-		int64_t completed = 0, outstandings = 0;
+		int rc = MPC_LOWCOMM_SUCCESS;
 
 		lcr_ptl_txq_t *txq = &mem->txqt[ep->idx];
 
-		completed    = lcr_ptl_poll_mem(mem);
-		outstandings = mpc_common_max(0, *flush_op->flush.op_count - completed);
+		const int64_t completed     = lcr_ptl_poll_mem(mem);
+		const int64_t still_pending = lcr_ptl_flush_txq(mem, txq, completed);
 
-		lcr_ptl_flush_txq(mem, txq, completed);
-
-		if (outstandings > 0)
+		if (still_pending > 0)
 		{
-			mpc_queue_push(&mem->pending_flush, &flush_op->elem);
+			mpc_queue_push(&txq->ops, &flush_op->elem);
 			rc = MPC_LOWCOMM_IN_PROGRESS;
 		}
 		else
@@ -228,11 +238,8 @@ err:
 		return rc;
 	}
 
-	int lcr_ptl_flush_mem_ep(sctk_rail_info_t *rail,
-	                         _mpc_lowcomm_endpoint_t *ep,
-	                         struct sctk_rail_pin_ctx_list *list,
-	                         lcr_completion_t *comp,
-	                         unsigned flags)
+	int lcr_ptl_flush_mem_ep(sctk_rail_info_t *rail, _mpc_lowcomm_endpoint_t *ep,
+	                         struct sctk_rail_pin_ctx_list *list, lcr_completion_t *comp, unsigned flags)
 	{
 		UNUSED(flags);
 		int                  rc = MPC_LOWCOMM_SUCCESS;
@@ -261,17 +268,6 @@ err:
 
 		mpc_common_spinlock_lock(&ptl_ep->lock);
 		op->flush.outstandings = 1;
-		op->flush.op_count     = sctk_malloc(sizeof(int64_t));
-		if (op->flush.op_count == NULL)
-		{
-			mpc_common_debug_error("LCR PTL: could not allocate flush "
-				                   "op count table.");
-			rc = MPC_LOWCOMM_ERROR;
-			goto err;
-		}
-		;
-
-		*op->flush.op_count = mem->op_count;
 
 		rc = lcr_ptl_exec_flush_mem_ep(mem, ptl_ep, op);
 
@@ -280,53 +276,41 @@ err:
 		return rc;
 	}
 
-	static int lcr_ptl_exec_flush_ep(lcr_ptl_rail_info_t *srail,
-	                                 lcr_ptl_ep_info_t *ep,
-	                                 lcr_ptl_op_t *flush_op)
+	static int lcr_ptl_exec_flush_ep(lcr_ptl_rail_info_t *srail, lcr_ptl_ep_info_t *ep, lcr_ptl_op_t *flush_op)
 	{
-		int            rc = MPC_LOWCOMM_SUCCESS, i = 0;
-		int64_t        completed = 0, outstandings = 0;
-		int            is_pushed = 0;
+		int            rc = MPC_LOWCOMM_SUCCESS;
 		lcr_ptl_mem_t *mem;
 
 		/* First, load the number of outstanding operation. */
 		mpc_list_for_each(mem, &srail->net.rma.poll_list, lcr_ptl_mem_t, elem)
 		{
 			/* Poll memory. */
-			completed = lcr_ptl_poll_mem(mem);
+			const int64_t completed = lcr_ptl_poll_mem(mem);
 
 			/* Count the number of outstanding operations. */
-			outstandings = mpc_common_max(0, flush_op->flush.op_count[i] - completed);
+			const int64_t still_pending = lcr_ptl_flush_txq(mem, &mem->txqt[ep->idx], completed);
 
-			lcr_ptl_flush_txq(mem, &mem->txqt[ep->idx], completed);
-
-			if (outstandings > 0 && !is_pushed)
+			if (still_pending > 0)
 			{
-				mpc_queue_push(&mem->pending_flush, &flush_op->elem);
-				rc        = MPC_LOWCOMM_IN_PROGRESS;
-				is_pushed = 1;
+				mpc_queue_push(&mem->txqt->ops, &flush_op->elem);
+				rc = MPC_LOWCOMM_IN_PROGRESS;
 			}
 			else
 			{
 				lcr_ptl_complete_op(flush_op);
 			}
-			i++; /* Iterate over op count in flush operation. */
 		}
 
 		return rc;
 	}
 
-	int lcr_ptl_flush_ep(sctk_rail_info_t *rail,
-	                     _mpc_lowcomm_endpoint_t *ep,
-	                     lcr_completion_t *comp,
-	                     unsigned flags)
+	int lcr_ptl_flush_ep(sctk_rail_info_t *rail, _mpc_lowcomm_endpoint_t *ep, lcr_completion_t *comp, unsigned flags)
 	{
 		UNUSED(flags);
-		int                  rc = MPC_LOWCOMM_SUCCESS, i = 0;
+		int                  rc = MPC_LOWCOMM_SUCCESS;
 		lcr_ptl_op_t *       op;
 		lcr_ptl_rail_info_t *srail  = &rail->network.ptl;
 		lcr_ptl_ep_info_t *  ptl_ep = &ep->data.ptl;
-		lcr_ptl_mem_t *      mem    = NULL;
 
 		op = mpc_mpool_pop(srail->iface_ops);
 		if (op == NULL)
@@ -348,63 +332,50 @@ err:
 		assert(ep != NULL);
 
 		mpc_common_spinlock_lock(&srail->net.rma.lock);
-		op->flush.outstandings = mpc_list_length(&srail->net.rma.poll_list);
-		op->flush.op_count     = sctk_malloc(op->flush.outstandings * sizeof(int64_t));
-		if (op->flush.op_count == NULL)
-		{
-			mpc_common_debug_error("LCR PTL: could not allocate flush "
-				                   "op count table.");
-			rc = MPC_LOWCOMM_ERROR;
-			goto err;
-		}
-		;
+		const int outstandings = mpc_list_length(&srail->net.rma.poll_list);
+		op->flush.outstandings = outstandings > 1 ? outstandings : 1;
 
-		i = 0;
-		mpc_list_for_each(mem, &srail->net.rma.poll_list, lcr_ptl_mem_t, elem)
+		if (outstandings == 0)
 		{
-			op->flush.op_count[i++] = mem->op_count;
+			lcr_ptl_complete_op(op);
 		}
-
-		rc = lcr_ptl_exec_flush_ep(srail, ptl_ep, op);
+		else
+		{
+			rc = lcr_ptl_exec_flush_ep(srail, ptl_ep, op);
+		}
 
 		mpc_common_spinlock_unlock(&srail->net.rma.lock);
 err:
 		return rc;
 	}
 
-	static int lcr_ptl_exec_flush_mem(lcr_ptl_rail_info_t *srail,
-	                                  lcr_ptl_mem_t *mem,
-	                                  lcr_ptl_op_t *flush_op)
+	static int lcr_ptl_exec_flush_mem(lcr_ptl_rail_info_t *srail, lcr_ptl_mem_t *mem, lcr_ptl_op_t *flush_op)
 	{
-		int     rc = MPC_LOWCOMM_SUCCESS;
-		int     i, num_txqs = 0;
-		int64_t completed = 0, outstandings = 0;
+		int rc = MPC_LOWCOMM_SUCCESS;
+		int i, num_txqs = 0;
 
-		completed    = lcr_ptl_poll_mem(mem);
-		outstandings = mpc_common_max(0, *flush_op->flush.op_count - completed);
+		const int64_t completed = lcr_ptl_poll_mem(mem);
 
 		num_txqs = atomic_load(&srail->num_eps);
 		for (i = 0; i < num_txqs; i++)
 		{
-			lcr_ptl_flush_txq(mem, &mem->txqt[i], completed);
-		}
-		if (outstandings > 0)
-		{
-			mpc_queue_push(&mem->pending_flush, &flush_op->elem);
-			rc = MPC_LOWCOMM_IN_PROGRESS;
-		}
-		else
-		{
-			lcr_ptl_complete_op(flush_op);
+			const int64_t still_pending = lcr_ptl_flush_txq(mem, &mem->txqt[i], completed);
+			if (still_pending > 0)
+			{
+				mpc_queue_push(&mem->txqt->ops, &flush_op->elem);
+				rc = MPC_LOWCOMM_IN_PROGRESS;
+			}
+			else
+			{
+				lcr_ptl_complete_op(flush_op);
+			}
 		}
 
 		return rc;
 	}
 
-	int lcr_ptl_flush_mem(sctk_rail_info_t *rail,
-	                      struct sctk_rail_pin_ctx_list *list,
-	                      lcr_completion_t *comp,
-	                      unsigned flags)
+	int lcr_ptl_flush_mem(sctk_rail_info_t *rail, struct sctk_rail_pin_ctx_list *list,
+	                      lcr_completion_t *comp, unsigned flags)
 	{
 		UNUSED(flags);
 		int                  rc = MPC_LOWCOMM_SUCCESS;
@@ -430,19 +401,17 @@ err:
 			NULL);
 
 		mpc_common_spinlock_lock(&mem->lock);
-		op->flush.outstandings = 1;
-		op->flush.op_count     = sctk_malloc(sizeof(int64_t));
-		if (op->flush.op_count == NULL)
+		const int outstandings = atomic_load(&srail->num_eps);
+		op->flush.outstandings = outstandings > 1 ? outstandings : 1;
+
+		if (outstandings == 0)
 		{
-			mpc_common_debug_error("LCR PTL: could not allocate flush op count table.");
-			rc = MPC_LOWCOMM_ERROR;
-			goto err;
+			lcr_ptl_complete_op(op);
 		}
-		;
-
-		*op->flush.op_count = mem->op_count;
-
-		rc = lcr_ptl_exec_flush_mem(srail, mem, op);
+		else
+		{
+			rc = lcr_ptl_exec_flush_mem(srail, mem, op);
+		}
 
 		mpc_common_spinlock_unlock(&mem->lock);
 err:
@@ -452,52 +421,43 @@ err:
 	static int lcr_ptl_exec_flush_iface(lcr_ptl_rail_info_t *srail, lcr_ptl_op_t *flush_op)
 	{
 		int            rc = MPC_LOWCOMM_SUCCESS;
-		int            i, it = 0, num_eps = 0;
-		int            is_pushed = 0;
-		int64_t        completed = 0, outstandings = 0;
+		int            i;
 		lcr_ptl_mem_t *mem;
 
 		mpc_common_spinlock_lock(&srail->net.rma.lock);
+		const int num_eps = atomic_load(&srail->num_eps);
+
 		/* Loop on all registered memories. */
 		mpc_list_for_each(mem, &srail->net.rma.poll_list, lcr_ptl_mem_t, elem)
 		{
-			completed = lcr_ptl_poll_mem(mem);
+			const int64_t completed = lcr_ptl_poll_mem(mem);
 
-			outstandings = mpc_common_max(0, flush_op->flush.op_count[it] - completed);
-
-			num_eps = atomic_load(&srail->num_eps);
 			/* Loop on all TX Queues that has been linked on this memory. */
 			for (i = 0; i < num_eps; i++)
 			{
-				lcr_ptl_flush_txq(mem, &mem->txqt[i], completed);
+				const int64_t still_pending = lcr_ptl_flush_txq(mem, &mem->txqt[i], completed);
+				if (still_pending > 0)
+				{
+					mpc_queue_push(&mem->txqt->ops, &flush_op->elem);
+					rc = MPC_LOWCOMM_IN_PROGRESS;
+				}
+				else
+				{
+					lcr_ptl_complete_op(flush_op);
+				}
 			}
-
-			if (outstandings > 0 && !is_pushed)
-			{
-				is_pushed = 1;
-				mpc_queue_push(&mem->pending_flush, &flush_op->elem);
-				rc = MPC_LOWCOMM_IN_PROGRESS;
-			}
-			else
-			{
-				lcr_ptl_complete_op(flush_op);
-			}
-			it++;
 		} /* End loop registered memories */
 		mpc_common_spinlock_unlock(&srail->net.rma.lock);
 
 		return rc;
 	}
 
-	int lcr_ptl_flush_iface(sctk_rail_info_t *rail,
-	                        lcr_completion_t *comp,
-	                        unsigned flags)
+	int lcr_ptl_flush_iface(sctk_rail_info_t *rail, lcr_completion_t *comp, unsigned flags)
 	{
 		UNUSED(flags);
-		int                  rc = MPC_LOWCOMM_SUCCESS, i = 0;
+		int                  rc = MPC_LOWCOMM_SUCCESS;
 		lcr_ptl_op_t *       op;
 		lcr_ptl_rail_info_t *srail = &rail->network.ptl;
-		lcr_ptl_mem_t *      mem   = NULL;
 
 		op = mpc_mpool_pop(srail->iface_ops);
 		if (op == NULL)
@@ -516,28 +476,22 @@ err:
 			0, comp,
 			NULL);
 
-		op->flush.outstandings = 0;
-
 		mpc_common_spinlock_lock(&srail->net.rma.lock);
-		op->flush.outstandings = mpc_list_length(&srail->net.rma.poll_list);
-		op->flush.op_count     = sctk_malloc(op->flush.outstandings * sizeof(int64_t));
-		if (op->flush.op_count == NULL)
-		{
-			mpc_common_debug_error("LCR PTL: could not allocate flush op count table.");
-			rc = MPC_LOWCOMM_ERROR;
-			goto err;
-		}
-		;
-
-		i = 0;
-		mpc_list_for_each(mem, &srail->net.rma.poll_list, lcr_ptl_mem_t, elem)
-		{
-			op->flush.op_count[i] = mem->op_count;
-			i++;
-		}
+		const int     num_eps      = atomic_load(&srail->num_eps);
+		const int64_t num_mem      = mpc_list_length(&srail->net.rma.poll_list);
+		const int64_t outstandings = num_eps * num_mem;
+		op->flush.outstandings = outstandings > 1 ? outstandings : 1;
 		mpc_common_spinlock_unlock(&srail->net.rma.lock);
 
-		rc = lcr_ptl_exec_flush_iface(srail, op);
+		if (outstandings == 0)
+		{
+			lcr_ptl_complete_op(op);
+		}
+		else
+		{
+			rc = lcr_ptl_exec_flush_iface(srail, op);
+		}
+
 err:
 		return rc;
 	}

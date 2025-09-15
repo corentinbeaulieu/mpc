@@ -203,7 +203,6 @@
 		uint64_t               op_count;       /* Sequence number of the last pushed op. */
 		atomic_int_least32_t   outstandings;
 		mpc_common_spinlock_t  lock;
-		mpc_queue_head_t       pending_flush;
 	} lcr_ptl_mem_t;
 
 	typedef struct lcr_ptl_mem_ctx
@@ -313,8 +312,6 @@
 			{
 				int             outstandings;
 				mpc_list_elem_t mem_head;
-				int64_t *       op_count;
-				lcr_ptl_mem_t * lkey;
 			} flush;
 		};
 
@@ -1061,7 +1058,7 @@ err:
 	                         size_t size,
 	                         lcr_completion_t *comp);
 
-	int lcr_ptl_flush_txq(lcr_ptl_mem_t *mem, lcr_ptl_txq_t *txq, int64_t completed);
+	int64_t lcr_ptl_flush_txq(lcr_ptl_mem_t *mem, lcr_ptl_txq_t *txq, int64_t completed);
 
 	int lcr_ptl_flush_mem_ep(sctk_rail_info_t *rail,
 	                         _mpc_lowcomm_endpoint_t *ep,
@@ -1090,8 +1087,6 @@ err:
 	                         lcr_ptl_mem_t *mem);
 
 	int lcr_ptl_mem_deactivate(lcr_ptl_mem_t *mem);
-
-	int lcr_ptl_iface_progress_rma(lcr_ptl_rail_info_t *srail);
 
 	void lcr_ptl_connect_on_demand(struct sctk_rail_info_s *rail, uint64_t dest);
 
