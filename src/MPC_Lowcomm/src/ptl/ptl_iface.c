@@ -414,6 +414,11 @@ out:
 			/* Event failure. */
 			lcr_ptl_complete_op(op);
 		}
+		else
+		{
+			// Complete operation on ACK and REPLY events
+			lcr_ptl_complete_op(op);
+		}
 
 err:
 		return rc;
@@ -837,8 +842,7 @@ err:
 			.eq_handle = srail->net.eqh,
 			.length    = length,
 			.start     = (void *)start,
-			.options   = PTL_MD_EVENT_SUCCESS_DISABLE
-			             | PTL_MD_EVENT_SEND_DISABLE
+			.options   = PTL_MD_EVENT_SEND_DISABLE
 			             | PTL_MD_EVENT_CT_ACK
 			             | PTL_MD_EVENT_CT_REPLY,
 		};
