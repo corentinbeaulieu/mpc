@@ -434,6 +434,12 @@ err:
 		return ct_ev.success;
 	}
 
+	/** @brief Progress the pending queues and flush ops on all registered memories
+	 *
+	 * @param[in] srail PTL rail information containing the queues to progress
+	 *
+	 * @return          MPC_LOWCOMM_SUCCESS on success
+	 */
 	static int lcr_ptl_iface_progress_rma(lcr_ptl_rail_info_t *srail)
 	{
 		int            rc = MPC_LOWCOMM_SUCCESS;
@@ -447,8 +453,10 @@ err:
 			const int64_t completed = lcr_ptl_poll_mem(mem);
 			const int     num_eps   = atomic_load(&srail->num_eps);
 
+			// Loop on all associated TXQ
 			for (i = 0; i < num_eps; i++)
 			{
+				// Progress the TXQ and complete the pending flush ops
 				lcr_ptl_flush_txq(mem, &mem->txqt[i], completed);
 			}
 		}

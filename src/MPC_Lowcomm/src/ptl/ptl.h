@@ -230,7 +230,7 @@
 		LCR_PTL_OP_ATOMIC_POST,
 		LCR_PTL_OP_ATOMIC_FETCH,
 		LCR_PTL_OP_ATOMIC_CSWAP,
-		LCR_PTL_OP_RMA_FLUSH,
+		LCR_PTL_OP_RMA_FLUSH, /**< flush op complete when prior ops are completed */
 #if defined (MPC_USE_PORTALS_CONTROL_FLOW)
 			/* Token operations. */
 			LCR_PTL_OP_TK_INIT,
@@ -1058,27 +1058,72 @@ err:
 	                         size_t size,
 	                         lcr_completion_t *comp);
 
-	int64_t lcr_ptl_flush_txq(lcr_ptl_mem_t *mem, lcr_ptl_txq_t *txq, int64_t completed);
+	/** @brief Progress the ops on a txq and complete flush ops
+	 *
+	 * This function loops over the given queue and updates it by removing the completed ops.
+	 * If a flush op is uncountered, it is completed only if it is the first element of the queue (meaning
+	 * that no ops made before it are still pending).
+	 *
+	 * @param[in] mem       Handle to the mem to progress (UNUSED)
+	 * @param[in] txq       Queue of ops to progress (updated by the function)
+	 * @param[in] completed Number of completed ops
+	 *
+	 * @return              Number of remaining ops in the queue
+	 */
+	int64_t lcr_ptl_flush_txq(lcr_ptl_mem_t *mem, lcr_ptl_txq_t *txq, const int64_t completed);
 
-	int lcr_ptl_flush_mem_ep(sctk_rail_info_t *rail,
-	                         _mpc_lowcomm_endpoint_t *ep,
-	                         struct sctk_rail_pin_ctx_list *list,
-	                         lcr_completion_t *comp,
-	                         unsigned flags);
+	/** @brief Performs a flush operation on the given mem and endpoint
+	 *
+	 * @param[in] rail  Rail information
+	 * @param[in] ep    Endpoint information of the one to flush
+	 * @param[in] list  List containing an handle to the memory to flush
+	 * @param[in] comp  Completion function to call on flush completion
+	 * @param[in] flags (UNUSED)
+	 *
+	 * @retval MPC_LOWCOMM_SUCCESS upon completion (the flush operation has completed)
+	 * @retval MPC_LOWCOMM_IN_PROGRESS upon successful (the flush operation has been queued)
+	 * @retval MPC_LOWCOMM_NO_RESOURCE upon failure (no more flush operation can be added)
+	 */
+	int lcr_ptl_flush_mem_ep(sctk_rail_info_t *rail, _mpc_lowcomm_endpoint_t *ep,
+	                         struct sctk_rail_pin_ctx_list *list, lcr_completion_t *comp, unsigned flags);
 
-	int lcr_ptl_flush_ep(sctk_rail_info_t *rail,
-	                     _mpc_lowcomm_endpoint_t *ep,
-	                     lcr_completion_t *comp,
-	                     unsigned flags);
+	/** @brief Performs a flush operation on the given endpoint for all registered memory
+	 *
+	 * @param[in] rail  Rail information
+	 * @param[in] ep    Endpoint information of the one to flush
+	 * @param[in] comp  Completion function to call on flush completion
+	 * @param[in] flags (UNUSED)
+	 *
+	 * @retval MPC_LOWCOMM_SUCCESS upon completion (the flush operation has completed)
+	 * @retval MPC_LOWCOMM_IN_PROGRESS upon successful (the flush operation has been queued)
+	 * @retval MPC_LOWCOMM_NO_RESOURCE upon failure (no more flush operation can be added)
+	 */
+	int lcr_ptl_flush_ep(sctk_rail_info_t *rail, _mpc_lowcomm_endpoint_t *ep, lcr_completion_t *comp, unsigned flags);
 
-	int lcr_ptl_flush_mem(sctk_rail_info_t *rail,
-	                      lcr_memp_t *list,
-	                      lcr_completion_t *comp,
-	                      unsigned flags);
+	/** @brief Performs a flush operation on the given memory for all registered endpoints
+	 *
+	 * @param[in] rail  Rail information
+	 * @param[in] list  List containing an handle to the memory to flush
+	 * @param[in] comp  Completion function to call on flush completion
+	 * @param[in] flags (UNUSED)
+	 *
+	 * @retval MPC_LOWCOMM_SUCCESS upon completion (the flush operation has completed)
+	 * @retval MPC_LOWCOMM_IN_PROGRESS upon successful (the flush operation has been queued)
+	 * @retval MPC_LOWCOMM_NO_RESOURCE upon failure (no more flush operation can be added)
+	 */
+	int lcr_ptl_flush_mem(sctk_rail_info_t *rail, lcr_memp_t *list, lcr_completion_t *comp, unsigned flags);
 
-	int lcr_ptl_flush_iface(sctk_rail_info_t *rail,
-	                        lcr_completion_t *comp,
-	                        unsigned flags);
+	/** @brief Performs a flush operation on all endpoints for all registered memory
+	 *
+	 * @param[in] rail  Rail information
+	 * @param[in] comp  Completion function to call on flush completion
+	 * @param[in] flags (UNUSED)
+	 *
+	 * @retval MPC_LOWCOMM_SUCCESS upon completion (the flush operation has completed)
+	 * @retval MPC_LOWCOMM_IN_PROGRESS upon successful (the flush operation has been queued)
+	 * @retval MPC_LOWCOMM_NO_RESOURCE upon failure (no more flush operation can be added)
+	 */
+	int lcr_ptl_flush_iface(sctk_rail_info_t *rail, lcr_completion_t *comp, unsigned flags);
 
 	int lcr_ptl_mem_activate(lcr_ptl_rail_info_t *srail,
 	                         lcr_ptl_mem_lifetime_t lt,

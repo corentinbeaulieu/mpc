@@ -192,20 +192,25 @@ err:
 		{
 			if (op->type == LCR_PTL_OP_RMA_FLUSH)
 			{
+				// If the flush operations is first in queue
 				if (still_pending == 0)
 				{
+					// Remove it from the queue and complete it
 					mpc_queue_del_iter(&txq->ops, iter);
 					lcr_ptl_complete_op(op);
 				}
 			}
 			else
 			{
+				// If operation is completed
 				if (op->id < completed)
 				{
+					// Remove it from the queue
 					mpc_queue_del_iter(&txq->ops, iter);
 				}
 				else
 				{
+					// Non completed ops still in the queue (the next flush op shall not be completed)
 					still_pending++;
 				}
 			}
@@ -216,7 +221,18 @@ err:
 		return still_pending;
 	}
 
-	int lcr_ptl_exec_flush_mem_ep(lcr_ptl_mem_t *mem, lcr_ptl_ep_info_t *ep, lcr_ptl_op_t *flush_op)
+	/** @brief Performs the flush operation on the requested queue
+	 *
+	 * This function only adds the flush operation to the queue if it is not empty
+	 *
+	 * @param[in] mem      Memory to flush
+	 * @param[in] ep       Endpoint to flush
+	 * @param[in] flush_op Flush operation to track the flushing progress
+	 *
+	 * @retval MPC_LOWCOMM_IN_PROGRESS if the flush operation has been added to the queue
+	 * @retval MPC_LOWCOMM_SUCCESS     if the flush operation has been completed
+	 */
+	static int lcr_ptl_exec_flush_mem_ep(lcr_ptl_mem_t *mem, lcr_ptl_ep_info_t *ep, lcr_ptl_op_t *flush_op)
 	{
 		int rc = MPC_LOWCOMM_SUCCESS;
 
@@ -225,13 +241,16 @@ err:
 		const int64_t completed     = lcr_ptl_poll_mem(mem);
 		const int64_t still_pending = lcr_ptl_flush_txq(mem, txq, completed);
 
+		// If the queue is not empty
 		if (still_pending > 0)
 		{
+			// Append the flush op to the queue
 			mpc_queue_push(&txq->ops, &flush_op->elem);
 			rc = MPC_LOWCOMM_IN_PROGRESS;
 		}
 		else
 		{
+			// Complete instantly the flush op
 			lcr_ptl_complete_op(flush_op);
 		}
 
@@ -267,6 +286,7 @@ err:
 			NULL);
 
 		mpc_common_spinlock_lock(&ptl_ep->lock);
+		// Only one queue to flush
 		op->flush.outstandings = 1;
 
 		rc = lcr_ptl_exec_flush_mem_ep(mem, ptl_ep, op);
@@ -276,27 +296,40 @@ err:
 		return rc;
 	}
 
+	/** @brief Performs the flush operation on the requested endpoint
+	 *
+	 * This function only adds the flush operation to the queues associated with the endpoint if not empty
+	 *
+	 * @param[in] srail    Rail information
+	 * @param[in] ep       Endpoint to flush
+	 * @param[in] flush_op Flush operation to track the flushing progress
+	 *
+	 * @retval MPC_LOWCOMM_IN_PROGRESS if the flush operation has been added to at least one queue
+	 * @retval MPC_LOWCOMM_SUCCESS     if the flush operation has been completed (all queues are empty)
+	 */
 	static int lcr_ptl_exec_flush_ep(lcr_ptl_rail_info_t *srail, lcr_ptl_ep_info_t *ep, lcr_ptl_op_t *flush_op)
 	{
 		int            rc = MPC_LOWCOMM_SUCCESS;
 		lcr_ptl_mem_t *mem;
 
-		/* First, load the number of outstanding operation. */
 		mpc_list_for_each(mem, &srail->net.rma.poll_list, lcr_ptl_mem_t, elem)
 		{
 			/* Poll memory. */
 			const int64_t completed = lcr_ptl_poll_mem(mem);
 
-			/* Count the number of outstanding operations. */
+			// Progress the queue and see if it is empty
 			const int64_t still_pending = lcr_ptl_flush_txq(mem, &mem->txqt[ep->idx], completed);
 
+			// If the queue is not empty
 			if (still_pending > 0)
 			{
+				// Push the flush op to the tail of the queue
 				mpc_queue_push(&mem->txqt->ops, &flush_op->elem);
 				rc = MPC_LOWCOMM_IN_PROGRESS;
 			}
 			else
 			{
+				// Complete one time the flush op (it has to be completed the number of queues time)
 				lcr_ptl_complete_op(flush_op);
 			}
 		}
@@ -332,15 +365,19 @@ err:
 		assert(ep != NULL);
 
 		mpc_common_spinlock_lock(&srail->net.rma.lock);
+		// Compute the number of queues to flush
 		const int outstandings = mpc_list_length(&srail->net.rma.poll_list);
 		op->flush.outstandings = outstandings > 1 ? outstandings : 1;
 
+		// If no queue has to be flushed
 		if (outstandings == 0)
 		{
+			// Complete instantly the flush op
 			lcr_ptl_complete_op(op);
 		}
 		else
 		{
+			// Flush the found queues
 			rc = lcr_ptl_exec_flush_ep(srail, ptl_ep, op);
 		}
 
@@ -349,6 +386,17 @@ err:
 		return rc;
 	}
 
+	/** @brief Performs the flush operation on the requested memory
+	 *
+	 * This function only adds the flush operation to the queues associated with the memory if not empty
+	 *
+	 * @param[in] srail    Rail information
+	 * @param[in] mem      Memory to flush
+	 * @param[in] flush_op Flush operation to track the flushing progress
+	 *
+	 * @retval MPC_LOWCOMM_IN_PROGRESS if the flush operation has been added to at least one queue
+	 * @retval MPC_LOWCOMM_SUCCESS     if the flush operation has been completed (all queues are empty)
+	 */
 	static int lcr_ptl_exec_flush_mem(lcr_ptl_rail_info_t *srail, lcr_ptl_mem_t *mem, lcr_ptl_op_t *flush_op)
 	{
 		int rc = MPC_LOWCOMM_SUCCESS;
@@ -356,17 +404,23 @@ err:
 
 		const int64_t completed = lcr_ptl_poll_mem(mem);
 
+		// Get the number of operation queues using this memory
 		num_txqs = atomic_load(&srail->num_eps);
+		// Loop over all endpoints
 		for (i = 0; i < num_txqs; i++)
 		{
+			// Progress the queue and see if it is empty
 			const int64_t still_pending = lcr_ptl_flush_txq(mem, &mem->txqt[i], completed);
+			// If the queue is not empty
 			if (still_pending > 0)
 			{
+				// Push the flush operation to the queue
 				mpc_queue_push(&mem->txqt->ops, &flush_op->elem);
 				rc = MPC_LOWCOMM_IN_PROGRESS;
 			}
 			else
 			{
+				// Complete one time the flush op (it has to be completed the number of queues time)
 				lcr_ptl_complete_op(flush_op);
 			}
 		}
@@ -401,15 +455,19 @@ err:
 			NULL);
 
 		mpc_common_spinlock_lock(&mem->lock);
+		// Compute the number of queues to flush
 		const int outstandings = atomic_load(&srail->num_eps);
 		op->flush.outstandings = outstandings > 1 ? outstandings : 1;
 
+		// If no queue has to be flushed
 		if (outstandings == 0)
 		{
+			// Complete instantly the flush op
 			lcr_ptl_complete_op(op);
 		}
 		else
 		{
+			// Flush the found queues
 			rc = lcr_ptl_exec_flush_mem(srail, mem, op);
 		}
 
@@ -418,6 +476,16 @@ err:
 		return rc;
 	}
 
+	/** @brief Performs the flush operation on all registered memories
+	 *
+	 * This function only adds the flush operation to the queues if not empty
+	 *
+	 * @param[in] srail    Rail information
+	 * @param[in] flush_op Flush operation to track the flushing progress
+	 *
+	 * @retval MPC_LOWCOMM_IN_PROGRESS if the flush operation has been added to at least one queue
+	 * @retval MPC_LOWCOMM_SUCCESS     if the flush operation has been completed (all queues are empty)
+	 */
 	static int lcr_ptl_exec_flush_iface(lcr_ptl_rail_info_t *srail, lcr_ptl_op_t *flush_op)
 	{
 		int            rc = MPC_LOWCOMM_SUCCESS;
@@ -435,14 +503,18 @@ err:
 			/* Loop on all TX Queues that has been linked on this memory. */
 			for (i = 0; i < num_eps; i++)
 			{
+				// Progress the queue and see if it is empty
 				const int64_t still_pending = lcr_ptl_flush_txq(mem, &mem->txqt[i], completed);
+				// If the queue is not empty
 				if (still_pending > 0)
 				{
+					// Push the flush operation to the queue
 					mpc_queue_push(&mem->txqt->ops, &flush_op->elem);
 					rc = MPC_LOWCOMM_IN_PROGRESS;
 				}
 				else
 				{
+					// Complete one time the flush op (it has to be completed the number of queues time)
 					lcr_ptl_complete_op(flush_op);
 				}
 			}
@@ -477,18 +549,22 @@ err:
 			NULL);
 
 		mpc_common_spinlock_lock(&srail->net.rma.lock);
+		// Compute the number of queues to flush
 		const int     num_eps      = atomic_load(&srail->num_eps);
 		const int64_t num_mem      = mpc_list_length(&srail->net.rma.poll_list);
 		const int64_t outstandings = num_eps * num_mem;
 		op->flush.outstandings = outstandings > 1 ? outstandings : 1;
 		mpc_common_spinlock_unlock(&srail->net.rma.lock);
 
+		// If no queue has to be flushed
 		if (outstandings == 0)
 		{
+			// Complete instantly the flush op
 			lcr_ptl_complete_op(op);
 		}
 		else
 		{
+			// Flush the found queues
 			rc = lcr_ptl_exec_flush_iface(srail, op);
 		}
 
