@@ -70,7 +70,6 @@
 		/* Init packable data. */
 		ctx->size  = size;
 		ctx->start = addr;
-		ctx->flags = flags;
 
 		if (flags & LCR_IFACE_REGISTER_MEM_DYN)
 		{
@@ -153,10 +152,8 @@ err:
 		*(uint64_t *)p = (uint64_t)memp->pin.ptl.start;
 		p += sizeof(uint64_t);
 		*(ptl_match_bits_t *)p = memp->pin.ptl.match;
-		p += sizeof(ptl_match_bits_t);
-		*(unsigned *)p = memp->pin.ptl.flags;
 
-		return sizeof(uint64_t) + sizeof(ptl_match_bits_t) + sizeof(unsigned);
+		return sizeof(uint64_t) + sizeof(ptl_match_bits_t);
 	}
 
 	int lcr_ptl_unpack_rkey(sctk_rail_info_t *rail, lcr_memp_t *memp, void *dest)
@@ -168,10 +165,8 @@ err:
 		memp->pin.ptl.start = (void *)(*(uint64_t *)p);
 		p += sizeof(uint64_t);
 		memp->pin.ptl.match = *(ptl_match_bits_t *)p;
-		p += sizeof(ptl_match_bits_t);
-		memp->pin.ptl.flags = *(unsigned *)p;
 
-		return sizeof(uint64_t) + sizeof(ptl_match_bits_t) + sizeof(unsigned);
+		return sizeof(uint64_t) + sizeof(ptl_match_bits_t);
 	}
 
 	/*################################################
@@ -274,7 +269,6 @@ err:
 			rc = MPC_LOWCOMM_NO_RESOURCE;
 			goto err;
 		}
-		mpc_list_init_head(&op->flush.mem_head);
 
 		assert(mem != NULL && ep != NULL);
 
@@ -353,7 +347,6 @@ err:
 			rc = MPC_LOWCOMM_NO_RESOURCE;
 			goto err;
 		}
-		mpc_list_init_head(&op->flush.mem_head);
 
 		_lcr_ptl_init_op_common(op, 0, PTL_INVALID_HANDLE,
 			ptl_ep->addr.id,
@@ -444,7 +437,6 @@ err:
 			rc = MPC_LOWCOMM_NO_RESOURCE;
 			goto err;
 		}
-		mpc_list_init_head(&op->flush.mem_head);
 
 		assert(mem != NULL);
 		_lcr_ptl_init_op_common(op, 0, mem->mdh,
@@ -538,7 +530,6 @@ err:
 			rc = MPC_LOWCOMM_NO_RESOURCE;
 			goto err;
 		}
-		mpc_list_init_head(&op->flush.mem_head);
 
 		// FIXME: no need for underscore in function name. To be removed.
 		_lcr_ptl_init_op_common(op, 0, PTL_INVALID_HANDLE,

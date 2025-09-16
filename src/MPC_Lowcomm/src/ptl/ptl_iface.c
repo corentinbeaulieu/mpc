@@ -66,6 +66,15 @@
 		};
 	}
 
+	/** @brief Executes the function associated with an received active message
+	 *
+	 * @param[in] rail   Rail Information
+	 * @param[in] am_id  Unique identifier to the function to execute (received in the message)
+	 * @param[in] length Length of data received
+	 * @param[in] data   Data received and argument of the callback
+	 *
+	 * @return           MPC_LOWCOMM_SUCCESS upon success
+	 */
 	static inline int lcr_ptl_invoke_am(sctk_rail_info_t *rail,
 	                                    uint8_t am_id,
 	                                    size_t length,
@@ -156,6 +165,16 @@ out:
 		return rc;
 	}
 
+	/** @brief Process a Portals event as if it was an Active Message
+	 *
+	 * If the event is PTL_EVENT_ACK, completes the operation after releasing the memory
+	 * If the event is PTL_EVENT_PUT, invokes the functions as intended by Active Message
+	 *
+	 * @param[in] rail Rail information
+	 * @param[in] ev   Portals event to process
+	 *
+	 * @return         MPC_LOWCOMM_SUCCESS
+	 */
 	static int _lcr_ptl_iface_process_event_am(sctk_rail_info_t *rail, ptl_event_t *ev)
 	{
 		uint8_t am_id;
@@ -243,6 +262,13 @@ out:
 		return MPC_LOWCOMM_SUCCESS;
 	}
 
+	/** @brief Process a Portals event as if it was a tag message
+	 *
+	 * @param[in] rail Rail information
+	 * @param[in] ev   Portals event to process
+	 *
+	 * @return         MPC_LOWCOMM_SUCCESS
+	 */
 	static int _lcr_ptl_iface_process_event_tag(sctk_rail_info_t *rail, ptl_event_t *ev)
 	{
 		UNUSED(rail);
@@ -373,6 +399,16 @@ out:
 		return MPC_LOWCOMM_SUCCESS;
 	}
 
+	/** @brief Process a Portals event as if it was a rma message
+	 *
+	 * If the event is a failure, retries the operation
+	 * If the event is a reply or a acknowledgement, completes the operation
+	 *
+	 * @param[in] rail Rail information
+	 * @param[in] ev   Portals event to process
+	 *
+	 * @return         MPC_LOWCOMM_SUCCESS
+	 */
 	static int _lcr_ptl_iface_process_event_rma(sctk_rail_info_t *rail, ptl_event_t *ev)
 	{
 		int                  rc = MPC_LOWCOMM_SUCCESS;
@@ -408,7 +444,7 @@ out:
 			}
 			else
 			{
-				// mpc_common_debug_fatal("LCR PTL: RMA error not handled.");
+				mpc_common_debug_fatal("LCR PTL: RMA error not handled.");
 			}
 
 			/* Event failure. */
@@ -890,7 +926,6 @@ err:
 			mpc_queue_init_head(&mem->txqt[i].ops);
 			mpc_common_spinlock_init(&mem->txqt[i].lock, 0);
 		}
-		atomic_store(&mem->outstandings, 0);
 
 err:
 		return rc;
@@ -1041,8 +1076,7 @@ err:
 		attr->iface.cap.flags = rail->cap;
 
 		attr->mem.cap.max_reg      = PTL_SIZE_MAX;
-		attr->mem.size_packed_mkey = sizeof(uint64_t)
-		                             + sizeof(ptl_match_bits_t) + sizeof(unsigned); // FIXME: to be generalized
+		attr->mem.size_packed_mkey = sizeof(uint64_t) + sizeof(ptl_match_bits_t); // FIXME: to be generalized
 
 		return MPC_LOWCOMM_SUCCESS;
 	}

@@ -131,10 +131,10 @@
 		ptl_process_t id;
 		struct
 		{
-			ptl_pt_index_t tk;       /* PT index for Token operations. */
-			ptl_pt_index_t am;       /* PT index for AM operations.    */
-			ptl_pt_index_t tag;      /* PT index for TAG operations.   */
-			ptl_pt_index_t rma;      /* PT index for RMA operations.   */
+			ptl_pt_index_t tk;       /**< PT index for Token operations. */
+			ptl_pt_index_t am;       /**< PT index for AM operations.    */
+			ptl_pt_index_t tag;      /**< PT index for TAG operations.   */
+			ptl_pt_index_t rma;      /**< PT index for RMA operations.   */
 		} pte;
 	} lcr_ptl_addr_t;
 
@@ -183,38 +183,43 @@
 	/********** PTL RMA  *************/
 	/*********************************/
 
+	/** Lifetime of a given memory */
 	typedef enum lcr_ptl_mem_lifetime
 	{
-		LCR_PTL_MEM_DYNAMIC = 0,
-		LCR_PTL_MEM_STATIC,
+		LCR_PTL_MEM_DYNAMIC, /**< Dynamic memory are handled by the interface at init and deinit */
+		LCR_PTL_MEM_STATIC,  /**< Static memory are created and destroyed during the program execution */
 	} lcr_ptl_mem_lifetime_t;
 
+	/** @brief Description of a Memory Space
+	 *
+	 * This structure describes generic memory region that are both sending buffer and receiving buffer
+	 */
 	typedef struct lcr_ptl_mem
 	{
-		uint64_t               start;
-		uint32_t               uid;            /* Memory Unique Identifier (for RMA matching). */
-		lcr_ptl_mem_lifetime_t lifetime;
-		ptl_match_bits_t       match;
-		mpc_list_elem_t        elem;           /* Element in list.                       */
-		ptl_handle_ct_t        cth;            /* Counter handle.                        */
-		ptl_handle_md_t        mdh;            /* Memory Descriptor handle.              */
-		ptl_handle_me_t        meh;
-		lcr_ptl_txq_t *        txqt;
-		uint64_t               op_count;       /* Sequence number of the last pushed op. */
-		atomic_int_least32_t   outstandings;
-		mpc_common_spinlock_t  lock;
+		uint64_t               start;    /**< First address reference by the memory */
+		uint32_t               uid;      /**< Memory Unique Identifier (for RMA matching). */
+		lcr_ptl_mem_lifetime_t lifetime; /**< When the memory should be destroyed */
+		ptl_match_bits_t       match;    /**< Matching tag of the ME */
+		mpc_list_elem_t        elem;     /**< Element in list. */
+		ptl_handle_ct_t        cth;      /**< Portals Counter handle. */
+		ptl_handle_md_t        mdh;      /**< Portals Memory Descriptor handle.*/
+		ptl_handle_me_t        meh;      /**< Portals Matching List Entry handle */
+		lcr_ptl_txq_t *        txqt;     /**< List of operations associated with this memory */
+		uint64_t               op_count; /**< Sequence number of the last pushed op. */
+		mpc_common_spinlock_t  lock;     /**< Critical section lock for the memory */
 	} lcr_ptl_mem_t;
 
+	/** @brief Shorten version of a memory description for common usage */
 	typedef struct lcr_ptl_mem_ctx
 	{
-		ptl_match_bits_t match;       // FIXME: duplicated from lcr_ptl_mem_t
-		const void *     start;       /* Start address of the memory.           */
-		size_t           size;        /* Size of the memory.                    */
-		unsigned         flags;
-		lcr_ptl_mem_t *  mem;
+		// FIXME: duplicated from lcr_ptl_mem_t
+		ptl_match_bits_t match; /**< Matching tag of the ME */
+		const void *     start; /**< Start address of the memory. */
+		size_t           size;  /**< Size of the memory. */
+		lcr_ptl_mem_t *  mem;   /**< Handle to the more precise full description memory */
 	} lcr_ptl_mem_ctx_t;
 
-	/* Operation types. */
+	/** Operation types. */
 	typedef enum
 	{
 		/* Block operation. */
@@ -230,7 +235,7 @@
 		LCR_PTL_OP_ATOMIC_POST,
 		LCR_PTL_OP_ATOMIC_FETCH,
 		LCR_PTL_OP_ATOMIC_CSWAP,
-		LCR_PTL_OP_RMA_FLUSH, /**< flush op complete when prior ops are completed */
+		LCR_PTL_OP_RMA_FLUSH, /**< Flush op complete when prior ops are completed */
 #if defined (MPC_USE_PORTALS_CONTROL_FLOW)
 			/* Token operations. */
 			LCR_PTL_OP_TK_INIT,
@@ -240,17 +245,18 @@
 #endif
 	} lcr_ptl_op_type_t;
 
+	/** Description of a ptl operation */
 	typedef struct lcr_ptl_op
 	{
-		int64_t           id;   /* Operation identifier. */
-		ptl_handle_md_t   mdh;  /* MD from which to perform the operation. */
-		ptl_process_t     addr;
-		ptl_hdr_data_t    hdr;
-		ptl_pt_index_t    pti;
-		lcr_ptl_op_type_t type; /* Type of operation */
-		size_t            size; /* Data size of the operation */
-		lcr_completion_t *comp; /* Completion callback */
-		lcr_ptl_txq_t *   txq;  /* TX Queue where the operation was pushed. */
+		int64_t           id;   /**< Operation identifier. */
+		ptl_handle_md_t   mdh;  /**< MD from which to perform the operation. */
+		ptl_process_t     addr; /**< Target process identifier */
+		ptl_hdr_data_t    hdr;  /**< Header data to be added to the message */
+		ptl_pt_index_t    pti;  /**< Portals Table index to match on */
+		lcr_ptl_op_type_t type; /**< Type of operation */
+		size_t            size; /**< Data size of the operation */
+		lcr_completion_t *comp; /**< Completion callback */
+		lcr_ptl_txq_t *   txq;  /**< TX Queue where the operation was pushed. */
 
 		union
 		{
@@ -310,74 +316,74 @@
 			//       number of op count on all memory.
 			struct
 			{
-				int             outstandings;
-				mpc_list_elem_t mem_head;
-			} flush;
+				int outstandings; /**< Number of queues where the op is still inserted */
+			} flush;              /**< RMA flush operation */
 		};
 
-		mpc_queue_elem_t elem;   /* Element in TX queue. */
+		mpc_queue_elem_t elem;    /**< Element in TX queue. */
 	} lcr_ptl_op_t;
 
 	/*********************************/
 	/********** Operation Context ****/
 	/*********************************/
-	/* Context for two-sided operations. */
+
+	/** Context for two-sided operations. */
 	typedef struct lcr_ptl_ts_ctx
 	{
-		ptl_handle_md_t      mdh;      /* Eager Memory Descriptor handle. */
-		ptl_pt_index_t       pti;      /* Portal Table Index. */
-		mpc_mempool_t *      block_mp; /* Pool of shadow buffers. */
-		mpc_list_elem_t      bhead;    /* Head of block list. */
+		ptl_handle_md_t      mdh;      /**< Eager Memory Descriptor handle. */
+		ptl_pt_index_t       pti;      /**< Portal Table Index. */
+		mpc_mempool_t *      block_mp; /**< Pool of shadow buffers. */
+		mpc_list_elem_t      bhead;    /**< Head of block list. */
 		atomic_int_least64_t op_sn;
 		atomic_int_least64_t rma_count;
 	} lcr_ptl_ts_ctx_t;
 
-	/* Context for one-sided operations. */
+	/** Context for one-sided operations. */
 	typedef struct lcr_ptl_os_ctx
 	{
 		lcr_ptl_mem_t *       dynamic_mem;
 		mpc_mempool_t *       mem_mp;
-		ptl_pt_index_t        pti;       /* Portals Table Index for RMA. */
-		atomic_uint_least32_t mem_uid;   /* Unique identifier for RMA registration. */
-		mpc_list_elem_t       poll_list; /* List posted Memory handle to be polled. */
+		ptl_pt_index_t        pti;       /**< Portals Table Index for RMA. */
+		atomic_uint_least32_t mem_uid;   /**< Unique identifier for RMA registration. */
+		mpc_list_elem_t       poll_list; /**< List posted Memory handle to be polled. */
 		mpc_common_spinlock_t lock;
 	} lcr_ptl_os_ctx_t;
 
 #if defined (MPC_USE_PORTALS_CONTROL_FLOW)
 		typedef struct lcr_ptl_tk_rsc
 		{
-			int              idx;        /* Resource idx in table. */
-			lcr_ptl_addr_t   remote;     /* Full address of remote process. */
-			uint16_t         ep_idx;     /* ID of the remote endpoint it is connected to. */
-			mpc_queue_elem_t elem;       /* Element in exhausted queue. */
-			int32_t          tk_chunk;   /* Chunk of tokens to grant each time. */
+			int              idx;        /**< Resource idx in table. */
+			lcr_ptl_addr_t   remote;     /**< Full address of remote process. */
+			uint16_t         ep_idx;     /**< ID of the remote endpoint it is connected to. */
+			mpc_queue_elem_t elem;       /**< Element in exhausted queue. */
+			int32_t          tk_chunk;   /**< Chunk of tokens to grant each time. */
 			struct
 			{
-				int32_t requested;       /* Number of requested tokens from remote. */
-				int32_t granted;         /* Number of token distributed to remote.  */
-				int     scheduled;       /* Has grant request been scheduled already? */
+				int32_t requested;       /**< Number of requested tokens from remote. */
+				int32_t granted;         /**< Number of token distributed to remote.  */
+				int     scheduled;       /**< Has grant request been scheduled already? */
 			} req;
 		} lcr_ptl_tk_rsc_t;
 
 		typedef struct lcr_ptl_tk_config
 		{
-			int max_tokens; /* Maximum number of tokens. */
-			int max_chunk;  /* Maximum number of tokens granted per request. */
-			int min_chunk;  /* Minimum number of tokens granted per request. */
+			int max_tokens; /**< Maximum number of tokens. */
+			int max_chunk;  /**< Maximum number of tokens granted per request. */
+			int min_chunk;  /**< Minimum number of tokens granted per request. */
 		} lcr_ptl_tk_config_t;
 
 		typedef struct lcr_ptl_tk_module
 		{
 			lcr_ptl_tk_config_t         config;
-			ptl_handle_eq_t             eqh;       /* Event Queue. */
-			ptl_handle_md_t             mdh;       /* Memory Descriptor handle. */
-			ptl_pt_index_t              pti;       /* Portal Table Index. */
-			ptl_handle_me_t             meh;       /* Memory Entry handle. */
+			ptl_handle_eq_t             eqh;       /**< Event Queue. */
+			ptl_handle_md_t             mdh;       /**< Memory Descriptor handle. */
+			ptl_pt_index_t              pti;       /**< Portal Table Index. */
+			ptl_handle_me_t             meh;       /**< Memory Entry handle. */
 			mpc_common_spinlock_t       lock;
-			struct mpc_common_hashtable rsct;      /* Token Resource Hash Table. */
-			mpc_mempool_t *             ops;       /* Pool of operations. */
-			mpc_queue_head_t            exhausted; /* Queue of exhausted token resources. */
-			int32_t                     pool;      /* Token pool. */
+			struct mpc_common_hashtable rsct;      /**< Token Resource Hash Table. */
+			mpc_mempool_t *             ops;       /**< Pool of operations. */
+			mpc_queue_head_t            exhausted; /**< Queue of exhausted token resources. */
+			int32_t                     pool;      /**< Token pool. */
 		} lcr_ptl_tk_module_t;
 #endif
 
@@ -404,32 +410,32 @@
 		size_t          max_mr;        /**< Max size of a memory region (MD | ME ) */
 		size_t          max_put;       /**< Max size of a put. */
 		size_t          max_get;       /**< Max size of a get. */
-		size_t          min_frag_size; /* Minimum size of a fragment. */
+		size_t          min_frag_size; /**< Minimum size of a fragment. */
 		ptl_ni_limits_t max_limits;    /**< container for Portals thresholds */
-		unsigned        features;      /* Instantiated features. */
+		unsigned        features;      /**< Instantiated features. */
 	} lcr_ptl_iface_config_t;
 
 	typedef struct lcr_ptl_rail_info
 	{
 		lcr_ptl_iface_config_t config;
-		lcr_ptl_addr_t         addr;      /* Full address of PTL interface. */
+		lcr_ptl_addr_t         addr; /**< Full address of PTL interface. */
 		char                   connection_infos[MPC_COMMON_MAX_STRING_SIZE];
 		size_t                 connection_infos_size;
 		struct
 		{
 			ptl_handle_ni_t         nih;
 			ptl_handle_eq_t         eqh; /**< Event Queue for Active Message/Tag/RMA errors. */
-			lcr_ptl_ts_ctx_t        am;  /* Two-sided Active Message context. */
-			lcr_ptl_ts_ctx_t        tag; /* Two-sided Tag context. */
-			lcr_ptl_os_ctx_t        rma; /* RMA context. */
+			lcr_ptl_ts_ctx_t        am;  /**< Two-sided Active Message context. */
+			lcr_ptl_ts_ctx_t        tag; /**< Two-sided Tag context. */
+			lcr_ptl_os_ctx_t        rma; /**< RMA context. */
 #if defined(MPC_USE_PORTALS_CONTROL_FLOW)
-				lcr_ptl_tk_module_t tk;  /* Token module. */
+				lcr_ptl_tk_module_t tk;  /**< Token module. */
 #endif
 		}                     net;
-		lcr_ptl_ep_info_t **  ept;       /* Table of PTL endpoints. */
+		lcr_ptl_ep_info_t **  ept;       /**< Table of PTL endpoints. */
 		atomic_int_least32_t  num_eps;
 		mpc_mempool_t *       iface_ops; // NOTE: only need for TAG interface.
-		mpc_mempool_t *       buf_mp;    /* Eager copy-in buffer pool. */
+		mpc_mempool_t *       buf_mp;    /**< Eager copy-in buffer pool. */
 		mpc_common_spinlock_t lock;
 	} lcr_ptl_rail_info_t;
 	typedef struct lcr_ptl_rail_info _mpc_lowcomm_ptl_rail_info_t;
@@ -943,6 +949,13 @@ err:
 #endif
 	/* NOLINTEND(clang-diagnostic-unused-function) */
 
+	/** @brief Completes an operation based on its type
+	 *
+	 * @param[in] op Operation to complete
+	 *
+	 * @retval       MPC_LOWCOMM_SUCCESS upon success
+	 * @retval       MPC_LOWCOMM_ERROR otherwise
+	 */
 	int lcr_ptl_complete_op(lcr_ptl_op_t *op);
 
 	ptl_size_t lcr_ptl_poll_mem(lcr_ptl_mem_t *mem);
@@ -1146,6 +1159,14 @@ err:
 
 	int lcr_ptl_unpack_rkey(sctk_rail_info_t *rail, lcr_memp_t *memp, void *dest);
 
+	/** @brief Progress communication from all sort of protocol (am, rma, tag...)
+	 *
+	 * This function unqueue the Portals events and process them.
+	 *
+	 * @param[in] rail Rail information
+	 *
+	 * @return         MPC_LOWCOMM_SUCCESS upon success
+	 */
 	int lcr_ptl_iface_progress(sctk_rail_info_t *rail);
 
 #if defined (MPC_USE_PORTALS_CONTROL_FLOW)
