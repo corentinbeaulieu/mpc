@@ -7,10 +7,6 @@
 
 #include <mpc_lowcomm_monitor.h>
 
-#ifdef MPC_USE_PORTALS
-#include "portals/sctk_portals.h"
-#endif
-
 #ifdef __cplusplus
 	extern "C" {
 #endif
@@ -416,18 +412,13 @@ typedef struct
 	/* If the message has been buffered during the
 	 * Send function. If it is, we need to free the async
 	 * buffer when completing the message */
-	struct mpc_buffered_msg_s *       buffer_async;
+	struct mpc_buffered_msg_s *buffer_async;
 
 	/* RDMA infos */
-	void *                            rdma_src;
-	void *                            route_table;
+	void *                     rdma_src;
+	void *                     route_table;
 
-#ifdef MPC_USE_PORTALS
-		/* Portals infos */
-		struct mpc_lowcomm_ptl_tail_s ptl;
-#endif
-
-	char                              remote_source;
+	char                       remote_source;
 } mpc_lowcomm_ptp_message_tail_t;
 
 /************************************************************************/

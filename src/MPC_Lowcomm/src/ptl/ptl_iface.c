@@ -631,7 +631,7 @@ err:
 	 * Create the link between our program and the real driver.
 	 * \return the Portals rail object
 	 */
-	lcr_ptl_rail_info_t lcr_ptl_hardware_init(sctk_ptl_interface_t iface)
+	lcr_ptl_rail_info_t lcr_ptl_hardware_init(ptl_interface_t iface)
 	{
 		/* BXI specific We first need to make sure we do not exhaust command queues on the BXI
 		 * by setting a few internal variables for CQs sharing */

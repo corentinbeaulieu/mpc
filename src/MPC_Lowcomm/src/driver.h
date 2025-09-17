@@ -28,7 +28,7 @@
 #include <tcp.h>
 
 #ifdef MPC_USE_PORTALS
-#include <ptl/ptl_pub.h>
+#include <ptl/ptl.h>
 #endif
 
 #include <tbsm/tbsm.h>

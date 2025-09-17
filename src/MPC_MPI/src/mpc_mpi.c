@@ -52,10 +52,6 @@
 #include <mpc_thread_accelerator.h>
 #endif
 
-#ifdef MPC_USE_PORTALS
-#include <sctk_ptl_offcoll.h>
-#endif
-
 #ifdef MPC_Threads
 #include <mpc_thread.h>
 #endif
@@ -2511,19 +2507,6 @@ static inline int __MPC_node_comm_coll_check(struct sctk_comm_coll *coll, MPI_Co
 
 int __INTERNAL__PMPI_Barrier_intra(MPI_Comm comm)
 {
-#ifdef MPC_USE_PORTALS
-		int res;
-		int rank, size;
-		_mpc_cl_comm_size(comm, &size);
-		_mpc_cl_comm_rank(comm, &rank);
-
-		if (ptl_offcoll_enabled())
-		{
-			res = ptl_offcoll_barrier(mpc_lowcomm_communicator_id(comm), rank, size);
-			return res;
-		}
-#endif
-
 	return mpc_lowcomm_barrier(comm);
 }
 
@@ -3017,17 +3000,6 @@ int __INTERNAL__PMPI_Bcast_intra(void *buffer, int count, MPI_Datatype datatype,
 	{
 		return res;
 	}
-#ifdef MPC_USE_PORTALS
-		if (ptl_offcoll_enabled() && _mpc_dt_get_kind(datatype) == MPC_DATATYPES_COMMON)
-		{
-			size_t tmp_size;
-			_mpc_cl_type_size(datatype, &tmp_size);
-			size_t length = ((size_t)count) * ((size_t)tmp_size);
-
-			res = ptl_offcoll_bcast(mpc_lowcomm_communicator_id(comm), rank, size, buffer, length, root);
-			return res;
-		}
-#endif
 
 	return _mpc_mpi_collectives_bcast(buffer, count, datatype, root, comm);
 }
