@@ -2,7 +2,7 @@
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
   - repo: 'https://github.com/pre-commit/pre-commit-hooks'
-    rev: 'v4.6.0'
+    rev: 'v6.0.0'
     hooks:
       - id: 'check-executables-have-shebangs'
       - id: 'check-merge-conflict'
@@ -15,17 +15,6 @@ repos:
       - id: 'trailing-whitespace'
         args: ['--markdown-linebreak-ext=md']
         exclude: '.gitlab/issue_templates/bugreport.md'
-  - repo: 'https://github.com/crate-ci/typos'
-    rev: 'v1.36.2'
-    hooks:
-      - id: 'typos'
-        args: ['-c', 'utils/.typos.toml']
-        exclude: |-
-          (?x)
-            ^.clang-tidy$|
-            ^config/|
-            ^cmake/example/t.c$|
-            ^tests/
   - repo: 'https://github.com/pocc/pre-commit-hooks.git'
     rev: 'v1.3.5'
     hooks:
@@ -61,6 +50,21 @@ repos:
         language: 'system'
         pass_filenames: false
         minimum_pre_commit_version: '0'
+      - id: 'typos'
+        name: 'typos'
+        description: 'Source code spell checker'
+        language: 'system'
+        entry: 'typos'
+        args: ['-c', 'utils/.typos.toml', '--force-exclude']
+        types: ['text']
+        stages: ['pre-commit', 'pre-merge-commit', 'pre-push', 'manual']
+        exclude: |-
+          (?x)
+            ^.clang-tidy$|
+            ^config/|
+            ^cmake/example/t.c$|
+            ^src/MPC_Threads/src/ethread_posix.c$|  # False positive on french comments
+            ^tests/
 exclude: |-
   (?x)
     uthash\.h$|
