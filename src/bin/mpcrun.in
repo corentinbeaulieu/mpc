@@ -71,6 +71,7 @@ MPC_INSTALL_PREFIX=@prefix@
 MPC_BIN_DIR="${MPC_INSTALL_PREFIX}/bin"
 MPC_LIB_DIR="${MPC_INSTALL_PREFIX}/lib"
 MPC_SHARE_DIR="@PKG_DATADIR@"
+USING_ASAN_DYNAMIC="@USING_ASAN_DYNAMIC@"
 USING_ASAN="@USING_ASAN@"
 
 # Optional modules
@@ -179,8 +180,10 @@ if test "x${USING_ASAN}" = "xyes"; then
 	echo "# Using ASAN_OPTIONS=${ASAN_OPTIONS}"
 	export ASAN_OPTIONS
 
-	# We make libasan first in loading order
-	export LD_PRELOAD="libasan.so:$LD_PRELOAD"
+	if test "x${USING_ASAN_DYNAMIC}" = "xyes"; then
+		# We make libasan first in loading order
+		export LD_PRELOAD="libasan.so:$LD_PRELOAD"
+	fi
 fi
 
 ###################

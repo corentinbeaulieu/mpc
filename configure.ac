@@ -3125,14 +3125,24 @@ if test "x${mpc_simu_topo}" = "xyes"; then
         AC_DEFINE([MPC_ENABLE_TOPOLOGY_SIMULATION], [1], [MPC Topology simulation])
 fi
 
+USING_ASAN_DYNAMIC="no"
 USING_ASAN="no"
 
 if test "x${mpc_debug_mem}" = "xyes"; then
 
         case $mpc_compiler_family in
-                "gcc"|"clang")
+                "gcc")
+
                         CFLAGS+=" -fsanitize=address"
-                        AC_CHECK_LIB([asan], [__asan_report_load8])
+                        LDFLAGS+=" -fsanitize=address"
+                        USING_ASAN_DYNAMIC="yes"
+                        USING_ASAN="yes"
+                        # Also set the debug flag
+                        mpc_debug="yes"
+                ;;
+                "clang")
+                        CFLAGS+=" -fsanitize=address"
+                        LDFLAGS+=" -fsanitize=address -static-libasan"
                         USING_ASAN="yes"
                         # Also set the debug flag
                         mpc_debug="yes"
@@ -3143,6 +3153,8 @@ if test "x${mpc_debug_mem}" = "xyes"; then
         esac
 fi
 
+AM_CONDITIONAL([USING_ASAN_DYNAMIC], [test "x$USING_ASAN_DYNAMIC" = "xyes"])
+AC_SUBST([USING_ASAN_DYNAMIC])
 AM_CONDITIONAL([USING_ASAN], [test "x$USING_ASAN" = "xyes"])
 AC_SUBST([USING_ASAN])
 

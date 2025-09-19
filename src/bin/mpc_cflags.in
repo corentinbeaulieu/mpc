@@ -98,6 +98,13 @@ if test "x${HAVE_FORTRAN}" = "xyes"; then
 	FLAGS="${FLAGS} -I${MPC_INCLUDEDIR}/fortran/ ${FORTRAN_ALLOW_ARG_MISMATCH}"
 fi
 
+USING_ASAN="@USING_ASAN@"
+
+if [[ $USING_ASAN == "yes" ]]; then
+	FLAGS="${FLAGS} -fsanitize=address"
+fi
+
+
 FLAGS="$FLAGS $(gen_module_defines)"
 
 #
