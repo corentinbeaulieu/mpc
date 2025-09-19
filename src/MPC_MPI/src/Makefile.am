@@ -31,10 +31,6 @@ if MPC_THREAD_ENABLED
         AM_CPPFLAGS += -I$(abs_top_srcdir)/src/MPC_Threads/src/ -I$(abs_top_srcdir)/src/MPC_Threads/include/ -I$(abs_top_srcdir)/src/MPC_Topology/include/
 endif
 
-if PORTALS4_DRIVER_ENABLED
-AM_CPPFLAGS += -I$(abs_top_srcdir)/src/MPC_Lowcomm/src/portals/
-endif
-
 if OFI_DRIVER_ENABLED
 AM_CPPFLAGS += -I$(abs_top_srcdir)/src/MPC_Lowcomm/src/ofi/
 endif
