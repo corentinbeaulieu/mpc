@@ -175,7 +175,7 @@ err:
 /* NOLINTEND(clang-diagnostic-unused-function) */
 
 int mpc_osc_perform_atomic_op(mpc_osc_module_t *mod, lcp_ep_h ep,
-                              lcp_task_h task, uint64_t value, size_t size,
+                              lcp_task_h task, uint64_t value, lcp_atomic_dt_t atomic_datatype,
                               uint64_t *result, uint64_t remote_addr,
                               lcp_mem_h rkey, lcp_atomic_op_t op);
 

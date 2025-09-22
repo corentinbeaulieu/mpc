@@ -263,7 +263,7 @@ int mpc_osc_post(mpc_lowcomm_group_t *group, int mpi_assert, mpc_win_t *win)
 
 		rc = mpc_osc_perform_atomic_op(module,
 			module->eps[ranks_in_grp_win[i]],
-			task, inc, sizeof(uint64_t),
+			task, inc, LCP_ATOMIC_DT_UINT64,
 			&result, (uint64_t)(base_rstate + OSC_STATE_POST_COUNTER_OFFSET),
 			module->rstate_win_info[ranks_in_grp_win[i]].rkey,
 			LCP_ATOMIC_OP_ADD);
@@ -280,7 +280,7 @@ int mpc_osc_post(mpc_lowcomm_group_t *group, int mpi_assert, mpc_win_t *win)
 			rc = mpc_osc_perform_atomic_op(module,
 				module->eps[ranks_in_grp_win[i]],
 				task, my_rank + 1,
-				sizeof(uint64_t),
+				LCP_ATOMIC_DT_UINT64,
 				&result,
 				(uint64_t)(base_rstate + OSC_STATE_POST_OFFSET + cur_idx * sizeof(uint64_t)),
 				module->rstate_win_info[ranks_in_grp_win[i]].rkey,
@@ -346,7 +346,7 @@ int mpc_osc_complete(mpc_win_t *win)
 		base_rstate = (uint64_t)module->rstate_win_info[module->start_grp_ranks[i]].addr;
 
 		rc = mpc_osc_perform_atomic_op(module, module->eps[target],
-			task, one, sizeof(uint64_t),
+			task, one, LCP_ATOMIC_DT_UINT64,
 			NULL, base_rstate
 			+ OSC_STATE_COMPLETION_COUNTER_OFFSET,
 			module->rstate_win_info[module->start_grp_ranks[i]].rkey,

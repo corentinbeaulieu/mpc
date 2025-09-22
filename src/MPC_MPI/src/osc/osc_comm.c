@@ -32,6 +32,42 @@
 #include "mpc_mpi_internal.h"
 #include "comm_lib.h"
 
+/** Translation table from MPI to LCP atomic datatypes */
+static const lcp_atomic_dt_t lcp_atomic_dt_table[] =
+{
+	[(uint64_t)MPI_FLOAT]            = LCP_ATOMIC_DT_FLOAT,
+	[(uint64_t)MPI_REAL]             = LCP_ATOMIC_DT_FLOAT,
+	[(uint64_t)MPI_REAL4]            = LCP_ATOMIC_DT_FLOAT,
+	[(uint64_t)MPI_DOUBLE]           = LCP_ATOMIC_DT_DOUBLE,
+	[(uint64_t)MPI_DOUBLE_PRECISION] = LCP_ATOMIC_DT_DOUBLE,
+	[(uint64_t)MPI_REAL8]            = LCP_ATOMIC_DT_DOUBLE,
+	[(uint64_t)MPI_CHAR]             = LCP_ATOMIC_DT_INT8,
+	[(uint64_t)MPI_SIGNED_CHAR]      = LCP_ATOMIC_DT_INT8,
+	[(uint64_t)MPI_INT8_T]           = LCP_ATOMIC_DT_INT8,
+	[(uint64_t)MPI_CHARACTER]        = LCP_ATOMIC_DT_INT8,
+	[(uint64_t)MPI_SHORT]            = LCP_ATOMIC_DT_INT16,
+	[(uint64_t)MPI_INT16_T]          = LCP_ATOMIC_DT_INT16,
+	[(uint64_t)MPI_INTEGER2]         = LCP_ATOMIC_DT_INT16,
+	[(uint64_t)MPI_INT]                = LCP_ATOMIC_DT_INT32,
+	[(uint64_t)MPI_INT32_T]            = LCP_ATOMIC_DT_INT32,
+	[(uint64_t)MPI_INTEGER]            = LCP_ATOMIC_DT_INT32,
+	[(uint64_t)MPI_INTEGER4]           = LCP_ATOMIC_DT_INT32,
+	[(uint64_t)MPI_LONG]               = LCP_ATOMIC_DT_INT64,
+	[(uint64_t)MPI_LONG_LONG]          = LCP_ATOMIC_DT_INT64,
+	[(uint64_t)MPI_LONG_LONG_INT]      = LCP_ATOMIC_DT_INT64,
+	[(uint64_t)MPI_INT64_T]            = LCP_ATOMIC_DT_INT64,
+	[(uint64_t)MPI_INTEGER8]           = LCP_ATOMIC_DT_INT64,
+	[(uint64_t)MPI_UNSIGNED_CHAR]      = LCP_ATOMIC_DT_UINT8,
+	[(uint64_t)MPI_UINT8_T]            = LCP_ATOMIC_DT_UINT8,
+	[(uint64_t)MPI_UNSIGNED_SHORT]     = LCP_ATOMIC_DT_UINT16,
+	[(uint64_t)MPI_UINT16_T]           = LCP_ATOMIC_DT_UINT16,
+	[(uint64_t)MPI_UNSIGNED]           = LCP_ATOMIC_DT_UINT32,
+	[(uint64_t)MPI_UINT32_T]           = LCP_ATOMIC_DT_UINT32,
+	[(uint64_t)MPI_UNSIGNED_LONG]      = LCP_ATOMIC_DT_UINT64,
+	[(uint64_t)MPI_UNSIGNED_LONG_LONG] = LCP_ATOMIC_DT_UINT64,
+	[(uint64_t)MPI_UINT64_T]           = LCP_ATOMIC_DT_UINT64,
+};
+
 static lcp_status_ptr_t mpc_osc_discontig_common(lcp_ep_h ep, lcp_task_h task,
                                                  const void *origin_addr, int origin_count,
                                                  _mpc_lowcomm_general_datatype_t *origin_dt,
@@ -121,7 +157,7 @@ static int start_atomic_lock(mpc_osc_module_t *module, lcp_ep_h ep,
 		do
 		{
 			rc = mpc_osc_perform_atomic_op(module, ep, task, value,
-				sizeof(uint64_t),
+				LCP_ATOMIC_DT_UINT64,
 				&lock_state,
 				remote_lock_addr,
 				module->rstate_win_info[target].rkey,
@@ -171,7 +207,7 @@ static int end_atomic_lock(mpc_osc_module_t *module, lcp_ep_h ep,
 	if (lock_acquired)
 	{
 		rc = mpc_osc_perform_atomic_op(module, ep, task, value,
-			sizeof(uint64_t), NULL,
+			LCP_ATOMIC_DT_UINT64, NULL,
 			remote_lock_addr,
 			module->rstate_win_info[target].rkey,
 			LCP_ATOMIC_OP_ADD);
@@ -1236,11 +1272,12 @@ int mpc_osc_compare_and_swap(const void *origin_addr, const void *compare_addr,
 	mpc_osc_module_t *module      = &win->win_module;
 	uint64_t          remote_addr = module->rdata_win_info[target].addr
 	                                + target_disp * OSC_GET_DISP(module, target);
-	size_t     dt_size;
-	lcp_task_h task;
-	lcp_ep_h   ep;
-	lcp_mem_h  rmem;
-	int        lock_acquired = 0;
+	size_t          dt_size;
+	lcp_atomic_dt_t atomic_datatype = lcp_atomic_dt_table[(uint64_t)dt];
+	lcp_task_h      task;
+	lcp_ep_h        ep;
+	lcp_mem_h       rmem;
+	int             lock_acquired = 0;
 
 	task = lcp_context_task_get(module->ctx, mpc_common_get_task_rank());
 	rc   = mpc_osc_get_comm_info(module, target, win->comm, &ep);
@@ -1257,8 +1294,7 @@ int mpc_osc_compare_and_swap(const void *origin_addr, const void *compare_addr,
 		goto err;
 	}
 
-	rc = mpc_osc_get_remote_memory(module, ep, task, win->flavor, target,
-		remote_addr, &rmem);
+	rc = mpc_osc_get_remote_memory(module, ep, task, win->flavor, target, remote_addr, &rmem);
 	if (rc != MPI_SUCCESS)
 	{
 		goto err;
@@ -1277,7 +1313,7 @@ int mpc_osc_compare_and_swap(const void *origin_addr, const void *compare_addr,
 		"compare addr=%p, result_addr=%p, remote addr=%p, target disp=%d",
 		origin_addr, dt_size, compare_addr, remote_addr, remote_addr, target_disp);
 	rc = mpc_osc_perform_atomic_op(module, ep, task,
-		*(uint64_t *)origin_addr, dt_size,
+		*(uint64_t *)origin_addr, atomic_datatype,
 		(uint64_t *)result_addr, remote_addr,
 		rmem, LCP_ATOMIC_OP_CSWAP);
 	if (rc != MPC_LOWCOMM_SUCCESS)
@@ -1299,8 +1335,9 @@ int mpc_osc_fetch_and_op(const void *origin_addr, void *result_addr,
 	mpc_osc_module_t *module      = &win->win_module;
 	uint64_t          remote_addr = module->rdata_win_info[target].addr
 	                                + target_disp * OSC_GET_DISP(module, target);
-	size_t dt_size;
-	int    lock_acquired = 0;
+	size_t          dt_size;
+	lcp_atomic_dt_t atomic_datatype = lcp_atomic_dt_table[(uint64_t)dt];
+	int             lock_acquired   = 0;
 
 	_mpc_cl_type_size(dt, &dt_size);
 	if (atomic_size_supported(remote_addr, dt_size)
@@ -1352,7 +1389,7 @@ int mpc_osc_fetch_and_op(const void *origin_addr, void *result_addr,
 		}
 
 		rc = mpc_osc_perform_atomic_op(module, ep, task, value,
-			dt_size,
+			atomic_datatype,
 			(uint64_t *)result_addr,
 			remote_addr, rmem, op_code);
 		if (rc != MPC_LOWCOMM_SUCCESS)

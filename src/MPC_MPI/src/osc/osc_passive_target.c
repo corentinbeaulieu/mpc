@@ -48,7 +48,7 @@ static int start_shared(mpc_osc_module_t *module, lcp_task_h task, int target)
 	{
 		base_rstate = (uint64_t)module->rstate_win_info[target].addr;
 		rc          = mpc_osc_perform_atomic_op(module, module->eps[target], task,
-			one, sizeof(uint64_t),
+			one, LCP_ATOMIC_DT_UINT64,
 			&lock_state, base_rstate
 			+ OSC_STATE_GLOBAL_LOCK_OFFSET,
 			module->rstate_win_info[target].rkey,
@@ -64,7 +64,7 @@ static int start_shared(mpc_osc_module_t *module, lcp_task_h task, int target)
 			rc = mpc_osc_perform_atomic_op(module,
 				module->eps[target],
 				task, minusone,
-				sizeof(uint64_t), NULL,
+				LCP_ATOMIC_DT_UINT64, NULL,
 				base_rstate
 				+ OSC_STATE_GLOBAL_LOCK_OFFSET,
 				module->rstate_win_info[target].rkey,
@@ -88,7 +88,7 @@ static int end_shared(mpc_osc_module_t *module, lcp_task_h task, int target)
 	uint64_t base_rstate = (uint64_t)module->rstate_win_info[target].addr;
 
 	rc = mpc_osc_perform_atomic_op(module, module->eps[target], task,
-		minusone, sizeof(uint64_t), NULL,
+		minusone, LCP_ATOMIC_DT_UINT64, NULL,
 		base_rstate
 		+ OSC_STATE_GLOBAL_LOCK_OFFSET,
 		module->rstate_win_info[target].rkey,

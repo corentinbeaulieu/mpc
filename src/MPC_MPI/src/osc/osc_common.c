@@ -28,7 +28,7 @@
 #include <lcp.h>
 
 int mpc_osc_perform_atomic_op(mpc_osc_module_t *mod, lcp_ep_h ep,
-                              lcp_task_h task, uint64_t value, size_t size,
+                              lcp_task_h task, uint64_t value, lcp_atomic_dt_t atomic_datatype,
                               uint64_t *result, uint64_t remote_addr,
                               lcp_mem_h rkey, lcp_atomic_op_t op)
 {
@@ -52,7 +52,7 @@ int mpc_osc_perform_atomic_op(mpc_osc_module_t *mod, lcp_ep_h ep,
 		.reply_buffer = result,
 	};
 
-	status = lcp_atomic_op_nb(ep, task, &value, size, remote_addr, rkey,
+	status = lcp_atomic_op_nb(ep, task, &value, atomic_datatype, remote_addr, rkey,
 		op, &params);
 	if (LCP_PTR_IS_ERR(status))
 	{
@@ -147,7 +147,7 @@ int mpc_osc_start_exclusive(mpc_osc_module_t *module, lcp_task_h task,
 
 		rc = mpc_osc_perform_atomic_op(module, module->eps[target],
 			task, OSC_LOCK_EXCLUSIVE,
-			sizeof(uint64_t), &lock_state,
+			LCP_ATOMIC_DT_UINT64, &lock_state,
 			base_rstate + lock_offset,
 			module->rstate_win_info[target].rkey,
 			LCP_ATOMIC_OP_CSWAP);
@@ -188,7 +188,7 @@ int mpc_osc_end_exclusive(mpc_osc_module_t *module, lcp_task_h task,
 
 	mpc_common_debug("MPI OSC: end exclusive. to=%d", target);
 	rc = mpc_osc_perform_atomic_op(module, module->eps[target], task, value,
-		sizeof(uint64_t), NULL, base_rstate
+		LCP_ATOMIC_DT_UINT64, NULL, base_rstate
 		+ lock_offset,
 		module->rstate_win_info[target].rkey,
 		LCP_ATOMIC_OP_ADD);
