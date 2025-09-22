@@ -41,7 +41,8 @@
 
 #include "mpc_common_debug.h"
 
-static lcr_atomic_op_t lcp_atomic_op_table[] =
+/** Translation table from LCP to LCR atomic ops */
+static const lcr_atomic_op_t lcp_atomic_op_table[] =
 {
 	[LCP_ATOMIC_OP_ADD]   = LCR_ATOMIC_OP_ADD,
 	[LCP_ATOMIC_OP_AND]   = LCR_ATOMIC_OP_AND,
@@ -49,6 +50,21 @@ static lcr_atomic_op_t lcp_atomic_op_table[] =
 	[LCP_ATOMIC_OP_XOR]   = LCR_ATOMIC_OP_XOR,
 	[LCP_ATOMIC_OP_SWAP]  = LCR_ATOMIC_OP_SWAP,
 	[LCP_ATOMIC_OP_CSWAP] = LCR_ATOMIC_OP_CSWAP,
+};
+
+/** Translation table from LCP to LCR atomic datatypes */
+static const lcr_atomic_dt_t lcp_atomic_dt_table[] =
+{
+	[LCP_ATOMIC_DT_FLOAT]  = LCR_ATOMIC_DT_FLOAT,
+	[LCP_ATOMIC_DT_DOUBLE] = LCR_ATOMIC_DT_DOUBLE,
+	[LCP_ATOMIC_DT_INT8]   = LCR_ATOMIC_DT_INT8,
+	[LCP_ATOMIC_DT_INT16]  = LCR_ATOMIC_DT_INT16,
+	[LCP_ATOMIC_DT_INT32]  = LCR_ATOMIC_DT_INT32,
+	[LCP_ATOMIC_DT_INT64]  = LCR_ATOMIC_DT_INT64,
+	[LCP_ATOMIC_DT_UINT8]  = LCR_ATOMIC_DT_UINT8,
+	[LCP_ATOMIC_DT_UINT16] = LCR_ATOMIC_DT_UINT16,
+	[LCP_ATOMIC_DT_UINT32] = LCR_ATOMIC_DT_UINT32,
+	[LCP_ATOMIC_DT_UINT64] = LCR_ATOMIC_DT_UINT64,
 };
 
 static void lcp_atomic_complete(lcr_completion_t *comp)
@@ -68,17 +84,16 @@ static int lcp_atomic_post(lcp_request_t *req)
 
 	assert(req->send.ep->cap & LCR_IFACE_CAP_ATOMICS);
 
-	mpc_common_debug("LCP ATO: perform post. req=%p, task=%p, tid=%d, remote "
-		             "addr=%p, op=%s, value=%d", req, req->task,
+	mpc_common_debug(
+		"LCP ATO: perform post. req=%p, task=%p, tid=%d, remote addr=%p, op=%s, value=%d", req, req->task,
 		req->task->tid, req->send.ato.remote_addr,
-		lcp_ato_sw_decode_op(req->send.ato.op),
-		req->send.ato.value);
+		lcp_ato_sw_decode_op(req->send.ato.op), req->send.ato.value);
 
 	rc = lcp_atomic_do_post(ep, req->send.ato.value,
 		req->send.ato.remote_addr,
 		lcp_atomic_op_table[req->send.ato.op],
 		&req->send.ato.rkey->mems[req->send.ep->ato_chnl],
-		req->send.length,
+		lcp_atomic_dt_table[req->send.ato.atomic_datatype],
 		&req->state.comp);
 
 	return rc;
@@ -102,7 +117,7 @@ static int lcp_atomic_fetch(lcp_request_t *req)
 		req->send.ato.remote_addr,
 		lcp_atomic_op_table[req->send.ato.op],
 		&req->send.ato.rkey->mems[req->send.ep->ato_chnl],
-		req->send.length,
+		lcp_atomic_dt_table[req->send.ato.atomic_datatype],
 		&req->state.comp);
 
 	return rc;
@@ -127,7 +142,7 @@ static int lcp_atomic_cswap(lcp_request_t *req)
 		req->send.ato.remote_addr,
 		lcp_atomic_op_table[req->send.ato.op],
 		&req->send.ato.rkey->mems[req->send.ep->ato_chnl],
-		req->send.length,
+		lcp_atomic_dt_table[req->send.ato.atomic_datatype],
 		&req->state.comp);
 
 	return rc;
@@ -161,43 +176,27 @@ static inline int lcp_atomic_select_proto_channel(lcp_ep_h ep,
 }
 
 lcp_status_ptr_t lcp_atomic_op_nb(lcp_ep_h ep, lcp_task_h task, const void *buffer,
-                                  size_t length, uint64_t remote_addr, lcp_mem_h rkey,
+                                  lcp_atomic_dt_t atomic_datatype, uint64_t remote_addr, lcp_mem_h rkey,
                                   lcp_atomic_op_t op_type, const lcp_request_param_t *param)
 {
 	int rc = MPC_LOWCOMM_SUCCESS;
 	lcp_status_ptr_t    ret;
 	lcp_request_t *     req;
 	lcp_atomic_proto_t *atomic_proto;
-	int op_size = 0;
-
-	if (length <= sizeof(uint32_t))
-	{
-		op_size = sizeof(uint32_t);
-	}
-	else if (length <= sizeof(uint64_t))
-	{
-		op_size = sizeof(uint64_t);
-	}
-	else
-	{
-		mpc_common_debug_error("LCP ATO: atomic operation of length "
-			                   "superior to sizeof(uint64_t)=%d not "
-			                   "supported.", sizeof(uint64_t));
-		return LCP_STATUS_PTR(MPC_LOWCOMM_NOT_SUPPORTED);
-	}
+	int    op_size = lcp_atomic_dt_size[atomic_datatype];
+	size_t length  = lcp_atomic_dt_size[atomic_datatype];
 
 	req = lcp_request_get_param(task, param);
 	if (req == NULL)
 	{
-		mpc_common_debug_error("LCP ATO: could not allocate atomic "
-			                   "request.");
+		mpc_common_debug_error("LCP ATO: could not allocate atomic request.");
 		rc = MPC_LOWCOMM_ERROR;
 		return LCP_STATUS_PTR(rc);
 	}
 
 	LCP_REQUEST_INIT_ATO_SEND(req, ep->mngr, task, op_size, param->request, ep,
 		(void *)buffer, 0, 0, param->datatype,
-		rkey, remote_addr, op_type, length);
+		rkey, remote_addr, op_type, atomic_datatype, length);
 
 	if (param->field_mask & LCP_REQUEST_SEND_CALLBACK)
 	{
@@ -221,8 +220,7 @@ lcp_status_ptr_t lcp_atomic_op_nb(lcp_ep_h ep, lcp_task_h task, const void *buff
 
 	req->state.comp.comp_cb = lcp_atomic_complete;
 
-	rc = lcp_atomic_select_proto_channel(ep, &atomic_proto,
-		&req->send.ato.cc);
+	rc = lcp_atomic_select_proto_channel(ep, &atomic_proto, &req->send.ato.cc);
 	if (rc != MPC_LOWCOMM_SUCCESS)
 	{
 		return LCP_STATUS_PTR(rc);

@@ -63,15 +63,31 @@ typedef union
 	uint64_t t;
 } lcr_tag_t;
 
+/** LCR atomic operation identifiers */
 typedef enum
 {
-	LCR_ATOMIC_OP_ADD,
-	LCR_ATOMIC_OP_SWAP,
-	LCR_ATOMIC_OP_CSWAP,
-	LCR_ATOMIC_OP_AND,
-	LCR_ATOMIC_OP_OR,
-	LCR_ATOMIC_OP_XOR
+	LCR_ATOMIC_OP_ADD,   /**< Atomic addition */
+	LCR_ATOMIC_OP_SWAP,  /**< Atomic swap */
+	LCR_ATOMIC_OP_CSWAP, /**< Atomic compare and swap */
+	LCR_ATOMIC_OP_AND,   /**< Atomic bitwise and */
+	LCR_ATOMIC_OP_OR,    /**< Atomic bitwise or */
+	LCR_ATOMIC_OP_XOR    /**< Atomic bitwise xor */
 } lcr_atomic_op_t;
+
+/** LCR atomics datatype identifiers */
+typedef enum
+{
+	LCR_ATOMIC_DT_FLOAT,  /**< Simple precision floating point */
+	LCR_ATOMIC_DT_DOUBLE, /**< Double precision floating point */
+	LCR_ATOMIC_DT_INT8,   /**< 1 byte signed integer */
+	LCR_ATOMIC_DT_INT16,  /**< 2 bytes signed integer */
+	LCR_ATOMIC_DT_INT32,  /**< 4 bytes signed integer */
+	LCR_ATOMIC_DT_INT64,  /**< 8 bytes signed integer */
+	LCR_ATOMIC_DT_UINT8,  /**< 1 byte unsigned integer */
+	LCR_ATOMIC_DT_UINT16, /**< 2 bytes unsigned integer */
+	LCR_ATOMIC_DT_UINT32, /**< 4 bytes unsigned integer */
+	LCR_ATOMIC_DT_UINT64, /**< 8 bytes unsigned integer */
+} lcr_atomic_dt_t;
 
 typedef int (*lcr_am_callback_t)(void *arg, void *data, size_t length, unsigned flags);
 

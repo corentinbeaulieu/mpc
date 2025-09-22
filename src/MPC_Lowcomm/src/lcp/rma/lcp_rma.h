@@ -47,6 +47,21 @@ typedef struct lcp_atomic_proto
 	lcp_send_func_t send_post;
 } lcp_atomic_proto_t;
 
+/** Extend of the atomic datatypes */
+static size_t lcp_atomic_dt_size[] =
+{
+	[LCP_ATOMIC_DT_FLOAT]  = 4,
+	[LCP_ATOMIC_DT_DOUBLE] = 8,
+	[LCP_ATOMIC_DT_INT8]   = 1,
+	[LCP_ATOMIC_DT_INT16]  = 2,
+	[LCP_ATOMIC_DT_INT32]  = 4,
+	[LCP_ATOMIC_DT_INT64]  = 8,
+	[LCP_ATOMIC_DT_UINT8]  = 1,
+	[LCP_ATOMIC_DT_UINT16] = 2,
+	[LCP_ATOMIC_DT_UINT32] = 4,
+	[LCP_ATOMIC_DT_UINT64] = 8,
+};
+
 // NOLINTBEGIN(clang-diagnostic-unused-function)
 static inline const char *lcp_ato_sw_decode_op(lcp_atomic_op_t op_type)
 {

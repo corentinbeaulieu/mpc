@@ -1044,31 +1044,80 @@ err:
 	                          size_t size,
 	                          lcr_completion_t *ctx);
 
+	/** @brief Performs a Portals atomics operation
+	 *
+	 * This function leads to a call to PtlAtomic function. It performs a simple atomic operation with no reply.
+	 *
+	 * @param[in] ep              Endpoint for the operation
+	 * @param[in] value           Main value for the operation
+	 * @param[in] remote_addr     Remote address on the target
+	 * @param[in] op_type         Type of atomics operation
+	 * @param[in] remote_key      Description of the remote memory
+	 * @param[in] atomic_datatype Datatype of the operands
+	 * @param[in] comp            Completion function to complete the operation upon completion
+	 *
+	 * @retval                    MPC_LOWCOMM_SUCCESS upon success
+	 * @retval                    MPC_LOWCOMM_NO_RESOURCE if no more operation can be perform (to many pending)
+	 */
 	int lcr_ptl_atomic_post(_mpc_lowcomm_endpoint_t *ep,
 	                        uint64_t value,
 	                        uint64_t remote_addr,
 	                        lcr_atomic_op_t op_type,
 	                        lcr_memp_t *remote_key,
-	                        size_t size,
+	                        lcr_atomic_dt_t atomic_datatype,
 	                        lcr_completion_t *comp);
 
+	/** @brief Performs a Portals atomics operation with fetch
+	 *
+	 * This function leads to a call to PtlFetchAtomic function. It performs a simple atomic operation with reply.
+	 *
+	 * @param[in] ep              Endpoint for the operation
+	 * @param[in] result          Address of the buffer for the reply
+	 * @param[in] value           Main value for the operation
+	 * @param[in] remote_addr     Remote address on the target
+	 * @param[in] op_type         Type of atomics operation
+	 * @param[in] remote_key      Description of the remote memory
+	 * @param[in] atomic_datatype Datatype of the operands
+	 * @param[in] comp            Completion function to complete the operation upon completion
+	 *
+	 * @retval                    MPC_LOWCOMM_SUCCESS upon success
+	 * @retval                    MPC_LOWCOMM_NO_RESOURCE if no more operation can be perform (to many pending)
+	 */
 	int lcr_ptl_atomic_fetch(_mpc_lowcomm_endpoint_t *ep,
-	                         uint64_t result,
+	                         uint64_t *result,
 	                         uint64_t value,
 	                         uint64_t remote_addr,
 	                         lcr_atomic_op_t op_type,
 	                         lcr_memp_t *remote_key,
-	                         size_t size,
+	                         lcr_atomic_dt_t atomic_datatype,
 	                         lcr_completion_t *comp);
 
+
+	/** @brief Performs a Portals atomics swap operation
+	 *
+	 * This function leads to a call to PtlSwap function. It performs one of the swap operation.
+	 *
+	 * @param[in] ep              Endpoint for the operation
+	 * @param[in] result          Address of the buffer for the reply
+	 * @param[in] value           Main value for the operation
+	 * @param[in] remote_addr     Remote address on the target
+	 * @param[in] op_type         Type of atomics operation
+	 * @param[in] remote_key      Description of the remote memory
+	 * @param[in] compare         Value to use of the comparison
+	 * @param[in] atomic_datatype Datatype of the operands
+	 * @param[in] comp            Completion function to complete the operation upon completion
+	 *
+	 * @retval                    MPC_LOWCOMM_SUCCESS upon success
+	 * @retval                    MPC_LOWCOMM_NO_RESOURCE if no more operation can be perform (to many pending)
+	 */
 	int lcr_ptl_atomic_cswap(_mpc_lowcomm_endpoint_t *ep,
-	                         uint64_t result,
+	                         uint64_t *result,
 	                         uint64_t value,
 	                         uint64_t remote_addr,
 	                         lcr_atomic_op_t op_type,
 	                         lcr_memp_t *remote_key,
 	                         uint64_t compare,
-	                         size_t size,
+	                         lcr_atomic_dt_t atomic_datatype,
 	                         lcr_completion_t *comp);
 
 	/** @brief Progress the ops on a txq and complete flush ops

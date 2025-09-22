@@ -140,22 +140,22 @@ struct lcp_request
 
 				struct
 				{
-					uint64_t        remote_addr;  /* Remote address. */
-					lcp_chnl_idx_t  cc;
-					lcp_atomic_op_t op;           /* Atomic operation. */
-					lcp_mem_h       rkey;         /* Remote memory key. */
-					void *          reply_buffer; /* Reply address, for
-					                               * fetch or cas. */
-					int             reply_size;   /* Data reply size. */
-					uint64_t        value;        /* Atomic value. */
-					uint64_t        compare;      /* Compare value. */
-				} ato;                            /* Atomic information. */
+					uint64_t        remote_addr;     /**< Remote address. */
+					lcp_chnl_idx_t  cc;              /**< Atomic channel to use */
+					lcp_atomic_op_t op;              /**< Atomic operation. */
+					lcp_mem_h       rkey;            /**< Remote memory key. */
+					void *          reply_buffer;    /**< Reply address, for fetch or cas. */
+					int             reply_size;      /**< Data reply size. */
+					uint64_t        value;           /**< Atomic value. */
+					uint64_t        compare;         /**< Compare value. */
+					lcp_atomic_dt_t atomic_datatype; /**< Datatype of the operands */
+				} ato;                               /**< Atomic information. */
 
 				struct
 				{
 					uint64_t result;
 					uint64_t msg_id;
-				} reply_ato;                 /* Atomic reply information. */
+				} reply_ato;                 /**< Atomic reply information. */
 
 				struct
 				{
@@ -381,28 +381,29 @@ struct lcp_request
 			(_req)->state.offset    = 0;                                  \
 		}
 
-#define LCP_REQUEST_INIT_ATO_SEND(_req, _mngr, _task, _length, _request, \
-								  _ep, _buf, _seqn, _msg_id, _dt,        \
-								  _rkey, _remote_addr, _op, _reply_size) \
-		{                                                                \
-			(_req)->status   = MPC_LOWCOMM_IN_PROGRESS;                  \
-			(_req)->msg_id   = _msg_id;                                  \
-			(_req)->seqn     = _seqn;                                    \
-			(_req)->mngr     = _mngr;                                    \
-			(_req)->task     = _task;                                    \
-			(_req)->datatype = _dt;                                      \
-			(_req)->request  = _request;                                 \
-                                                                         \
-			(_req)->send.buffer          = _buf;                         \
-			(_req)->send.ep              = _ep;                          \
-			(_req)->send.length          = _length;                      \
-			(_req)->send.ato.rkey        = _rkey;                        \
-			(_req)->send.ato.remote_addr = _remote_addr;                 \
-			(_req)->send.ato.op          = _op;                          \
-			(_req)->send.ato.reply_size  = _reply_size;                  \
-                                                                         \
-			(_req)->state.remaining = _length;                           \
-			(_req)->state.offset    = 0;                                 \
+#define LCP_REQUEST_INIT_ATO_SEND(_req, _mngr, _task, _length, _request,                   \
+								  _ep, _buf, _seqn, _msg_id, _dt,                          \
+								  _rkey, _remote_addr, _op, _atomic_datatype, _reply_size) \
+		{                                                                                  \
+			(_req)->status   = MPC_LOWCOMM_IN_PROGRESS;                                    \
+			(_req)->msg_id   = _msg_id;                                                    \
+			(_req)->seqn     = _seqn;                                                      \
+			(_req)->mngr     = _mngr;                                                      \
+			(_req)->task     = _task;                                                      \
+			(_req)->datatype = _dt;                                                        \
+			(_req)->request  = _request;                                                   \
+                                                                                           \
+			(_req)->send.buffer              = _buf;                                       \
+			(_req)->send.ep                  = _ep;                                        \
+			(_req)->send.length              = _length;                                    \
+			(_req)->send.ato.rkey            = _rkey;                                      \
+			(_req)->send.ato.remote_addr     = _remote_addr;                               \
+			(_req)->send.ato.op              = _op;                                        \
+			(_req)->send.ato.atomic_datatype = _atomic_datatype;                           \
+			(_req)->send.ato.reply_size      = _reply_size;                                \
+                                                                                           \
+			(_req)->state.remaining = _length;                                             \
+			(_req)->state.offset    = 0;                                                   \
 		}
 
 #define LCP_REQUEST_SET_MSGID(_msg_id, _tid, _seqn) \

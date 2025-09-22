@@ -676,7 +676,8 @@ err:
 		return rc;
 	}
 
-	static ptl_op_t lcr_ptl_atomic_op_table[] =
+	/** Translation table from LCR to Portals atomic ops */
+	static const ptl_op_t lcr_ptl_atomic_op_table[] =
 	{
 		[LCR_ATOMIC_OP_ADD]   = PTL_SUM,
 		[LCR_ATOMIC_OP_SWAP]  = PTL_SWAP,
@@ -686,13 +687,42 @@ err:
 		[LCR_ATOMIC_OP_XOR]   = PTL_BXOR
 	};
 
+	/** Translation table from LCR to Portals atomic datatypes */
+	static const ptl_datatype_t lcr_ptl_atomic_dt_table[] =
+	{
+		[LCR_ATOMIC_DT_FLOAT]  = PTL_FLOAT,
+		[LCR_ATOMIC_DT_DOUBLE] = PTL_DOUBLE,
+		[LCR_ATOMIC_DT_INT8]   = PTL_INT8_T,
+		[LCR_ATOMIC_DT_INT16]  = PTL_INT16_T,
+		[LCR_ATOMIC_DT_INT32]  = PTL_INT32_T,
+		[LCR_ATOMIC_DT_INT64]  = PTL_INT64_T,
+		[LCR_ATOMIC_DT_UINT8]  = PTL_UINT8_T,
+		[LCR_ATOMIC_DT_UINT16] = PTL_UINT16_T,
+		[LCR_ATOMIC_DT_UINT32] = PTL_UINT32_T,
+		[LCR_ATOMIC_DT_UINT64] = PTL_UINT64_T,
+	};
+
+	/** Extend of the atomic datatypes */
+	static const ptl_size_t lcr_ptl_atomic_dt_size[] =
+	{
+		[LCR_ATOMIC_DT_FLOAT]  = 4,
+		[LCR_ATOMIC_DT_DOUBLE] = 8,
+		[LCR_ATOMIC_DT_INT8]   = 1,
+		[LCR_ATOMIC_DT_INT16]  = 2,
+		[LCR_ATOMIC_DT_INT32]  = 4,
+		[LCR_ATOMIC_DT_INT64]  = 8,
+		[LCR_ATOMIC_DT_UINT8]  = 1,
+		[LCR_ATOMIC_DT_UINT16] = 2,
+		[LCR_ATOMIC_DT_UINT32] = 4,
+		[LCR_ATOMIC_DT_UINT64] = 8,
+	};
 
 	int lcr_ptl_atomic_post(_mpc_lowcomm_endpoint_t *ep,
 	                        uint64_t value,
 	                        uint64_t remote_addr,
 	                        lcr_atomic_op_t op_type,
 	                        lcr_memp_t *remote_key,
-	                        size_t size,
+	                        lcr_atomic_dt_t atomic_datatype,
 	                        lcr_completion_t *comp)
 	{
 		int rc = MPC_LOWCOMM_SUCCESS;
@@ -702,8 +732,7 @@ err:
 		lcr_ptl_mem_t *      lkey   = srail->net.rma.dynamic_mem;
 		lcr_ptl_txq_t *      txq    = NULL;
 		lcr_ptl_op_t *       op     = NULL;
-
-		assert(size == sizeof(uint64_t));
+		ptl_size_t           size   = lcr_ptl_atomic_dt_size[atomic_datatype];
 
 		/* Link memory to endpoint if not already done. */
 		txq = &lkey->txqt[ptl_ep->idx];
@@ -711,8 +740,7 @@ err:
 		op = mpc_mpool_pop(ptl_ep->ops_pool);
 		if (op == NULL)
 		{
-			mpc_common_debug_warning("LCR PTL: maximum outstanding "
-				                     "operations.");
+			mpc_common_debug_warning("LCR PTL: maximum outstanding operations.");
 			rc = MPC_LOWCOMM_NO_RESOURCE;
 			goto err;
 		}
@@ -728,7 +756,7 @@ err:
 		op->ato.match         = rctx->match;
 		op->ato.remote_offset = remote_addr - (uint64_t)rctx->start;
 		op->ato.op            = lcr_ptl_atomic_op_table[op_type];
-		op->ato.dt            = PTL_UINT64_T;
+		op->ato.dt            = lcr_ptl_atomic_dt_table[atomic_datatype];
 		op->ato.post.value    = value;
 
 		mpc_common_spinlock_lock(&lkey->lock);
@@ -739,9 +767,9 @@ err:
 		mpc_common_spinlock_lock(&txq->lock);
 		mpc_queue_push(&txq->ops, &op->elem);
 		mpc_common_spinlock_unlock(&txq->lock);
-		mpc_common_debug("LCR PTL: atomic post operation. type=%s, lkey=%p"
-			             "op size=%llu, value=%llu, remote offset=%llu, cth=%llu, "
-			             "mdh=%llu, match=%llu.",
+		mpc_common_debug(
+			"LCR PTL: atomic post operation. type=%s, lkey=%p"
+			"op size=%llu, value=%llu, remote offset=%llu, cth=%llu, mdh=%llu, match=%llu.",
 			lcr_ptl_decode_atomic_op(op->ato.op),
 			lkey, size, op->ato.post.value,
 			op->ato.remote_offset, op->ato.lkey->cth,
@@ -754,12 +782,12 @@ err:
 	}
 
 	int lcr_ptl_atomic_fetch(_mpc_lowcomm_endpoint_t *ep,
-	                         uint64_t result,
+	                         uint64_t *result,
 	                         uint64_t value,
 	                         uint64_t remote_addr,
 	                         lcr_atomic_op_t op_type,
 	                         lcr_memp_t *remote_key,
-	                         size_t size,
+	                         lcr_atomic_dt_t atomic_datatype,
 	                         lcr_completion_t *comp)
 	{
 		int rc = MPC_LOWCOMM_SUCCESS;
@@ -769,8 +797,7 @@ err:
 		lcr_ptl_mem_t *      lkey   = srail->net.rma.dynamic_mem;
 		lcr_ptl_txq_t *      txq    = NULL;
 		lcr_ptl_op_t *       op     = NULL;
-
-		assert(size == sizeof(uint64_t));
+		ptl_size_t           size   = lcr_ptl_atomic_dt_size[atomic_datatype];
 
 		/* Link memory to endpoint if not already done. */
 		txq = &lkey->txqt[ptl_ep->idx];
@@ -795,8 +822,8 @@ err:
 		op->ato.match         = rctx->match;
 		op->ato.remote_offset = remote_addr - (uint64_t)rctx->start;
 		op->ato.op            = lcr_ptl_atomic_op_table[op_type];
-		op->ato.dt            = PTL_UINT64_T;
-		op->ato.fetch.result  = result;
+		op->ato.dt            = lcr_ptl_atomic_dt_table[atomic_datatype];
+		op->ato.fetch.result  = (ptl_size_t)result;
 		op->ato.fetch.value   = value;
 
 		mpc_common_spinlock_lock(&lkey->lock);
@@ -808,10 +835,9 @@ err:
 		mpc_queue_push(&txq->ops, &op->elem);
 		mpc_common_spinlock_unlock(&txq->lock);
 
-		mpc_common_debug("LCR PTL: atomic fetch operation. type=%s, lkey=%p, "
-			             "op size=%llu, result=%p, "
-			             "value=%llu, remote offset=%llu, cth=%llu, "
-			             "mdh=%llu, match=%llu.",
+		mpc_common_debug(
+			"LCR PTL: atomic fetch operation. type=%s, lkey=%p, op size=%llu, result=%p, "
+			"value=%llu, remote offset=%llu, cth=%llu, mdh=%llu, match=%llu.",
 			lcr_ptl_decode_atomic_op(op->ato.op),
 			lkey, size, op->ato.fetch.result, op->ato.fetch.value,
 			op->ato.remote_offset, op->ato.lkey->cth,
@@ -824,13 +850,13 @@ err:
 	}
 
 	int lcr_ptl_atomic_cswap(_mpc_lowcomm_endpoint_t *ep,
-	                         uint64_t result,
+	                         uint64_t *result,
 	                         uint64_t value,
 	                         uint64_t remote_addr,
 	                         lcr_atomic_op_t op_type,
 	                         lcr_memp_t *remote_key,
 	                         uint64_t compare,
-	                         size_t size,
+	                         lcr_atomic_dt_t atomic_datatype,
 	                         lcr_completion_t *comp)
 	{
 		int rc = MPC_LOWCOMM_SUCCESS;
@@ -840,16 +866,14 @@ err:
 		lcr_ptl_mem_t *      lkey   = srail->net.rma.dynamic_mem;
 		lcr_ptl_txq_t *      txq    = NULL;
 		lcr_ptl_op_t *       op     = NULL;
-
-		assert(size == sizeof(uint64_t));
+		ptl_size_t           size   = lcr_ptl_atomic_dt_size[atomic_datatype];
 
 		txq = &lkey->txqt[ptl_ep->idx];
 
 		op = mpc_mpool_pop(ptl_ep->ops_pool);
 		if (op == NULL)
 		{
-			mpc_common_debug_warning("LCR PTL: maximum outstanding "
-				                     "operations.");
+			mpc_common_debug_warning("LCR PTL: maximum outstanding operations.");
 			rc = MPC_LOWCOMM_NO_RESOURCE;
 			goto err;
 		}
@@ -865,8 +889,8 @@ err:
 		op->ato.match         = rctx->match;
 		op->ato.remote_offset = remote_addr - (uint64_t)rctx->start;
 		op->ato.op            = lcr_ptl_atomic_op_table[op_type];
-		op->ato.dt            = PTL_UINT64_T;
-		op->ato.cswap.result  = result;
+		op->ato.dt            = lcr_ptl_atomic_dt_table[atomic_datatype];
+		op->ato.cswap.result  = (ptl_size_t)result;
 		op->ato.cswap.value   = value;
 		op->ato.cswap.operand = &compare;
 
@@ -880,10 +904,9 @@ err:
 		mpc_queue_push(&txq->ops, &op->elem);
 		mpc_common_spinlock_unlock(&txq->lock);
 
-		mpc_common_debug("LCR PTL: atomic cswap operation. type=%s, lkey=%p, "
-			             "op size=%llu, result=%p, "
-			             "value=%llu, remote offset=%llu, cth=%llu, "
-			             "mdh=%llu, match=%llu.",
+		mpc_common_debug(
+			"LCR PTL: atomic cswap operation. type=%s, lkey=%p, op size=%llu, result=%p, "
+			"value=%llu, remote offset=%llu, cth=%llu, mdh=%llu, match=%llu.",
 			lcr_ptl_decode_atomic_op(op->ato.op),
 			lkey, size, op->ato.fetch.result, op->ato.fetch.value,
 			op->ato.remote_offset, op->ato.lkey->cth,
@@ -894,9 +917,7 @@ err:
 		return rc;
 	}
 
-	static lcr_ptl_addr_t __map_id_pmi(sctk_rail_info_t *rail,
-	                                   mpc_lowcomm_peer_uid_t dest,
-	                                   int *found)
+	static lcr_ptl_addr_t __map_id_pmi(sctk_rail_info_t *rail, mpc_lowcomm_peer_uid_t dest, int *found)
 	{
 		char           connection_infos[MPC_COMMON_MAX_STRING_SIZE];
 		lcr_ptl_addr_t out_id;

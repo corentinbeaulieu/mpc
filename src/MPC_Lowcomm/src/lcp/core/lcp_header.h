@@ -96,18 +96,24 @@ typedef struct lcp_ack_hdr
 	uint64_t remote_addr;
 } lcp_ack_hdr_t;
 
+/**
+ * @brief Data exchange for a sw atomic operation
+ */
 typedef struct lcp_ato_hdr
 {
-	int             dest_tid;
-	uint8_t         length;
-	uint64_t        src_uid; /* source uid   */
+	uint64_t        src_uid;   /* source uid   */
 	uint64_t        msg_id;
-	lcp_atomic_op_t op;
-	uint64_t        value;
 	uint64_t        remote_addr;
+	uint64_t        value;
 	uint64_t        compare;
+	lcp_atomic_op_t op;
+	lcp_atomic_dt_t datatype;
+	int             dest_tid;
 } lcp_ato_hdr_t;
 
+/**
+ * @brief Data exchange for the reply to a sw atomic operation
+ */
 typedef struct lcp_ato_reply_hdr
 {
 	uint64_t result;

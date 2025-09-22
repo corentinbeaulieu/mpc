@@ -688,18 +688,58 @@ lcp_status_ptr_t lcp_get_nb(lcp_ep_h ep, lcp_task_h task, void *buffer,
 lcp_status_ptr_t lcp_flush_nb(lcp_manager_h mngr, lcp_task_h task,
                               const lcp_request_param_t *param);
 
+/** LCP atomics operation identifiers */
 typedef enum
 {
-	LCP_ATOMIC_OP_ADD,
-	LCP_ATOMIC_OP_AND,
-	LCP_ATOMIC_OP_OR,
-	LCP_ATOMIC_OP_XOR,
-	LCP_ATOMIC_OP_SWAP,
-	LCP_ATOMIC_OP_CSWAP,
+	LCP_ATOMIC_OP_ADD,   /**< Atomic addition */
+	LCP_ATOMIC_OP_SUB,   /**< Atomic subtraction */
+	LCP_ATOMIC_OP_AND,   /**< Atomic bitwise and */
+	LCP_ATOMIC_OP_OR,    /**< Atomic bitwise or */
+	LCP_ATOMIC_OP_XOR,   /**< Atomic bitwise xor */
+	LCP_ATOMIC_OP_SWAP,  /**< Atomic swap */
+	LCP_ATOMIC_OP_CSWAP, /**< Atomic compare and swap */
 } lcp_atomic_op_t;
 
+/** LCP atomics datatype identifiers */
+typedef enum
+{
+	LCP_ATOMIC_DT_FLOAT,  /**< Simple precision floating point */
+	LCP_ATOMIC_DT_DOUBLE, /**< Double precision floating point */
+	LCP_ATOMIC_DT_INT8,   /**< 1 byte signed integer */
+	LCP_ATOMIC_DT_INT16,  /**< 2 bytes signed integer */
+	LCP_ATOMIC_DT_INT32,  /**< 4 bytes signed integer */
+	LCP_ATOMIC_DT_INT64,  /**< 8 bytes signed integer */
+	LCP_ATOMIC_DT_UINT8,  /**< 1 byte unsigned integer */
+	LCP_ATOMIC_DT_UINT16, /**< 2 bytes unsigned integer */
+	LCP_ATOMIC_DT_UINT32, /**< 4 bytes unsigned integer */
+	LCP_ATOMIC_DT_UINT64, /**< 8 bytes unsigned integer */
+} lcp_atomic_dt_t;
+
+
+/**
+ * @ingroup LCP_COMM
+ * @brief LCP Atomic RMA communication.
+ *
+ * This routine exposes RMA Atomic capabilities with the same semantics.
+ *
+ * User may provide a callback through @ref lcp_request_param_t so that it can
+ * be notified when the request has completed.
+ * As a return value, a pointer to the upper layer is provided which can be used
+ * to check progression of the communication.
+ * The reply_buffer field shall contain the compare operand for the compare and swap operation on call.
+ *
+ * @param[in] ep              Endpoint to destination.
+ * @param[in] task            Task handle of the source task.
+ * @param[in] buffer          Buffer from which data will be sent.
+ * @param[in] atomic_datatype Datatype of the data to use.
+ * @param[in] remote_addr     Remote address from which data is read or to which it is written.
+ * @param[in] rkey            Remote memory key handle.
+ * @param[in] op_type         Type of atomic operation to perform
+ * @param[in] param           Request parameters \ref lcp_request_param_t.
+ * @return                    Error code returned or pointer to pending request.
+ */
 lcp_status_ptr_t lcp_atomic_op_nb(lcp_ep_h ep, lcp_task_h task, const void *buffer,
-                                  size_t length, uint64_t remote_addr, lcp_mem_h rkey,
+                                  lcp_atomic_dt_t atomic_datatype, uint64_t remote_addr, lcp_mem_h rkey,
                                   lcp_atomic_op_t op_type, const lcp_request_param_t *param);
 
 /**

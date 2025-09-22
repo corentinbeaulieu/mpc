@@ -156,13 +156,13 @@ static inline int lcp_atomic_do_post(_mpc_lowcomm_endpoint_t *lcr_ep,
                                      uint64_t remote_offset,
                                      lcr_atomic_op_t op_type,
                                      lcr_memp_t *remote_key,
-                                     size_t size,
+                                     lcr_atomic_dt_t datatype,
                                      lcr_completion_t *comp)
 {
 	return lcr_ep->rail->atomic_post(lcr_ep, value,
 		remote_offset, op_type,
 		remote_key,
-		size, comp);
+		datatype, comp);
 }
 
 static inline int lcp_atomic_do_fetch(_mpc_lowcomm_endpoint_t *lcr_ep,
@@ -171,14 +171,14 @@ static inline int lcp_atomic_do_fetch(_mpc_lowcomm_endpoint_t *lcr_ep,
                                       uint64_t remote_offset,
                                       lcr_atomic_op_t op_type,
                                       lcr_memp_t *remote_key,
-                                      size_t size,
+                                      lcr_atomic_dt_t datatype,
                                       lcr_completion_t *comp)
 {
-	return lcr_ep->rail->atomic_fetch(lcr_ep, (uint64_t)result,
+	return lcr_ep->rail->atomic_fetch(lcr_ep, result,
 		value,
 		remote_offset, op_type,
 		remote_key,
-		size, comp);
+		datatype, comp);
 }
 
 static inline int lcp_atomic_do_cswap(_mpc_lowcomm_endpoint_t *lcr_ep,
@@ -188,14 +188,14 @@ static inline int lcp_atomic_do_cswap(_mpc_lowcomm_endpoint_t *lcr_ep,
                                       uint64_t remote_offset,
                                       lcr_atomic_op_t op_type,
                                       lcr_memp_t *remote_key,
-                                      size_t size,
+                                      lcr_atomic_dt_t datatype,
                                       lcr_completion_t *comp)
 {
-	return lcr_ep->rail->atomic_cswap(lcr_ep, (uint64_t)result,
+	return lcr_ep->rail->atomic_cswap(lcr_ep, result,
 		value,
 		remote_offset, op_type,
 		remote_key,
-		compare, size, comp);
+		compare, datatype, comp);
 }
 
 static inline int lcp_do_flush_mem_ep(sctk_rail_info_t *rail,
