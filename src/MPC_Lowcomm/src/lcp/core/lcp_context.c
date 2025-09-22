@@ -219,21 +219,25 @@ static int _lcp_context_load_ctx_config(lcp_context_h ctx, lcp_context_param_t *
 
 	/* Load the rail configurations from CLI. */
 	rc = _mpc_lowcomm_conf_load_rail_from_cli(&rail_configs, &num_configs);
-	if (rc != MPC_LOWCOMM_SUCCESS) {
-			goto err_free;
+	if (rc != MPC_LOWCOMM_SUCCESS)
+	{
+		goto err_free;
 	}
 	mpc_common_debug("Loaded User Configurations:\n");
-	for (int i = 0; i < num_configs; i++) {
+	for (int i = 0; i < num_configs; i++)
+	{
 		mpc_common_debug("\tCONF: %s\n", rail_configs[i]->name);
 	}
 
 	/* Load and init available components. */
 	rc = lcr_query_components(&components, (unsigned int *)&num_components);
-	if (rc != MPC_LOWCOMM_SUCCESS) {
-			goto err_free;
+	if (rc != MPC_LOWCOMM_SUCCESS)
+	{
+		goto err_free;
 	}
 	mpc_common_debug("Loaded Available Components:\n");
-	for (int i = 0; i < num_components; i++) {
+	for (int i = 0; i < num_components; i++)
+	{
 		mpc_common_debug("\tCONF: %s\n", components[i]->name);
 	}
 

@@ -1132,7 +1132,7 @@ mpc_lowcomm_monitor_retcode_t _mpc_lowcomm_monitor_release(struct _mpc_lowcomm_m
 	// mutex should not be destry,
 	// other threads may still try to lock it to remove client.
 	pthread_mutex_unlock(&monitor->client_lock);
-	//pthread_mutex_destroy(&monitor->client_lock);
+	// pthread_mutex_destroy(&monitor->client_lock);
 
 	return 0;
 }
