@@ -168,6 +168,28 @@ Privatization:
     - *pcvs_prepare
     - ${PCVS_COMMAND} "${GL_PIPELINE_PATH}/mpc_ci/privatization/"
 
+Process Mode Reproducers:
+  extends: ['.slurm_tag']
+  stage: Additional Tests
+  needs: [Process Mode Installation]
+  variables:
+    GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_process_mode
+    REPRODUCERS_PATH: ${GL_PIPELINE_PATH}/mpc_ci/reproducers
+  script:
+    - *pcvs_prepare
+    - ${PCVS_COMMAND} "${REPRODUCERS_PATH}/basics" "${REPRODUCERS_PATH}/lowcomm" "${REPRODUCERS_PATH}/MPI"
+
+Privatization Reproducers:
+  extends: ['.slurm_tag']
+  stage: Additional Tests
+  needs: [Process Mode Installation]
+  variables:
+    GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_privatization
+    REPRODUCERS_PATH: ${GL_PIPELINE_PATH}/mpc_ci/reproducers
+  script:
+    - *pcvs_prepare
+    - ${PCVS_COMMAND} "${REPRODUCERS_PATH}"
+
 #
 # Regular Testing
 # to assess some basic MPC feature
