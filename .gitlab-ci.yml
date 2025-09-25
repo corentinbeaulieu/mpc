@@ -12,6 +12,7 @@ stages:
   - Regular Testing
   - Applications
   - Benchmarks
+  - Extra Steps
   - Configurations
   - Additional Tests
   - Release
@@ -40,7 +41,7 @@ variables:
   - source ${GL_LOCAL_INSTALL_DIR}/mpcvars.sh
   - echo "MPC loaded from ${GL_LOCAL_INSTALL_DIR}/mpcvars.sh"
   - source "$(ccc_home -u mpc)"/gitlab-runner/spack_organizer_inti/setup.sh
-  - spack env activate pcvs
+  - spack env activate mpc-runner-deps
   - module load pmix gnu/13.3.0
 
 # Pipeline launching rules
@@ -484,6 +485,29 @@ Configurations:
 #   allow_failure: true
 #   script:
 #     - *configuration_commands
+
+############################################
+####### Pre-commit and documentation #######
+############################################
+
+Check Precommit Rules:
+  stage: Extra Steps
+  needs: [Env Sanitize]
+  before_script:
+    - source "$(ccc_home -u mpc)"/gitlab-runner/spack_organizer_inti/setup.sh
+    - spack env activate mpc-runner-deps
+    - export PATH=$PATH:"$(ccc_home -u mpc)/mpc_pre_commit/bin"
+  script:
+    - cd ${CI_PROJECT_DIR}
+    - intify_pre_commit.sh .pre-commit-config.yaml
+    - git add .pre-commit-config.yaml
+    - spack load py-ruamel-yaml
+    - git config --global --add safe.directory "$(ccc_home -u mpc)/mpc_pre_commit/pre_commit_hooks/pre-commit-hooks/.git"
+    - git config --global --add safe.directory "$(ccc_home -u mpc)/mpc_pre_commit/pre_commit_hooks/pocc/.git"
+    - pre-commit install --install-hooks
+    # FIXME: Do not run the clang-tidy hook as it needs a compile_commands.json
+    - pre-commit run --all-files --hook-stage manual
+
 
 ###################################
 ####### MANUALLY TRIGGERED ########
