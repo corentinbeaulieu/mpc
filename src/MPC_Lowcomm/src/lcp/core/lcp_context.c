@@ -399,12 +399,15 @@ static int _lcp_context_devices_load_and_filter(lcp_context_h ctx)
 		total_num_devices += ctx->components[i]->num_devices;
 	}
 
-	if (non_composable_actif == 0)
+	if (non_composable_total > 0 && non_composable_actif == 0)
 	{
 		mpc_common_debug_warning("No devices found for any non-composable rails:");
 		for (unsigned int i = 0; i < ctx->num_cmpts; i++)
 		{
-			mpc_common_debug_warning("\tNo device found for %s", ctx->components[i]->name);
+			if (!ctx->components[i]->rail_config->composable)
+			{
+				mpc_common_debug_warning("\tNo device found for %s", ctx->components[i]->name);
+			}
 		}
 	}
 
