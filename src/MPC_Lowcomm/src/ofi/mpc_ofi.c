@@ -787,19 +787,20 @@ int _mpc_ofi_query_devices(lcr_component_t *component,
 	int requested_fi_major = 1, requested_fi_minor = 5;
 	int err = fi_getinfo(FI_VERSION(requested_fi_major, requested_fi_minor), NULL, NULL, 0, hints, &config);
 
-	if (err < 0)
+	if (err == -FI_ENODATA)
 	{
-		mpc_common_debug_error("OFI Comm Library failed to start provider '%s' with given constraints.",
+		mpc_common_debug_info("Could not find any provider that complies with the provided hints. "
+			                  "Please check the provider name and the endpoint type.");
+		*num_devices_p = 0;
+		return MPC_LOWCOMM_SUCCESS;
+	}
+	else if (err < 0)
+	{
+		mpc_common_debug_error("OFI Comm Library failed to query devices for '%s'.",
 			hints->fabric_attr->prov_name);
-
 		if (err == -FI_EBADFLAGS)
 		{
 			mpc_common_debug_error("The specified endpoint or domain capability or operation flags are invalid.");
-		}
-		else if (err == -FI_ENODATA)
-		{
-			mpc_common_debug_error("Could not find any provider that complies with the provided hints. "
-				                   "Please check the provider name and the endpoint type.");
 		}
 		else if (err == -FI_ENOMEM)
 		{
@@ -821,7 +822,7 @@ int _mpc_ofi_query_devices(lcr_component_t *component,
 		}
 
 		mpc_common_errorpoint("Initialization failed.");
-		return 1;
+		return MPC_LOWCOMM_ERROR;
 	}
 
 	struct fi_info *tmp = config;
@@ -860,7 +861,7 @@ int _mpc_ofi_query_devices(lcr_component_t *component,
 	fi_freeinfo(config);
 	fi_freeinfo(hints);
 
-	return 0;
+	return MPC_LOWCOMM_SUCCESS;
 }
 
 int _mpc_ofi_progress(sctk_rail_info_t *rail)

@@ -522,7 +522,7 @@ static int lcp_rndv_fin_handler(void *arg, void *data,
 	rndv_req = (lcp_request_t *)hdr->msg_id;
 	req      = rndv_req->super;
 
-	mpc_common_debug_info("LCP RNDV: recv rfin header msg_id=%llu, req=%p",
+	mpc_common_debug("LCP RNDV: recv rfin header msg_id=%llu, req=%p",
 		hdr->msg_id, rndv_req);
 
 	/* For both PUT and GET, when receiving a FIN message, we have to

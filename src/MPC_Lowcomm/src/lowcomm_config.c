@@ -829,43 +829,20 @@ static inline mpc_conf_config_type_t *__mpc_lowcomm_rail_conf_init()
 {
 	__mpc_lowcomm_rail_conf_default();
 
+	/* *INDENT-OFF* */
 	/* Here we instantiate default rails */
 	mpc_conf_config_type_t *shm_mpi  = __new_rail_conf_instance("shmmpi", 99, "any", 1, 0, 1, 1, 0, "shmconfigmpi");
 	mpc_conf_config_type_t *tcp_mpi  = __new_rail_conf_instance("tcpmpi", 1, "any", 1, 0, 1, 0, 0, "tcpconfigmpi");
 	mpc_conf_config_type_t *tbsm_mpi = __new_rail_conf_instance("tbsmmpi", 100, "any", 1, 1, 1, 1, 0, "tbsmconfigmpi");
 
 #ifdef MPC_USE_PORTALS
-		mpc_conf_config_type_t *portals_mpi = __new_rail_conf_instance("portalsmpi",
-		21,
-		"any",
-		1,
-		0,
-		1,
-		0,
-		0,
-		"portalsconfigmpi");
-		mpc_conf_config_type_t *mportals_mpi = __new_rail_conf_instance("mportalsmpi",
-		21,
-		"any",
-		1,
-		0,
-		1,
-		0,
-		1,
-		"mportalsconfigmpi");
+		mpc_conf_config_type_t *portals_mpi = __new_rail_conf_instance("portalsmpi", 21, "any", 1, 0, 1, 0, 0, "portalsconfigmpi");
+		mpc_conf_config_type_t *mportals_mpi = __new_rail_conf_instance("mportalsmpi", 21, "any", 1, 0, 1, 0, 1, "mportalsconfigmpi");
 #endif
 
 #ifdef MPC_USE_OFI
 		mpc_conf_config_type_t *shm_ofi   = __new_rail_conf_instance("shmofirail", 98, "any", 1, 0, 1, 1, 0, "shmofi");
-		mpc_conf_config_type_t *verbs_ofi = __new_rail_conf_instance("verbsofirail",
-		21,
-		"any",
-		1,
-		0,
-		1,
-		0,
-		0,
-		"verbsofi");
+		mpc_conf_config_type_t *verbs_ofi = __new_rail_conf_instance("verbsofirail", 21, "any", 1, 0, 1, 0, 0, "verbsofi");
 		mpc_conf_config_type_t *tcp_ofi = __new_rail_conf_instance("tcpofirail", 20, "any", 1, 0, 1, 0, 0, "tcpofi");
 #endif
 
@@ -883,21 +860,16 @@ static inline mpc_conf_config_type_t *__mpc_lowcomm_rail_conf_init()
 			PARAM("shmofirail",   shm_ofi,      MPC_CONF_TYPE, "A rail with OFI SHM"),
 #endif
 		NULL);
+	/* *INDENT-ON* */
 
 	return rails;
 }
 
 mpc_conf_config_type_t *___new_default_rail(char *name)
 {
-	return __new_rail_conf_instance(name,
-		1,
-		"any",
-		1,
-		0,
-		1,
-		0,
-		0,
-		"tcpconfigmpi");
+	/* *INDENT-OFF* */
+	return __new_rail_conf_instance(name, 1,"any", 1, 0, 1, 0, 0, "tcpconfigmpi");
+	/* *INDENT-ON* */
 }
 
 static inline mpc_conf_config_type_t *___mpc_lowcomm_rail_all(void)
@@ -1024,53 +996,49 @@ mpc_conf_config_type_t *_mpc_lowcomm_conf_cli_get(char *name)
 	return __get_type_by_name("mpcframework.lowcomm.networking.cli.options", name);
 }
 
-static mpc_conf_config_type_t *___mpc_lowcomm_cli_conf_option_init(char *name, char *rail1, char *rail2, char *rail3)
+static mpc_conf_config_type_t *___mpc_lowcomm_cli_conf_option_init(char *name, ...)
 {
-	char *ar1 = malloc(sizeof(char) * MPC_CONF_STRING_SIZE);
+	mpc_conf_config_type_t *rails = mpc_conf_config_type_init(name, NULL);
+	va_list ap;
 
-	assume(ar1);
-	snprintf(ar1, MPC_CONF_STRING_SIZE, "%s", rail1);
+	va_start(ap, name);
 
-	mpc_conf_config_type_t *rails = NULL;
+	int rail_nb = 1;
 
-	if (rail3)
+	while (1)
 	{
-		char *ar2 = malloc(sizeof(char) * MPC_CONF_STRING_SIZE);
-		assume(ar2);
-		snprintf(ar2, MPC_CONF_STRING_SIZE, "%s", rail2);
+		char *rail_name = va_arg(ap, char *);
 
-		char *ar3 = malloc(sizeof(char) * MPC_CONF_STRING_SIZE);
-		assume(ar3);
-		snprintf(ar3, MPC_CONF_STRING_SIZE, "%s", rail3);
+		if (rail_name == NULL)
+		{
+			break;
+		}
 
-		rails = mpc_conf_config_type_init(name,
-			PARAM("first",  ar1, MPC_CONF_STRING, "First rail to pick"),
-			PARAM("second", ar2, MPC_CONF_STRING, "Second rail to pick"),
-			PARAM("third",  ar3, MPC_CONF_STRING, "Third rail to pick"),
-			NULL);
+		// prepare arguments
+		char *rail_name_dup = malloc(sizeof(char) * MPC_CONF_STRING_SIZE);
+		assume(rail_name_dup);
+		snprintf(rail_name_dup,         MPC_CONF_STRING_SIZE, "%s",              rail_name);
+		char param_name[MPC_CONF_STRING_SIZE];
+		char param_config[MPC_CONF_STRING_SIZE];
+		snprintf((char *)&param_name,   MPC_CONF_STRING_SIZE, "%d",              rail_nb);
+		snprintf((char *)&param_config, MPC_CONF_STRING_SIZE, "%d rail to pick", rail_nb);
+
+		// create config element
+		mpc_conf_config_type_elem_t *elem =
+			mpc_conf_config_type_elem_init((char *)&param_name, rail_name_dup, MPC_CONF_STRING,
+				(char *)&param_config, NULL, 0);
+		assert(elem != NULL);
+
+		// insert element
+		int ret = mpc_config_type_append_elem(rails, elem);
+		assert(ret == 0);
+
+		rail_nb++;
 	}
-	else if (rail2)
-	{
-		char *ar2 = malloc(sizeof(char) * MPC_CONF_STRING_SIZE);
-		assume(ar2);
-		snprintf(ar2, MPC_CONF_STRING_SIZE, "%s", rail2);
-
-		rails = mpc_conf_config_type_init(name,
-			PARAM("first",  ar1, MPC_CONF_STRING, "First rail to pick"),
-			PARAM("second", ar2, MPC_CONF_STRING, "Second rail to pick"),
-			NULL);
-	}
-	else
-	{
-		rails = mpc_conf_config_type_init(name,
-			PARAM("first", ar1, MPC_CONF_STRING, "First rail to pick"),
-			NULL);
-	}
-
-	unsigned int i;
+	va_end(ap);
 
 	/* All were allocated */
-	for (i = 0; i < mpc_conf_config_type_count(rails); i++)
+	for (unsigned int i = 0; i < mpc_conf_config_type_count(rails); i++)
 	{
 		mpc_conf_config_type_elem_set_to_free(mpc_conf_config_type_nth(rails, i), 1);
 	}
@@ -1081,66 +1049,47 @@ static mpc_conf_config_type_t *___mpc_lowcomm_cli_conf_option_init(char *name, c
 
 static mpc_conf_config_type_t *__mpc_lowcomm_cli_conf_init(void)
 {
+	/* *INDENT-OFF* */
 	mpc_conf_config_type_t *cliopt = mpc_conf_config_type_init("options",
-		PARAM("shm",
-			___mpc_lowcomm_cli_conf_option_init("shm", "tbsmmpi", "shmmpi", NULL),
-			MPC_CONF_TYPE,
-			"Combination of TBSM and SHM"),
-
-#ifdef MPC_USE_OFI
-			PARAM("tcpshm",
-			___mpc_lowcomm_cli_conf_option_init("tcpshm", "tbsmmpi", "shmmpi", "tcpofirail"),
-			MPC_CONF_TYPE,
-			"Combination of TCP and TBSM"),
-			PARAM("tcp",
-			___mpc_lowcomm_cli_conf_option_init("tcp", "tbsmmpi", "tcpofirail", NULL),
-			MPC_CONF_TYPE,
-			"Combination of TCP and TBSM"),
-			PARAM("verbs",
-			___mpc_lowcomm_cli_conf_option_init("verbs", "tbsmmpi", "verbsofirail", NULL),
-			MPC_CONF_TYPE,
-			"Combination of Verbs and TBSM"),
-			PARAM("verbsshm",
-			___mpc_lowcomm_cli_conf_option_init("verbsshm", "tbsmmpi", "shmmpi", "verbsofirail"),
-			MPC_CONF_TYPE,
-			"Combination of Verbs and TBSM"),
-#else
-			PARAM("tcp",
-			___mpc_lowcomm_cli_conf_option_init("tcp", "tbsmmpi", "tcpmpi", NULL),
-			MPC_CONF_TYPE,
-			"TCP Alone"),
+		PARAM("shm",         ___mpc_lowcomm_cli_conf_option_init("shm",         "tbsmmpi",     "shmmpi",       NULL),                                 MPC_CONF_TYPE, "Combination of TBSM and SHM"),
+#if MPC_USE_OFI && MPC_USE_PORTALS
+		PARAM("ptlverbsshm", ___mpc_lowcomm_cli_conf_option_init("ptlverbsshm", "tbsmmpi",     "shmmpi",       "portalsmpi",   "verbsofirail", NULL), MPC_CONF_TYPE, "Default: Combination of Portals, Open Fabric Interface with Verbs and SHM"),
 #endif
 #ifdef MPC_USE_PORTALS
-			PARAM("ptl",
-			___mpc_lowcomm_cli_conf_option_init("ptl", "tbsmmpi", "portalsmpi", "shmmpi"),
-			MPC_CONF_TYPE,
-			"Combination of Portals and SHM"),
-			PARAM("mptl",
-			___mpc_lowcomm_cli_conf_option_init("mptl", "mportalsmpi", NULL, NULL),
-			MPC_CONF_TYPE,
-			"Matching Portals."),
+		PARAM("ptlshm",      ___mpc_lowcomm_cli_conf_option_init("ptlshm",      "tbsmmpi",     "shmmpi",       "portalsmpi",   NULL),                 MPC_CONF_TYPE, "Combination of Portals and SHM"),
+		PARAM("ptl",         ___mpc_lowcomm_cli_conf_option_init("ptl",         "tbsmmpi",     "portalsmpi",   NULL),                                 MPC_CONF_TYPE, "Portals"),
+		PARAM("mptl",        ___mpc_lowcomm_cli_conf_option_init("mptl",        "mportalsmpi", NULL),                                                 MPC_CONF_TYPE, "Matching Portals. (without tbsm/shm)"),
 #endif
-		NULL);
+#ifdef MPC_USE_OFI
+		PARAM("verbsshm",    ___mpc_lowcomm_cli_conf_option_init("verbsshm",    "tbsmmpi",     "shmmpi",       "verbsofirail", NULL),                 MPC_CONF_TYPE, "Combination of Open Fabric Interface with Verbs and SHM"),
+		PARAM("verbs",       ___mpc_lowcomm_cli_conf_option_init("verbs",       "tbsmmpi",     "verbsofirail", NULL),                                 MPC_CONF_TYPE, "Open Fabric Interface with Verbs"),
+		PARAM("tcpshm",      ___mpc_lowcomm_cli_conf_option_init("tcpshm",      "tbsmmpi",     "shmmpi",       "tcpofirail",   NULL),                 MPC_CONF_TYPE, "Combination of Open Fabric Interface with TCP and SHM"),
+		PARAM("tcp",         ___mpc_lowcomm_cli_conf_option_init("tcp",         "tbsmmpi",     "tcpofirail",   NULL),                                 MPC_CONF_TYPE, "Open Fabirc Interface with TCP"),
+#else
+		PARAM("tcpshm",      ___mpc_lowcomm_cli_conf_option_init("tcpshm",      "tbsmmpi",     "shmmpi",       "tcpmpi",       NULL),                 MPC_CONF_TYPE, "Combination of TCP and TBSM and SHM"),
+		PARAM("tcp",         ___mpc_lowcomm_cli_conf_option_init("tcp",         "tbsmmpi",     "tcpmpi",       NULL),                                 MPC_CONF_TYPE, "Combination of TCP and TBSM"),
+#endif
+	NULL);
 
 	mpc_conf_config_type_t *cli = mpc_conf_config_type_init("cli",
 		PARAM("default", __net_config.cli_default_network, MPC_CONF_STRING, "Default Network CLI option to choose"),
-		PARAM("options",
-			cliopt,
-			MPC_CONF_TYPE,
-			"CLI alternaltives for network configurations"),
+		PARAM("options", cliopt,                           MPC_CONF_TYPE,   "CLI alternaltives for network configurations"),
 		NULL);
+	/* *INDENT-ON* */
 
 	return cli;
 }
 
 static inline void _mpc_lowcomm_net_config_default(void)
 {
-#ifdef MPC_USE_PORTALS
-		snprintf(__net_config.cli_default_network, MPC_CONF_STRING_SIZE, "ptl");
+#if MPC_USE_OFI && MPC_USE_PORTALS
+		snprintf(__net_config.cli_default_network, MPC_CONF_STRING_SIZE, "ptlverbsshm");
+#elif MPC_USE_PORTALS
+		snprintf(__net_config.cli_default_network, MPC_CONF_STRING_SIZE, "ptlshm");
 #elif MPC_USE_OFI
-		snprintf(__net_config.cli_default_network, MPC_CONF_STRING_SIZE, "tcpshm");
+		snprintf(__net_config.cli_default_network, MPC_CONF_STRING_SIZE, "verbsshm");
 #else
-		snprintf(__net_config.cli_default_network, MPC_CONF_STRING_SIZE, "shm");
+		snprintf(__net_config.cli_default_network, MPC_CONF_STRING_SIZE, "tcpshm");
 #endif
 }
 

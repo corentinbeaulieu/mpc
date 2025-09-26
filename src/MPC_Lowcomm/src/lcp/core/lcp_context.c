@@ -49,6 +49,8 @@
 
 #include "lcr_component.h"
 
+#define MPC_MODULE "Lowcomm/LCP/Context"
+
 // FIXME: add context param to decide whether to allocate context statically or
 //       dynamically.
 static lcp_context_h static_ctx = NULL;
@@ -73,14 +75,14 @@ static int _lcp_context_query_component_devices(lcr_component_h component,
 	rc = component->query_devices(component, &devices, &num_devices);
 	if (rc != MPC_LOWCOMM_SUCCESS)
 	{
-		mpc_common_debug("LCP: error querying component: %s",
+		mpc_common_debug("Error querying component: %s",
 			component->name);
 		goto err;
 	}
 
 	if (num_devices == 0)
 	{
-		mpc_common_debug_warning("LCP: no device found for component: %s",
+		mpc_common_debug("No device found for component: %s",
 			component->name);
 	}
 
@@ -274,38 +276,6 @@ static int _lcp_context_load_ctx_config(lcp_context_h ctx, lcp_context_param_t *
 		}
 	}
 
-	/* Count the number of non-composable rail for multirail checks. */
-	int non_composable_count = 0;
-	for (i = 0; i < num_configs; i++)
-	{
-		if (!rail_configs[i]->composable)
-		{
-			non_composable_count++;
-		}
-		else /* There can be only one interface for composable rail. */
-		{
-			assert(rail_configs[i]->max_ifaces == 1);
-		}
-	}
-
-	/* In case multirail is enabled and multiple configs are available, make
-	 * sure that there is at most one non-composable rail. */
-	if (non_composable_count > 1 && ctx->config.multirail_enabled)
-	{
-		mpc_common_debug_error("LCP CTX: heterogeous non-composable multirail not supported.");
-		rc = MPC_LOWCOMM_ERROR;
-		goto err_free;
-	}
-
-	/* Similarly, if multirail not enabled but CLI specified multiple non
-	 * composable rail, then error out. */
-	if (!ctx->config.multirail_enabled && non_composable_count > 1)
-	{
-		mpc_common_debug_error("LCP CTX: multirail disabled but cli specified multiple non-composable rail.");
-		rc = MPC_LOWCOMM_ERROR;
-		goto err_free;
-	}
-
 	/* Throw warning for multirail and max_iface incoherences. */
 	for (i = 0; i < num_configs; i++)
 	{
@@ -376,12 +346,15 @@ err_free:
 
 static int _lcp_context_devices_load_and_filter(lcp_context_h ctx)
 {
-	int    rc, i, j;
-	int    total_num_devices = 0, num_offload_devices = 0;
-	bmap_t dev_map = MPC_BITMAP_INIT; // device map.
+	int             rc;
+	int             total_num_devices = 0, num_offload_devices = 0;
+	bmap_t          dev_map = MPC_BITMAP_INIT; // device map.
+	unsigned int    non_composable_actif = 0;
+	unsigned int    non_composable_total = 0;
+	lcr_component_h non_composable_component;
 
 	/* Load all available devices. */
-	for (i = 0; (unsigned int)i < ctx->num_cmpts; i++)
+	for (unsigned int i = 0; i < ctx->num_cmpts; i++)
 	{
 		rc = _lcp_context_query_component_devices(ctx->components[i],
 			&ctx->components[i]->devices,
@@ -390,24 +363,63 @@ static int _lcp_context_devices_load_and_filter(lcp_context_h ctx)
 		{
 			goto err_free;
 		}
+
+		// check non-composable active devices
+		if (!ctx->components[i]->rail_config->composable)
+		{
+			non_composable_total++;
+			if (ctx->components[i]->num_devices > 0)
+			{
+				non_composable_actif++;
+				if (non_composable_actif > 1)
+				{
+					mpc_common_debug_fatal(
+						"Heterogeous non-composable multirail not supported,"
+						" 2 non composables components provided: %s & %s",
+						non_composable_component->name,
+						ctx->components[i]->name);
+				}
+				else
+				{
+					non_composable_component = ctx->components[i];
+				}
+			}
+			else
+			{
+				mpc_common_debug_info("Found non-composable rail %s with 0 devices,"
+					                  " rail will no be configured",
+					ctx->components[i]->name);
+			}
+		}
+
 		if (ctx->components[i]->rail_config->offload && ctx->config.offload)
 		{
 			num_offload_devices += ctx->components[i]->num_devices;
 		}
 		total_num_devices += ctx->components[i]->num_devices;
 	}
+
+	if (non_composable_actif == 0)
+	{
+		mpc_common_debug_warning("No devices found for any non-composable rails:");
+		for (unsigned int i = 0; i < ctx->num_cmpts; i++)
+		{
+			mpc_common_debug_warning("\tNo device found for %s", ctx->components[i]->name);
+		}
+	}
+
 	if (ctx->config.offload && num_offload_devices == 0)
 	{
-		mpc_common_debug_error("LCP CTX: offloading capabilities were "
-			                   "requested but no device that supports it found.");
+		mpc_common_debug_error("Offloading capabilities were "
+			                   "requested but no device that supports it found");
 		rc = MPC_LOWCOMM_ERROR;
 		goto err_free;
 	}
 
 	if (total_num_devices == 0)
 	{
-		mpc_common_debug_error("LCP CTX: could not find any devices "
-			                   "for the provided list of rail.");
+		mpc_common_debug_error("Could not find any devices "
+			                   "for the provided list of rail");
 		rc = MPC_LOWCOMM_ERROR;
 		goto err_free;
 	}
@@ -421,45 +433,61 @@ static int _lcp_context_devices_load_and_filter(lcp_context_h ctx)
 	 *   - else pick the first device from the list //FIXME: no topology.
 	 * - else (a list of device name is provided):
 	 *   max_ifaces config is overwritten, pick all devices found. */
-	int num_dev   = 0;
-	int dev_index = 0;
-	for (i = 0; (unsigned)i < ctx->num_cmpts; i++)
+	int nb_dev = 0;
+	for (unsigned int i = 0; i < ctx->num_cmpts; i++)
 	{
 		if (ctx->components[i]->num_devices == 0)
 		{
-			dev_index++;
-			break;
+			mpc_common_debug("Skipping registration for component %s as no devices were founds",
+				ctx->components[i]->name);
+			continue;
 		}
+
 		if (ctx->components[i]->rail_config->composable)
 		{
 			/* There can be only one iface for composable rail such
 			 * as tbsm or shm. */
-			MPC_BITMAP_SET(dev_map, dev_index);
-			dev_index++; num_dev++;
+			mpc_common_debug("Registering %s as composable component", ctx->components[i]->name);
+			MPC_BITMAP_SET(dev_map, i);
+			nb_dev++;
+			continue;
 		}
-		else
+
+		if (strcmp(ctx->components[i]->rail_config->device, "any") == 0)
 		{
-			if (strcmp(ctx->components[i]->rail_config->device, "any") == 0)
+			for (int j = 0; j < ctx->components[i]->rail_config->max_ifaces; j++)
 			{
-				for (j = 0; j < ctx->components[i]->rail_config->max_ifaces; j++)
-				{
-					MPC_BITMAP_SET(dev_map, dev_index);
-					dev_index++; num_dev++;
-				}
+				mpc_common_debug("Registering device %s for component %s,"
+					             " 'any' devices requested",
+					ctx->components[i]->devices[j].name,
+					ctx->components[i]->name);
+				MPC_BITMAP_SET(dev_map, i);
+				nb_dev++;
+			}
+			continue;
+		}
+
+		/* Here, we override max_ifaces config. */
+		for (unsigned int j = 0; j < ctx->components[i]->num_devices; j++)
+		{
+			if (strstr(ctx->components[i]->rail_config->device,
+				ctx->components[i]->devices[j].name))
+			{
+				mpc_common_debug("Registering device %s for component %s,"
+					             " matching config request (%s)",
+					ctx->components[i]->devices[j].name,
+					ctx->components[i]->name,
+					ctx->components[i]->rail_config->device);
+				MPC_BITMAP_SET(dev_map, i);
+				nb_dev++;
 			}
 			else
 			{
-				/* Here, we override max_ifaces config. */
-				for (j = 0; (unsigned int)j < ctx->components[j]->num_devices; j++)
-				{
-					if (strstr(ctx->components[i]->rail_config->device,
-						ctx->components[i]->devices[j].name))
-					{
-						MPC_BITMAP_SET(dev_map, dev_index);
-						num_dev++;
-					}
-					dev_index++;
-				}
+				mpc_common_debug("Not registering device %s for component %s,"
+					             " as device name dos not match config (%s)",
+					ctx->components[i]->devices[j].name,
+					ctx->components[i]->name,
+					ctx->components[i]->rail_config->device);
 			}
 		}
 	}
@@ -467,21 +495,20 @@ static int _lcp_context_devices_load_and_filter(lcp_context_h ctx)
 	/* Once all transport devices have been set on the device map, allocate
 	 * and fill up the resource table. */
 	int rsc_count = 0;
-	dev_index          = 0;
-	ctx->num_resources = num_dev;
-	ctx->resources     = sctk_malloc(num_dev * sizeof(lcp_rsc_desc_t));
-	for (i = 0; (unsigned int)i < ctx->num_cmpts; i++)
+	ctx->num_resources = nb_dev;
+	ctx->resources     = sctk_malloc(nb_dev * sizeof(lcp_rsc_desc_t));
+	for (unsigned int i = 0; (unsigned int)i < ctx->num_cmpts; i++)
 	{
-		for (j = 0 ; (unsigned int)j < ctx->components[i]->num_devices; j++)
+		for (unsigned int j = 0 ; (unsigned int)j < ctx->components[i]->num_devices; j++)
 		{
-			if (MPC_BITMAP_GET(dev_map, dev_index))
+			if (MPC_BITMAP_GET(dev_map, i))
 			{
+				mpc_common_debug("Initializing ressources for %s", ctx->components[i]->name);
 				_lcp_context_resource_init(&ctx->resources[rsc_count],
 					ctx->components[i],
 					&ctx->components[i]->devices[j]);
 				rsc_count++;
 			}
-			dev_index++;
 		}
 	}
 
@@ -490,7 +517,7 @@ static int _lcp_context_devices_load_and_filter(lcp_context_h ctx)
 	// TODO: add progress counter.
 
 err_free:
-	for (i = 0; (unsigned int)i < ctx->num_cmpts; i++)
+	for (unsigned int i = 0; i < ctx->num_cmpts; i++)
 	{
 		if (ctx->components[i]->num_devices > 0)
 		{
@@ -606,12 +633,14 @@ int lcp_context_create(lcp_context_h *ctx_p, lcp_context_param_t *param)
 		ctx->config.request.init = param->request_init;
 	}
 
+	mpc_common_debug("Loading context config");
 	rc = _lcp_context_load_ctx_config(ctx, param);
 	if (rc != MPC_LOWCOMM_SUCCESS)
 	{
 		goto out_free_ctx;
 	}
 
+	mpc_common_debug("Loading & filtering devices");
 	rc = _lcp_context_devices_load_and_filter(ctx);
 	if (rc != MPC_LOWCOMM_SUCCESS)
 	{
@@ -628,6 +657,7 @@ int lcp_context_create(lcp_context_h *ctx_p, lcp_context_param_t *param)
 
 	*ctx_p = static_ctx = ctx;
 
+	mpc_common_debug("Context creation sucess");
 	return MPC_LOWCOMM_SUCCESS;
 
 out_free_ctx:

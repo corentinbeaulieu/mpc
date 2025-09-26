@@ -353,7 +353,7 @@ void __mpcprintf(char *messagebuffer,
 	{
 		fprintf(stderr,
 			"%s[%sT%4d %sP%4d %sN%4d%s]%s "     // Task, Process & Node rank
-			"%s[%s%s%s]%s "                     // Verbosity level
+			"%s[%s%5s%s]%s "                    // Verbosity level
 			"%s[%s%s%s]%s "                     // Module
 			"%s%s%s\n",                         // Message
 
@@ -382,7 +382,7 @@ void __mpcprintf(char *messagebuffer,
 	else
 	{
 		fprintf(stderr,
-			"[T%4d P%4d N%4d] [%s] [%s] %s\n",
+			"[T%4d P%4d N%4d] [%5s] [%s] %s\n",
 			mpc_common_get_task_rank(),
 			mpc_common_get_process_rank(),
 			mpc_common_get_node_rank(),
