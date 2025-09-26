@@ -1089,7 +1089,7 @@ static inline void _mpc_lowcomm_net_config_default(void)
 #elif MPC_USE_OFI
 		snprintf(__net_config.cli_default_network, MPC_CONF_STRING_SIZE, "verbsshm");
 #else
-		snprintf(__net_config.cli_default_network, MPC_CONF_STRING_SIZE, "tcpshm");
+		snprintf(__net_config.cli_default_network, MPC_CONF_STRING_SIZE, "shm");
 #endif
 }
 
