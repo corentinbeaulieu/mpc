@@ -506,7 +506,7 @@ static int _lcp_context_devices_load_and_filter(lcp_context_h ctx)
 		{
 			if (MPC_BITMAP_GET(dev_map, i))
 			{
-				mpc_common_debug("Initializing ressources for %s", ctx->components[i]->name);
+				mpc_common_debug("Initializing resources for %s", ctx->components[i]->name);
 				_lcp_context_resource_init(&ctx->resources[rsc_count],
 					ctx->components[i],
 					&ctx->components[i]->devices[j]);
@@ -660,7 +660,7 @@ int lcp_context_create(lcp_context_h *ctx_p, lcp_context_param_t *param)
 
 	*ctx_p = static_ctx = ctx;
 
-	mpc_common_debug("Context creation sucess");
+	mpc_common_debug("Context creation success");
 	return MPC_LOWCOMM_SUCCESS;
 
 out_free_ctx:
