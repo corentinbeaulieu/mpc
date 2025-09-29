@@ -42,16 +42,27 @@
 
 #include "mpc_common_debug.h"
 
-typedef uint64_t (*lcp_atomic_func_t)(uint64_t *orig_val, uint64_t *remote_val);
+/** @addtogroup LCP_ATOMIC
+ * @{
+ */
 
+/** @brief Structured data to describe the reply to a fetch-like atomic operation */
 typedef struct lcp_atomic_reply
 {
-	uint64_t dest_uid;
-	uint64_t msg_id;
-	uint64_t result;
+	uint64_t dest_uid; /**< UID of the iniator */
+	uint64_t msg_id;   /**< ID of the operation */
+	uint64_t result;   /**< Fetched data */
 } lcp_atomic_reply_t;
 
-ssize_t lcp_atomic_pack(void *dest, void *data)
+/**
+ * @brief Packs a software atomic operation into an atomic header
+ *
+ * @param[out] dest Header of the communication containing the necessary information
+ * @param[in]  data Request describing the data to pack into the atomic header
+ *
+ * @return          Size of the packed header in bytes
+ */
+static ssize_t lcp_atomic_pack(void *dest, void *data)
 {
 	lcp_request_t *req = (lcp_request_t *)data;
 	lcp_ato_hdr_t *hdr = (lcp_ato_hdr_t *)dest;
@@ -82,7 +93,15 @@ ssize_t lcp_atomic_pack(void *dest, void *data)
 	return sizeof(*hdr);
 }
 
-ssize_t lcp_atomic_reply_pack(void *dest, void *data)
+/**
+ * @brief Packs a reply to a software atomic operation into an atomic header
+ *
+ * @param[out] dest Header of the communication containing the necessary information
+ * @param[in]  data Request describing the data to pack into the atomic header
+ *
+ * @return          Size of the packed header in bytes
+ */
+static ssize_t lcp_atomic_reply_pack(void *dest, void *data)
 {
 	lcp_request_t *      req = (lcp_request_t *)data;
 	lcp_ato_reply_hdr_t *hdr = (lcp_ato_reply_hdr_t *)dest;
@@ -93,6 +112,11 @@ ssize_t lcp_atomic_reply_pack(void *dest, void *data)
 	return sizeof(*hdr);
 }
 
+/**
+ * @brief Completes a software atomic operation
+ *
+ * @param[in] comp Completion function to call on completion
+ */
 static void lcp_atomic_complete(lcr_completion_t *comp)
 {
 	lcp_request_t *req = mpc_container_of(comp, lcp_request_t,
@@ -106,6 +130,14 @@ static void lcp_atomic_complete(lcr_completion_t *comp)
 	}
 }
 
+/**
+ * @brief Generic function to send a software atomic operation
+ *
+ * @param[in] req Request containing the necessary information for the communication
+ *
+ * @retval        MPC_LOWCOMM_SUCCESS
+ * @retval        MPC_LOWCOMM_ERROR
+ */
 int lcp_atomic_sw(lcp_request_t *req)
 {
 	int     rc = MPC_LOWCOMM_SUCCESS;
@@ -139,7 +171,17 @@ int lcp_atomic_sw(lcp_request_t *req)
 	return rc;
 }
 
-int lcp_atomic_reply(lcp_manager_h mngr, lcp_task_h task, lcp_atomic_reply_t *ato_reply)
+/**
+ * @brief Generic function to send the reply of a completed fetch-like atomic operation
+ *
+ * @param[in] mngr      Manager used for the communication
+ * @param[in] task      Task identifier of the iniator, destination of communication
+ * @param[in] ato_reply Packed header containing the data to communicate
+ *
+ * @retval MPC_LOWCOMM_SUCCESS upon success
+ * @retval errorcode otherwise
+ */
+static int lcp_atomic_reply(lcp_manager_h mngr, lcp_task_h task, lcp_atomic_reply_t *ato_reply)
 {
 	int            rc;
 	ssize_t        payload_size;
@@ -181,13 +223,27 @@ err:
 	return rc;
 }
 
-lcp_atomic_proto_t ato_sw_proto =
+const lcp_atomic_proto_t ato_sw_proto =
 {
 	.send_fetch = lcp_atomic_sw,
 	.send_cswap = lcp_atomic_sw,
 	.send_post  = lcp_atomic_sw,
 };
 
+/**
+ * @brief Executes the requested atomic operation with the provided data
+ *
+ * This function handles local atomic operations which have been provided through an Active Message or shm like
+ * communication.
+ *
+ * @param[in] arg    Manager used for the communication
+ * @param[in] data   Header of the communication containing the necessary information
+ * @param[in] length Size of the datatype in bytes (UNUSED)
+ * @param[in] flags  (UNUSED)
+ *
+ * @retval MPC_LOWCOMM_SUCCESS on success
+ * @retval MPC_LOWCOMM_ERROR otherwise
+ */
 static int lcp_atomic_handler(void *arg, void *data, size_t length, unsigned flags)
 {
 	UNUSED(length);
@@ -202,7 +258,7 @@ static int lcp_atomic_handler(void *arg, void *data, size_t length, unsigned fla
 	reply.dest_uid = hdr->src_uid;
 	reply.msg_id   = hdr->msg_id;
 
-	// NOTE: In the following, we use conversion less bitcast to retrieve the underlying datatype
+	// NOTE: In the following, we use conversion-less bitcast to retrieve the underlying datatype
 	switch (hdr->op)
 	{
 	case LCP_ATOMIC_OP_ADD:
@@ -693,6 +749,18 @@ err:
 	return rc;
 }
 
+/**
+ * @brief Handles the response of fetch-like atomic operations
+ *
+ * This function replies with the data to the remote iniator.
+ *
+ * @param[in] arg    Manager used for the communication (UNUSED)
+ * @param[in] data   Header of the communication containing the necessary information
+ * @param[in] length Size of the datatype in bytes (UNUSED)
+ * @param[in] flags  (UNUSED)
+ *
+ * @return           MPC_LOWCOMM_SUCCESS
+ */
 static int lcp_atomic_reply_handler(void *arg, void *data, size_t length, unsigned flags)
 {
 	UNUSED(length);
@@ -713,3 +781,5 @@ static int lcp_atomic_reply_handler(void *arg, void *data, size_t length, unsign
 
 LCP_DEFINE_AM(LCP_AM_ID_ATOMIC,       lcp_atomic_handler,       0);
 LCP_DEFINE_AM(LCP_AM_ID_ATOMIC_REPLY, lcp_atomic_reply_handler, 0);
+
+/** @} */

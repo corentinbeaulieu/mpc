@@ -46,6 +46,11 @@
 
 #include <portals4.h>
 
+	// NOTE: BXI specific constant
+#ifndef PTL_SIZE_MAX
+		#define PTL_SIZE_MAX ((1ull << 24) - 1)
+#endif
+
 	// Forward addressing
 	typedef struct lcr_ptl_block_list    lcr_ptl_block_list_t;
 	typedef struct lcr_ptl_mem           lcr_ptl_mem_t;
@@ -483,7 +488,7 @@
 
 		case PTL_NI_NO_MATCH: return "PTL_NI_NO_MATCH"; break;
 
-		case PTL_NI_TARGET_INVALID: return "PTL_NI_TARGET_INVALID"; break;
+		case PTL_NI_TARGET_INVALID: return "PTL_NI_TARGET_INVALID"; break; // NOTE: BXI specific error
 
 		case PTL_NI_OP_VIOLATION: return "PTL_NI_OP_VIOLATION"; break;
 

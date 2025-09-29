@@ -67,6 +67,7 @@ typedef union
 typedef enum
 {
 	LCR_ATOMIC_OP_ADD,   /**< Atomic addition */
+	LCR_ATOMIC_OP_SUB,   /**< Atomic subtraction */
 	LCR_ATOMIC_OP_SWAP,  /**< Atomic swap */
 	LCR_ATOMIC_OP_CSWAP, /**< Atomic compare and swap */
 	LCR_ATOMIC_OP_AND,   /**< Atomic bitwise and */

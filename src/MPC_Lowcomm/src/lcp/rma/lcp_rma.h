@@ -34,20 +34,28 @@
 
 #include <core/lcp_request.h>
 
+/**
+ * @defgroup LCP_ATOMIC LCP Atomic
+ * @{
+ * @ingroup LCP_COMM
+ * @brief Atomic interface of the LCP layer
+ */
+
 enum
 {
-	LCP_ATO_PROTO_RMA,
-	LCP_ATO_PROTO_SW,
+	LCP_ATO_PROTO_RMA, /**< Use RMA channel to send atomics */
+	LCP_ATO_PROTO_SW,  /**< Use the software atomics */
 };
 
+/** Interface functions for the atomics */
 typedef struct lcp_atomic_proto
 {
-	lcp_send_func_t send_fetch;
-	lcp_send_func_t send_cswap;
-	lcp_send_func_t send_post;
+	lcp_send_func_t send_fetch; /**< Fetch operation */
+	lcp_send_func_t send_cswap; /**< Compare and swap operation */
+	lcp_send_func_t send_post;  /**< Atomic operation without fetching */
 } lcp_atomic_proto_t;
 
-/** Extend of the atomic datatypes */
+/** Extent of the atomic datatypes */
 static size_t lcp_atomic_dt_size[] =
 {
 	[LCP_ATOMIC_DT_FLOAT]  = 4,
@@ -63,11 +71,21 @@ static size_t lcp_atomic_dt_size[] =
 };
 
 // NOLINTBEGIN(clang-diagnostic-unused-function)
+
+/**
+ * @brief Decodes the LCP operation types into strings for logging purposes
+ *
+ * @param[in] op_type Operation to decode
+ *
+ * @return            String containing the name of the operation
+ */
 static inline const char *lcp_ato_sw_decode_op(lcp_atomic_op_t op_type)
 {
 	switch (op_type)
 	{
 	case LCP_ATOMIC_OP_ADD: return "LCP_ATOMIC_OP_ADD"; break;
+
+	case LCP_ATOMIC_OP_SUB: return "LCP_ATOMIC_OP_SUB"; break;
 
 	case LCP_ATOMIC_OP_OR: return "LCP_ATOMIC_OP_OR"; break;
 
@@ -87,7 +105,9 @@ static inline const char *lcp_ato_sw_decode_op(lcp_atomic_op_t op_type)
 
 // NOLINTEND(clang-diagnostic-unused-function)
 
-extern lcp_atomic_proto_t ato_sw_proto;
-extern lcp_atomic_proto_t ato_rma_proto;
+extern const lcp_atomic_proto_t ato_sw_proto;  /**< Interface functions using the software atomics */
+extern const lcp_atomic_proto_t ato_rma_proto; /**< Interface functions using the RMA atomics */
 
+
+/** @} */                                      // LCP_ATOMIC
 #endif

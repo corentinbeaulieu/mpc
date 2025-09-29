@@ -679,6 +679,7 @@ err:
 	/** Translation table from LCR to Portals atomic ops */
 	static const ptl_op_t lcr_ptl_atomic_op_table[] =
 	{
+		// [LCR_ATOMIC_OP_SUB]   = PTL_DIFF, // WARNING: Not supported by BXI v2
 		[LCR_ATOMIC_OP_ADD]   = PTL_SUM,
 		[LCR_ATOMIC_OP_SWAP]  = PTL_SWAP,
 		[LCR_ATOMIC_OP_CSWAP] = PTL_CSWAP,

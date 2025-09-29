@@ -41,6 +41,10 @@
 
 #include "mpc_common_debug.h"
 
+/** @addtogroup LCP_ATOMIC
+ * @{
+ */
+
 /** Translation table from LCP to LCR atomic ops */
 static const lcr_atomic_op_t lcp_atomic_op_table[] =
 {
@@ -67,6 +71,11 @@ static const lcr_atomic_dt_t lcp_atomic_dt_table[] =
 	[LCP_ATOMIC_DT_UINT64] = LCR_ATOMIC_DT_UINT64,
 };
 
+/**
+ * @brief Completes an atomic operation
+ *
+ * @param[in] comp Completion function to call on completion
+ */
 static void lcp_atomic_complete(lcr_completion_t *comp)
 {
 	lcp_request_t *req = mpc_container_of(comp, lcp_request_t, state.comp);
@@ -77,6 +86,14 @@ static void lcp_atomic_complete(lcr_completion_t *comp)
 	lcp_request_complete(req, send.send_cb, req->status, 0);
 }
 
+/**
+ * @brief Performs an atomic operation without fetch
+ *
+ * @param[in] req Request describing the operation to perform
+ *
+ * @retval MPC_LOWCOMM_SUCCESS upon success
+ * @retval errorcode otherwise
+ */
 static int lcp_atomic_post(lcp_request_t *req)
 {
 	int rc = MPC_LOWCOMM_SUCCESS;
@@ -99,6 +116,14 @@ static int lcp_atomic_post(lcp_request_t *req)
 	return rc;
 }
 
+/**
+ * @brief Performs an atomic operation with fetch
+ *
+ * @param[in] req Request describing the operation to perform
+ *
+ * @retval MPC_LOWCOMM_SUCCESS upon success
+ * @retval errorcode otherwise
+ */
 static int lcp_atomic_fetch(lcp_request_t *req)
 {
 	int rc = MPC_LOWCOMM_SUCCESS;
@@ -123,6 +148,14 @@ static int lcp_atomic_fetch(lcp_request_t *req)
 	return rc;
 }
 
+/**
+ * @brief Performs an atomic compare and swap operation
+ *
+ * @param[in] req Request describing the operation to perform
+ *
+ * @retval MPC_LOWCOMM_SUCCESS upon success
+ * @retval errorcode otherwise
+ */
 static int lcp_atomic_cswap(lcp_request_t *req)
 {
 	int rc = MPC_LOWCOMM_SUCCESS;
@@ -148,15 +181,24 @@ static int lcp_atomic_cswap(lcp_request_t *req)
 	return rc;
 }
 
-lcp_atomic_proto_t ato_rma_proto =
+const lcp_atomic_proto_t ato_rma_proto =
 {
 	.send_cswap = lcp_atomic_cswap,
 	.send_fetch = lcp_atomic_fetch,
 	.send_post  = lcp_atomic_post,
 };
 
+/**
+ * @brief Selects the type of atomic to perform (software or RMA)
+ *
+ * @param[in] ep          Endpoint describing the capabilities
+ * @param[in] ato_proto_p Interface with the function to use
+ * @param[in] cc          Index of the chosen channel
+ *
+ * @return                MPC_LOWCOMM_SUCCESS
+ */
 static inline int lcp_atomic_select_proto_channel(lcp_ep_h ep,
-                                                  lcp_atomic_proto_t **ato_proto_p,
+                                                  const lcp_atomic_proto_t **ato_proto_p,
                                                   lcp_chnl_idx_t *cc)
 {
 	int rc = MPC_LOWCOMM_SUCCESS;
@@ -180,9 +222,9 @@ lcp_status_ptr_t lcp_atomic_op_nb(lcp_ep_h ep, lcp_task_h task, const void *buff
                                   lcp_atomic_op_t op_type, const lcp_request_param_t *param)
 {
 	int rc = MPC_LOWCOMM_SUCCESS;
-	lcp_status_ptr_t    ret;
-	lcp_request_t *     req;
-	lcp_atomic_proto_t *atomic_proto;
+	lcp_status_ptr_t          ret;
+	lcp_request_t *           req;
+	const lcp_atomic_proto_t *atomic_proto;
 	int    op_size = lcp_atomic_dt_size[atomic_datatype];
 	size_t length  = lcp_atomic_dt_size[atomic_datatype];
 
@@ -247,3 +289,5 @@ lcp_status_ptr_t lcp_atomic_op_nb(lcp_ep_h ep, lcp_task_h task, const void *buff
 
 	return ret;
 }
+
+/** @} */ // LCP_ATOMIC
