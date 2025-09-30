@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog][Keep a Changelog].
+All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog].
 
 ## [4.2.0] - 2023-06-13
 
@@ -9,13 +9,13 @@ All notable changes to this project will be documented in this file. The format 
 - **COMPILER** new wrappers for mpicc++ and mpif90 (privatization)
 - **SESSIONS** adding sessions support
 - **OMP**
-    - Added fibers to OpenMP tasks
-    - Fix OMP Tool support
-    - Added interoperation between MPC-MPI / MPC-OpenMP(tasks) for the « loss of thread issue »
-    - Refactored OpenMP task runtime (memory management, dependencies, tasks priorities)
+  - Added fibers to OpenMP tasks
+  - Fix OMP Tool support
+  - Added interoperation between MPC-MPI / MPC-OpenMP(tasks) for the « loss of thread issue »
+  - Refactored OpenMP task runtime (memory management, dependencies, tasks priorities)
 - **MPI**
-    - adding message queue
-    - new pairwise alltoall algorithm
+  - adding message queue
+  - new pairwise alltoall algorithm
 - **CONFIG** add intracomm collective communications config switch
 
 ### Changed
@@ -75,13 +75,14 @@ All notable changes to this project will be documented in this file. The format 
 For this release MPC has undergone a massive refactoring. It is in some aspects not compatible with previous versions of MPC. It should bring several enhancements in terms of installation process and modularity. One should not expect binary compatibility with a previous version of MPC. Due to the massive changes, this changelog cannot be fully exhaustive.
 
 ### Modularity
+
 MPC is now modular and comes in several components:
 
 - `lowcomm` : component handling and providing the networks interfaces
 - `threads` : component handling and providing the user-level thread scheduler
 - `mpi` : component handling and providing the MPI standard API
-- `mpiio` :  component handling and providing the IO part of the MPI standard API
-- `openmp` :  component handling and providing the OpenMP standard API
+- `mpiio` : component handling and providing the IO part of the MPI standard API
+- `openmp` : component handling and providing the OpenMP standard API
 - `fortran` : component handling and providing the Fortran interface for the above parallel programming APIs
 - ... and other internal components
 
@@ -418,22 +419,23 @@ Note that some components are dependent and cannot be installed if the dependenc
 - many small bug fixes
 
 <!-- Links -->
-[Keep a Changelog]: https://keepachangelog.com/
+
 [1.1.0]: https://france.paratools.com/mpc/releases/MPC_1.1.tar.gz
-[2.1.0]: https://france.paratools.com/mpc/releases/MPC_2.1.0.tar.gz
-[2.2.0]: https://france.paratools.com/mpc/releases/MPC_2.2.0.tar.gz
-[2.3.0]: https://france.paratools.com/mpc/releases/MPC_2.3.0.tar.gz
-[2.3.1]: https://france.paratools.com/mpc/releases/MPC_2.3.1.tar.gz
-[2.4.0]: https://france.paratools.com/mpc/releases/MPC_2.4.0.tar.gz
-[2.4.1]: https://france.paratools.com/mpc/releases/MPC_2.4.1.tar.gz
-[2.5.0]: https://france.paratools.com/mpc/releases/MPC_2.5.0.tar.gz
-[2.5.1]: https://france.paratools.com/mpc/releases/MPC_2.5.1.tar.gz
-[2.5.2]: https://france.paratools.com/mpc/releases/MPC_2.5.2.tar.gz
-[3.0.0]: https://france.paratools.com/mpc/releases/MPC_3.0.0.tar.gz
-[3.1.0]: https://france.paratools.com/mpc/releases/MPC_3.1.0.tar.gz
-[3.2.0]: https://france.paratools.com/mpc/releases/MPC_3.2.0.tar.gz
-[3.3.0]: https://france.paratools.com/mpc/releases/MPC_3.3.0.tar.gz
-[3.3.1]: https://france.paratools.com/mpc/releases/MPC_3.3.1.tar.gz
-[3.4.0]: https://france.paratools.com/mpc/releases/mpcframework-3.4.0.tar.gz
-[4.0.0]: https://france.paratools.com/mpc/releases/mpcframework-4.0.0.tar.gz
-[4.1.0]: https://france.paratools.com/mpc/releases/mpcframework-4.1.0.tar.gz
+[2.1.0]: https://github.com/cea-hpc/mpc/releases/tag/MPC_2.1.0
+[2.2.0]: https://github.com/cea-hpc/mpc/releases/tag/MPC_2.2.0
+[2.3.0]: https://github.com/cea-hpc/mpc/releases/tag/MPC_2.3.0
+[2.3.1]: https://github.com/cea-hpc/mpc/releases/tag/MPC_2.3.1
+[2.4.0]: https://github.com/cea-hpc/mpc/releases/tag/MPC_2.4.0
+[2.4.1]: https://github.com/cea-hpc/mpc/releases/tag/MPC_2.4.1
+[2.5.0]: https://github.com/cea-hpc/mpc/releases/tag/MPC_2.5.0
+[2.5.1]: https://github.com/cea-hpc/mpc/releases/tag/MPC_2.5.1
+[2.5.2]: https://github.com/cea-hpc/mpc/releases/tag/MPC_2.5.2
+[3.0.0]: https://github.com/cea-hpc/mpc/releases/tag/MPC_3.0.0
+[3.1.0]: https://github.com/cea-hpc/mpc/releases/tag/MPC_3.1.0
+[3.2.0]: https://github.com/cea-hpc/mpc/releases/tag/MPC_3.2.0
+[3.3.0]: https://github.com/cea-hpc/mpc/releases/tag/MPC_3.3.0
+[3.3.1]: https://github.com/cea-hpc/mpc/releases/tag/MPC_3.3.1
+[3.4.0]: https://github.com/cea-hpc/mpc/releases/tag/MPC_3.4.0
+[4.0.0]: https://github.com/cea-hpc/mpc/releases/tag/MPC_4.0.0
+[4.1.0]: https://github.com/cea-hpc/mpc/releases/tag/MPC_4.1.0
+[keep a changelog]: https://keepachangelog.com/
