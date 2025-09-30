@@ -178,6 +178,7 @@ Table of Contents
    :caption: MPC-specific
 
    features/privatization
+   features/launching_options
    contribute/main
 
 .. toctree::
