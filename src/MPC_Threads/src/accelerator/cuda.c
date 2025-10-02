@@ -36,6 +36,7 @@
 
 extern __thread void *sctk_cuda_ctx;
 
+void sctk_accl_release_global_cuda_context();
 
 static int sctk_accl_cuda_check_devices()
 {
@@ -80,10 +81,11 @@ static int sctk_accl_cuda_get_closest_device(int cpu_id)
 		return 0;
 	}
 
-	// else, we try to find the closest device for the current thread
+	// We try to find the closest device for the current thread
 	// to use, num_devices contains the number of minimum distance device
 	mpc_topology_device_t **closest_devices = NULL;
 	closest_devices = mpc_topology_device_matrix_get_list_closest_from_pu(cpu_id, "cuda-enabled-card*", &num_devices);
+
 	// once the list is filtered with the nearest ones,
 	// we need to elected the one with the minimum number of attached resources
 	mpc_topology_device_t *elected = mpc_topology_device_attach_freest_device_from(closest_devices, num_devices);
@@ -104,19 +106,18 @@ static int sctk_accl_cuda_get_closest_device(int cpu_id)
 void sctk_accl_cuda_init_context()
 {
 	mpc_thread_yield();
-	int num_devices;
-	if ((num_devices = sctk_accl_cuda_check_devices()) == 0)
+	if (sctk_accl_cuda_check_devices() == 0)
 	{
 		return;
 	}
 
 	/* we init CUDA TLS context */
-	cuda_ctx_t *cuda = (cuda_ctx_t *)sctk_cuda_ctx;
-	cuda         = (cuda_ctx_t *)sctk_malloc(sizeof(cuda_ctx_t));
+	cuda_ctx_t *cuda = (cuda_ctx_t *)sctk_malloc(sizeof(cuda_ctx_t));
 	cuda->pushed = 0;
 	cuda->cpu_id = mpc_topology_get_current_cpu();
 
-	mpc_common_nodebug("CUDA: (MALLOC) pushed?%d, cpu_id=%d, address=%p", cuda->pushed, cuda->cpu_id, cuda);
+	mpc_common_nodebug("CUDA: (MALLOC) pushed?%d, cpu_id=%d, address=%p",
+		cuda->pushed, cuda->cpu_id, cuda);
 
 	// cast from int -> CUdevice (which is a typedef to a int)
 	CUdevice nearest_device =
@@ -127,9 +128,10 @@ void sctk_accl_cuda_init_context()
 	// cuCtxCreate_v3 automatically attaches the ctx to the GPU
 	cuda->pushed = 1;
 
-
-
-	mpc_common_debug("CUDA: (INIT) PU %d bound to device %d", cuda->cpu_id, nearest_device);
+	CUdevice device;
+	safe_cudadv(cuCtxGetDevice(&device));
+	mpc_common_debug("CUDA: (INIT) PU %d bound to device %d (%d)\n",
+		cuda->cpu_id, device, nearest_device);
 
 	// Set the current pointer as default one for the current thread
 	sctk_cuda_ctx = cuda;
@@ -148,9 +150,7 @@ void sctk_accl_cuda_init_context()
  */
 int sctk_accl_cuda_pop_context()
 {
-	int num_devices;
-
-	if ((num_devices = sctk_accl_cuda_check_devices()) == 0)
+	if (sctk_accl_cuda_check_devices() == 0)
 	{
 		return 1;
 	}
@@ -188,9 +188,7 @@ int sctk_accl_cuda_pop_context()
  */
 int sctk_accl_cuda_push_context()
 {
-	int num_devices;
-
-	if ((num_devices = sctk_accl_cuda_check_devices()) == 0)
+	if (sctk_accl_cuda_check_devices() == 0)
 	{
 		return 1;
 	}
@@ -226,6 +224,50 @@ int sctk_accl_cuda_init()
 		return 0;
 	}
 	return 1;
+}
+
+/**
+ * Release the CUDA contexts with MPC
+ */
+void sctk_accl_cuda_release_context()
+{
+	// release context created by cuda support
+	if (mpc_common_get_flags()->enable_cuda)
+	{
+		if (sctk_accl_cuda_check_devices() == 0)
+		{
+			return;
+		}
+
+		cuda_ctx_t *cuda = (cuda_ctx_t *)sctk_cuda_ctx;
+
+		CUdevice device;
+		safe_cudadv(cuCtxGetDevice(&device));
+		mpc_common_debug("CUDA: (RELEASE) PU %d bound to device %d", cuda->cpu_id, device);
+
+		cuCtxDestroy(cuda->context);
+		sctk_cuda_ctx = NULL;
+	}
+	sctk_accl_release_global_cuda_context();
+}
+
+/*********************************
+ * MPC CUDA INIT FUNCTION *
+ *********************************/
+
+void mpc_accelerator_cuda_register_function() __attribute__((constructor));
+
+void mpc_accelerator_cuda_register_function()
+{
+	MPC_INIT_CALL_ONLY_ONCE
+
+	mpc_common_init_callback_register("VP Thread Start",
+	                                  "Init per VP CUDA context",
+	                                  sctk_accl_cuda_init_context, 25);
+
+	mpc_common_init_callback_register("VP Thread End",
+		"Release per VP CUDA context",
+		sctk_accl_cuda_release_context, 22);
 }
 
 /**
@@ -274,46 +316,4 @@ void sctk_accl_release_global_cuda_context()
 			mpc_common_debug("CUDA: (RELEASE-PRIMARY) Context of device %d", device);
 		}
 	}
-}
-
-/**
- * Release the CUDA contexts with MPC
- */
-void sctk_accl_cuda_release_context()
-{
-	// release context created by cuda support
-	if (mpc_common_get_flags()->enable_cuda)
-	{
-		int num_devices;
-		if ((num_devices = sctk_accl_cuda_check_devices()) == 0)
-		{
-			return;
-		}
-
-		cuda_ctx_t *cuda = (cuda_ctx_t *)sctk_cuda_ctx;
-
-		CUdevice device;
-		safe_cudadv(cuCtxGetDevice(&device));
-		mpc_common_debug("CUDA: (RELEASE) PU %d bound to device %d", cuda->cpu_id, device);
-
-		cuCtxDestroy(cuda->context);
-		sctk_cuda_ctx = NULL;
-	}
-	sctk_accl_release_global_cuda_context();
-}
-
-/*********************************
- * MPC CUDA INIT FUNCTION *
- *********************************/
-
-void mpc_accelerator_cuda_register_function() __attribute__((constructor));
-
-void mpc_accelerator_cuda_register_function()
-{
-	MPC_INIT_CALL_ONLY_ONCE
-
-	mpc_common_init_callback_register("VP Thread Start", "Init per VP CUDA context", sctk_accl_cuda_init_context, 25);
-
-	mpc_common_init_callback_register("VP Thread End", "Release per VP CUDA context",
-		sctk_accl_cuda_release_context, 22);
 }

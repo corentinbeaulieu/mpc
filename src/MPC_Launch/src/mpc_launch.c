@@ -738,8 +738,8 @@ void __check_for_print_config(void)
 
 	if (absolute_path != NULL)
 	{
-		char *prev, *curr;
-		curr = strtok(mpc_common_get_flags()->exename, "/");
+		char *prev = mpc_common_get_flags()->exename;
+		char *curr = strtok(mpc_common_get_flags()->exename, "/");
 		while (curr != NULL)
 		{
 			prev = curr;

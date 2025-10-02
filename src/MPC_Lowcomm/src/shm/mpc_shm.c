@@ -779,7 +779,7 @@ int mpc_shm_put_zcopy(_mpc_lowcomm_endpoint_t *ep,
                       size_t size,
                       lcr_completion_t *comp)
 {
-	UNUSED(local_key);
+	    UNUSED(local_key);
  #if MPC_USE_CMA
 		int cma = mpc_shm_has_cma_support(&ep->rail->network.shm.storage);
 
@@ -787,6 +787,13 @@ int mpc_shm_put_zcopy(_mpc_lowcomm_endpoint_t *ep,
 		{
 			return __put_zcopy_over_cma(ep, local_addr, remote_addr, remote_key, size, comp);
 		}
+#else
+		UNUSED(ep);
+		UNUSED(local_addr);
+		UNUSED(remote_addr);
+		UNUSED(remote_key);
+		UNUSED(size);
+		UNUSED(comp);
 #endif
 	not_implemented();
 }
