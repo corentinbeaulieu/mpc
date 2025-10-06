@@ -8,13 +8,14 @@
 # For convenience, implicit stages have been made explicit here...
 stages:
   - Installations
-  - Basic Testing
   - Regular Testing
   - Applications
   - Benchmarks
+  - Extended Network Testing
+  - Extended Threads Testing
   - Extra Steps
   - Configurations
-  - Additional Tests
+  - Additional Testing
   - Release
 
 # Add clone variables for concurrent PIPELINES
@@ -25,7 +26,9 @@ variables:
   GL_INSTALL_COMMON_OPTS: --enable-debug --with-pmix -j32
   GIT_DEPTH: 1 # No need to clone the whole history
   #GIT_CLONE_PATH: $GL_PIPELINE_PATH/$CI_RUNNER_ID/$CI_CONCURRENT_ID
-  PCVS_COMMAND: pcvs -v run --override --profile-path ${GL_PIPELINE_PATH}/mpc_ci/utils/profile/mpc.yml --print errors -S
+  PCVS_RUN: pcvs -v run --override --profile-path ${GL_PIPELINE_PATH}/mpc_ci/utils/profile/mpc.yml
+  PCVS_COMMAND: ${PCVS_RUN} --print errors -S
+  PCVS_COMMAND_BENCH: ${PCVS_RUN} --print all -S
 
 .pcvs_prepare: &pcvs_prepare
   - export CI_PCVS_DIR="$GL_PIPELINE_PATH/step_$(echo "$CI_JOB_NAME" | sed -e "s/ /_/g")/"
@@ -138,7 +141,7 @@ Privatization Installation:
 
 Process Mode Simple Run:
   extends: ['.slurm_tag']
-  stage: Basic Testing
+  stage: Regular Testing
   needs:
     - [Process Mode Installation]
   variables:
@@ -149,7 +152,7 @@ Process Mode Simple Run:
 
 Privatization Simple Run:
   extends: ['.slurm_tag']
-  stage: Basic Testing
+  stage: Regular Testing
   needs:
     - [Privatization Installation]
   variables:
@@ -160,7 +163,7 @@ Privatization Simple Run:
 
 Privatization:
   extends: ['.slurm_tag']
-  stage: Additional Tests
+  stage: Additional Testing
   needs: [Privatization Installation]
   variables:
     GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_privatization
@@ -170,7 +173,7 @@ Privatization:
 
 Process Mode Reproducers:
   extends: ['.slurm_tag']
-  stage: Additional Tests
+  stage: Additional Testing
   needs: [Process Mode Installation]
   variables:
     GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_process_mode
@@ -181,8 +184,8 @@ Process Mode Reproducers:
 
 Privatization Reproducers:
   extends: ['.slurm_tag']
-  stage: Additional Tests
-  needs: [Process Mode Installation]
+  stage: Additional Testing
+  needs: [Privatization Installation]
   variables:
     GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_privatization
     REPRODUCERS_PATH: ${GL_PIPELINE_PATH}/mpc_ci/reproducers
@@ -550,9 +553,11 @@ Retrieve Benchmarks:
   variables:
     EXTENDED_TESTS_PATH: "${GL_PIPELINE_PATH}/pcvs-benchmarks"
   script:
+    - test "x${BENCHMARKS_BRANCH}" != "x" || BENCHMARKS_BRANCH=devel
+    - echo "${BENCHMARKS_BRANCH}"
     - |
       if [ ! -d ${EXTENDED_TESTS_PATH} ]; then
-        git clone --branch devel --depth 1 "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.ccc.ocre.cea.fr/cea-mpc-team/pcvs-benchmarks.git" "${EXTENDED_TESTS_PATH}"
+        git clone --branch "${BENCHMARKS_BRANCH}" --depth 1 "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.ccc.ocre.cea.fr/cea-mpc-team/pcvs-benchmarks.git" "${EXTENDED_TESTS_PATH}"
       fi
 
 
@@ -560,10 +565,13 @@ Retrieve Benchmarks:
   extends: ['.slurm_tag', '.extended_tests']
   variables:
     EXTENDED_TESTS_PATH: "${GL_PIPELINE_PATH}/pcvs-benchmarks"
+  before_script:
+    - *pcvs_prepare
 
 .process_mode_pcvs_benchmarks:
   extends: ['.pcvs_benchmarks']
   needs:
+    - [Retrieve Benchmarks]
     - [Process Mode Lowcomm, Process Mode MPI Simple C, Process Mode MPI Simple Fortran]
     - [Process Mode OpenMP Tasking cholesky, Process Mode OpenMP Tasking examples]
   variables:
@@ -572,6 +580,7 @@ Retrieve Benchmarks:
 .privatization_pcvs_benchmarks:
   extends: ['.pcvs_benchmarks']
   needs:
+    - [Retrieve Benchmarks]
     - [Privatization Lowcomm, Privatization MPI Simple C, Privatization MPI Simple Fortran]
     - [Privatization OpenMP Tasking cholesky, Privatization OpenMP Tasking examples]
   variables:
@@ -582,348 +591,281 @@ Retrieve Benchmarks:
 
 ### MPI
 
-Process Mode MPI Bull OSC Notified Communications:
-  extends: ['.process_mode_pcvs_benchmarks']
-  stage: Benchmarks
-  script:
-    - *pcvs_prepare
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/MPI/BULL/osc_notified_communications"
-
 Process Mode Intel ANL:
   extends: ['.process_mode_pcvs_benchmarks']
-  stage: Benchmarks
-  script:
-    - *pcvs_prepare
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/MPI/Intel_ANL"
+  stage: 'Extended Network Testing'
+  script: ['${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/MPI/Intel_ANL"']
 
 Process Mode MPI-IO:
   extends: ['.process_mode_pcvs_benchmarks']
-  stage: Benchmarks
+  stage: 'Extended Network Testing'
   script:
-    - *pcvs_prepare
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/MPI/MPI-IO/HACC"
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/MPI/MPI-IO/HPIO"
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/MPI/MPI-IO/PIO"
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/MPI/MPI-IO/ROMIO"
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/MPI/MPI-IO/ROMPIO"
+    - |
+      ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/MPI/MPI-IO/HACC"\
+                      "${EXTENDED_TESTS_PATH}/MPI/MPI-IO/HPIO"\
+                      "${EXTENDED_TESTS_PATH}/MPI/MPI-IO/PIO"\
+                      "${EXTENDED_TESTS_PATH}/MPI/MPI-IO/ROMIO"\
+                      "${EXTENDED_TESTS_PATH}/MPI/MPI-IO/ROMPIO"
 
 Process Mode NAS:
   extends: ['.process_mode_pcvs_benchmarks']
-  stage: Benchmarks
+  stage: 'Extended Network Testing'
   script:
-    - *pcvs_prepare
     - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/MPI/NAS"
 
 Process Mode PARCO Thread Tests:
   extends: ['.process_mode_pcvs_benchmarks']
-  stage: Benchmarks
+  stage: 'Extended Network Testing'
   script:
-    - *pcvs_prepare
     - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/MPI/Threading"
 
 Process Mode MPICH 3.4.2:
   extends: ['.process_mode_pcvs_benchmarks']
-  stage: Benchmarks
+  stage: 'Extended Network Testing'
   script:
-    - *pcvs_prepare
     - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/MPI/mpich-3.4.2"
-
-# TODO: Add mpicheck (Docker)
 
 Process Mode RMA MT:
   extends: ['.process_mode_pcvs_benchmarks']
-  stage: Benchmarks
+  stage: 'Extended Network Testing'
   script:
-    - *pcvs_prepare
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/MPI/rma-mt"
-
+    - ${PCVS_COMMAND_BENCH} "${EXTENDED_TESTS_PATH}/MPI/rma-mt"
 
 ### OMP
 
 Process Mode OMP BOTS:
   extends: ['.process_mode_pcvs_benchmarks']
-  stage: Benchmarks
+  stage: 'Extended Threads Testing'
   script:
-    - *pcvs_prepare
     - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/OpenMP/BOTS"
 
 Process Mode CLOMP:
   extends: ['.process_mode_pcvs_benchmarks']
-  stage: Benchmarks
+  stage: 'Extended Threads Testing'
   script:
-    - *pcvs_prepare
     - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/OpenMP/CLOMP"
 
 Process Mode EPCC:
   extends: ['.process_mode_pcvs_benchmarks']
-  stage: Benchmarks
+  stage: 'Extended Threads Testing'
   script:
-    - *pcvs_prepare
     - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/OpenMP/EPCC"
 
 Process Mode GOMP:
   extends: ['.process_mode_pcvs_benchmarks']
-  stage: Benchmarks
+  stage: 'Extended Threads Testing'
   script:
-    - *pcvs_prepare
     - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/OpenMP/GOMP"
 
 Process Mode NAS OMP:
   extends: ['.process_mode_pcvs_benchmarks']
-  stage: Benchmarks
+  stage: 'Extended Threads Testing'
   script:
-    - *pcvs_prepare
     - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/OpenMP/NAS"
 
-Process Mode OpenUH C:
+Process Mode OpenUH:
   extends: ['.process_mode_pcvs_benchmarks']
-  stage: Benchmarks
+  stage: 'Extended Threads Testing'
   script:
-    - *pcvs_prepare
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/OpenMP/OpenUH/c"
-
-Process Mode OpenUH Fortran:
-  extends: ['.process_mode_pcvs_benchmarks']
-  stage: Benchmarks
-  script:
-    - *pcvs_prepare
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/OpenMP/OpenUH/fortran"
+    - |
+      ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/OpenMP/OpenUH/c"\
+                      "${EXTENDED_TESTS_PATH}/OpenMP/OpenUH/fortran"
 
 Process Mode simple:
   extends: ['.process_mode_pcvs_benchmarks']
-  stage: Benchmarks
+  stage: 'Extended Threads Testing'
   script:
-    - *pcvs_prepare
     - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/OpenMP/simple"
 
 ### Threads
 
 Process Mode Threads:
   extends: ['.process_mode_pcvs_benchmarks']
-  stage: Benchmarks
+  stage: 'Extended Threads Testing'
   script:
-    - *pcvs_prepare
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/Threads/cpp"
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/Threads/futex"
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/Threads/interfaces"
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/Threads/tbb"
+    - |
+      ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/Threads/cpp"\
+                      "${EXTENDED_TESTS_PATH}/Threads/futex"\
+                      "${EXTENDED_TESTS_PATH}/Threads/interfaces"\
+                      "${EXTENDED_TESTS_PATH}/Threads/tbb"
 
 ### Performance
 
 Process Mode OSU:
   extends: ['.process_mode_pcvs_benchmarks']
-  stage: Benchmarks
+  stage: 'Extended Network Testing'
   script:
-    - *pcvs_prepare
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/performance/OSU"
+    - ${PCVS_COMMAND_BENCH} "${EXTENDED_TESTS_PATH}/performance/OSU"
 
 ## Applications
 
 Process Mode Corals:
   extends: ['.process_mode_pcvs_benchmarks']
-  stage: Benchmarks
+  stage: 'Benchmarks'
   script:
-    - *pcvs_prepare
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/applications/Corals/AMG2013"
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/applications/Corals/UMT2013"
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/applications/Corals/graph500-2.1.4"
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/applications/Corals/mcb-20130723"
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/applications/Corals/neckbone-2.3.4"
+    - |
+      ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/applications/Corals/AMG2013"\
+                      "${EXTENDED_TESTS_PATH}/applications/Corals/UMT2013"\
+                      "${EXTENDED_TESTS_PATH}/applications/Corals/graph500-2.1.4"\
+                      "${EXTENDED_TESTS_PATH}/applications/Corals/mcb-20130723"\
+                      "${EXTENDED_TESTS_PATH}/applications/Corals/neckbone-2.3.4"
 
 Process Mode Mantevo:
   extends: ['.process_mode_pcvs_benchmarks']
-  stage: Applications
+  stage: 'Applications'
   script:
-    - *pcvs_prepare
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/applications/Mantevo/CloverLeaf-master"
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/applications/Mantevo/HPCCG-master"
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/applications/Mantevo/miniAMR-master"
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/applications/Mantevo/miniGhost-1.0.1"
+    - |
+      ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/applications/Mantevo/CloverLeaf-master"\
+                      "${EXTENDED_TESTS_PATH}/applications/Mantevo/HPCCG-master"\
+                      "${EXTENDED_TESTS_PATH}/applications/Mantevo/miniAMR-master"\
+                      "${EXTENDED_TESTS_PATH}/applications/Mantevo/miniGhost-1.0.1"
+
 
 ## Benchmarks
 
 ### MPI
 
-Privatization MPI Bull OSC Notified Communications:
-  extends: ['.privatization_pcvs_benchmarks']
-  stage: Benchmarks
-  script:
-    - *pcvs_prepare
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/MPI/BULL/osc_notified_communications"
-
 Privatization Intel ANL:
   extends: ['.privatization_pcvs_benchmarks']
-  stage: Benchmarks
-  script:
-    - *pcvs_prepare
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/MPI/Intel_ANL"
+  stage: 'Extended Network Testing'
+  script: ['${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/MPI/Intel_ANL"']
 
 Privatization MPI-IO:
   extends: ['.privatization_pcvs_benchmarks']
-  stage: Benchmarks
+  stage: 'Extended Network Testing'
   script:
-    - *pcvs_prepare
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/MPI/MPI-IO/HACC"
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/MPI/MPI-IO/HPIO"
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/MPI/MPI-IO/PIO"
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/MPI/MPI-IO/ROMIO"
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/MPI/MPI-IO/ROMPIO"
+    - |
+      ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/MPI/MPI-IO/HACC"\
+                      "${EXTENDED_TESTS_PATH}/MPI/MPI-IO/HPIO"\
+                      "${EXTENDED_TESTS_PATH}/MPI/MPI-IO/PIO"\
+                      "${EXTENDED_TESTS_PATH}/MPI/MPI-IO/ROMIO"\
+                      "${EXTENDED_TESTS_PATH}/MPI/MPI-IO/ROMPIO"
 
 Privatization NAS:
   extends: ['.privatization_pcvs_benchmarks']
-  stage: Benchmarks
+  stage: 'Extended Network Testing'
   script:
-    - *pcvs_prepare
     - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/MPI/NAS"
-
-Privatization Thread based:
-  extends: ['.privatization_pcvs_benchmarks']
-  stage: Benchmarks
-  script:
-    - *pcvs_prepare
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/MPI/Thread_based/hls/c++"
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/MPI/Thread_based/hls/c"
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/MPI/Thread_based/hls/fortran"
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/MPI/Thread_based/privatization/c++"
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/MPI/Thread_based/privatization/c"
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/MPI/Thread_based/privatization/fortran"
 
 Privatization PARCO Thread Tests:
   extends: ['.privatization_pcvs_benchmarks']
-  stage: Benchmarks
+  stage: 'Extended Network Testing'
   script:
-    - *pcvs_prepare
     - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/MPI/Threading"
 
 Privatization MPICH 3.4.2:
   extends: ['.privatization_pcvs_benchmarks']
-  stage: Benchmarks
+  stage: 'Extended Network Testing'
   script:
-    - *pcvs_prepare
     - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/MPI/mpich-3.4.2"
-
-# TODO: Add mpicheck (Docker)
 
 Privatization RMA MT:
   extends: ['.privatization_pcvs_benchmarks']
-  stage: Benchmarks
+  stage: 'Extended Network Testing'
   script:
-    - *pcvs_prepare
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/MPI/rma-mt"
-
+    - ${PCVS_COMMAND_BENCH} "${EXTENDED_TESTS_PATH}/MPI/rma-mt"
 
 ### OMP
 
 Privatization OMP BOTS:
   extends: ['.privatization_pcvs_benchmarks']
-  stage: Benchmarks
+  stage: 'Extended Threads Testing'
   script:
-    - *pcvs_prepare
     - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/OpenMP/BOTS"
 
 Privatization CLOMP:
   extends: ['.privatization_pcvs_benchmarks']
-  stage: Benchmarks
+  stage: 'Extended Threads Testing'
   script:
-    - *pcvs_prepare
     - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/OpenMP/CLOMP"
 
 Privatization EPCC:
   extends: ['.privatization_pcvs_benchmarks']
-  stage: Benchmarks
+  stage: 'Extended Threads Testing'
   script:
-    - *pcvs_prepare
     - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/OpenMP/EPCC"
 
 Privatization GOMP:
   extends: ['.privatization_pcvs_benchmarks']
-  stage: Benchmarks
+  stage: 'Extended Threads Testing'
   script:
-    - *pcvs_prepare
     - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/OpenMP/GOMP"
 
 Privatization NAS OMP:
   extends: ['.privatization_pcvs_benchmarks']
-  stage: Benchmarks
+  stage: 'Extended Threads Testing'
   script:
-    - *pcvs_prepare
     - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/OpenMP/NAS"
 
-Privatization OpenUH C:
+Privatization OpenUH:
   extends: ['.privatization_pcvs_benchmarks']
-  stage: Benchmarks
+  stage: 'Extended Threads Testing'
   script:
-    - *pcvs_prepare
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/OpenMP/OpenUH/c"
-
-Privatization OpenUH Fortran:
-  extends: ['.privatization_pcvs_benchmarks']
-  stage: Benchmarks
-  script:
-    - *pcvs_prepare
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/OpenMP/OpenUH/fortran"
+    - |
+      ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/OpenMP/OpenUH/c"\
+                      "${EXTENDED_TESTS_PATH}/OpenMP/OpenUH/fortran"
 
 Privatization simple:
   extends: ['.privatization_pcvs_benchmarks']
-  stage: Benchmarks
+  stage: 'Extended Threads Testing'
   script:
-    - *pcvs_prepare
     - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/OpenMP/simple"
 
 ### Threads
 
 Privatization Threads:
   extends: ['.privatization_pcvs_benchmarks']
-  stage: Benchmarks
+  stage: 'Extended Threads Testing'
   script:
-    - *pcvs_prepare
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/Threads/cpp"
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/Threads/futex"
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/Threads/interfaces"
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/Threads/tbb"
+    - |
+      ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/Threads/cpp"\
+                      "${EXTENDED_TESTS_PATH}/Threads/futex"\
+                      "${EXTENDED_TESTS_PATH}/Threads/interfaces"\
+                      "${EXTENDED_TESTS_PATH}/Threads/tbb"
 
-### accelerators
-
-Privatization Simple CUDA:
+Privatization Thread based:
   extends: ['.privatization_pcvs_benchmarks']
-  stage: Benchmarks
+  stage: 'Additional Testing'
   script:
-    - *pcvs_prepare
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/accelerators/cuda/simple"
+    - |
+      ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/MPI/Thread_based/hls/c++"\
+                      "${EXTENDED_TESTS_PATH}/MPI/Thread_based/hls/c"\
+                      "${EXTENDED_TESTS_PATH}/MPI/Thread_based/hls/fortran"\
+                      "${EXTENDED_TESTS_PATH}/MPI/Thread_based/privatization/c++"\
+                      "${EXTENDED_TESTS_PATH}/MPI/Thread_based/privatization/c"\
+                      "${EXTENDED_TESTS_PATH}/MPI/Thread_based/privatization/fortran"
+
 
 ### Performance
 
 Privatization OSU:
   extends: ['.privatization_pcvs_benchmarks']
-  stage: Benchmarks
+  stage: 'Extended Network Testing'
   script:
-    - *pcvs_prepare
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/performance/OSU"
+    - ${PCVS_COMMAND_BENCH} "${EXTENDED_TESTS_PATH}/performance/OSU"
 
 ## Applications
 
 Privatization Corals:
   extends: ['.privatization_pcvs_benchmarks']
-  stage: Benchmarks
+  stage: 'Benchmarks'
   script:
-    - *pcvs_prepare
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/applications/Corals/AMG2013"
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/applications/Corals/UMT2013"
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/applications/Corals/graph500-2.1.4"
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/applications/Corals/mcb-20130723"
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/applications/Corals/neckbone-2.3.4"
+    - |
+      ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/applications/Corals/AMG2013"\
+                      "${EXTENDED_TESTS_PATH}/applications/Corals/UMT2013"\
+                      "${EXTENDED_TESTS_PATH}/applications/Corals/graph500-2.1.4"\
+                      "${EXTENDED_TESTS_PATH}/applications/Corals/mcb-20130723"\
+                      "${EXTENDED_TESTS_PATH}/applications/Corals/neckbone-2.3.4"
 
 Privatization Mantevo:
   extends: ['.privatization_pcvs_benchmarks']
-  stage: Applications
+  stage: 'Applications'
   script:
-    - *pcvs_prepare
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/applications/Mantevo/CloverLeaf-master"
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/applications/Mantevo/HPCCG-master"
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/applications/Mantevo/miniAMR-master"
-    - ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/applications/Mantevo/miniGhost-1.0.1"
-
-
+    - |
+      ${PCVS_COMMAND} "${EXTENDED_TESTS_PATH}/applications/Mantevo/CloverLeaf-master"\
+                      "${EXTENDED_TESTS_PATH}/applications/Mantevo/HPCCG-master"\
+                      "${EXTENDED_TESTS_PATH}/applications/Mantevo/miniAMR-master"\
+                      "${EXTENDED_TESTS_PATH}/applications/Mantevo/miniGhost-1.0.1"
 
 ###################################
 ####### MANUALLY TRIGGERED ########
@@ -935,7 +877,7 @@ Privatization Mantevo:
 # to ensure MPC to compile in a large variety of environments
 
 Debian Stretch:
-  stage: Additional Tests
+  stage: Additional Testing
   script: "docker run --rm -it paratoolsfrance/mpc-env:debian-stretch $HOME/docker/run_installmpc.sh"
   tags:
     - "docker"
@@ -944,7 +886,7 @@ Debian Stretch:
       - $MPC_CI_MODE == "multibuild"
 
 Centos 7:
-  stage: Additional Tests
+  stage: Additional Testing
   script: "docker run --rm -it paratoolsfrance/mpc-env:centos-7 $HOME/docker/run_installmpc.sh"
   tags:
     - "docker"
