@@ -650,7 +650,7 @@ void _mpi_t_state_init(void)
 		__cat_recursive_scan_conf(prof_conf, MPC_MPI_T_PVAR);
 	}
 
-	/* index 0 "MPI_Send initiated", index 1 "MPI_Recv intitiated", */
+	/* index 0 "MPI_Send initiated", index 1 "MPI_Recv initiated", */
 	int nb_events = 2;
 	int i;
 	for (i = 0; i < nb_events; i++)
@@ -873,7 +873,7 @@ int PMPI_T_category_get_index(const char *name, int *cat_index)
 		}
 	}
 
-	MPI_ERROR_REPORT(MPI_COMM_SELF, MPI_T_ERR_INVALID_NAME, "Could not find given category name");
+	return MPI_T_ERR_INVALID_NAME;
 }
 
 #pragma weak MPI_T_category_get_info = PMPI_T_category_get_info
@@ -951,7 +951,7 @@ int PMPI_T_cvar_get_index(const char *name, int *cvar_index)
 		}
 	}
 
-	MPI_ERROR_REPORT(MPI_COMM_SELF, MPI_T_ERR_INVALID_NAME, "Could not find given cvar name");
+	return MPI_T_ERR_INVALID_NAME;
 }
 
 static inline MPI_Datatype __conf_type_to_mpi(mpc_conf_type_t type)
@@ -1172,7 +1172,7 @@ int PMPI_T_pvar_get_index(const char *name, int var_class __UNUSED__, int *pvar_
 		}
 	}
 
-	MPI_ERROR_REPORT(MPI_COMM_SELF, MPI_T_ERR_INVALID_NAME, "Could not find given pvar name");
+	return MPI_T_ERR_INVALID_NAME;
 }
 
 #pragma weak MPI_T_pvar_get_info = PMPI_T_pvar_get_info
@@ -1586,7 +1586,7 @@ int PMPI_T_event_get_index(const char *name, int *event_index)
 		}
 	}
 
-	MPI_ERROR_REPORT(MPI_COMM_SELF, MPI_T_ERR_INVALID_NAME, "Could not find given event name");
+	return MPI_T_ERR_INVALID_NAME;
 }
 
 #pragma weak MPI_T_event_handle_alloc = PMPI_T_event_handle_alloc

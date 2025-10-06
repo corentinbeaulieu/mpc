@@ -75,7 +75,7 @@ sctk_Op_f sctk_get_common_function(mpc_lowcomm_datatype_t datatype, sctk_Op op);
 static mpc_thread_keys_t sctk_func_key;
 
 
-/** \brief Intitializes thread context keys
+/** \brief Initializes thread context keys
  * This function is called by mpc_thread_spawn_mpi_tasks
  */
 void mpc_cl_init_thread_keys()
@@ -3156,32 +3156,33 @@ int mpc_mpi_cl_error_string(int code, char *str, int *len)
 
 	switch (code)
 	{
-	err_case_sprintf(MPC_ERR_BUFFER,      "Invalid buffer pointer");
-	err_case_sprintf(MPC_ERR_COUNT,       "Invalid count argument");
-	err_case_sprintf(MPC_ERR_TYPE,        "Invalid datatype argument");
-	err_case_sprintf(MPC_ERR_TAG,         "Invalid tag argument");
-	err_case_sprintf(MPC_ERR_COMM,        "Invalid communicator");
-	err_case_sprintf(MPC_ERR_RANK,        "Invalid rank");
-	err_case_sprintf(MPC_ERR_ROOT,        "Invalid root");
-	err_case_sprintf(MPC_ERR_TRUNCATE,    "Message truncated on receive");
-	err_case_sprintf(MPC_ERR_GROUP,       "Invalid group");
-	err_case_sprintf(MPC_ERR_OP,          "Invalid operation");
-	err_case_sprintf(MPC_ERR_REQUEST,     "Invalid mpc_request handle");
-	err_case_sprintf(MPC_ERR_TOPOLOGY,    "Invalid topology");
-	err_case_sprintf(MPC_ERR_DIMS,        "Invalid dimension argument");
-	err_case_sprintf(MPC_ERR_ARG,         "Invalid argument");
-	err_case_sprintf(MPC_ERR_OTHER,       "Other error; use Error_string");
-	err_case_sprintf(MPC_ERR_UNKNOWN,     "Unknown error");
-	err_case_sprintf(MPC_ERR_INTERN,      "Internal error code");
-	err_case_sprintf(MPC_ERR_IN_STATUS,   "Look in status for error value");
-	err_case_sprintf(MPC_ERR_PENDING,     "Pending request");
-	err_case_sprintf(MPC_NOT_IMPLEMENTED, "Not implemented");
-	err_case_sprintf(MPC_ERR_INFO,        "Invalid Status argument");
-	err_case_sprintf(MPC_ERR_INFO_KEY,    "Provided info key is too large");
-	err_case_sprintf(MPC_ERR_INFO_VALUE,  "Provided info value is too large");
-	err_case_sprintf(MPC_ERR_INFO_NOKEY,  "Could not locate a value with this key");
-	err_case_sprintf(MPC_ERR_NAME,        "Invalid service name passed to MPI_Lookup_name");
-	err_case_sprintf(MPC_ERR_PORT,        "Invalid port name passed to MPI_Comm_connect");
+	err_case_sprintf(MPC_ERR_BUFFER,         "Invalid buffer pointer");
+	err_case_sprintf(MPC_ERR_COUNT,          "Invalid count argument");
+	err_case_sprintf(MPC_ERR_TYPE,           "Invalid datatype argument");
+	err_case_sprintf(MPC_ERR_TAG,            "Invalid tag argument");
+	err_case_sprintf(MPC_ERR_COMM,           "Invalid communicator");
+	err_case_sprintf(MPC_ERR_RANK,           "Invalid rank");
+	err_case_sprintf(MPC_ERR_ROOT,           "Invalid root");
+	err_case_sprintf(MPC_ERR_TRUNCATE,       "Message truncated on receive");
+	err_case_sprintf(MPC_ERR_GROUP,          "Invalid group");
+	err_case_sprintf(MPC_ERR_OP,             "Invalid operation");
+	err_case_sprintf(MPC_ERR_REQUEST,        "Invalid mpc_request handle");
+	err_case_sprintf(MPC_ERR_TOPOLOGY,       "Invalid topology");
+	err_case_sprintf(MPC_ERR_DIMS,           "Invalid dimension argument");
+	err_case_sprintf(MPC_ERR_ARG,            "Invalid argument");
+	err_case_sprintf(MPC_ERR_OTHER,          "Other error; use Error_string");
+	err_case_sprintf(MPC_ERR_UNKNOWN,        "Unknown error");
+	err_case_sprintf(MPC_ERR_INTERN,         "Internal error code");
+	err_case_sprintf(MPC_ERR_IN_STATUS,      "Look in status for error value");
+	err_case_sprintf(MPC_ERR_PENDING,        "Pending request");
+	err_case_sprintf(MPC_NOT_IMPLEMENTED,    "Not implemented");
+	err_case_sprintf(MPC_ERR_INFO,           "Invalid Status argument");
+	err_case_sprintf(MPC_ERR_INFO_KEY,       "Provided info key is too large");
+	err_case_sprintf(MPC_ERR_INFO_VALUE,     "Provided info value is too large");
+	err_case_sprintf(MPC_ERR_INFO_NOKEY,     "Could not locate a value with this key");
+	err_case_sprintf(MPC_ERR_NAME,           "Invalid service name passed to MPI_Lookup_name");
+	err_case_sprintf(MPC_ERR_PORT,           "Invalid port name passed to MPI_Comm_connect");
+	err_case_sprintf(MPC_T_ERR_INVALID_NAME, "Invalid MPI_T variable name");
 
 
 	default:
@@ -3268,7 +3269,8 @@ void _mpc_cl_abort_error(mpc_lowcomm_communicator_t *comm, const int *error, cha
 	}
 	else
 	{
-		mpc_common_debug_error("Error: unknown error code %d on comm %d : %s", *error, message);
+		mpc_common_debug_error("Error: unknown error code %d on comm %d : %s",
+			*error, mpc_lowcomm_communicator_id(*comm), message);
 	}
 
 	mpc_common_debug_error("This occurred in %s at %s:%d", function, file, line);
