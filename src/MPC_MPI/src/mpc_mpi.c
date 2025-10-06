@@ -5664,6 +5664,7 @@ sctk_op_t *sctk_convert_to_mpc_op(MPI_Op op)
 		ADD_FUNC_HANDLER(func, MPC_LOWCOMM_UNSIGNED_LONG_LONG_INT, op) \
 		ADD_FUNC_HANDLER(func, MPC_LOWCOMM_LONG_LONG,              op) \
 		ADD_FUNC_HANDLER(func, MPC_LOWCOMM_UNSIGNED_LONG_LONG,     op) \
+		ADD_FUNC_HANDLER(func, MPC_LOWCOMM_CHAR,                   op) \
 		ADD_FUNC_HANDLER(func, MPC_LOWCOMM_SIGNED_CHAR,            op) \
 		ADD_FUNC_HANDLER(func, MPC_LOWCOMM_UNSIGNED_CHAR,          op) \
 		ADD_FUNC_HANDLER(func, MPC_LOWCOMM_INT8_T,                 op) \
