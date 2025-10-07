@@ -354,7 +354,7 @@ void __mpcprintf(char *messagebuffer,
 	{
 		fprintf(stderr,
 			"%s[%sT%4d %sP%4d %sN%4d%s]%s " // Task, Process & Node rank
-			"%s[%s%s%s]%s "                 // Verbosity level
+			"%s[%s%5s%s]%s "                // Verbosity level
 			"%s[%s%s%s]%s "                 // Module
 			"%s%s%s\n",                     // Message
 
@@ -542,11 +542,7 @@ static inline void __parse_log_filter_rules(void)
 
 char * strstr_case_insensitive(const char *haystack, const char *needle)
 {
-	if (!*needle || needle == NULL)
-	{
-		return (char *)haystack;
-	}
-	if (haystack == NULL)
+	if (haystack == NULL || needle == NULL || !*needle)
 	{
 		return (char *)haystack;
 	}

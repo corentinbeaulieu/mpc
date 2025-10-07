@@ -160,7 +160,7 @@ False positive from typos
 Sometimes, errors reported from ``typos`` aren't misspelling.
 The easiest way to fix those is to rename the faulty word to something else to avoid collision with a misspelled word.
 
-Alternatively, you can the desired word to the dictionary to be able to use it anyway.
+Alternatively, you can add the desired word to the dictionary to be able to use it anyway.
 To do so, please modify the ``utils/.typos.toml`` file.
 You need to add the following
 
