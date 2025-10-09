@@ -6,10 +6,10 @@ Main options
 
 mpcrun provides several options for configuring the launch process. These include:
 
-* `-N=n`: Total number of nodes (default: 1)
-* `-p=n`: Total number of UNIX processes (default: 1)
-* `-n=n`: Total number of tasks (default: 1)
-* `-c=n`: Number of cpus per UNIX process (default: 1)
+* ``-N=n``: Total number of nodes (default: 1)
+* ``-p=n``: Total number of UNIX processes (default: 1)
+* ``-n=n``: Total number of tasks (default: 1)
+* ``-c=n``: Number of cpus per UNIX process (default: 1)
 
 You can see the hierarchy of tasks and processes in mpc runtime :
 

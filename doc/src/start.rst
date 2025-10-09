@@ -10,12 +10,12 @@ TL;DR
 
 Download, install and source the latest version:
 
-.. code-block:: bash
+.. code-block:: console
 
-   INSTALL_PREFIX=$PWD/INSTALL curl -k
-   https://france.paratools.com/mpc/releases/mpcframework-4.2.0.tar.gz tar xf
-   mpcframework-4.2.0.tar.gz && cd mpcframework-4.0.0 mkdir BUILD && cd BUILD
-   ../installmpc --prefix=${INSTALL_PREFIX} source ${INSTALL_PREFIX}/mpcvars.sh
+   $ INSTALL_PREFIX=$PWD/INSTALL curl -k https://france.paratools.com/mpc/releases/mpcframework-4.2.0.tar.gz
+   $ tar xf mpcframework-4.2.0.tar.gz && cd mpcframework-4.0.0
+   $ mkdir BUILD && cd BUILD
+   $ ../installmpc --prefix=${INSTALL_PREFIX} source ${INSTALL_PREFIX}/mpcvars.sh
 
 
 -------------
@@ -25,17 +25,16 @@ Prerequisites
 MPC has a few dependencies which must be installed prior to running the
 installation script. Most of them are available on most systems.
 
-.. code-block:: bash
+.. code-block:: sh
 
-    # Install dependencies on Centos yum install -y gcc gcc-gfortran gcc-c++
-    patch make cmake automake libtool binutils bzip2 pkg-config curl python36
-    texinfo diffutils file # Install dependencies on Debian / Ubuntu apt install
-    -y gcc g++ gfortran patch make cmake automake libtool binutils bzip2
-    pkg-config curl python3 # Install dependencies on Fedora yum install -y gcc
-    gcc-gfortran gcc-c++ patch make cmake bzip2 pkg-config findutils texinfo
-    diffutils file # Install dependencies on ArchLinux pacman -Su gcc
-    gcc-fortran patch make cmake bzip2 pkg-config python diffutils
-    perl-podlators automake libtool binutils
+    # Install dependencies on Centos
+    yum install -y gcc gcc-gfortran gcc-c++ patch make cmake automake libtool binutils bzip2 pkg-config curl python36 texinfo diffutils file
+    # Install dependencies on Debian / Ubuntu
+    apt install -y gcc g++ gfortran patch make cmake automake libtool binutils bzip2 pkg-config curl python3
+    # Install dependencies on Fedora
+    yum install -y gcc gcc-gfortran gcc-c++ patch make cmake bzip2 pkg-config findutils texinfo diffutils file
+    # Install dependencies on ArchLinux
+    pacman -Su gcc gcc-fortran patch make cmake bzip2 pkg-config python diffutils perl-podlators automake libtool binutils
 
 Others dependencies are embedded with MPC source distribution and will
 downloaded/installed automatically.
@@ -44,17 +43,18 @@ downloaded/installed automatically.
 Get MPC Source code
 -------------------
 
-Two ways to retrieve MPC sources: * From a release (`release page
-<https://mpc.hpcframework.com/download>`) * From the Git repository on `Github
-<https://github.com/cea-hpc/mpc>`
+Two ways to retrieve MPC sources:
+- From a release (`release page <https://mpc.hpcframework.com/download>`_)
+- From the Git repository on `Github <https://github.com/cea-hpc/mpc>`_
 
-.. code-block:: bash
+.. code-block:: sh
 
    # Get the last tarball curl -k
-   https://france.paratools.com/mpc/releases/mpcframework-4.2.0.tar.gz git clone
-   https://github.com/cea-hpc/mpc.git
+   https://france.paratools.com/mpc/releases/mpcframework-4.2.0.tar.gz
+   git clone https://github.com/cea-hpc/mpc.git
 
-   # Extract the tarball tar xf mpcframework-4.2.0.tar.gz
+   # Extract the tarball
+   tar xf mpcframework-4.2.0.tar.gz
 
 ------------
 Building MPC
@@ -67,12 +67,10 @@ extracted directory. Note that if MPC has been cloned from the Git repository,
 architecture (Makefile.in & configure scripts). From a release distribution,
 these files should be already provided.
 
-.. code-block:: bash
+.. code-block:: sh
 
-   # considering this installation prefix (to change accordingly)
+   # Considering this installation prefix (to change accordingly)
    INSTALL_PREFIX=$PWD/INSTALL
-   # run if necessary
-   ./autogen.sh
    # Run the install script
    mkdir BUILD && cd BUILD
    ../installmpc --prefix=${INSTALL_PREFIX}
@@ -99,9 +97,9 @@ Using MPC
 To load MPC in the current environment, a sourcing script is made available in
 the install prefix:
 
-.. code-block::
+.. code-block:: console
 
-   source ${INSTALL_PREFIX}/mpcvars.sh
+   $ source ${INSTALL_PREFIX}/mpcvars.sh
 
 ''''''''''''''''''''''
 Compiling applications
@@ -121,15 +119,17 @@ them. This way, applications built with "conventional" MPI wrappers can be
 supported. To conveniently enable privatization without propagating any
 compilation flag, it can be done through environment variables:
 
-.. code-block:: bash
+.. code-block:: sh
 
-   # considering a "thread-based" installation # compilation with automatic
-   privatization mpc_cc main.c # compilation WITHOUT automatic privatization
+   # Considering a "thread-based" installation
+   # Compilation with automatic privatization
+   mpc_cc main.c
+   # Compilation WITHOUT automatic privatization
    mpicc main.c
 
    # All the lines below are equivalent and enables automatic privatization
-   mpc_cc main.c mpc_cc -fmpc-privatize main.c mpicc -fmpc-privatize main.c
-   MPI_PRIV=1 mpicc main.c
+   mpc_cc main.c mpc_cc -fmpc-privatize main.c
+   mpicc -fmpc-privatize main.c MPI_PRIV=1 mpicc main.c
 
 Without providing any further option, MPC is installed with the *thread-based
 MPI* support, implying multiple MPI processes can live within the same UNIX
@@ -156,20 +156,25 @@ regular UNIX processes. For this purpose, an extra set of options is added when
 defining such parameter is required. Both must be set when running an
 application. With ``mpirun``, one can be extrapolated from the other:
 
-.. code-block:: bash
+.. code-block:: sh
 
-   # Two MPI processes, two UNIX processes mpirun -np 2 ./a.out
+   # Two MPI processes, two UNIX processes
+   mpirun -np 2 ./a.out
 
-   # Two MPI processes, one single UNIX processes #considering ./a.out as a
-   privatized application mpirun -np 2 -p 1 ./a.out mpirun -n 2  -p 1 ./a.out
+   # Two MPI processes, one single UNIX processes
+   # Considering ./a.out as a privatized application
+   mpirun -np 2 -p 1 ./a.out
+   mpirun -n 2  -p 1 ./a.out
    mpcrun -n=2  -p=1 ./a.out
 
-   # Running on multiple nodes, one UNIX process per node of two MPI processes
-   each mpirun -N 2 -n 4 -p 2 ./a.out
+   # Running on multiple nodes, one UNIX process per node of two MPI processes each
+   mpirun -N 2 -n 4 -p 2 ./a.out
 
-   # restrict number of cores bound to EACH process # Note: # * PpN = '-p' /
-   '-N' = number of processes per node # the number of cores required per node
-   (PpN * '-c') must not exceed the # maximum number of cores on a single node
+   # Restrict number of cores bound to EACH process
+   # Note:
+   # * PpN = '-p' / '-N' = number of processes per node
+   # the number of cores required per node (PpN * '-c') must not exceed the
+   # maximum number of cores on a single node
    mpirun -N 2 -n 4 -p 2 -c 4 ./a.out
 
 .. note::

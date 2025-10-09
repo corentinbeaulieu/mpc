@@ -107,8 +107,10 @@ Then, consider a script like this named `gdb.sh`:
 
 .. code-block:: sh
 
-	nodename="inti" nodeset="1000 10001 10003 10004" for i in $nodeset; do
-	cat<<EOF > R$i target remote $nodename$i:8080 continue EOF
+	nodename="inti"
+   nodeset="1000 10001 10003 10004"
+   for i in $nodeset; do
+	   cat<<EOF > R$i target remote $nodename$i:8080 continue EOF
 		xterm -e gdb --command R$i &
 	done
 
