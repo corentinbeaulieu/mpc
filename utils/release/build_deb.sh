@@ -4,7 +4,6 @@ set -e -x
 mkdir /root/mpc /root/installmpc
 cd /root/mpc || exit 1
 tar xzf /root/debbuild/mpcframework.tar.gz
-cd mpc* || exit 1
 mkdir BUILD
 cd BUILD || exit 1
 export DESTDIR=/root/installmpc

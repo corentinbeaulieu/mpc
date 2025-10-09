@@ -1,6 +1,6 @@
 #!/bin/bash
 USER=$(whoami)
-CREATEOWNER="adduser $USER -p \"\""
+CREATEOWNER="adduser $USER --disabled-password"
 
 SCRIPTPATH=$(dirname "$(readlink -f "$0")")
 
@@ -14,6 +14,7 @@ safe_exec()
     fi
 }
 move_to_contrib(){
+    mkdir -p "$SCRIPTPATH/../contrib" || exit
     cd "$SCRIPTPATH/../contrib" || exit
     if ! test -f ../installmpc
     then
@@ -82,15 +83,13 @@ noextract=()
 md5sums=() #generate with 'makepkg -g'
 
 prepare() {
-	cd "\$srcdir/\$pkgname-\$pkgver/contrib"
+	cd "\$srcdir/\$pkgname-\$pkgver"
+	mkdir -p BUILD
+	cd BUILD
 	../installmpc --download
 	tar xzf hydra*.gz
 	tar xzf openpa*.gz
-	rm -rf ./*.tar.gz hydra/ openpa/
-	mv hydra* hydra
-	mv openpa* openpa
 	cd "\$srcdir/\$pkgname-\$pkgver"
-	mkdir -p BUILD
 }
 
 build() {
@@ -175,11 +174,11 @@ build_deb()
     safe_exec mv hydra* hydra
     safe_exec mv openpa* openpa
     safe_exec cd ..
-    tar --transform="flags=r;s|mpc|mpcframework-$VERSION|" -czf /tmp/mpcframework.tar.gz ../mpc
-    mkdir -p $PWD/release/debbuild/
-    mv /tmp/mpcframework.tar.gz $PWD/release/debbuild/mpcframework.tar.gz
+    safe_exec tar -czf /tmp/mpcframework.tar.gz .
+    safe_exec mkdir -p $PWD/release/debbuild/
+    safe_exec mv /tmp/mpcframework.tar.gz $PWD/release/debbuild/mpcframework.tar.gz
     safe_exec cd release
-	safe_exec docker build -t mpc_release_$DISTRIB --rm  .
+    safe_exec docker build -t mpc_release_$DISTRIB --rm  .
 }
 
 extract_deb()
@@ -370,11 +369,13 @@ fi
 if test -z "$TARGET" ; then
     echo "setting target to default ...... (release/)"
     TARGET=$SCRIPTPATH/../release/pkgs/
+	mkdir -p $TARGET
 else
     mkdir -p $TARGET || (echo "Target must not exist or must already be a directory (is currently $TARGET)"; exit 1)
 fi
 
 init_env
+cp $SCRIPTPATH/release/* $TARGET/..
 
 if ! test -z "$BUILD_RPM_ARCHIVE"; then
     build_dockerfile_rpm

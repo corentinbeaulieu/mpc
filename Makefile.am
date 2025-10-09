@@ -22,7 +22,7 @@
 #                                                                      #
 ########################################################################
 ACLOCAL_AMFLAGS=-I config/m4
-SUBDIRS=contrib src pkgconfig cmake
+SUBDIRS=src pkgconfig cmake
 
 #
 # Override autoconf for maintainer mode

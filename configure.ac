@@ -2044,7 +2044,7 @@ else
         AC_MSG_RESULT([Standard])
 fi
 
-# Note that by construction the following conditionnals are multually exclusive
+# Note that by construction the following conditionals are multually exclusive
 AM_CONDITIONAL([MPC_ARCH_X86_64_CONTEXT_SWITCH], [test "x${MPC_ARCH_CONTEXT_SWITCH}" = "xx86_64"])
 
 MPC_MICROTASK_SUPPORTED_ARCHITECTURE="x86_64"
@@ -2060,9 +2060,9 @@ else
         AC_MSG_RESULT(Using standard microtasks)
 fi
 
-# Note that by construction the following conditionnals are multually exclusive
+# Note that by construction the following conditionals are multually exclusive
 AM_CONDITIONAL([MPC_ARCH_X86_64_MICROTASK], [test "x${MPC_ARCH_MICROTASK_ARCH}" = "xx86_64"])
-# Note that by construction the following conditionnals are multually exclusive
+# Note that by construction the following conditionals are multually exclusive
 AM_CONDITIONAL([MPC_ARCH_GENERIC_MICROTASK], [test "x${MPC_ARCH_MICROTASK_ARCH}" = "xgeneric"])
 
 
@@ -3429,7 +3429,6 @@ AC_OUTPUT([Makefile
            pkgconfig/libmpclowcomm.pc
            pkgconfig/libmpcthread.pc
            pkgconfig/libmpcmpi.pc
-	   contrib/Makefile
            cmake/Makefile])
 
 
