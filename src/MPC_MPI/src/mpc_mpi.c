@@ -13252,7 +13252,6 @@ int PMPI_Attr_put(MPI_Comm comm, int keyval, void *attr_value)
 			"__get_per_comm_data returned NULL pointer");
 	}
 
-	assert(tmp_per_comm->key_vals);
 
 	mpc_common_spinlock_lock(&(tmp_per_comm->lock));
 
@@ -13267,6 +13266,7 @@ int PMPI_Attr_put(MPI_Comm comm, int keyval, void *attr_value)
 			tmp_per_comm->key_vals = sctk_realloc(tmp_per_comm->key_vals,
 				(keyval + 1) * sizeof(MPI_Caching_key_value_t));
 		}
+		assert(tmp_per_comm->key_vals);
 
 		for (i = tmp_per_comm->max_number; i <= keyval; i++)
 		{
