@@ -11718,15 +11718,13 @@ int PMPI_Type_match_size(int typeclass, int size, MPI_Datatype *rtype)
 	return MPI_SUCCESS;
 }
 
-int PMPI_Pack(const
-              void *inbuf,
-              int incount,
-              MPI_Datatype datatype,
+int PMPI_Pack(const void *inbuf, int incount, MPI_Datatype datatype,
               void *outbuf, int outsize, int *position, MPI_Comm comm)
 {
 	mpi_check_comm(comm);
 	mpi_check_type(datatype, comm);
 	mpi_check_type_created(datatype, comm);
+	mpi_check_type_committed(datatype, comm);
 
 	if ((NULL == outbuf) || (NULL == position))
 	{
@@ -11746,101 +11744,42 @@ int PMPI_Pack(const
 	}
 	mpi_check_buf(inbuf, comm);
 
-	unsigned long copied = 0;
-
 	MPIT_Type_init(datatype);
-
-	return MPIT_Type_memcpy((void *)inbuf, incount, datatype, outbuf,
-		MPIT_MEMCPY_FROM_USERBUF, *position, outsize);
-
-	if (!_mpc_dt_is_contig_mem(datatype))
-	{
-		unsigned long i      = 0;
-		int           j      = 0;
-		unsigned long extent = 0;
-
-		PMPI_Type_extent(datatype, (MPI_Aint *)&extent);
-
-		int derived_ret = 0;
-		_mpc_lowcomm_general_datatype_t input_datatype;
-
-		int res = _mpc_cl_general_datatype_try_get_info(datatype, &derived_ret, &input_datatype);
-		MPI_HANDLE_ERROR(res, comm, "Unknown datatype");
-
-		for (j = 0; j < incount; j++)
-		{
-			for (i = 0; i < input_datatype.opt_count; i++)
-			{
-				unsigned long size = 0;
-				size = input_datatype.opt_ends[i] - input_datatype.opt_begins[i] + 1;
-
-				if (*position + size > (size_t)outsize)
-				{
-					MPI_ERROR_REPORT(comm, MPI_ERR_TRUNCATE, "outbuf too small");
-				}
-
-				mpc_common_nodebug("Pack %lu->%lu, ==> %lu %lu",
-					input_datatype.opt_begins[i] + extent * j,
-					input_datatype.opt_ends[i] + extent * j,
-					*position,
-					size);
-
-				if (size != 0)
-				{
-					memcpy(&(((char *)outbuf)[*position]), &(((char *)inbuf)[input_datatype.opt_begins[i]]), size);
-				}
-
-				copied += size;
-				mpc_common_nodebug("Pack %lu->%lu, ==> %lu %lu done",
-					input_datatype.opt_begins[i] + extent * j,
-					input_datatype.opt_ends[i] + extent * j,
-					*position,
-					size);
-
-				*position = *position + size;
-			}
-
-			inbuf = (char *)inbuf + extent;
-		}
-
-		mpc_common_nodebug("%lu <= %lu", copied, outsize);
-		assume(copied <= (unsigned int)outsize);
-		MPI_ERROR_SUCCESS();
-	}
 
 	size_t size = 0;
 
 	_mpc_cl_type_size(datatype, &size);
 	mpc_common_nodebug("Pack %lu->%lu, ==> %lu %lu", 0, size * incount, *position, size * incount);
 
-	if (incount * size > (size_t)outsize + *position)
+	const MPI_Offset end = (*position + (size * incount));
+
+	if (end > (MPI_Offset)outsize)
 	{
-		size_t trunc_size = ((outsize + *position) / size) * size;
-		memcpy(&(((char *)outbuf)[*position]), inbuf, trunc_size);
-		MPI_ERROR_REPORT(comm, MPI_ERR_TRUNCATE, "outbuf too small");
+		size_t trunc_count = ((outsize - *position) / size);
+		MPIT_Type_memcpy((void *)inbuf, incount, datatype, outbuf + *position, MPIT_MEMCPY_FROM_USERBUF,
+			0, (trunc_count * size));
+		char errmsg[MPI_MAX_ERROR_STRING];
+		snprintf(errmsg, MPI_MAX_ERROR_STRING,
+			"Outbuf too small (outsize (%d) < incount * size (%ld))", outsize, incount * size);
+		MPI_ERROR_REPORT(comm, MPI_ERR_ARG, errmsg);
 	}
 
-	memcpy(&(((char *)outbuf)[*position]), inbuf, size * incount);
-	mpc_common_nodebug("Pack %lu->%lu, ==> %lu %lu done", 0,      size * incount, *position, size * incount);
-	*position = *position + size * incount;
-	copied   += size * incount;
-	mpc_common_nodebug("%lu == %lu",                      copied, outsize);
-	assume(copied <= (unsigned long)outsize);
+	const int err = MPIT_Type_memcpy((void *)inbuf, incount, datatype, outbuf + *position, MPIT_MEMCPY_FROM_USERBUF,
+		0, end - *position);
 
-	MPI_ERROR_SUCCESS();
+	mpc_common_nodebug("Pack %lu->%lu, ==> %lu %lu done", 0, size * incount, *position, size * incount);
+	*position = end;
+
+	return err;
 }
 
-int PMPI_Unpack(const void *inbuf,
-                int insize,
-                int *position,
-                void *outbuf,
-                int outcount,
-                MPI_Datatype datatype,
-                MPI_Comm comm)
+int PMPI_Unpack(const void *inbuf, int insize, int *position,
+                void *outbuf, int outcount, MPI_Datatype datatype, MPI_Comm comm)
 {
 	mpi_check_comm(comm);
 	mpi_check_type(datatype, comm);
 	mpi_check_type_created(datatype, comm);
+	mpi_check_type_committed(datatype, comm);
 
 	if ((NULL == inbuf) || (NULL == position))
 	{
@@ -11860,97 +11799,30 @@ int PMPI_Unpack(const void *inbuf,
 
 	MPIT_Type_init(datatype);
 
-	return MPIT_Type_memcpy(outbuf, outcount, datatype, (void *)inbuf,
-		MPIT_MEMCPY_TO_USERBUF, *position, insize);
-
-	unsigned int copied = 0;
-
-	mpc_common_nodebug("MPI_Unpack insise = %d, position = %d, outcount = %d, datatype = %d, comm = %d",
-		insize,
-		*position,
-		outcount,
-		datatype,
-		comm);
-	if (!_mpc_dt_is_contig_mem(datatype))
-	{
-		unsigned long i      = 0;
-		int           j      = 0;
-		unsigned long extent = 0;
-
-		PMPI_Type_extent(datatype, (MPI_Aint *)&extent);
-
-		int derived_ret = 0;
-		_mpc_lowcomm_general_datatype_t output_datatype;
-
-		int res = _mpc_cl_general_datatype_try_get_info(datatype, &derived_ret, &output_datatype);
-		MPI_HANDLE_ERROR(res, comm, "Unknown datatype");
-
-		size_t lb = 0;
-
-		if (output_datatype.is_lb)
-		{
-			lb = output_datatype.lb;
-		}
-
-		for (j = 0; j < outcount; j++)
-		{
-			for (i = 0; i < output_datatype.opt_count; i++)
-			{
-				size_t size = 0;
-				size = output_datatype.opt_ends[i] - output_datatype.opt_begins[i] + 1;
-
-				if (*position + size > (size_t)insize)
-				{
-					MPI_ERROR_REPORT(comm, MPI_ERR_TRUNCATE, "inbuf too small");
-				}
-
-				mpc_common_nodebug("Unpack %lu %lu, ==> %lu->%lu",
-					*position,
-					size,
-					output_datatype.opt_begins[i] + extent * j,
-					output_datatype.ends[i] + extent * j);
-				if (size != 0)
-				{
-					memcpy(&(((char *)outbuf + lb)[output_datatype.opt_begins[i]]), &(((char *)inbuf)[*position]),
-						size);
-				}
-				mpc_common_nodebug("Unpack %lu %lu, ==> %lu->%lu done",
-					*position,
-					size,
-					output_datatype.opt_begins[i] + extent * j,
-					output_datatype.opt_ends[i] + extent * j);
-
-				*position = *position + size;
-
-				copied += size;
-				/* done */
-				assert(copied <= (unsigned int)insize);
-			}
-			outbuf = (char *)outbuf + extent;
-		}
-
-		mpc_common_nodebug("%lu <= %lu", copied, insize);
-		assert(copied <= (unsigned int)insize);
-		MPI_ERROR_SUCCESS();
-	}
-
 	size_t size = 0;
 	_mpc_cl_type_size(datatype, &size);
 	mpc_common_nodebug("Unpack %lu %lu, ==> %lu->%lu", *position, size * outcount, 0, size * outcount);
 
-	if (outcount * size > (size_t)insize + *position)
+	const MPI_Offset end = (*position + (size * outcount));
+
+	if (end > (MPI_Offset)insize)
 	{
-		size_t trunc_size = ((insize + *position) / size) * size;
-		memcpy(outbuf, &(((char *)inbuf)[*position]), trunc_size);
-		MPI_ERROR_REPORT(comm, MPI_ERR_TRUNCATE, "inbuf too small");
+		size_t trunc_count = ((insize - *position) / size);
+		MPIT_Type_memcpy(outbuf, outcount, datatype, (void *)inbuf + *position,
+			MPIT_MEMCPY_TO_USERBUF, 0, (trunc_count * size));
+		char errmsg[MPI_MAX_ERROR_STRING];
+		snprintf(errmsg, MPI_MAX_ERROR_STRING,
+			"Outbuf too small (insize (%d) < outcount * size (%ld))", insize, outcount * size);
+		MPI_ERROR_REPORT(comm, MPI_ERR_ARG, errmsg);
 	}
 
-	memcpy(outbuf, &(((char *)inbuf)[*position]), size * outcount);
-	mpc_common_nodebug("Unpack %lu %lu, ==> %lu->%lu done", *position, size * outcount, 0, size * outcount);
-	*position = *position + size * outcount;
-	copied   += size * outcount;
-	assert(copied <= (unsigned int)insize);
-	MPI_ERROR_SUCCESS();
+	const int err = MPIT_Type_memcpy(outbuf, outcount, datatype, (void *)inbuf + *position,
+		MPIT_MEMCPY_TO_USERBUF, 0, end - *position);
+
+	mpc_common_debug("Unpack %lu %lu, ==> %lu->%lu done", *position, size * outcount, 0, size * outcount);
+	*position = end;
+
+	return err;
 }
 
 int PMPI_Pack_size(int incount, MPI_Datatype datatype, MPI_Comm comm, int *size)
@@ -11958,6 +11830,7 @@ int PMPI_Pack_size(int incount, MPI_Datatype datatype, MPI_Comm comm, int *size)
 	mpi_check_comm(comm);
 	mpi_check_type(datatype, comm);
 	mpi_check_type_created(datatype, comm);
+	mpi_check_type_committed(datatype, comm);
 	mpi_check_count(incount, comm);
 
 	*size = 0;
