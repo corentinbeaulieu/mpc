@@ -90,8 +90,8 @@ int _mpc_lowcomm_datatype_init_common()
 	mpc_lowcomm_datatype_init(MPC_LOWCOMM_INT64_T,            MPI_INT64_T);
 	mpc_lowcomm_datatype_init(MPC_LOWCOMM_UINT8_T,            MPI_UINT8_T);
 	mpc_lowcomm_datatype_init(MPC_LOWCOMM_UINT16_T,           MPI_UINT16_T);
-	mpc_lowcomm_datatype_init(MPC_LOWCOMM_UINT32_T,           MPI_INT32_T);
-	mpc_lowcomm_datatype_init(MPC_LOWCOMM_UINT64_T,           MPI_INT64_T);
+	mpc_lowcomm_datatype_init(MPC_LOWCOMM_UINT32_T,           MPI_UINT32_T);
+	mpc_lowcomm_datatype_init(MPC_LOWCOMM_UINT64_T,           MPI_UINT64_T);
 
 	/* MPI Types */
 	mpc_lowcomm_datatype_init(MPC_LOWCOMM_AINT,               MPI_AINT);
@@ -102,24 +102,26 @@ int _mpc_lowcomm_datatype_init_common()
 	mpc_lowcomm_datatype_init(MPC_LOWCOMM_BYTE,               MPI_BYTE);
 	mpc_lowcomm_datatype_init(MPC_LOWCOMM_PACKED,             MPI_PACKED);
 
-	/* FORTRAN Types */
+	/* CXX Types */
+	mpc_lowcomm_datatype_init(MPC_LOWCOMM_CXX_BOOL,           MPI_CXX_BOOL);
 
-	mpc_lowcomm_datatype_init(MPC_LOWCOMM_INTEGER,          MPI_INTEGER);
-	mpc_lowcomm_datatype_init(MPC_LOWCOMM_REAL,             MPI_REAL);
-	mpc_lowcomm_datatype_init(MPC_LOWCOMM_DOUBLE_PRECISION, MPI_DOUBLE_PRECISION);
-	mpc_lowcomm_datatype_init(MPC_LOWCOMM_LOGICAL,          MPI_LOGICAL);
-	mpc_lowcomm_datatype_init(MPC_LOWCOMM_CHARACTER,        MPI_CHARACTER);
+	/* FORTRAN Types */
+	mpc_lowcomm_datatype_init(MPC_LOWCOMM_INTEGER,            MPI_INTEGER);
+	mpc_lowcomm_datatype_init(MPC_LOWCOMM_REAL,               MPI_REAL);
+	mpc_lowcomm_datatype_init(MPC_LOWCOMM_DOUBLE_PRECISION,   MPI_DOUBLE_PRECISION);
+	mpc_lowcomm_datatype_init(MPC_LOWCOMM_LOGICAL,            MPI_LOGICAL);
+	mpc_lowcomm_datatype_init(MPC_LOWCOMM_CHARACTER,          MPI_CHARACTER);
 
 	/* F08 Types */
-	mpc_lowcomm_datatype_init(MPC_LOWCOMM_INTEGER1,         MPI_INTEGER1);
-	mpc_lowcomm_datatype_init(MPC_LOWCOMM_INTEGER2,         MPI_INTEGER2);
-	mpc_lowcomm_datatype_init(MPC_LOWCOMM_INTEGER4,         MPI_INTEGER4);
-	mpc_lowcomm_datatype_init(MPC_LOWCOMM_INTEGER8,         MPI_INTEGER8);
-	mpc_lowcomm_datatype_init(MPC_LOWCOMM_INTEGER16,        MPI_INTEGER16);
-	mpc_lowcomm_datatype_init(MPC_LOWCOMM_REAL2,            MPI_REAL2);
-	mpc_lowcomm_datatype_init(MPC_LOWCOMM_REAL4,            MPI_REAL4);
-	mpc_lowcomm_datatype_init(MPC_LOWCOMM_REAL8,            MPI_REAL8);
-	mpc_lowcomm_datatype_init(MPC_LOWCOMM_REAL16,           MPI_REAL16);
+	mpc_lowcomm_datatype_init(MPC_LOWCOMM_INTEGER1,           MPI_INTEGER1);
+	mpc_lowcomm_datatype_init(MPC_LOWCOMM_INTEGER2,           MPI_INTEGER2);
+	mpc_lowcomm_datatype_init(MPC_LOWCOMM_INTEGER4,           MPI_INTEGER4);
+	mpc_lowcomm_datatype_init(MPC_LOWCOMM_INTEGER8,           MPI_INTEGER8);
+	mpc_lowcomm_datatype_init(MPC_LOWCOMM_INTEGER16,          MPI_INTEGER16);
+	mpc_lowcomm_datatype_init(MPC_LOWCOMM_REAL2,              MPI_REAL2);
+	mpc_lowcomm_datatype_init(MPC_LOWCOMM_REAL4,              MPI_REAL4);
+	mpc_lowcomm_datatype_init(MPC_LOWCOMM_REAL8,              MPI_REAL8);
+	mpc_lowcomm_datatype_init(MPC_LOWCOMM_REAL16,             MPI_REAL16);
 
 	return MPC_LOWCOMM_SUCCESS;
 }

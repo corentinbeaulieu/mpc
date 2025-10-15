@@ -592,7 +592,7 @@ void PMPI_internal_free_request(MPI_Request *request);
 		}while (0)
 
 #define mpi_check_type(datatype, comm)                                             \
-		if (datatype == MPI_DATATYPE_NULL)                                         \
+		if (datatype == NULL)                                                      \
 		{                                                                          \
 			MPI_ERROR_REPORT(comm, MPI_ERR_TYPE, "NULL datatype handle provided"); \
 		}

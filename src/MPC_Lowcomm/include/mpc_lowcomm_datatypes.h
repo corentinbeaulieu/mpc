@@ -55,7 +55,7 @@ typedef struct MPI_ABI_Datatype
 	bool                        is_a_padded_struct; /**< Was the type padded with UB during construction ? */
 	bool                        is_committed;       /**< Does type is committed ? */
 
-	char                        padding[19];        /**< Pad to 128 bytes */
+	char                        padding[12];        /**< Pad to 128 bytes */
 } _mpc_lowcomm_general_datatype_t;
 
 /* ******************
@@ -243,7 +243,7 @@ mpc_lowcomm_datatype_t mpc_lowcomm_datatype_get_common_addr(const mpc_lowcomm_da
  */
 static inline bool mpc_lowcomm_datatype_is_common_predefined(const mpc_lowcomm_datatype_t datatype)
 {
-	if ((MPC_LOWCOMM_DATATYPE_NULL < datatype) && (datatype < (mpc_lowcomm_datatype_t)MPC_LOWCOMM_TYPE_COMMON_LIMIT))
+	if ((MPC_LOWCOMM_CHAR <= datatype) && (datatype < (mpc_lowcomm_datatype_t)MPC_LOWCOMM_TYPE_COMMON_LIMIT))
 	{
 		return true;
 	}

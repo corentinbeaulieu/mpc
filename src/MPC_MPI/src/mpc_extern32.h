@@ -314,81 +314,86 @@ static inline size_t MPC_Extern32_common_type_size(mpc_lowcomm_datatype_t common
 		mpc_common_debug_fatal("MPC_Extern32_common_type_size only handle common types");
 	}
 
+	mpc_lowcomm_datatype_t common_type_id = common_type;
+	if (mpc_lowcomm_datatype_is_common_addr(common_type))
+	{
+		common_type_id = (mpc_lowcomm_datatype_t)((ssize_t)(common_type->id + 1));
+	}
 
 	/* No switch case with pointers... */
-	if (common_type == MPC_LOWCOMM_PACKED
-	    || common_type == MPC_LOWCOMM_BYTE
-	    || common_type == MPC_LOWCOMM_CHAR
-	    || common_type == MPC_LOWCOMM_UNSIGNED_CHAR
-	    || common_type == MPC_LOWCOMM_SIGNED_CHAR
-	    || common_type == MPC_LOWCOMM_C_BOOL
-	    || common_type == MPC_LOWCOMM_CXX_BOOL
-	    || common_type == MPC_LOWCOMM_INT8_T
-	    || common_type == MPC_LOWCOMM_UINT8_T
-	    || common_type == MPC_LOWCOMM_CHARACTER
-	    || common_type == MPC_LOWCOMM_INTEGER1)
+	if (common_type_id == MPC_LOWCOMM_PACKED
+	    || common_type_id == MPC_LOWCOMM_BYTE
+	    || common_type_id == MPC_LOWCOMM_CHAR
+	    || common_type_id == MPC_LOWCOMM_UNSIGNED_CHAR
+	    || common_type_id == MPC_LOWCOMM_SIGNED_CHAR
+	    || common_type_id == MPC_LOWCOMM_C_BOOL
+	    || common_type_id == MPC_LOWCOMM_CXX_BOOL
+	    || common_type_id == MPC_LOWCOMM_INT8_T
+	    || common_type_id == MPC_LOWCOMM_UINT8_T
+	    || common_type_id == MPC_LOWCOMM_CHARACTER
+	    || common_type_id == MPC_LOWCOMM_INTEGER1)
 	{
 		return 1;
 	}
-	if (common_type == MPC_LOWCOMM_WCHAR
-	    || common_type == MPC_LOWCOMM_SHORT
-	    || common_type == MPC_LOWCOMM_UNSIGNED_SHORT
-	    || common_type == MPC_LOWCOMM_UNSIGNED_CHAR
-	    || common_type == MPC_LOWCOMM_INT16_T
-	    || common_type == MPC_LOWCOMM_UINT16_T
-	    || common_type == MPC_LOWCOMM_INTEGER2
-	    || common_type == MPC_LOWCOMM_REAL2)
+	if (common_type_id == MPC_LOWCOMM_WCHAR
+	    || common_type_id == MPC_LOWCOMM_SHORT
+	    || common_type_id == MPC_LOWCOMM_UNSIGNED_SHORT
+	    || common_type_id == MPC_LOWCOMM_UNSIGNED_CHAR
+	    || common_type_id == MPC_LOWCOMM_INT16_T
+	    || common_type_id == MPC_LOWCOMM_UINT16_T
+	    || common_type_id == MPC_LOWCOMM_INTEGER2
+	    || common_type_id == MPC_LOWCOMM_REAL2)
 	{
 		return 2;
 	}
-	if (common_type == MPC_LOWCOMM_INT
-	    || common_type == MPC_LOWCOMM_INTEGER
-	    || common_type == MPC_LOWCOMM_INTEGER4
-	    || common_type == MPC_LOWCOMM_LOGICAL
-	    || common_type == MPC_LOWCOMM_UNSIGNED
-	    || common_type == MPC_LOWCOMM_LONG
-	    || common_type == MPC_LOWCOMM_UNSIGNED_LONG
-	    || common_type == MPC_LOWCOMM_FLOAT
-	    || common_type == MPC_LOWCOMM_INT32_T
-	    || common_type == MPC_LOWCOMM_UINT32_T
-	    || common_type == MPC_LOWCOMM_REAL
-	    || common_type == MPC_LOWCOMM_REAL4
-	    || common_type == MPC_LOWCOMM_COMPLEX4)
+	if (common_type_id == MPC_LOWCOMM_INT
+	    || common_type_id == MPC_LOWCOMM_INTEGER
+	    || common_type_id == MPC_LOWCOMM_INTEGER4
+	    || common_type_id == MPC_LOWCOMM_LOGICAL
+	    || common_type_id == MPC_LOWCOMM_UNSIGNED
+	    || common_type_id == MPC_LOWCOMM_LONG
+	    || common_type_id == MPC_LOWCOMM_UNSIGNED_LONG
+	    || common_type_id == MPC_LOWCOMM_FLOAT
+	    || common_type_id == MPC_LOWCOMM_INT32_T
+	    || common_type_id == MPC_LOWCOMM_UINT32_T
+	    || common_type_id == MPC_LOWCOMM_REAL
+	    || common_type_id == MPC_LOWCOMM_REAL4
+	    || common_type_id == MPC_LOWCOMM_COMPLEX4)
 	{
 		return 4;
 	}
-	if (common_type == MPC_LOWCOMM_LONG_LONG
-	    || common_type == MPC_LOWCOMM_LONG_LONG_INT
-	    || common_type == MPC_LOWCOMM_UNSIGNED_LONG_LONG
-	    || common_type == MPC_LOWCOMM_DOUBLE
-	    || common_type == MPC_LOWCOMM_DOUBLE_PRECISION
-	    || common_type == MPC_LOWCOMM_INT64_T
-	    || common_type == MPC_LOWCOMM_UINT64_T
-	    || common_type == MPC_LOWCOMM_AINT
-	    || common_type == MPC_LOWCOMM_COUNT
-	    || common_type == MPC_LOWCOMM_OFFSET
-	    || common_type == MPC_LOWCOMM_COMPLEX
-	    || common_type == MPC_LOWCOMM_C_COMPLEX
-	    || common_type == MPC_LOWCOMM_C_FLOAT_COMPLEX
-	    || common_type == MPC_LOWCOMM_CXX_FLOAT_COMPLEX
-	    || common_type == MPC_LOWCOMM_INTEGER8
-	    || common_type == MPC_LOWCOMM_REAL8
-	    || common_type == MPC_LOWCOMM_COMPLEX8)
+	if (common_type_id == MPC_LOWCOMM_LONG_LONG
+	    || common_type_id == MPC_LOWCOMM_LONG_LONG_INT
+	    || common_type_id == MPC_LOWCOMM_UNSIGNED_LONG_LONG
+	    || common_type_id == MPC_LOWCOMM_DOUBLE
+	    || common_type_id == MPC_LOWCOMM_DOUBLE_PRECISION
+	    || common_type_id == MPC_LOWCOMM_INT64_T
+	    || common_type_id == MPC_LOWCOMM_UINT64_T
+	    || common_type_id == MPC_LOWCOMM_AINT
+	    || common_type_id == MPC_LOWCOMM_COUNT
+	    || common_type_id == MPC_LOWCOMM_OFFSET
+	    || common_type_id == MPC_LOWCOMM_COMPLEX
+	    || common_type_id == MPC_LOWCOMM_C_COMPLEX
+	    || common_type_id == MPC_LOWCOMM_C_FLOAT_COMPLEX
+	    || common_type_id == MPC_LOWCOMM_CXX_FLOAT_COMPLEX
+	    || common_type_id == MPC_LOWCOMM_INTEGER8
+	    || common_type_id == MPC_LOWCOMM_REAL8
+	    || common_type_id == MPC_LOWCOMM_COMPLEX8)
 	{
 		return 8;
 	}
-	if (common_type == MPC_LOWCOMM_LONG_DOUBLE
-	    || common_type == MPC_LOWCOMM_C_DOUBLE_COMPLEX
-	    || common_type == MPC_LOWCOMM_CXX_DOUBLE_COMPLEX
-	    || common_type == MPC_LOWCOMM_INTEGER16
-	    || common_type == MPC_LOWCOMM_REAL16
-	    || common_type == MPC_LOWCOMM_COMPLEX16)
+	if (common_type_id == MPC_LOWCOMM_LONG_DOUBLE
+	    || common_type_id == MPC_LOWCOMM_C_DOUBLE_COMPLEX
+	    || common_type_id == MPC_LOWCOMM_CXX_DOUBLE_COMPLEX
+	    || common_type_id == MPC_LOWCOMM_INTEGER16
+	    || common_type_id == MPC_LOWCOMM_REAL16
+	    || common_type_id == MPC_LOWCOMM_COMPLEX16)
 	{
 		return 16;
 	}
-	if (common_type == MPC_LOWCOMM_C_LONG_DOUBLE_COMPLEX
-	    || common_type == MPC_LOWCOMM_CXX_LONG_DOUBLE_COMPLEX
-	    || common_type == MPC_LOWCOMM_COMPLEX32)
+	if (common_type_id == MPC_LOWCOMM_C_LONG_DOUBLE_COMPLEX
+	    || common_type_id == MPC_LOWCOMM_CXX_LONG_DOUBLE_COMPLEX
+	    || common_type_id == MPC_LOWCOMM_COMPLEX32)
 	{
 		return 32;
 	}
@@ -410,15 +415,19 @@ static inline int MPC_Unsigned_type(mpc_lowcomm_datatype_t common_type)
 		mpc_common_debug_fatal("MPC_Extern32_common_type_size only handle common types");
 	}
 
-	if (common_type == MPC_LOWCOMM_UNSIGNED_CHAR
-	    || common_type == MPC_LOWCOMM_UINT8_T
-	    || common_type == MPC_LOWCOMM_UNSIGNED_SHORT
-	    || common_type == MPC_LOWCOMM_UINT16_T
-	    || common_type == MPC_LOWCOMM_UNSIGNED
-	    || common_type == MPC_LOWCOMM_UNSIGNED_LONG
-	    || common_type == MPC_LOWCOMM_UINT32_T
-	    || common_type == MPC_LOWCOMM_UNSIGNED_LONG_LONG
-	    || common_type == MPC_LOWCOMM_UINT64_T)
+	const mpc_lowcomm_datatype_t common_type_id = mpc_lowcomm_datatype_is_common_addr(common_type)
+	                                              ? (mpc_lowcomm_datatype_t)((ssize_t)common_type->id)
+	                                              : common_type;
+
+	if (common_type_id == MPC_LOWCOMM_UNSIGNED_CHAR
+	    || common_type_id == MPC_LOWCOMM_UINT8_T
+	    || common_type_id == MPC_LOWCOMM_UNSIGNED_SHORT
+	    || common_type_id == MPC_LOWCOMM_UINT16_T
+	    || common_type_id == MPC_LOWCOMM_UNSIGNED
+	    || common_type_id == MPC_LOWCOMM_UNSIGNED_LONG
+	    || common_type_id == MPC_LOWCOMM_UINT32_T
+	    || common_type_id == MPC_LOWCOMM_UNSIGNED_LONG_LONG
+	    || common_type_id == MPC_LOWCOMM_UINT64_T)
 	{
 		return 1;
 	}

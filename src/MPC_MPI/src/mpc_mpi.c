@@ -2877,11 +2877,11 @@ int __INTERNAL__PMPI_Bcast_intra(void *buffer, int count, MPI_Datatype datatype,
 int __INTERNAL__PMPI_Bcast_intra_shared_node_impl(void *buffer, int count, MPI_Datatype datatype,
                                                   int root, MPI_Comm comm, struct sctk_comm_coll *coll)
 {
-	int rank;
+	int rank = 0;
 
 	PMPI_Comm_rank(comm, &rank);
 
-	int tsize;
+	int tsize = 0;
 
 	PMPI_Type_size(datatype, &tsize);
 
@@ -3485,11 +3485,11 @@ int __INTERNAL__PMPI_Scatter_intra_shared_node_impl(void *sendbuf, int sendcnt, 
 {
 	/* WARNING we can only be here with a regular scatter
 	 * sendtype == recvtype && recvcount == sendcount */
-	int rank;
+	int rank = 0;
 
 	PMPI_Comm_rank(comm, &rank);
 
-	int tsize;
+	int tsize = 0;
 
 	PMPI_Type_size(sendtype, &tsize);
 
@@ -4289,7 +4289,7 @@ int __INTERNAL__PMPI_Alltoall_intra_shared_node(void *sendbuf, int sendcount,
 	else
 	{
 		int i;
-		int tsize, rank;
+		int tsize = 0, rank = 0;
 		int ret;
 
 		ret = PMPI_Type_size(sendtype, &tsize);
@@ -8052,8 +8052,10 @@ int PMPI_Send_internal(const void *buf, int count, MPI_Datatype datatype, int de
 		mpc_mpi_mpit_instance_get_ptr(&data, &array_of_datatypes, &array_of_displacements, (int)event_type);
 		if (data != NULL && array_of_datatypes != NULL && array_of_displacements != NULL)
 		{
-			memcpy(data,                                               &dest, sizeof(array_of_datatypes[0]));
-			memcpy((void *)((char *)data + array_of_displacements[1]), &tag,  sizeof(array_of_datatypes[1]));
+			assert(sizeof(array_of_datatypes[0]) <= sizeof(int));
+			memcpy(data, &dest, sizeof(array_of_datatypes[0]));
+			assert(sizeof(array_of_datatypes[1]) <= sizeof(int));
+			memcpy((void *)((char *)data + array_of_displacements[1]), &tag, sizeof(array_of_datatypes[1]));
 		}
 
 		mpc_mpi_mpit_trigger_event((int)event_type);
@@ -10819,8 +10821,7 @@ int PMPI_Type_struct(int count,
 
 	mpi_check_count(count, comm);
 
-	*newtype = MPC_DATATYPE_NULL;
-
+	*newtype = MPI_DATATYPE_NULL;
 
 	if ((old_types == NULL) || (indices == NULL) || (blocklens == NULL))
 	{
@@ -10829,8 +10830,6 @@ int PMPI_Type_struct(int count,
 
 	for (i = 0; i < count; i++)
 	{
-		mpi_check_type(old_types[i], MPI_COMM_WORLD);
-
 		mpi_check_type_created(old_types[i], comm);
 
 		if (blocklens[i] < 0)
@@ -11160,7 +11159,6 @@ int PMPI_Type_extent(MPI_Datatype datatype, MPI_Aint *extent)
 {
 	MPI_Comm comm = MPI_COMM_WORLD;
 
-	mpi_check_type(datatype, comm);
 	mpi_check_type_created(datatype, comm);
 
 	/* Shortcuts for most common datatypes */
@@ -11211,7 +11209,6 @@ int PMPI_Type_get_extent(MPI_Datatype datatype, MPI_Aint *lb, MPI_Aint *extent)
 	MPI_Comm comm = MPI_COMM_WORLD;
 	int      res  = MPI_ERR_INTERN;
 
-	mpi_check_type(datatype, comm);
 	mpi_check_type_created(datatype, comm);
 
 	PMPI_Type_lb(datatype, lb);
@@ -11268,7 +11265,6 @@ int PMPI_Type_size(MPI_Datatype datatype, int *size)
 	MPI_Comm comm = MPI_COMM_WORLD;
 	int      res  = MPI_ERR_INTERN;
 
-	mpi_check_type(datatype, comm);
 	mpi_check_type_created(datatype, comm);
 
 	MPI_Count tmp_size = 0;
@@ -11287,7 +11283,6 @@ int PMPI_Type_size_x(MPI_Datatype datatype, MPI_Count *size)
 	MPI_Comm comm = MPI_COMM_WORLD;
 	int      res  = MPI_ERR_INTERN;
 
-	mpi_check_type(datatype, comm);
 	mpi_check_type_created(datatype, comm);
 
 	size_t    tmp_size = 0;
@@ -11304,10 +11299,14 @@ int PMPI_Type_size_x(MPI_Datatype datatype, MPI_Count *size)
 /* MPI_Type_count was withdrawn in MPI 1.1 */
 int PMPI_Type_lb(MPI_Datatype datatype, MPI_Aint *displacement)
 {
+	// MPI_DATATYPE_NULL shortcut
+	if (datatype == MPI_DATATYPE_NULL)
+	{
+		*displacement = 0;
+		return MPI_SUCCESS;
+	}
 	MPI_Comm comm = MPI_COMM_WORLD;
 
-
-	mpi_check_type(datatype, comm);
 	mpi_check_type_created(datatype, comm);
 	unsigned long i = 0;
 
@@ -11345,10 +11344,14 @@ int PMPI_Type_lb(MPI_Datatype datatype, MPI_Aint *displacement)
 
 int PMPI_Type_ub(MPI_Datatype datatype, MPI_Aint *displacement)
 {
+	// MPI_DATATYPE_NULL shortcut
+	if (datatype == MPI_DATATYPE_NULL)
+	{
+		*displacement = 0;
+		return MPI_SUCCESS;
+	}
 	MPI_Comm comm = MPI_COMM_WORLD;
 
-
-	mpi_check_type(datatype, comm);
 	mpi_check_type_created(datatype, comm);
 
 	unsigned long i = 0;
@@ -11429,7 +11432,16 @@ int PMPI_Type_commit(MPI_Datatype *datatype)
 {
 	MPI_Comm comm = MPI_COMM_WORLD;
 
-	mpi_check_type(*datatype, comm);
+	if (datatype == NULL)
+	{
+		MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL reference on datatype");
+	}
+
+	// Special case for empty created type
+	if (*datatype == MPI_DATATYPE_NULL)
+	{
+		return MPI_SUCCESS;
+	}
 
 	mpi_check_type_created(*datatype, comm);
 
@@ -11440,7 +11452,16 @@ int PMPI_Type_free(MPI_Datatype *datatype)
 {
 	MPI_Comm comm = MPI_COMM_WORLD;
 
-	mpi_check_type(*datatype, comm);
+	if (datatype == NULL)
+	{
+		MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL reference on datatype");
+	}
+
+	// Special case for empty created type
+	if (*datatype == MPI_DATATYPE_NULL)
+	{
+		return MPI_SUCCESS;
+	}
 
 	mpi_check_type_created(*datatype, comm);
 
@@ -11724,7 +11745,6 @@ int PMPI_Pack(const void *inbuf, int incount, MPI_Datatype datatype,
 	mpi_check_comm(comm);
 	mpi_check_type(datatype, comm);
 	mpi_check_type_created(datatype, comm);
-	mpi_check_type_committed(datatype, comm);
 
 	if ((NULL == outbuf) || (NULL == position))
 	{
@@ -11779,7 +11799,6 @@ int PMPI_Unpack(const void *inbuf, int insize, int *position,
 	mpi_check_comm(comm);
 	mpi_check_type(datatype, comm);
 	mpi_check_type_created(datatype, comm);
-	mpi_check_type_committed(datatype, comm);
 
 	if ((NULL == inbuf) || (NULL == position))
 	{
@@ -11830,7 +11849,6 @@ int PMPI_Pack_size(int incount, MPI_Datatype datatype, MPI_Comm comm, int *size)
 	mpi_check_comm(comm);
 	mpi_check_type(datatype, comm);
 	mpi_check_type_created(datatype, comm);
-	mpi_check_type_committed(datatype, comm);
 	mpi_check_count(incount, comm);
 
 	*size = 0;

@@ -36,8 +36,8 @@
  * DATATYPES *
  *************/
 
-typedef struct MPI_ABI_Datatype *mpc_lowcomm_datatype_t;      /**< Datatype handle */
-#define MPC_LOWCOMM_DATATYPE_NULL ((mpc_lowcomm_datatype_t)0) /**< Null datatype handle */
+typedef struct MPI_ABI_Datatype *mpc_lowcomm_datatype_t;        /**< Datatype handle */
+#define MPC_LOWCOMM_DATATYPE_NULL ((mpc_lowcomm_datatype_t)512) /**< Null datatype handle */
 
 
 
