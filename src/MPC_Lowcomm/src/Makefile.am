@@ -27,8 +27,8 @@ AM_CPPFLAGS += -I$(abs_top_srcdir)/src/MPC_Config/include/ -I$(abs_top_srcdir)/s
 AM_CPPFLAGS += -I$(abs_top_srcdir)/src/MPC_Topology/include/ -I$(abs_top_srcdir)/src/MPC_Lowcomm/include/
 AM_CPPFLAGS += -I$(abs_top_srcdir)/src/MPC_Launch/include/  -I$(abs_top_builddir)/src/include/
 
-AM_CPPFLAGS += -I$(abs_srcdir)/tcp/
-AM_CPPFLAGS += -I$(abs_srcdir)/shm/
+AM_CPPFLAGS += -I$(abs_srcdir)/lcr/rails/tcp/
+AM_CPPFLAGS += -I$(abs_srcdir)/lcr/rails/shm/
 AM_CPPFLAGS += -I$(abs_top_srcdir)/src/MPC_Lowcomm/src/cplane/
 
 if MPC_BUILD_OPENPA
@@ -57,6 +57,7 @@ libmpclowcomm_la_SOURCES += workshare.c
 endif
 
 
+# CPLANE #
 libmpclowcomm_la_SOURCES += ./cplane/auth.c ./cplane/peer.c  ./cplane/proto.c ./cplane/port.c
 libmpclowcomm_la_SOURCES += ./cplane/monitor.c  ./cplane/set.c ./cplane/uid.c ./cplane/name.c
 
@@ -68,9 +69,9 @@ libmpclowcomm_la_LIBADD =  $(ALLOC_LIBS) ../../MPC_Launch/src/libmpclaunch.la -l
 #
 
 # LCP #
-AM_CPPFLAGS += -I$(abs_srcdir)/tbsm/
+AM_CPPFLAGS += -I$(abs_srcdir)/lcr/rails/tbsm/
 AM_CPPFLAGS += -I$(abs_srcdir)/lcp/ -I$(abs_srcdir)/lcr/
-libmpclowcomm_la_SOURCES += ./tbsm/tbsm.c
+libmpclowcomm_la_SOURCES += ./lcr/rails/tbsm/tbsm.c
 # LCP core files
 libmpclowcomm_la_SOURCES += ./lcp/core/lcp_context.c ./lcp/core/lcp_ep.c ./lcp/core/lcp_progress.c \
 							./lcp/core/lcp_datatype.c ./lcp/core/lcp_manager.c ./lcp/core/lcp_task.c \
@@ -83,7 +84,7 @@ libmpclowcomm_la_SOURCES += ./lcp/tag/lcp_tag.c ./lcp/tag/lcp_send.c ./lcp/tag/l
 libmpclowcomm_la_SOURCES += ./lcp/rndv/lcp_rndv.c ./lcp/am/lcp_eager.c ./lcp/am/lcp_am.c
 # LCP rma files
 libmpclowcomm_la_SOURCES += ./lcp/rma/lcp_rma.c ./lcp/rma/lcp_ato.c ./lcp/rma/lcp_ato_sw.c
-libmpclowcomm_la_SOURCES += ./lcr/lcr_component.c ./shm/mpc_shm.c
+libmpclowcomm_la_SOURCES += ./lcr/lcr_component.c ./lcr/rails/shm/mpc_shm.c
 
 #AM Extensions #
 if MPC_HAVE_AM
@@ -93,20 +94,20 @@ if MPC_HAVE_AM
 endif
 
 # TCP driver #
-libmpclowcomm_la_SOURCES += ./tcp/tcp.c ./tcp/tcp_toolkit.c
+libmpclowcomm_la_SOURCES += ./lcr/rails/tcp/tcp.c ./lcr/rails/tcp/tcp_toolkit.c
 
 # PTL driver #
 if PORTALS4_DRIVER_ENABLED
-AM_CPPFLAGS += -I$(abs_srcdir)/ptl/
-libmpclowcomm_la_SOURCES += ./ptl/ptl_ep.c ./ptl/ptl_iface.c ./ptl/ptl_recv.c ./ptl/ptl_rd.c ./ptl/ptl_rma.c
+AM_CPPFLAGS += -I$(abs_srcdir)/lcr/rails/ptl/
+libmpclowcomm_la_SOURCES += ./lcr/rails/ptl/ptl_ep.c ./lcr/rails/ptl/ptl_iface.c ./lcr/rails/ptl/ptl_recv.c ./lcr/rails/ptl/ptl_rd.c ./lcr/rails/ptl/ptl_rma.c
 if PORTALS4_CONTROL_FLOW_ENABLED
-libmpclowcomm_la_SOURCES += ./ptl/ptl_tk.c
+libmpclowcomm_la_SOURCES += ./lcr/rails/ptl/ptl_tk.c
 endif
 endif
 
 # OFI Driver #
 if OFI_DRIVER_ENABLED
-AM_CPPFLAGS += -I$(abs_srcdir)/ofi/ $(OFI_CFLAGS)
-libmpclowcomm_la_SOURCES += ./ofi/mpc_ofi_request.c ./ofi/mpc_ofi_helpers.c ./ofi/mpc_ofi_dns.c ./ofi/mpc_ofi_domain.c ./ofi/mpc_ofi_context.c ./ofi/mpc_ofi.c
+AM_CPPFLAGS += -I$(abs_srcdir)/lcr/rails/ofi/ $(OFI_CFLAGS)
+libmpclowcomm_la_SOURCES += ./lcr/rails/ofi/mpc_ofi_request.c ./lcr/rails/ofi/mpc_ofi_helpers.c ./lcr/rails/ofi/mpc_ofi_dns.c ./lcr/rails/ofi/mpc_ofi_domain.c ./lcr/rails/ofi/mpc_ofi_context.c ./lcr/rails/ofi/mpc_ofi.c
 libmpclowcomm_la_LIBADD += $(OFI_LIBS)
 endif

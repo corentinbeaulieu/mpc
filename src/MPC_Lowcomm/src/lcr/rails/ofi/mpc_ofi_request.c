@@ -31,7 +31,7 @@
 
 #include "lowcomm_config.h"
 #include <mpc_common_debug.h>
-#include <mpc_ofi_domain.h>
+#include <lcr/rails/ofi/mpc_ofi_domain.h>
 
 #include <sctk_alloc.h>
 

@@ -25,18 +25,18 @@
 #include <mpc_config.h>
 
 /* Networks */
-#include <tcp.h>
+#include <lcr/rails/tcp/tcp.h>
 
 #ifdef MPC_USE_PORTALS
-#include <ptl/ptl.h>
+#include <lcr/rails/ptl/ptl.h>
 #endif
 
-#include <tbsm/tbsm.h>
+#include <lcr/rails/tbsm/tbsm.h>
 
-#include <shm/mpc_shm.h>
+#include <lcr/rails/shm/mpc_shm.h>
 
 #ifdef MPC_USE_OFI
-#include <mpc_ofi.h>
+#include <lcr/rails/ofi/mpc_ofi.h>
 #endif
 
 
