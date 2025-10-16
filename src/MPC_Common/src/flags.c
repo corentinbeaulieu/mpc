@@ -196,12 +196,13 @@ void mpc_common_init_print()
 
 int mpc_common_check_for_print_config(void)
 {
-	const char *const absolute_path = mpc_common_get_flags()->exename;
+	char *const absolute_path = strdup(mpc_common_get_flags()->exename);
+	int         retcode       = -1;
 
 	if (absolute_path != NULL)
 	{
-		char *prev = mpc_common_get_flags()->exename;
-		char *curr = strtok(mpc_common_get_flags()->exename, "/");
+		char *prev = absolute_path;
+		char *curr = strtok(absolute_path, "/");
 		while (curr != NULL)
 		{
 			prev = curr;
@@ -209,14 +210,18 @@ int mpc_common_check_for_print_config(void)
 		}
 		const char *relative_path = prev;
 
-		if (!strcmp(relative_path, "mpc_print_config"))
+		if (strcmp(relative_path, "mpc_print_config") == 0)
 		{
 			mpc_common_get_flags()->process_number   = 1;
 			mpc_common_get_flags()->processor_number = 1;
 			mpc_common_get_flags()->node_number      = 1;
-			return 1;
+			retcode = 1;
 		}
-		return 0;
+		else
+		{
+			retcode = 0;
+		}
+		free(absolute_path);
 	}
-	return -1;
+	return retcode;
 }
