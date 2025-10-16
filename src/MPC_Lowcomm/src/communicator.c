@@ -1558,6 +1558,7 @@ mpc_lowcomm_communicator_t mpc_lowcomm_communicator_create(const mpc_lowcomm_com
 
 static mpc_lowcomm_internal_communicator_t *__comm_world = NULL;
 static mpc_lowcomm_internal_communicator_t *__comm_self  = NULL;
+static lcp_ep_h __comm_self_ep = NULL;
 
 mpc_lowcomm_communicator_t mpc_lowcomm_communicator_world()
 {
@@ -1638,6 +1639,11 @@ lcp_ep_h mpc_lowcomm_communicator_lookup(mpc_lowcomm_communicator_t comm, int ra
 {
 	mpc_lowcomm_communicator_t tcomm = __mpc_lowcomm_communicator_from_predefined(comm);
 
+	if (tcomm->is_comm_self)
+	{
+		return __comm_self_ep;
+	}
+
 	if (mpc_lowcomm_communicator_is_intercomm(comm))
 	{
 		return tcomm->right_comm->group->eps[rank];
@@ -1652,7 +1658,11 @@ void mpc_lowcomm_communicator_add_ep(mpc_lowcomm_communicator_t comm, int rank, 
 {
 	mpc_lowcomm_communicator_t tcomm = __mpc_lowcomm_communicator_from_predefined(comm);
 
-	if (mpc_lowcomm_communicator_is_intercomm(tcomm))
+	if (tcomm->is_comm_self)
+	{
+		__comm_self_ep = ep;
+	}
+	else if (mpc_lowcomm_communicator_is_intercomm(tcomm))
 	{
 		assert(rank >= 0 && rank < (int)mpc_lowcomm_group_size(tcomm->left_comm->group));
 		tcomm->right_comm->group->eps[rank] = ep;
@@ -1754,6 +1764,11 @@ int mpc_lowcomm_communicator_rank_of(const mpc_lowcomm_communicator_t comm,
 int mpc_lowcomm_communicator_rank_fast(const mpc_lowcomm_communicator_t comm)
 {
 	const mpc_lowcomm_communicator_t local_comm = __mpc_lowcomm_communicator_from_predefined(comm);
+
+	if (local_comm->is_comm_self)
+	{
+		return mpc_common_get_task_rank();
+	}
 
 	return local_comm->group->my_rank[mpc_common_get_local_task_rank()];
 }
