@@ -361,7 +361,7 @@ run_compiler()
 	${MPC_COMMAND_WRAPPER} ${COMPILER} ${CFLAGS} ${COMPILATION_ARGS}\
 		${FINAL_LDFLAGS} ${OUTPUT_FILE_ARGS}
 	res=$?
-	exit $?
+	exit $res
 }
 
 #
