@@ -59,7 +59,7 @@
  * @arg addr Start address of the window
  * @arg size Size of the region to be mapped
  * @arg disp_unit Offsetting unit (used to compute displacements)
- * @arg comm Communicator used by this window (MPC_COMM_WORLD is a godd default)
+ * @arg comm Communicator used by this window (MPC_COMM_WORLD is a good default)
  *
  * @return The ID of the newly created window (is an integer)
  */
@@ -79,7 +79,7 @@ mpc_lowcomm_rdma_window_t mpc_lowcomm_rdma_window_init(void *addr,
  * @arg comm The communicator to be used
  * @arg win_id ID of the remote window to be mapped to
  *
- * @return a NEW window ID mirrorring the remote window on which operations are
+ * @return a NEW window ID mirroring the remote window on which operations are
  * remote
  */
 

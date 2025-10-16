@@ -3527,7 +3527,7 @@ int PMPI_Reduce_init(const void *sendbuf,
 	req->persistent.op   = MPC_MPI_PERSISTENT_REDUCE_INIT;
 	req->persistent.info = info;
 
-	/* Init metadat for nbc */
+	/* Init metadata for nbc */
 	___collectives_reduce_init(sendbuf, recvbuf, count, datatype, op, root, comm, &(req->nbc_handle));
 	req->nbc_handle.is_persistent = 1;
 	return MPI_SUCCESS;
@@ -4617,7 +4617,7 @@ int PMPI_Allreduce_init(const void *sendbuf,
 	req->persistent.op   = MPC_MPI_PERSISTENT_ALLREDUCE_INIT;
 	req->persistent.info = info;
 
-	/* Init metadat for nbc */
+	/* Init metadata for nbc */
 	___collectives_allreduce_init(sendbuf, recvbuf, count, datatype, op, comm, &(req->nbc_handle));
 	req->nbc_handle.is_persistent = 1;
 	return MPI_SUCCESS;
@@ -6244,7 +6244,7 @@ int PMPI_Scatter_init(const void *sendbuf,
 	req->persistent.op   = MPC_MPI_PERSISTENT_SCATTER_INIT;
 	req->persistent.info = info;
 
-	/* Init metadat for nbc */
+	/* Init metadata for nbc */
 	___collectives_scatter_init(sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, root, comm,
 		&(req->nbc_handle));
 	req->nbc_handle.is_persistent = 1;
@@ -7881,7 +7881,7 @@ int PMPI_Gather_init(const void *sendbuf,
 	req->persistent.op   = MPC_MPI_PERSISTENT_GATHER_INIT;
 	req->persistent.info = info;
 
-	/* Init metadat for nbc */
+	/* Init metadata for nbc */
 	___collectives_gather_init(sendbuf,
 		sendcount,
 		sendtype,
@@ -9004,7 +9004,7 @@ int PMPI_Gatherv_init(const void *sendbuf,
 	req->persistent.op   = MPC_MPI_PERSISTENT_GATHERV_INIT;
 	req->persistent.info = info;
 
-	/* Init metadat for nbc */
+	/* Init metadata for nbc */
 	___collectives_gatherv_init(sendbuf, sendcount, sendtype, recvbuf, recvcounts, displs, recvtype, root, comm,
 		&(req->nbc_handle));
 	req->nbc_handle.is_persistent = 1;
@@ -9570,7 +9570,7 @@ int PMPI_Reduce_scatter_block_init(const void *sendbuf,
 	req->persistent.op   = MPC_MPI_PERSISTENT_REDUCE_SCATTER_BLOCK_INIT;
 	req->persistent.info = info;
 
-	/* Init metadat for nbc */
+	/* Init metadata for nbc */
 	___collectives_reduce_scatter_block_init(sendbuf, recvbuf, count, datatype, op, comm, &(req->nbc_handle));
 	req->nbc_handle.is_persistent = 1;
 	return MPI_SUCCESS;
@@ -10326,7 +10326,7 @@ int PMPI_Reduce_scatter_init(const void *sendbuf,
 	req->persistent.op   = MPC_MPI_PERSISTENT_REDUCE_SCATTER_INIT;
 	req->persistent.info = info;
 
-	/* Init metadat for nbc */
+	/* Init metadata for nbc */
 	___collectives_reduce_scatter_init(sendbuf, recvbuf, recvcounts, datatype, op, comm, &(req->nbc_handle));
 	req->nbc_handle.is_persistent = 1;
 	return MPI_SUCCESS;

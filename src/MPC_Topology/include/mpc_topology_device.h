@@ -202,7 +202,7 @@ mpc_topology_device_t **mpc_topology_device_matrix_get_list_closest_from_pu(int 
  * @brief Return 1 if the devices matching the regexp are equidistant
  *
  * @param  matching_regexp device to check for iso-distance
- * @return                 int return true if device is palcement indiferent
+ * @return                 int return true if device is placement indiferent
  */
 int mpc_topology_device_matrix_is_equidistant(char *matching_regexp);
 

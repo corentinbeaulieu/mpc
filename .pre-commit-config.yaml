@@ -75,6 +75,7 @@ exclude: |-
     ^src/MPC_Common/include/mpc_common_profiler_keys\.h$|
     ^src/MPC_Fortran|
     ^src/MPC_IO/src/romio|
+    ^src/MPC_IO/include/mpio.h.in|
     ^src/MPC_Lowcomm/src/portals|
     modex|
     ^src/MPC_MPI/src/dataloop|

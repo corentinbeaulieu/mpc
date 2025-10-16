@@ -1255,7 +1255,7 @@ int mpc_conf_self_config_check_init(mpc_conf_self_config_t *config)
 	config->verbose       = 0;
 
 	/* As environment might be loaded later on
-	 * we make an exception to allow config to be debuged early */
+	 * we make an exception to allow config to be debugged early */
 	char *env_conf_verb = getenv("CONF_SETTINGS_VERBOSE");
 	if (env_conf_verb)
 	{

@@ -106,7 +106,7 @@ Because MPC provides a thread-based MPI implementation, a mechanism is needed to
 deal with global-variable sharing in the application.
 
 Such thread-safety issues are managed with automatic privatization of global
-variables. This mechanism is automatically appplied by the compiler for C/C++
+variables. This mechanism is automatically applied by the compiler for C/C++
 and Fortran MPI codes through the new -fmpc-privatize option. This new option is
 available in MPC_GCC (provided with the MPC package) and Intel compilers
 (starting with version 15.0 for C/C++ and Fortran).

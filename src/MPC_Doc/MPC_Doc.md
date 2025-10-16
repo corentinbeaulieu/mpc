@@ -16,7 +16,7 @@ The list of markdown files is as follows :
   combinations of thread-based/process-based modes.
 * `INSTALL.md`: will go deeper to detail all the possibilities of installing the
   framework
-* `MAINTAINERS`: contains the whole list of constributors alongside with the
+* `MAINTAINERS`: contains the whole list of contributors alongside with the
   people to contact in case of bugs/issues/feature-requests.
 
 ### Other documentation resources
@@ -89,7 +89,7 @@ How-to update the documentation
 -------------------------------
 
 * **DO NOT EDIT THE MAN-PAGE FILES DIRECTLY**. If doing so, any modification
-  will be lost when static man-pages will be regnerated, later on. Furthermore,
+  will be lost when static man-pages will be regenerated, later on. Furthermore,
   as long as the user is having the `pandoc` tool in the `$PATH`, these updated
   man-pages won't be copied to be the ones to load. So, please keep you away
   from such a pain and edit only the Markdown associated files under `/`. The

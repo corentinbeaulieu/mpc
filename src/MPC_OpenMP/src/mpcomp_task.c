@@ -4498,13 +4498,13 @@ _mpc_task_loop_compute_loop_value(
 	}
 	else
 	{
-		const long quotient = iteration_num / compute_num_tasks;
-		const long reste    = iteration_num % compute_num_tasks;
+		const long quotient  = iteration_num / compute_num_tasks;
+		const long remaining = iteration_num % compute_num_tasks;
 		compute_taskstep = quotient * step;
-		if (reste)
+		if (remaining)
 		{
 			compute_taskstep   += step;
-			compute_extra_chunk = reste - 1;
+			compute_extra_chunk = remaining - 1;
 		}
 	}
 
@@ -4536,10 +4536,10 @@ _mpc_task_loop_compute_loop_value_grainsize(
 	{
 		if (compute_num_tasks > grainsize)
 		{
-			const long mul   = num_tasks * grainsize;
-			const long reste = iteration_num - mul;
+			const long mul       = num_tasks * grainsize;
+			const long remaining = iteration_num - mul;
 			compute_taskstep = grainsize * step;
-			if (reste)
+			if (remaining)
 			{
 				compute_taskstep   += step;
 				compute_extra_chunk = iteration_num - mul - 1;
@@ -4547,13 +4547,13 @@ _mpc_task_loop_compute_loop_value_grainsize(
 		}
 		else
 		{
-			const long quotient = iteration_num / compute_num_tasks;
-			const long reste    = iteration_num % compute_num_tasks;
+			const long quotient  = iteration_num / compute_num_tasks;
+			const long remaining = iteration_num % compute_num_tasks;
 			compute_taskstep = quotient * step;
-			if (reste)
+			if (remaining)
 			{
 				compute_taskstep   += step;
-				compute_extra_chunk = reste - 1;
+				compute_extra_chunk = remaining - 1;
 			}
 		}
 	}

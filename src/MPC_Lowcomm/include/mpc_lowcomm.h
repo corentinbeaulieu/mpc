@@ -405,7 +405,7 @@ int mpc_lowcomm_probe(int source, int tag, mpc_lowcomm_communicator_t comm, mpc_
 /* Collective Operations                                                */
 /************************************************************************/
 
-/** These functions are the low-level colletive operations */
+/** These functions are the low-level collective operations */
 
 /** Do a barrier on a communicator
  * @param comm Communicator to do a barrier on

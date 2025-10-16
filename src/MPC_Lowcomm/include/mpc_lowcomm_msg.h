@@ -189,7 +189,7 @@ typedef struct mpc_lowcomm_ptp_message_header_s
 	int                           message_tag;           /**< Message TAG */
 	mpc_lowcomm_communicator_id_t communicator_id;       /**< Message communicator */
 	/* Content */
-	mpc_lowcomm_datatype_t        datatype;              /**< Caried data-type (for matching check) */
+	mpc_lowcomm_datatype_t        datatype;              /**< Carried data-type (for matching check) */
 	size_t                        msg_size;              /**< Message size */
 	/* Ordering */
 	int                           message_number;        /**< Message order (for reorder) */

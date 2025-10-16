@@ -105,7 +105,7 @@ typedef struct lcp_context_param
  * @ingroup LCP_CONTEXT
  * @brief Context creation.
  *
- * List, init and instantiate communication inferfaces available. Based on the
+ * List, init and instantiate communication interfaces available. Based on the
  * components (tcp, ptl, ofi,...), list available devices, open interfaces based
  * on user configuration.
  *
@@ -784,7 +784,7 @@ int lcp_mem_query(lcp_mem_h mem, lcp_mem_attr_t *mem_attr);
  *
  * Pack a memory key so it can be sent to a remote peer.
  *
- * It is allocated by LCP and must be released appriopriately, see \ref
+ * It is allocated by LCP and must be released appropriately, see \ref
  * lcp_mem_release_rkey_buf.
  *
  * @param[in] mngr       Manager handle.
