@@ -196,32 +196,37 @@ void mpc_common_init_print()
 
 int mpc_common_check_for_print_config(void)
 {
-	char *const absolute_path = strdup(mpc_common_get_flags()->exename);
-	int         retcode       = -1;
+	const char *const exename = mpc_common_get_flags()->exename;
+	int retcode = -1;
 
-	if (absolute_path != NULL)
+	if (exename != NULL)
 	{
-		char *prev = absolute_path;
-		char *curr = strtok(absolute_path, "/");
-		while (curr != NULL)
-		{
-			prev = curr;
-			curr = strtok(NULL, "/");
-		}
-		const char *relative_path = prev;
+		char *const absolute_path = strdup(exename);
 
-		if (strcmp(relative_path, "mpc_print_config") == 0)
+		if (absolute_path != NULL)
 		{
-			mpc_common_get_flags()->process_number   = 1;
-			mpc_common_get_flags()->processor_number = 1;
-			mpc_common_get_flags()->node_number      = 1;
-			retcode = 1;
+			char *prev = absolute_path;
+			char *curr = strtok(absolute_path, "/");
+			while (curr != NULL)
+			{
+				prev = curr;
+				curr = strtok(NULL, "/");
+			}
+			const char *relative_path = prev;
+
+			if (strcmp(relative_path, "mpc_print_config") == 0)
+			{
+				mpc_common_get_flags()->process_number   = 1;
+				mpc_common_get_flags()->processor_number = 1;
+				mpc_common_get_flags()->node_number      = 1;
+				retcode = 1;
+			}
+			else
+			{
+				retcode = 0;
+			}
+			free(absolute_path);
 		}
-		else
-		{
-			retcode = 0;
-		}
-		free(absolute_path);
 	}
 	return retcode;
 }
