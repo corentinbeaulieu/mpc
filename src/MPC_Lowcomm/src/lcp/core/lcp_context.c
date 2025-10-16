@@ -349,9 +349,9 @@ static int _lcp_context_devices_load_and_filter(lcp_context_h ctx)
 	int             rc;
 	int             total_num_devices = 0, num_offload_devices = 0;
 	bmap_t          dev_map = MPC_BITMAP_INIT; // device map.
-	unsigned int    non_composable_actif = 0;
-	unsigned int    non_composable_total = 0;
-	lcr_component_h non_composable_component;
+	unsigned int    non_composable_actif     = 0;
+	unsigned int    non_composable_total     = 0;
+	lcr_component_h non_composable_component = NULL;
 
 	/* Load all available devices. */
 	for (unsigned int i = 0; i < ctx->num_cmpts; i++)
@@ -376,7 +376,7 @@ static int _lcp_context_devices_load_and_filter(lcp_context_h ctx)
 					mpc_common_debug_fatal(
 						"Heterogeous non-composable multirail not supported,"
 						" 2 non composables components provided: %s & %s",
-						non_composable_component->name,
+						non_composable_component == NULL ? non_composable_component->name : "",
 						ctx->components[i]->name);
 				}
 				else

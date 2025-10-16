@@ -63,7 +63,7 @@ char * mpc_common_trim(char *path)
 
 	unsigned long off = len - 1;
 
-	while ((ret[off] == ' ' || ret[off] == '\t' || ret[off] == '\n') && (0 <= off))
+	while ((ret[off] == ' ' || ret[off] == '\t' || ret[off] == '\n'))
 	{
 		ret[off] = '\0';
 		off--;
@@ -590,6 +590,7 @@ char ** mpc_common_helper_command_line(void)
 	if (size < 0)
 	{
 		sctk_free(buff);
+		fclose(cmdline);
 		return NULL;
 	}
 
@@ -627,6 +628,8 @@ char ** mpc_common_helper_command_line(void)
 	}
 
 	ret[cnt] = NULL;
+
+	fclose(cmdline);
 
 	return ret;
 }

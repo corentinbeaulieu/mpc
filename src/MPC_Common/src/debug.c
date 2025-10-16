@@ -81,13 +81,13 @@ static void __init_file_based_logging(void)
 
 	if (!strcasecmp(file_log_activated, "1") || !strcasecmp(file_log_activated, "true"))
 	{
-		char  path[DEBUG_INFO_SIZE];
+		char  path[2 * DEBUG_INFO_SIZE];
 		char  host[DEBUG_INFO_SIZE];
 		pid_t pid = getpid();
 
 		gethostname(host, DEBUG_INFO_SIZE);
 
-		(void)snprintf(path, DEBUG_INFO_SIZE, "./%s-%d.mpclog", host, pid);
+		(void)snprintf(path, 2 * DEBUG_INFO_SIZE, "./%s-%d.mpclog", host, pid);
 
 		mpc_common_debug_error("==> %s", path);
 

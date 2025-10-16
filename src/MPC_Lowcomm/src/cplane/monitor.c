@@ -437,11 +437,11 @@ static inline int __register_process_set(void)
 	{
 		mpc_lowcomm_peer_uid_t pid = mpc_lowcomm_monitor_uid_of(job_id, i);
 		char server_key[128];
-		char uri[155];
+		char uri[MPC_LOWCOMM_PEER_URI_SIZE];
 
 		if (i == my_proc_rank)
 		{
-			snprintf(uri, 155, "%s", __monitor.monitor_uri);
+			snprintf(uri, 246, "%s", __monitor.monitor_uri);
 		}
 		else
 		{
@@ -1015,8 +1015,8 @@ static mpc_lowcomm_monitor_retcode_t __start_server_socket(struct _mpc_lowcomm_m
 		return MPC_LOWCOMM_MONITOR_RET_ERROR;
 	}
 
-	char hostname[512];
-	ret = gethostname(hostname, 512);
+	char hostname[256];
+	ret = gethostname(hostname, 256);
 
 	if (ret < 0)
 	{

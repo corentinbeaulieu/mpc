@@ -32,20 +32,20 @@ int is_mpif_only = 0;
 			   "PARAMETER (%s=%d)\\n\", \"mpif_only\" : %d, \"value\" : %d , "  \
 			   "\"type\" : \"%s\"},\n",                                         \
 	sa, sa, sa, (int)a, is_mpif_only, (int)a, t)
-#define MPI_TYPEP_VAL(sa, a, t)                                                 \
-		printf("{ \"name\" : \"%s\" , \"decl\" : \"       INTEGER %s\\n       " \
-			   "PARAMETER (%s=%d)\\n\", \"mpif_only\" : %d, \"value\" : %d , "  \
-			   "\"type\" : \"%s\"},\n",                                         \
+#define MPI_TYPEP_VAL(sa, a, t)                                                  \
+		printf("{ \"name\" : \"%s\" , \"decl\" : \"       INTEGER %s\\n       "  \
+			   "PARAMETER (%s=%ld)\\n\", \"mpif_only\" : %d, \"value\" : %ld , " \
+			   "\"type\" : \"%s\"},\n",                                          \
 	sa, sa, sa, (intptr_t)a, is_mpif_only, (intptr_t)a, t)
 #define MPI_TYPEL_VAL(sa, a, t)                                                   \
 		printf("{ \"name\" : \"%s\" , \"decl\" : \"       INTEGER*8 %s\\n       " \
 			   "PARAMETER (%s=%d)\\n\", \"mpif_only\" : %d, \"value\" : %d , "    \
 			   "\"type\" : \"%s\"},\n",                                           \
 	sa, sa, sa, (int)a, is_mpif_only, (int)a, t)
-#define MPI_INTEGER_VAL(sa, a)                                                  \
-		printf("{ \"name\" : \"%s\" , \"decl\" : \"       INTEGER %s\\n       " \
-			   "PARAMETER (%s=%d)\\n\", \"mpif_only\" : %d, \"value\" : %d , "  \
-			   "\"type\" : \"int\"},\n",                                        \
+#define MPI_INTEGER_VAL(sa, a)                                                   \
+		printf("{ \"name\" : \"%s\" , \"decl\" : \"       INTEGER %s\\n       "  \
+			   "PARAMETER (%s=%ld)\\n\", \"mpif_only\" : %d, \"value\" : %ld , " \
+			   "\"type\" : \"int\"},\n",                                         \
 	sa, sa, sa, (intptr_t)a, is_mpif_only, (intptr_t)a)
 #define MPI_INTEGER_ARRAY_CONV(sa, size)                                     \
 		printf("{ \"name\" : \"%s\" , \"decl\" : \"       integer %s(%d)\\n" \
@@ -463,7 +463,7 @@ int generate_mpi_fortran_constants()
 	return 0;
 }
 
-int main(int argc, char **argv)
+int main(void)
 {
 	generate_mpi_fortran_constants();
 
