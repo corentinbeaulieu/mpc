@@ -11540,20 +11540,27 @@ int PMPI_Type_get_elements_x(MPI_Status *status, MPI_Datatype datatype, MPI_Coun
 	/* Retrieve the number of block in the datatype */
 	size_t el_count = datatype->count;
 
-	/* Count the number of elements by subtracting
-	 * individual blocks from total size until reaching 0 */
-	for (i = 0; i < el_count; i++)
+	// FIXME: This implementation does not traverse the datatypes in depth resulting in an incorrect behaviour.
+	// We should unfold the whole depth of a datatype to retrieve the number of basic elements.
+	// A way to do that is a recursive function but it can be costly
+	bool done = false;
+	// The MPI_Get_count may be more than 1
+	while (done == false)
 	{
-		size -= datatype->ends[i] - datatype->begins[i] + 1;
-
-		(*count)++;
-
-		if (size <= 0)
+		/* Count the number of elements by subtracting
+		 * individual blocks from total size until reaching 0 */
+		for (i = 0; i < el_count; i++)
 		{
-			break;
+			size -= datatype->ends[i] - datatype->begins[i] + 1;
+
+			(*count)++;
+
+			if (size <= 0)
+			{
+				done = true;
+			}
 		}
 	}
-
 
 	MPI_HANDLE_RETURN_VAL(res, comm);
 }
@@ -11764,8 +11771,6 @@ int PMPI_Pack(const void *inbuf, int incount, MPI_Datatype datatype,
 	}
 	mpi_check_buf(inbuf, comm);
 
-	MPIT_Type_init(datatype);
-
 	size_t size = 0;
 
 	_mpc_cl_type_size(datatype, &size);
@@ -11815,8 +11820,6 @@ int PMPI_Unpack(const void *inbuf, int insize, int *position,
 		MPI_ERROR_SUCCESS();
 	}
 	mpi_check_buf(outbuf, comm);
-
-	MPIT_Type_init(datatype);
 
 	size_t size = 0;
 	_mpc_cl_type_size(datatype, &size);
