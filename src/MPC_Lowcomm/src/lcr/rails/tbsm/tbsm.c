@@ -277,7 +277,7 @@ int lcr_tbsm_pack_rkey(sctk_rail_info_t *rail,
 	UNUSED(memp);
 	UNUSED(dest);
 
-	return 0;
+	return MPC_LOWCOMM_SUCCESS;
 }
 
 int lcr_tbsm_unpack_rkey(sctk_rail_info_t *rail,
@@ -287,7 +287,7 @@ int lcr_tbsm_unpack_rkey(sctk_rail_info_t *rail,
 	UNUSED(memp);
 	UNUSED(dest);
 
-	return 0;
+	return MPC_LOWCOMM_SUCCESS;
 }
 
 void lcr_tbsm_connect_on_demand(sctk_rail_info_t *rail, uint64_t uid)
