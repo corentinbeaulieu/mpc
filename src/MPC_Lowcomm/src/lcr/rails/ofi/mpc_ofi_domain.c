@@ -1300,7 +1300,7 @@ int _mpc_ofi_domain_put(struct _mpc_ofi_domain_t *domain,
 
 	while (1)
 	{
-		ssize_t ret = fi_writemsg(domain->ep, &rma_msg, FI_COMPLETION);
+		ssize_t ret = fi_writemsg(ep, &rma_msg, FI_COMPLETION);
 
 		if (ret == -FI_EAGAIN)
 		{
