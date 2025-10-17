@@ -549,8 +549,6 @@ int mpc_osc_find_attached_region_position(mpc_osc_dynamic_win_t *regions,
 {
 	int mid_idx = (min_idx + max_idx) >> 1;
 
-	assert(min_idx <= max_idx);
-
 	if (min_idx > max_idx)
 	{
 		*insert_idx = min_idx;
