@@ -198,8 +198,10 @@ static int lcp_rma_progress_zcopy(lcp_request_t *req)
 		lcr_ep = ep->lct_eps[cc];
 
 		/* length is min(max_frag_size, per_ep_length) */
-		frag_length = attr.iface.cap.rma.max_put_zcopy;
-		length      = (remaining < frag_length) ? remaining : frag_length;
+		frag_length = req->send.rma.is_get
+		              ? attr.iface.cap.rma.max_get_zcopy
+		              : attr.iface.cap.rma.max_put_zcopy;
+		length = (remaining < frag_length) ? remaining : frag_length;
 
 		if (req->send.rma.is_get)
 		{

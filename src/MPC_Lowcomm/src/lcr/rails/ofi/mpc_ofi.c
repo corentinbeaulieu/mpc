@@ -768,6 +768,9 @@ int _mpc_ofi_get_attr(sctk_rail_info_t *rail,
 	attr->iface.cap.rndv.max_put_zcopy = INT_MAX;
 	attr->iface.cap.rndv.max_get_zcopy = INT_MAX;
 
+	attr->iface.cap.rma.max_put_zcopy = rail->runtime_config_driver_config->driver.value.ofi.eager_size;
+	attr->iface.cap.rma.max_get_zcopy = rail->runtime_config_driver_config->driver.value.ofi.eager_size;
+
 	attr->mem.size_packed_mkey = sizeof(struct _mpc_ofi_shared_pinning_context);
 
 	attr->iface.cap.flags = rail->cap;
