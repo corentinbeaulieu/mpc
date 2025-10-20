@@ -51,8 +51,7 @@
 
 #define MPC_MODULE "Common/Debug"
 
-#define SMALL_BUFFER_SIZE (4 * 1024)
-#define DEBUG_INFO_SIZE   (128)
+#define DEBUG_INFO_SIZE (128)
 
 /**********************
  * FILE-BASED LOGGING *
@@ -733,7 +732,7 @@ const char * mpc_common_debug_verbosity_level_to_string(mpc_common_debug_verbosi
 	static const char *slevel[] =
 	{
 		"error",
-		"warning",
+		"warn",
 		"base",
 		"log",
 		"info",

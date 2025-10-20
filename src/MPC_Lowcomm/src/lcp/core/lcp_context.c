@@ -399,9 +399,10 @@ static int _lcp_context_devices_load_and_filter(lcp_context_h ctx)
 		total_num_devices += ctx->components[i]->num_devices;
 	}
 
-	if (non_composable_total > 0 && non_composable_actif == 0)
+	if (non_composable_total > 0 && non_composable_actif == 0 && mpc_common_get_flags()->node_number > 1)
 	{
-		mpc_common_debug_warning("No devices found for any non-composable rails:");
+		mpc_common_debug_warning("No devices found for inter nodes communications but %d nodes requested:",
+			mpc_common_get_flags()->node_number);
 		for (unsigned int i = 0; i < ctx->num_cmpts; i++)
 		{
 			if (!ctx->components[i]->rail_config->composable)

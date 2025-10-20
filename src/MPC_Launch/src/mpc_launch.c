@@ -702,7 +702,7 @@ static void __check_cli_params(void)
 	{
 		if (mpc_common_get_flags()->task_number < mpc_common_get_flags()->process_number)
 		{
-			bad_parameter("MPI process number (-n=%d) must be at least the process number (-p=%d)",
+			bad_parameter("The number of MPI tasks (-n=%d) must be at least the number of UNIX processes (-p=%d)",
 				mpc_common_get_flags()->task_number,
 				mpc_common_get_flags()->process_number);
 		}
