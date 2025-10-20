@@ -917,6 +917,8 @@ AC_DEFUN([MPC_DETECT_DEPENDENCY],
 
                                 check_or_infer_prefix_result="yes"
                         else
+                                AC_MSG_NOTICE([$libname *NOT* found using pkg-config])
+
                                 __check_or_infer_prefix_include "$header_name" "$inc_prefix" "$lib_code"
 
                                 if test -n "${alt_libname}"; then
@@ -929,7 +931,13 @@ AC_DEFUN([MPC_DETECT_DEPENDENCY],
                                 then
                                         check_or_infer_prefix_result="yes"
                                 else
-                                        check_or_infer_prefix_result="no"
+                                    check_or_infer_prefix_result="no"
+                                    if test "x$check_or_infer_prefix_include" = "xno"
+                                    then
+                                        AC_MSG_NOTICE([Fail to find header $header_name in $inc_prefix to include for $common_name])
+                                    else
+                                        AC_MSG_NOTICE([Fail to compile $function_name in $libname in $lib_prefix for $common_name])
+                                    fi
                                 fi
                         fi
 
