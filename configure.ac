@@ -3353,6 +3353,7 @@ MPC_CONFIG_RESULT="\
 ### ACCELERATORS ###\n\
 #\n\
 # Cuda support......... $cuda_enabled\n\
+# Rocm support......... $rocm_enabled\n\
 #\n\
 ### OTHER OPTIONS SET ###\n\
 #\n\
