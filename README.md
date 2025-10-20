@@ -93,7 +93,7 @@ The most commonly used are
 - `--enable-debug` to build in Debug mode
 - `--disable-<module|dep>` to disable certain module or dependency provided features
 - `--with-cuda` to enable CUDA support
-- `--with-rocm` to enable ROCm support
+- `--with-rocm` to enable ROCm/hip support
 
 </details>
 <details> <summary><h4> Step by step installation</h4></summary>
