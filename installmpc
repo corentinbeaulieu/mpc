@@ -47,10 +47,11 @@ MPC_COMP_ADD_BUILD_PARAMETERS=""
 OPENPA_BUILD_PARAMETERS=""
 MPCALLOC_BUILD_PARAMETERS=""
 OFI_BUILD_PARAMETERS=""
-HWLOC_BUILD_PARAMETERS="--disable-werror --enable-static"
+HWLOC_BUILD_PARAMETERS="--enable-static --disable-libudev"
 HYDRA_BUILD_PARAMETERS=""
 MPC_DMTCP_BUILD_PARAMETERS="--enable-pthread-mutex-wrappers"
 MPC_GDB_BUILD_PARAMETERS="--without-zlib --disable-werror"
+DEBUG="no"
 
 # Stop on error
 set -e
@@ -899,7 +900,7 @@ build_configure_based_package()
 {
 	package="$1"
 	version="$2"
-	extra_config_args=$3
+	extra_config_args="$3"
 
 	if test "x${BUILD_IS_DISABLED}" = "xyes"; then
 		die "--disable-build was passed and a package was not provided through spack"
@@ -990,6 +991,16 @@ build_configure_based_package()
 
 			show_run_cmd "cd $PROJECT_BUILD_DIR"
 			cd "${PROJECT_BUILD_DIR}"
+		fi
+
+		#
+		# Remove always inline that prevent compiling with -Og -g
+		#
+		if [ "$DEBUG" = "yes" ] && [ "$package" = "libfabric" ]
+		then
+			echo "SED always_inline in $PKG_SOURCE_DIR"
+			find "$PKG_SOURCE_DIR" -type f -exec sed -i -e 's/always_inline/noinline/g' {} \;
+			(cd "$PKG_SOURCE_DIR" && autoreconf -f)
 		fi
 	else
         checking "Tarball for ${package}-${version} already extracted"
@@ -1294,6 +1305,14 @@ enable_debug()
 	MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --enable-debug-messages --enable-debug"
 	MPC_COMP_ADD_BUILD_PARAMETERS="${MPC_COMP_ADD_BUILD_PARAMETERS} --opts=--enable-debug"
 	OFI_BUILD_PARAMETERS="${OFI_BUILD_PARAMETERS} --enable-debug"
+	#
+	# Setup a real debug mod
+	#
+	# tell the install script to remove always inline in sub projects
+	export DEBUG="yes"
+	# fix prefix map path that does not link to real sources
+	export CFLAGS="$CFALGS -ffile-prefix-map=${PROJECT_BUILD_DIR}=${SCRIPTPATH}"
+	export CXXFLAGS="$CXXFLAGS -ffile-prefix-map=${PROJECT_BUILD_DIR}=${SCRIPTPATH}"
 }
 
 #
@@ -1721,7 +1740,7 @@ find_in_prefix_or_use_spack "hwloc" "$(package_version "hwloc")" "${HWLOC_PREFIX
 if test "x${DEP_FOUND}" = "xno"; then
 	# Could not use spack now installing manually
 	# hwloc has bugs on inti when building with rocm at least from hwloc 2.7.0 to 2.9.0. the --without-rocm flag make build crash with
-	build_configure_based_package "hwloc" "$(package_version "hwloc")" "$HWLOC_BUILD_PARAMETERS --disable-rocm --disable-cuda --disable-opencl --disable-libudev"
+	build_configure_based_package "hwloc" "$(package_version "hwloc")" "$HWLOC_BUILD_PARAMETERS"
 	HWLOC_PREFIX="${PREFIX}"
 fi
 
@@ -1774,7 +1793,7 @@ find_in_prefix_or_use_spack "libfabric" "$(package_version "libfabric")" "$OFI_P
 
 if test "x${DEP_FOUND}" = "xno" && test "x$OFI_PREFIX" != "xdisabled"; then
 	# Could not use spack now installing manually
-	build_configure_based_package "libfabric" "$(package_version "libfabric")" "$ofi_build_parameters"
+	build_configure_based_package "libfabric" "$(package_version "libfabric")" "$OFI_BUILD_PARAMETERS"
 fi
 
 #

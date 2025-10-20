@@ -3034,8 +3034,6 @@ AC_ARG_ENABLE([optim],
 [mpc_enable_opt=$enableval],
 [mpc_enable_opt=yes])
 
-MPC_PORTABLE_OPT_FLAGS=" -O3"
-
 case $mpc_compiler_family in
         "gcc")
                 MPC_OPT_FLAGS=" -O3"
@@ -3047,11 +3045,12 @@ case $mpc_compiler_family in
                 MPC_OPT_FLAGS=" -O3"
         ;;
         *)
-                MPC_OPT_FLAGS=" $MPC_PORTABLE_OPT_FLAGS"
+                MPC_OPT_FLAGS=" -O3"
         ;;
 esac
 
-if test "x${mpc_enable_opt}" = "xyes"; then
+if test "x${mpc_enable_opt}" = "xyes" && test "x${mpc_debug}" = "xno"
+then
         CPPFLAGS+=" $MPC_OPT_FLAGS"
 fi
 
@@ -3061,8 +3060,6 @@ AC_ARG_ENABLE([opt-native],
                 [Build MPC for current architecture])],
 [mpc_enable_native_opt=$enableval],
 [mpc_enable_native_opt=no])
-
-MPC_PORTABLE_NATIVE_FLAGS=" "
 
 case $mpc_compiler_family in
         "gcc")
@@ -3075,7 +3072,7 @@ case $mpc_compiler_family in
                 MPC_NATIVE_FLAGS=" -march=native"
         ;;
         *)
-                MPC_NATIVE_FLAGS=" $MPC_PORTABLE_NATIVE_FLAGS"
+                MPC_NATIVE_FLAGS=" "
         ;;
 esac
 
@@ -3170,16 +3167,16 @@ MPC_PORTABLE_DEBUG_FLAGS=" -g"
 
 case $mpc_compiler_family in
         "gcc")
-                MPC_DEBUG_FLAGS=" -g -Wall -Wextra"
+                MPC_DEBUG_FLAGS=" -g -Og -Wall -Wextra"
         ;;
         "icc")
-                MPC_DEBUG_FLAGS=" -g -Wall"
+                MPC_DEBUG_FLAGS=" -g -Og -Wall"
         ;;
         "clang")
-                MPC_DEBUG_FLAGS=" -g -Wall -Wextra"
+                MPC_DEBUG_FLAGS=" -g -Og -Wall -Wextra"
         ;;
         *)
-                MPC_DEBUG_FLAGS=" $MPC_PORTABLE_DEBUG_FLAGS"
+                MPC_DEBUG_FLAGS=" -g -Og"
         ;;
 esac
 
