@@ -817,7 +817,7 @@ void __dump_comm_console(__UNUSED__ int sig)
 
 static void __register_mqd_config(void)
 {
-	mpc_conf_config_type_t *ret = mpc_conf_config_type_init("mqd",
+	mpc_conf_config_entry_t *ret = mpc_conf_config_entry_init("mqd",
 		PARAM("regsigusr2", &reg_sigusr2, MPC_CONF_INT, "Save communications queues to files on SIGUSR2"),
 		PARAM("regsigint",  &reg_sigint,  MPC_CONF_INT, "Dump communication queues to console on SIGINT"),
 		PARAM("fileonsigint",
@@ -828,12 +828,12 @@ static void __register_mqd_config(void)
 		NULL);
 
 
-	mpc_conf_config_type_elem_t *dbg = mpc_conf_root_config_get("mpcframework.launch.debug");
+	mpc_conf_config_elem_t *dbg = mpc_conf_root_config_get("mpcframework.launch.debug");
 
 	if (dbg)
 	{
-		mpc_conf_config_type_t *dbg_elem = mpc_conf_config_type_elem_get_inner(dbg);
-		mpc_conf_config_type_append(dbg_elem,
+		mpc_conf_config_entry_t *dbg_elem = mpc_conf_config_elem_get_inner(dbg);
+		mpc_conf_config_entry_append(dbg_elem,
 			ret->name,
 			ret,
 			MPC_CONF_TYPE,

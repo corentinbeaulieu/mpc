@@ -155,12 +155,12 @@ void _mpc_omp_conf_init(void)
 {
 	__omp_conf_set_default();
 
-	mpc_conf_config_type_t *schedule = mpc_conf_config_type_init("schedule", PARAM("chunk",
+	mpc_conf_config_entry_t *schedule = mpc_conf_config_entry_init("schedule", PARAM("chunk",
 		&__omp_conf.OMP_MODIFIER_SCHEDULE,
 		MPC_CONF_INT,
 		"This is the chunk size as schedule modifier"), NULL);
 
-	mpc_conf_config_type_t *thread = mpc_conf_config_type_init("thread",
+	mpc_conf_config_entry_t *thread = mpc_conf_config_entry_init("thread",
 		        PARAM("number",       &__omp_conf.OMP_NUM_THREADS,    MPC_CONF_INT,
 			"This is the number of threads OMP_NUM_THREADS"),
 		        PARAM("nested",       &__omp_conf.OMP_NESTED,         MPC_CONF_BOOL,
@@ -182,7 +182,7 @@ void _mpc_omp_conf_init(void)
 		NULL
 		);
 
-	mpc_conf_config_type_t *task = mpc_conf_config_type_init("task",
+	mpc_conf_config_entry_t *task = mpc_conf_config_entry_init("task",
 		        PARAM("sequential",               &__omp_conf.task_sequential,                 MPC_CONF_INT,
 			"If true, the tasks are run sequentially by their producer"),
 		        PARAM("maximum",                  &__omp_conf.maximum_tasks,                   MPC_CONF_INT,
@@ -252,7 +252,7 @@ void _mpc_omp_conf_init(void)
 		NULL
 		);
 
-	mpc_conf_config_type_t *omp = mpc_conf_config_type_init("omp",
+	mpc_conf_config_entry_t *omp = mpc_conf_config_entry_init("omp",
 		        PARAM("number",    &__omp_conf.OMP_MAX_ACTIVE_LEVELS, MPC_CONF_INT,
 			"Maximum depth of nested parallelism"),
 		        PARAM("nested",    &__omp_conf.OMP_WARN_NESTED,       MPC_CONF_BOOL,

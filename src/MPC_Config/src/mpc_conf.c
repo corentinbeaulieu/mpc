@@ -32,7 +32,7 @@ static int __mpc_conf_root_config_check_parenting(void);
  * OUTPUT KIND *
  ***************/
 
-mpc_conf_output_type_t mpc_conf_output_type_infer_from_file(char *path)
+mpc_conf_file_format_t mpc_conf_file_format_infer(char *path)
 {
 	char *ext = _utils_get_extension(path);
 
@@ -76,15 +76,15 @@ static inline char * __stringtolower(char *string)
 	return string;
 }
 
-mpc_conf_config_type_elem_t *mpc_conf_config_type_elem_init(char *name,
-                                                            void *addr,
-                                                            mpc_conf_type_t type,
-                                                            char *doc,
-                                                            mpc_conf_enum_keyval_t *ekv,
-                                                            int ekv_length)
+mpc_conf_config_elem_t *mpc_conf_config_elem_init(char *name,
+                                                  void *addr,
+                                                  mpc_conf_type_t type,
+                                                  char *doc,
+                                                  mpc_conf_enum_keyval_t *ekv,
+                                                  int ekv_length)
 {
 	_utils_verbose_output(2, "ELEM: init %s @ %p type %s // %s\n", name, addr, mpc_conf_type_name(type), doc);
-	mpc_conf_config_type_elem_t *ret = malloc(sizeof(mpc_conf_config_type_elem_t));
+	mpc_conf_config_elem_t *ret = malloc(sizeof(mpc_conf_config_elem_t));
 
 	assert(ret != NULL);
 
@@ -116,12 +116,12 @@ mpc_conf_config_type_elem_t *mpc_conf_config_type_elem_init(char *name,
 	/* Ensure that names do match if elem holds a type */
 	if (addr && (type == MPC_CONF_TYPE))
 	{
-		if (strcmp(ret->name, ((mpc_conf_config_type_t *)addr)->name))
+		if (strcmp(ret->name, ((mpc_conf_config_entry_t *)addr)->name))
 		{
 			_utils_verbose_output(0,
 				"cannot create a config element holding %s with a name %s they must be identical\n",
 				name,
-				((mpc_conf_config_type_t *)addr)->name);
+				((mpc_conf_config_entry_t *)addr)->name);
 			abort();
 		}
 	}
@@ -134,7 +134,7 @@ mpc_conf_config_type_elem_t *mpc_conf_config_type_elem_init(char *name,
 	return ret;
 }
 
-void mpc_conf_config_type_elem_release(mpc_conf_config_type_elem_t **elem)
+void mpc_conf_config_elem_release(mpc_conf_config_elem_t **elem)
 {
 	_utils_verbose_output(3, "ELEM: release %s\n", (*elem)->name);
 	free((*elem)->name);
@@ -146,30 +146,30 @@ void mpc_conf_config_type_elem_release(mpc_conf_config_type_elem_t **elem)
 		free((*elem)->addr);
 	}
 
-	memset(*elem, 0, sizeof(mpc_conf_config_type_elem_t));
+	memset(*elem, 0, sizeof(mpc_conf_config_elem_t));
 	free(*elem);
 	*elem = NULL;
 }
 
-mpc_conf_config_type_t * mpc_conf_config_type_elem_update(mpc_conf_config_type_t *ref,
-                                                          mpc_conf_config_type_t *updater,
-                                                          int force_content)
+mpc_conf_config_entry_t * mpc_conf_config_entry_update(mpc_conf_config_entry_t *ref,
+                                                       mpc_conf_config_entry_t *updater,
+                                                       int force_content)
 {
 	/* First check current in default to ensure that all entries are known */
 	unsigned int i;
 
 	if (0 < force_content)
 	{
-		for (i = 0 ; i < mpc_conf_config_type_count(updater); i++)
+		for (i = 0 ; i < mpc_conf_config_entry_count(updater); i++)
 		{
-			mpc_conf_config_type_elem_t *current_elem = mpc_conf_config_type_nth(updater, i);
+			mpc_conf_config_elem_t *current_elem = mpc_conf_config_entry_nth(updater, i);
 
 			/* Now get the elem to ensure it already exists */
-			mpc_conf_config_type_elem_t *default_elem = mpc_conf_config_type_get(ref, current_elem->name);
+			mpc_conf_config_elem_t *default_elem = mpc_conf_config_entry_get(ref, current_elem->name);
 
 			if (!default_elem)
 			{
-				mpc_conf_config_type_print(updater, MPC_CONF_FORMAT_XML);
+				mpc_conf_config_entry_print(updater, MPC_CONF_FORMAT_XML);
 				_utils_verbose_output(0, "Default definitions do not contain '%s' elements", current_elem->name);
 				abort();
 			}
@@ -177,24 +177,24 @@ mpc_conf_config_type_t * mpc_conf_config_type_elem_update(mpc_conf_config_type_t
 	}
 
 	/* Now check default in current to push missing elements from default */
-	for (i = 0 ; i < mpc_conf_config_type_count(ref); i++)
+	for (i = 0 ; i < mpc_conf_config_entry_count(ref); i++)
 	{
-		mpc_conf_config_type_elem_t *default_elem = mpc_conf_config_type_nth(ref, i);
+		mpc_conf_config_elem_t *default_elem = mpc_conf_config_entry_nth(ref, i);
 		/* Now get the elem to ensure it already exists */
-		mpc_conf_config_type_elem_t *existing_elem = mpc_conf_config_type_get(updater, default_elem->name);
+		mpc_conf_config_elem_t *existing_elem = mpc_conf_config_entry_get(updater, default_elem->name);
 
 		if (existing_elem)
 		{
 			if (existing_elem->type == MPC_CONF_TYPE)
 			{
-				mpc_conf_config_type_elem_update(mpc_conf_config_type_elem_get_inner(default_elem),
-					mpc_conf_config_type_elem_get_inner(existing_elem),
+				mpc_conf_config_entry_update(mpc_conf_config_elem_get_inner(default_elem),
+					mpc_conf_config_elem_get_inner(existing_elem),
 					--force_content);
 			}
 			else
 			{
 				/* Here we need to update the default elem */
-				mpc_conf_config_type_elem_set_from_elem(default_elem, existing_elem);
+				mpc_conf_config_elem_set_from_elem(default_elem, existing_elem);
 			}
 		}
 	}
@@ -203,58 +203,58 @@ mpc_conf_config_type_t * mpc_conf_config_type_elem_update(mpc_conf_config_type_t
 	if (force_content <= 0)
 	{
 		/* We need a tmp as we cannot pop while iterating */
-		mpc_conf_config_type_t *tmp = mpc_conf_config_type_init("tmp", NULL);
+		mpc_conf_config_entry_t *tmp = mpc_conf_config_entry_init("tmp", NULL);
 
-		for (i = 0 ; i < mpc_conf_config_type_count(updater); i++)
+		for (i = 0 ; i < mpc_conf_config_entry_count(updater); i++)
 		{
-			mpc_conf_config_type_elem_t *current_elem = mpc_conf_config_type_nth(updater, i);
+			mpc_conf_config_elem_t *current_elem = mpc_conf_config_entry_nth(updater, i);
 
 			/* Now get the elem to ensure it already exists */
-			mpc_conf_config_type_elem_t *default_elem = mpc_conf_config_type_get(ref, current_elem->name);
+			mpc_conf_config_elem_t *default_elem = mpc_conf_config_entry_get(ref, current_elem->name);
 
 			if (!default_elem)
 			{
 				/* Here we save the missing element */
-				mpc_config_type_append_elem(tmp, current_elem);
+				mpc_conf_config_entry_append_elem(tmp, current_elem);
 			}
 		}
 
 		/* Now we pop it from the updater and append it to ref */
-		for (i = 0 ; i < mpc_conf_config_type_count(tmp); i++)
+		for (i = 0 ; i < mpc_conf_config_entry_count(tmp); i++)
 		{
-			mpc_conf_config_type_elem_t *current_elem = mpc_conf_config_type_nth(tmp, i);
-			mpc_conf_config_type_elem_t *updater_elem = mpc_conf_config_type_get(updater, current_elem->name);
+			mpc_conf_config_elem_t *current_elem = mpc_conf_config_entry_nth(tmp, i);
+			mpc_conf_config_elem_t *updater_elem = mpc_conf_config_entry_get(updater, current_elem->name);
 
 			if (updater_elem)
 			{
-				mpc_config_type_pop_elem(updater, updater_elem);
+				mpc_conf_config_entry_pop_elem(updater, updater_elem);
 			}
 
-			mpc_config_type_append_elem(ref, current_elem);
+			mpc_conf_config_entry_append_elem(ref, current_elem);
 		}
 
 		/* Eventually we empty TMP by popping all */
-		while (mpc_conf_config_type_count(tmp) != 0)
+		while (mpc_conf_config_entry_count(tmp) != 0)
 		{
-			mpc_conf_config_type_elem_t *current_elem = mpc_conf_config_type_nth(tmp, 0);
-			mpc_config_type_pop_elem(tmp, current_elem);
+			mpc_conf_config_elem_t *current_elem = mpc_conf_config_entry_nth(tmp, 0);
+			mpc_conf_config_entry_pop_elem(tmp, current_elem);
 		}
 
 		/* And release tmp */
-		mpc_conf_config_type_release(&tmp);
+		mpc_conf_config_entry_release(&tmp);
 	}
 
 	return ref;
 }
 
-int mpc_conf_config_type_elem_set_from_elem(mpc_conf_config_type_elem_t *elem, mpc_conf_config_type_elem_t *src)
+int mpc_conf_config_elem_set_from_elem(mpc_conf_config_elem_t *elem, mpc_conf_config_elem_t *src)
 {
 	_utils_verbose_output(3, "ELEM: set %s to %s\n", src->name, elem->name);
 
-	return mpc_conf_config_type_elem_set(elem, src->type, src->addr);
+	return mpc_conf_config_elem_set(elem, src->type, src->addr);
 }
 
-int mpc_conf_config_type_elem_set(mpc_conf_config_type_elem_t *elem, mpc_conf_type_t type, void *ptr)
+int mpc_conf_config_elem_set(mpc_conf_config_elem_t *elem, mpc_conf_type_t type, void *ptr)
 {
 	if ((elem->type == MPC_CONF_INT) && (type == MPC_CONF_LONG_INT))
 	{
@@ -308,7 +308,7 @@ int mpc_conf_config_type_elem_set(mpc_conf_config_type_elem_t *elem, mpc_conf_ty
 	return 0;
 }
 
-int mpc_conf_config_type_elem_set_doc(mpc_conf_config_type_elem_t *elem, char *doc)
+int mpc_conf_config_elem_set_doc(mpc_conf_config_elem_t *elem, char *doc)
 {
 	if (!elem)
 	{
@@ -322,7 +322,7 @@ int mpc_conf_config_type_elem_set_doc(mpc_conf_config_type_elem_t *elem, char *d
 	return 0;
 }
 
-int mpc_config_type_pop_elem(mpc_conf_config_type_t *type, mpc_conf_config_type_elem_t *elem)
+int mpc_conf_config_entry_pop_elem(mpc_conf_config_entry_t *type, mpc_conf_config_elem_t *elem)
 {
 	unsigned int i;
 
@@ -347,7 +347,7 @@ int mpc_config_type_pop_elem(mpc_conf_config_type_t *type, mpc_conf_config_type_
 	return -1;
 }
 
-int mpc_config_type_match_order(mpc_conf_config_type_t *type, mpc_conf_config_type_t *ref)
+int mpc_conf_config_entry_match_order(mpc_conf_config_entry_t *type, mpc_conf_config_entry_t *ref)
 {
 	if (type->elem_count < ref->elem_count)
 	{
@@ -372,7 +372,7 @@ int mpc_config_type_match_order(mpc_conf_config_type_t *type, mpc_conf_config_ty
 				if (i != j)
 				{
 					/* Was found at != offset we swap to ref's offset */
-					mpc_conf_config_type_elem_t *tmp = type->elems[i];
+					mpc_conf_config_elem_t *tmp = type->elems[i];
 					type->elems[i] = type->elems[j];
 					type->elems[j] = tmp;
 				}
@@ -384,7 +384,7 @@ int mpc_config_type_match_order(mpc_conf_config_type_t *type, mpc_conf_config_ty
 	return 0;
 }
 
-int mpc_conf_config_type_elem_set_from_string(mpc_conf_config_type_elem_t *elem, mpc_conf_type_t type, char *string)
+int mpc_conf_config_elem_set_from_string(mpc_conf_config_elem_t *elem, mpc_conf_type_t type, char *string)
 {
 	_utils_verbose_output(3, "ELEM: setting string '%s' to %s\n", string, elem->name);
 
@@ -408,14 +408,14 @@ int mpc_conf_config_type_elem_set_from_string(mpc_conf_config_type_elem_t *elem,
 	return mpc_conf_type_set_value_from_string(elem->type, &elem->addr, string, elem->ekv, elem->ekv_length);
 }
 
-void mpc_conf_config_type_elem_set_to_free(mpc_conf_config_type_elem_t *elem, int to_free)
+void mpc_conf_config_elem_set_to_free(mpc_conf_config_elem_t *elem, int to_free)
 {
 	assert(elem != NULL);
 
 	elem->addr_is_to_free = to_free;
 }
 
-void mpc_conf_config_type_elem_set_locked(mpc_conf_config_type_elem_t *elem, int locked)
+void mpc_conf_config_elem_set_locked(mpc_conf_config_elem_t *elem, int locked)
 {
 	assert(elem != NULL);
 
@@ -424,7 +424,7 @@ void mpc_conf_config_type_elem_set_locked(mpc_conf_config_type_elem_t *elem, int
 
 #define COMMENT_OFFSET 40
 
-static inline int __mpc_conf_config_type_elem_print_xml(FILE *fd, mpc_conf_config_type_elem_t *elem, int indent)
+static inline int __mpc_conf_config_elem_print_xml(FILE *fd, mpc_conf_config_elem_t *elem, int indent)
 {
 	char  value_buff[256];
 	char  ___indentbuff[32];
@@ -495,15 +495,15 @@ static inline int __mpc_conf_config_type_elem_print_xml(FILE *fd, mpc_conf_confi
 	return 0;
 }
 
-void __mpc_conf_config_type_elem_get_path_to(mpc_conf_config_type_elem_t *cur,
-                                             mpc_conf_config_type_elem_t *last,
-                                             char *separator,
-                                             char *path,
-                                             int len)
+void __mpc_conf_config_elem_get_path_to(mpc_conf_config_elem_t *cur,
+                                        mpc_conf_config_elem_t *last,
+                                        char *separator,
+                                        char *path,
+                                        int len)
 {
 	if (cur->parent)
 	{
-		__mpc_conf_config_type_elem_get_path_to(cur->parent, last, separator, path, len);
+		__mpc_conf_config_elem_get_path_to(cur->parent, last, separator, path, len);
 	}
 
 	strncat(path, cur->name, len);
@@ -514,17 +514,17 @@ void __mpc_conf_config_type_elem_get_path_to(mpc_conf_config_type_elem_t *cur,
 	}
 }
 
-int mpc_conf_config_type_elem_get_path_to(mpc_conf_config_type_elem_t *elem, char *path, int len, char *separator)
+int mpc_conf_config_elem_get_path_to(mpc_conf_config_elem_t *elem, char *path, int len, char *separator)
 {
 	path[0] = '\0';
-	__mpc_conf_config_type_elem_get_path_to(elem, elem, separator, path, len);
+	__mpc_conf_config_elem_get_path_to(elem, elem, separator, path, len);
 	return 0;
 }
 
-static inline int __mpc_conf_config_type_elem_print_gen(FILE *fd,
-                                                        mpc_conf_config_type_elem_t *elem,
-                                                        char *separator,
-                                                        int to_upper)
+static inline int __mpc_conf_config_elem_print_gen(FILE *fd,
+                                                   mpc_conf_config_elem_t *elem,
+                                                   char *separator,
+                                                   int to_upper)
 {
 	char value_buff[256];
 	int  can_do_color = _utils_conf_can_do_color(fd) ? 1 : 0;
@@ -532,7 +532,7 @@ static inline int __mpc_conf_config_type_elem_print_gen(FILE *fd,
 	mpc_conf_type_print_value(elem->type, value_buff, 256, elem->addr, can_do_color, elem->ekv, elem->ekv_length);
 
 	char path[512];
-	mpc_conf_config_type_elem_get_path_to(elem, path, 512, separator);
+	mpc_conf_config_elem_get_path_to(elem, path, 512, separator);
 
 	if (to_upper)
 	{
@@ -559,25 +559,25 @@ static inline int __mpc_conf_config_type_elem_print_gen(FILE *fd,
 	return 0;
 }
 
-int mpc_conf_config_type_elem_print_fd(mpc_conf_config_type_elem_t *elem, FILE *fd, mpc_conf_output_type_t output_type)
+int mpc_conf_config_elem_print_fd(mpc_conf_config_elem_t *elem, FILE *fd, mpc_conf_file_format_t output_type)
 {
 	if (elem->type == MPC_CONF_TYPE)
 	{
-		return mpc_conf_config_type_print_fd(mpc_conf_config_type_elem_get_inner(elem), fd, output_type);
+		return mpc_conf_config_entry_print_fd(mpc_conf_config_elem_get_inner(elem), fd, output_type);
 	}
 
 	switch (output_type)
 	{
 	case MPC_CONF_FORMAT_XML:
-		return __mpc_conf_config_type_elem_print_xml(stdout, elem, 0);
+		return __mpc_conf_config_elem_print_xml(stdout, elem, 0);
 
 		break;
 
 	case MPC_CONF_FORMAT_CONF:
-		return __mpc_conf_config_type_elem_print_gen(fd, elem, "_", 1);
+		return __mpc_conf_config_elem_print_gen(fd, elem, "_", 1);
 
 	case MPC_CONF_FORMAT_INI:
-		return __mpc_conf_config_type_elem_print_gen(fd, elem, ".", 0);
+		return __mpc_conf_config_elem_print_gen(fd, elem, ".", 0);
 
 	default:
 		return 1;
@@ -586,12 +586,12 @@ int mpc_conf_config_type_elem_print_fd(mpc_conf_config_type_elem_t *elem, FILE *
 	return 1;
 }
 
-int mpc_conf_config_type_elem_print(mpc_conf_config_type_elem_t *elem, mpc_conf_output_type_t output_type)
+int mpc_conf_config_elem_print(mpc_conf_config_elem_t *elem, mpc_conf_file_format_t output_type)
 {
-	return mpc_conf_config_type_elem_print_fd(elem, stdout, output_type);
+	return mpc_conf_config_elem_print_fd(elem, stdout, output_type);
 }
 
-mpc_conf_config_type_t *mpc_conf_config_type_elem_get_inner(mpc_conf_config_type_elem_t *elem)
+mpc_conf_config_entry_t *mpc_conf_config_elem_get_inner(mpc_conf_config_elem_t *elem)
 {
 	assert(elem);
 	assert(elem->type == MPC_CONF_TYPE);
@@ -601,16 +601,16 @@ mpc_conf_config_type_t *mpc_conf_config_type_elem_get_inner(mpc_conf_config_type
 		return NULL;
 	}
 
-	return (mpc_conf_config_type_t *)elem->addr;
+	return (mpc_conf_config_entry_t *)elem->addr;
 }
 
 /**********************
  * CONFIGURATION TYPE *
  **********************/
 
-mpc_conf_config_type_t *mpc_conf_config_type_init(char *name, ...)
+mpc_conf_config_entry_t *mpc_conf_config_entry_init(char *name, ...)
 {
-	mpc_conf_config_type_t *ret = malloc(sizeof(mpc_conf_config_type_t));
+	mpc_conf_config_entry_t *ret = malloc(sizeof(mpc_conf_config_entry_t));
 
 	assert(ret != NULL);
 
@@ -651,13 +651,13 @@ mpc_conf_config_type_t *mpc_conf_config_type_init(char *name, ...)
 			pekv        = va_arg(ap, mpc_conf_enum_keyval_t *);
 		}
 
-		if (mpc_conf_config_type_get(ret, pname))
+		if (mpc_conf_config_entry_get(ret, pname))
 		{
 			_utils_verbose_output(0, "'%s' is already present in '%s'\n", pname, ret->name);
 			break;
 		}
 
-		mpc_conf_config_type_elem_t *elem = mpc_conf_config_type_elem_init(pname, pptr, type, pdoc, pekv, pekv_length);
+		mpc_conf_config_elem_t *elem = mpc_conf_config_elem_init(pname, pptr, type, pdoc, pekv, pekv_length);
 		assert(elem != NULL);
 
 		ret->elems[ret->elem_count] = elem;
@@ -672,9 +672,9 @@ mpc_conf_config_type_t *mpc_conf_config_type_init(char *name, ...)
 	return ret;
 }
 
-int mpc_config_type_append_elem(mpc_conf_config_type_t *type, mpc_conf_config_type_elem_t *elem)
+int mpc_conf_config_entry_append_elem(mpc_conf_config_entry_t *type, mpc_conf_config_elem_t *elem)
 {
-	if (mpc_conf_config_type_get(type, elem->name))
+	if (mpc_conf_config_entry_get(type, elem->name))
 	{
 		_utils_verbose_output(0, "'%s' is already present in '%s'\n", elem->name, type->name);
 		return -1;
@@ -688,17 +688,17 @@ int mpc_config_type_append_elem(mpc_conf_config_type_t *type, mpc_conf_config_ty
 	return 0;
 }
 
-mpc_conf_config_type_elem_t *mpc_conf_config_type_append(mpc_conf_config_type_t *type,
-                                                         char *ename,
-                                                         void *eptr,
-                                                         mpc_conf_type_t etype,
-                                                         char *edoc,
-                                                         mpc_conf_enum_keyval_t *eekv,
-                                                         int eekv_length)
+mpc_conf_config_elem_t *mpc_conf_config_entry_append(mpc_conf_config_entry_t *type,
+                                                     char *ename,
+                                                     void *eptr,
+                                                     mpc_conf_type_t etype,
+                                                     char *edoc,
+                                                     mpc_conf_enum_keyval_t *eekv,
+                                                     int eekv_length)
 {
 	assert(type != NULL);
 
-	if (mpc_conf_config_type_get(type, ename))
+	if (mpc_conf_config_entry_get(type, ename))
 	{
 		_utils_verbose_output(0, "'%s' is already present in '%s'\n", ename, type->name);
 		return NULL;
@@ -712,7 +712,7 @@ mpc_conf_config_type_elem_t *mpc_conf_config_type_append(mpc_conf_config_type_t 
 		return NULL;
 	}
 
-	mpc_conf_config_type_elem_t *elem = mpc_conf_config_type_elem_init(ename, eptr, etype, edoc, eekv, eekv_length);
+	mpc_conf_config_elem_t *elem = mpc_conf_config_elem_init(ename, eptr, etype, edoc, eekv, eekv_length);
 	assert(elem != NULL);
 
 	type->elems[type->elem_count] = elem;
@@ -724,7 +724,7 @@ mpc_conf_config_type_elem_t *mpc_conf_config_type_append(mpc_conf_config_type_t 
 	return elem;
 }
 
-mpc_conf_config_type_elem_t *mpc_conf_config_type_get(mpc_conf_config_type_t *type, char *name)
+mpc_conf_config_elem_t *mpc_conf_config_entry_get(mpc_conf_config_entry_t *type, char *name)
 {
 	assert(type != NULL);
 
@@ -741,7 +741,7 @@ mpc_conf_config_type_elem_t *mpc_conf_config_type_get(mpc_conf_config_type_t *ty
 	return NULL;
 }
 
-int mpc_conf_config_type_delete(mpc_conf_config_type_t *type, char *name)
+int mpc_conf_config_entry_delete(mpc_conf_config_entry_t *type, char *name)
 {
 	assert(type != NULL);
 
@@ -753,10 +753,10 @@ int mpc_conf_config_type_delete(mpc_conf_config_type_t *type, char *name)
 		{
 			if (type->elems[i]->type == MPC_CONF_TYPE)
 			{
-				mpc_conf_config_type_release((mpc_conf_config_type_t **)&type->elems[i]->addr);
+				mpc_conf_config_entry_release((mpc_conf_config_entry_t **)&type->elems[i]->addr);
 			}
 
-			mpc_conf_config_type_elem_release(&type->elems[i]);
+			mpc_conf_config_elem_release(&type->elems[i]);
 
 			/* Shift left to fill the empty slot */
 			for (j = i; j < type->elem_count - 1; j++)
@@ -774,7 +774,7 @@ int mpc_conf_config_type_delete(mpc_conf_config_type_t *type, char *name)
 	return 1;
 }
 
-void mpc_conf_config_type_clear(mpc_conf_config_type_t *type)
+void mpc_conf_config_entry_clear(mpc_conf_config_entry_t *type)
 {
 	unsigned int i;
 
@@ -782,18 +782,18 @@ void mpc_conf_config_type_clear(mpc_conf_config_type_t *type)
 	{
 		if (type->elems[i]->type == MPC_CONF_TYPE)
 		{
-			mpc_conf_config_type_release((mpc_conf_config_type_t **)&type->elems[i]->addr);
+			mpc_conf_config_entry_release((mpc_conf_config_entry_t **)&type->elems[i]->addr);
 		}
 
-		mpc_conf_config_type_elem_release(&type->elems[i]);
+		mpc_conf_config_elem_release(&type->elems[i]);
 	}
 
 	type->elem_count = 0;
 }
 
-void mpc_conf_config_type_release(mpc_conf_config_type_t **ptype)
+void mpc_conf_config_entry_release(mpc_conf_config_entry_t **ptype)
 {
-	mpc_conf_config_type_t *type = *ptype;
+	mpc_conf_config_entry_t *type = *ptype;
 
 	if (!type)
 	{
@@ -804,16 +804,16 @@ void mpc_conf_config_type_release(mpc_conf_config_type_t **ptype)
 
 	free(type->name);
 
-	mpc_conf_config_type_clear(type);
+	mpc_conf_config_entry_clear(type);
 
-	memset(type, 0, sizeof(mpc_conf_config_type_t));
+	memset(type, 0, sizeof(mpc_conf_config_entry_t));
 
 	free(type);
 
 	*ptype = NULL;
 }
 
-static inline int __mpc_conf_config_type_print_xml(mpc_conf_config_type_t *type, FILE *fd, int indent)
+static inline int __mpc_conf_config_entry_print_xml(mpc_conf_config_entry_t *type, FILE *fd, int indent)
 {
 	int can_do_color = _utils_conf_can_do_color(fd) ? 1 : 0;
 
@@ -845,11 +845,11 @@ static inline int __mpc_conf_config_type_print_xml(mpc_conf_config_type_t *type,
 			{
 				fprintf(fd, "%s<!-- %s -->\n", indentstr_inner, type->elems[i]->doc);
 			}
-			__mpc_conf_config_type_print_xml(mpc_conf_config_type_elem_get_inner(type->elems[i]), fd, indent + 1);
+			__mpc_conf_config_entry_print_xml(mpc_conf_config_elem_get_inner(type->elems[i]), fd, indent + 1);
 		}
 		else
 		{
-			__mpc_conf_config_type_elem_print_xml(fd, type->elems[i], indent + 1);
+			__mpc_conf_config_elem_print_xml(fd, type->elems[i], indent + 1);
 		}
 	}
 
@@ -865,9 +865,9 @@ static inline int __mpc_conf_config_type_print_xml(mpc_conf_config_type_t *type,
 	return 0;
 }
 
-static inline int __mpc_conf_config_type_print_conf(mpc_conf_config_type_t *type,
-                                                    FILE *fd,
-                                                    mpc_conf_output_type_t output_type)
+static inline int __mpc_conf_config_entry_print_conf(mpc_conf_config_entry_t *type,
+                                                     FILE *fd,
+                                                     mpc_conf_file_format_t output_type)
 {
 	int can_do_color = _utils_conf_can_do_color(fd) ? 1 : 0;
 
@@ -887,31 +887,31 @@ static inline int __mpc_conf_config_type_print_conf(mpc_conf_config_type_t *type
 				fprintf(fd, "\n#%s\n\n", type->elems[i]->doc);
 			}
 
-			ret |= __mpc_conf_config_type_print_conf(mpc_conf_config_type_elem_get_inner(type->elems[i]),
+			ret |= __mpc_conf_config_entry_print_conf(mpc_conf_config_elem_get_inner(type->elems[i]),
 				fd,
 				output_type);
 		}
 		else
 		{
-			ret |= mpc_conf_config_type_elem_print_fd(type->elems[i], fd, output_type);
+			ret |= mpc_conf_config_elem_print_fd(type->elems[i], fd, output_type);
 		}
 	}
 
 	return ret;
 }
 
-int mpc_conf_config_type_print_fd(mpc_conf_config_type_t *type, FILE *fd, mpc_conf_output_type_t output_type)
+int mpc_conf_config_entry_print_fd(mpc_conf_config_entry_t *type, FILE *fd, mpc_conf_file_format_t output_type)
 {
 	switch (output_type)
 	{
 	case MPC_CONF_FORMAT_XML:
-		return __mpc_conf_config_type_print_xml(type, fd, 0);
+		return __mpc_conf_config_entry_print_xml(type, fd, 0);
 
 		break;
 
 	case MPC_CONF_FORMAT_CONF:
 	case MPC_CONF_FORMAT_INI:
-		return __mpc_conf_config_type_print_conf(type, fd, output_type);
+		return __mpc_conf_config_entry_print_conf(type, fd, output_type);
 
 		break;
 
@@ -922,17 +922,17 @@ int mpc_conf_config_type_print_fd(mpc_conf_config_type_t *type, FILE *fd, mpc_co
 	return 1;
 }
 
-int mpc_conf_config_type_print(mpc_conf_config_type_t *type, mpc_conf_output_type_t output_type)
+int mpc_conf_config_entry_print(mpc_conf_config_entry_t *type, mpc_conf_file_format_t output_type)
 {
-	return mpc_conf_config_type_print_fd(type, stdout, output_type);
+	return mpc_conf_config_entry_print_fd(type, stdout, output_type);
 }
 
-unsigned int mpc_conf_config_type_count(mpc_conf_config_type_t *type)
+unsigned int mpc_conf_config_entry_count(mpc_conf_config_entry_t *type)
 {
 	return type->elem_count;
 }
 
-mpc_conf_config_type_elem_t *mpc_conf_config_type_nth(mpc_conf_config_type_t *type, unsigned int id)
+mpc_conf_config_elem_t *mpc_conf_config_entry_nth(mpc_conf_config_entry_t *type, unsigned int id)
 {
 	if (type->elem_count <= id)
 	{
@@ -942,9 +942,9 @@ mpc_conf_config_type_elem_t *mpc_conf_config_type_nth(mpc_conf_config_type_t *ty
 	return type->elems[id];
 }
 
-mpc_conf_config_type_t *  mpc_conf_type_elem_get_root(mpc_conf_config_type_elem_t *elem)
+mpc_conf_config_entry_t *  mpc_conf_config_elem_get_root(mpc_conf_config_elem_t *elem)
 {
-	mpc_conf_config_type_elem_t *cur = elem;
+	mpc_conf_config_elem_t *cur = elem;
 
 	while (cur->parent)
 	{
@@ -953,7 +953,7 @@ mpc_conf_config_type_t *  mpc_conf_type_elem_get_root(mpc_conf_config_type_elem_
 
 	if (cur->type == MPC_CONF_TYPE)
 	{
-		return mpc_conf_config_type_elem_get_inner(cur);
+		return mpc_conf_config_elem_get_inner(cur);
 	}
 	else
 	{
@@ -962,7 +962,7 @@ mpc_conf_config_type_t *  mpc_conf_type_elem_get_root(mpc_conf_config_type_elem_
 	}
 }
 
-int mpc_conf_type_elem_get_as_int(mpc_conf_config_type_elem_t *elem)
+int mpc_conf_config_elem_get_as_int(mpc_conf_config_elem_t *elem)
 {
 	if (elem->type != MPC_CONF_INT)
 	{
@@ -973,7 +973,7 @@ int mpc_conf_type_elem_get_as_int(mpc_conf_config_type_elem_t *elem)
 	return *((int *)elem->addr);
 }
 
-char * mpc_conf_type_elem_get_as_string(mpc_conf_config_type_elem_t *elem)
+char * mpc_conf_config_elem_get_as_string(mpc_conf_config_elem_t *elem)
 {
 	if (elem->type != MPC_CONF_STRING)
 	{
@@ -1266,7 +1266,7 @@ int mpc_conf_self_config_check_init(mpc_conf_self_config_t *config)
 
 	mpc_conf_root_config_init("conf");
 
-	mpc_conf_config_type_t *self_conf = mpc_conf_config_type_init("settings",
+	mpc_conf_config_entry_t *self_conf = mpc_conf_config_entry_init("settings",
 		PARAM("color",
 			&config->color_enabled,
 			MPC_CONF_BOOL,
@@ -1283,22 +1283,22 @@ int mpc_conf_self_config_check_init(mpc_conf_self_config_t *config)
 
 	mpc_conf_root_config_append("conf", self_conf, "mpc conf Configuration");
 
-	mpc_conf_config_type_elem_t *conf_type = mpc_conf_root_config_get("conf");
+	mpc_conf_config_elem_t *conf_type = mpc_conf_root_config_get("conf");
 	if (conf_type && conf_type->type == MPC_CONF_TYPE)
 	{
-		mpc_conf_config_type_elem_t *ve = mpc_conf_config_type_append(mpc_conf_config_type_elem_get_inner(conf_type),
+		mpc_conf_config_elem_t *ve = mpc_conf_config_entry_append(mpc_conf_config_elem_get_inner(conf_type),
 			"valid",
 			&config->is_valid,
 			MPC_CONF_BOOL,
 			"Utility variable to check for configuration validity", NULL, 0);
-		mpc_conf_config_type_elem_set_locked(ve, 1);
+		mpc_conf_config_elem_set_locked(ve, 1);
 	}
 	else
 	{
 		return 1;
 	}
 
-	mpc_conf_config_type_t *paths = mpc_conf_config_type_init("paths", NULL);
+	mpc_conf_config_entry_t *paths = mpc_conf_config_entry_init("paths", NULL);
 	mpc_conf_root_config_append("conf", paths, "mpc conf Search Paths");
 
 	return 0;
@@ -1327,9 +1327,9 @@ int mpc_conf_self_config_check_release(mpc_conf_self_config_t *config)
 
 typedef struct mpc_conf_root_config_s
 {
-	mpc_conf_config_type_elem_t *elems[MPC_CONF_MAX_CONFIGS];
-	mpc_conf_env_manager_t       env;
-	mpc_conf_self_config_t       config;
+	mpc_conf_config_elem_t *elems[MPC_CONF_MAX_CONFIGS];
+	mpc_conf_env_manager_t  env;
+	mpc_conf_self_config_t  config;
 }mpc_conf_root_config_t;
 
 static mpc_conf_root_config_t __root_config = { { 0 }, { 0 }, { 0 } };
@@ -1344,7 +1344,7 @@ mpc_conf_self_config_t *mpc_conf_self_config_get(void)
 	return &__root_config.config;
 }
 
-static inline mpc_conf_config_type_elem_t **__get_global_config_ref_by_name(char *name)
+static inline mpc_conf_config_elem_t **__get_global_config_ref_by_name(char *name)
 {
 	int i = 0;
 
@@ -1363,9 +1363,9 @@ static inline mpc_conf_config_type_elem_t **__get_global_config_ref_by_name(char
 	return NULL;
 }
 
-static inline mpc_conf_config_type_elem_t *__get_global_config_by_name(char *name)
+static inline mpc_conf_config_elem_t *__get_global_config_by_name(char *name)
 {
-	mpc_conf_config_type_elem_t **ref = __get_global_config_ref_by_name(name);
+	mpc_conf_config_elem_t **ref = __get_global_config_ref_by_name(name);
 
 	if (ref)
 	{
@@ -1375,7 +1375,7 @@ static inline mpc_conf_config_type_elem_t *__get_global_config_by_name(char *nam
 	return NULL;
 }
 
-static inline int __append_global_config(char *name, mpc_conf_config_type_elem_t *elem)
+static inline int __append_global_config(char *name, mpc_conf_config_elem_t *elem)
 {
 	int i = 0;
 
@@ -1395,9 +1395,9 @@ static inline int __append_global_config(char *name, mpc_conf_config_type_elem_t
 	return 0;
 }
 
-mpc_conf_config_type_elem_t * mpc_conf_root_elem(char *conf_name)
+mpc_conf_config_elem_t * mpc_conf_root_elem(char *conf_name)
 {
-	mpc_conf_config_type_elem_t *conf_root_elem = __get_global_config_by_name(conf_name);
+	mpc_conf_config_elem_t *conf_root_elem = __get_global_config_by_name(conf_name);
 
 	if (!conf_root_elem)
 	{
@@ -1407,16 +1407,16 @@ mpc_conf_config_type_elem_t * mpc_conf_root_elem(char *conf_name)
 	return conf_root_elem;
 }
 
-mpc_conf_config_type_t *mpc_conf_root_config(char *conf_name)
+mpc_conf_config_entry_t *mpc_conf_root_config(char *conf_name)
 {
-	mpc_conf_config_type_elem_t *conf_root_elem = mpc_conf_root_elem(conf_name);
+	mpc_conf_config_elem_t *conf_root_elem = mpc_conf_root_elem(conf_name);
 
 	if (!conf_root_elem)
 	{
 		return NULL;
 	}
 
-	return mpc_conf_config_type_elem_get_inner(conf_root_elem);
+	return mpc_conf_config_elem_get_inner(conf_root_elem);
 }
 
 int mpc_conf_root_config_count(void)
@@ -1436,7 +1436,7 @@ int mpc_conf_root_config_count(void)
 	return cnt;
 }
 
-mpc_conf_config_type_t *mpc_conf_root_config_nth(int id)
+mpc_conf_config_entry_t *mpc_conf_root_config_nth(int id)
 {
 	int cnt = 0;
 
@@ -1448,7 +1448,7 @@ mpc_conf_config_type_t *mpc_conf_root_config_nth(int id)
 		{
 			if (cnt == id)
 			{
-				return mpc_conf_config_type_elem_get_inner(__root_config.elems[i]);
+				return mpc_conf_config_elem_get_inner(__root_config.elems[i]);
 			}
 
 			cnt++;
@@ -1458,10 +1458,10 @@ mpc_conf_config_type_t *mpc_conf_root_config_nth(int id)
 	return NULL;
 }
 
-int mpc_conf_root_config_append(char *conf_name, mpc_conf_config_type_t *conf, char *doc)
+int mpc_conf_root_config_append(char *conf_name, mpc_conf_config_entry_t *conf, char *doc)
 {
 	_utils_verbose_output(1, "CONF: appending %s @ %p //%s\n", conf_name, conf, doc);
-	mpc_conf_config_type_t *root_node = mpc_conf_root_config(conf_name);
+	mpc_conf_config_entry_t *root_node = mpc_conf_root_config(conf_name);
 
 	if (!root_node)
 	{
@@ -1469,7 +1469,7 @@ int mpc_conf_root_config_append(char *conf_name, mpc_conf_config_type_t *conf, c
 		return 1;
 	}
 
-	mpc_conf_config_type_append(root_node, conf->name, conf, MPC_CONF_TYPE, doc, NULL, 0);
+	mpc_conf_config_entry_append(root_node, conf->name, conf, MPC_CONF_TYPE, doc, NULL, 0);
 
 	return 0;
 }
@@ -1500,13 +1500,13 @@ int __root_conf_alter_from_env(mpc_conf_env_manager_t *envm, mpc_conf_env_key_t 
 	}
 
 	/* Now push in the value from string */
-	mpc_conf_config_type_elem_t *elem = mpc_conf_root_config_get_sep(key->name, "_");
+	mpc_conf_config_elem_t *elem = mpc_conf_root_config_get_sep(key->name, "_");
 
 	if (elem)
 	{
 		_utils_verbose_output(1, "(env) set %s = %s\n", key->name, key->value);
 
-		if (mpc_conf_config_type_elem_set_from_string(elem, elem->type, key->value) != 0)
+		if (mpc_conf_config_elem_set_from_string(elem, elem->type, key->value) != 0)
 		{
 			_utils_verbose_output(0, "could not load configuration from env [%s = %s]\n", key->name, key->value);
 			return 1;
@@ -1570,7 +1570,7 @@ int mpc_conf_root_config_init(char *conf_name)
 	mpc_conf_self_config_check_init(&__root_config.config);
 
 	/* Ensure not present yet */
-	mpc_conf_config_type_elem_t *existing_elem = __get_global_config_by_name(conf_name);
+	mpc_conf_config_elem_t *existing_elem = __get_global_config_by_name(conf_name);
 
 	if (existing_elem)
 	{
@@ -1578,8 +1578,8 @@ int mpc_conf_root_config_init(char *conf_name)
 		return 1;
 	}
 
-	mpc_conf_config_type_t *     root_node   = mpc_conf_config_type_init(conf_name, NULL);
-	mpc_conf_config_type_elem_t *config_elem = mpc_conf_config_type_elem_init(conf_name,
+	mpc_conf_config_entry_t *root_node   = mpc_conf_config_entry_init(conf_name, NULL);
+	mpc_conf_config_elem_t * config_elem = mpc_conf_config_elem_init(conf_name,
 		root_node,
 		MPC_CONF_TYPE,
 		"Config ROOT Node",
@@ -1594,19 +1594,19 @@ int mpc_conf_root_config_init(char *conf_name)
 	return 0;
 }
 
-static inline void __mpc_conf_root_config_release_elem(mpc_conf_config_type_elem_t **elem)
+static inline void __mpc_conf_root_config_release_elem(mpc_conf_config_elem_t **elem)
 {
 	mpc_conf_env_manager_check_release(&__root_config.env);
 	mpc_conf_self_config_check_release(&__root_config.config);
 
 	assert(elem != NULL);
-	mpc_conf_config_type_release((mpc_conf_config_type_t **)&(*elem)->addr);
-	mpc_conf_config_type_elem_release(elem);
+	mpc_conf_config_entry_release((mpc_conf_config_entry_t **)&(*elem)->addr);
+	mpc_conf_config_elem_release(elem);
 }
 
 int mpc_conf_root_config_release(char *conf_name)
 {
-	mpc_conf_config_type_elem_t **existing_elem = __get_global_config_ref_by_name(conf_name);
+	mpc_conf_config_elem_t **existing_elem = __get_global_config_ref_by_name(conf_name);
 
 	if (!existing_elem)
 	{
@@ -1633,7 +1633,7 @@ int mpc_conf_root_config_release_all(void)
 	return 0;
 }
 
-mpc_conf_config_type_elem_t *mpc_conf_root_config_get_sep(char *name, char *separator)
+mpc_conf_config_elem_t *mpc_conf_root_config_get_sep(char *name, char *separator)
 {
 	_utils_verbose_output(3, "CONF: get '%s' (sep '%s')\n", name, separator);
 	char *to_search = strdup(name);
@@ -1643,7 +1643,7 @@ mpc_conf_config_type_elem_t *mpc_conf_root_config_get_sep(char *name, char *sepa
 	/* Get root node */
 	token = strtok_r(to_search, separator, &saveptr1);
 
-	mpc_conf_config_type_t *type = mpc_conf_root_config(token);
+	mpc_conf_config_entry_t *type = mpc_conf_root_config(token);
 
 	/* First ensure first token is main storage key */
 	if (!type)
@@ -1653,7 +1653,7 @@ mpc_conf_config_type_elem_t *mpc_conf_root_config_get_sep(char *name, char *sepa
 		return NULL;
 	}
 
-	mpc_conf_config_type_elem_t *elem = NULL;
+	mpc_conf_config_elem_t *elem = NULL;
 
 	/* Move to next token */
 	token = strtok_r(NULL, separator, &saveptr1);
@@ -1680,7 +1680,7 @@ mpc_conf_config_type_elem_t *mpc_conf_root_config_get_sep(char *name, char *sepa
 
 			if (elem->type == MPC_CONF_TYPE)
 			{
-				type = mpc_conf_config_type_elem_get_inner(elem);
+				type = mpc_conf_config_elem_get_inner(elem);
 			}
 			else
 			{
@@ -1694,7 +1694,7 @@ mpc_conf_config_type_elem_t *mpc_conf_root_config_get_sep(char *name, char *sepa
 		}
 
 
-		elem = mpc_conf_config_type_get(type, token);
+		elem = mpc_conf_config_entry_get(type, token);
 
 		if (!elem)
 		{
@@ -1715,12 +1715,12 @@ mpc_conf_config_type_elem_t *mpc_conf_root_config_get_sep(char *name, char *sepa
 	return elem;
 }
 
-mpc_conf_config_type_elem_t *mpc_conf_root_config_get(char *name)
+mpc_conf_config_elem_t *mpc_conf_root_config_get(char *name)
 {
 	return mpc_conf_root_config_get_sep(name, ".");
 }
 
-static inline mpc_conf_config_type_t *__create_container(char *name, char *separator)
+static inline mpc_conf_config_entry_t *__create_container(char *name, char *separator)
 {
 	char *to_search = strdup(name);
 	char *token     = NULL;
@@ -1729,7 +1729,7 @@ static inline mpc_conf_config_type_t *__create_container(char *name, char *separ
 	/* Get root node */
 	token = strtok_r(to_search, separator, &saveptr1);
 
-	mpc_conf_config_type_t *type = mpc_conf_root_config(token);
+	mpc_conf_config_entry_t *type = mpc_conf_root_config(token);
 
 	/* First ensure first token is main storage key */
 	if (!type)
@@ -1752,13 +1752,13 @@ static inline mpc_conf_config_type_t *__create_container(char *name, char *separ
 
 	while (token)
 	{
-		mpc_conf_config_type_elem_t *elem = mpc_conf_config_type_get(type, token);
+		mpc_conf_config_elem_t *elem = mpc_conf_config_entry_get(type, token);
 
 		if (!elem)
 		{
 			/* We need to create */
-			mpc_conf_config_type_t *new_type = mpc_conf_config_type_init(token, NULL);
-			mpc_conf_config_type_append(type, token, new_type, MPC_CONF_TYPE, "Dynamically inserted", NULL, 0);
+			mpc_conf_config_entry_t *new_type = mpc_conf_config_entry_init(token, NULL);
+			mpc_conf_config_entry_append(type, token, new_type, MPC_CONF_TYPE, "Dynamically inserted", NULL, 0);
 			type = new_type;
 		}
 		else
@@ -1770,7 +1770,7 @@ static inline mpc_conf_config_type_t *__create_container(char *name, char *separ
 					mpc_conf_type_name(elem->type));
 			}
 
-			type = mpc_conf_config_type_elem_get_inner(elem);
+			type = mpc_conf_config_elem_get_inner(elem);
 		}
 
 		token = strtok_r(NULL, separator, &saveptr1);
@@ -1811,11 +1811,11 @@ static inline int __get_prefix_and_suffix(char *name, char *separator, char **pr
 	return 0;
 }
 
-mpc_conf_config_type_elem_t *mpc_conf_root_config_set_sep(char *name,
-                                                          char *separator,
-                                                          mpc_conf_type_t etype,
-                                                          void *eptr,
-                                                          int allow_create)
+mpc_conf_config_elem_t *mpc_conf_root_config_set_sep(char *name,
+                                                     char *separator,
+                                                     mpc_conf_type_t etype,
+                                                     void *eptr,
+                                                     int allow_create)
 {
 	_utils_verbose_output(2,
 		"CONF: set %p to '%s' (sep '%s') type %s can create %d\n",
@@ -1837,8 +1837,8 @@ mpc_conf_config_type_elem_t *mpc_conf_root_config_set_sep(char *name,
 	}
 
 	/* First check if container exists */
-	mpc_conf_config_type_elem_t *pcontelem = mpc_conf_root_config_get_sep(container, separator);
-	mpc_conf_config_type_t *     pcont     = NULL;
+	mpc_conf_config_elem_t * pcontelem = mpc_conf_root_config_get_sep(container, separator);
+	mpc_conf_config_entry_t *pcont     = NULL;
 
 	if (!pcontelem)
 	{
@@ -1853,7 +1853,7 @@ mpc_conf_config_type_elem_t *mpc_conf_root_config_set_sep(char *name,
 	}
 	else
 	{
-		pcont = mpc_conf_config_type_elem_get_inner(pcontelem);
+		pcont = mpc_conf_config_elem_get_inner(pcontelem);
 	}
 
 	if (!pcont)
@@ -1865,12 +1865,12 @@ mpc_conf_config_type_elem_t *mpc_conf_root_config_set_sep(char *name,
 
 
 	/* At this point container exits and check if elem exits */
-	mpc_conf_config_type_elem_t *elem = mpc_conf_config_type_get(pcont, value_name);
+	mpc_conf_config_elem_t *elem = mpc_conf_config_entry_get(pcont, value_name);
 
 	if (elem)
 	{
 		/* Override the value */
-		mpc_conf_config_type_elem_set(elem, etype, eptr);
+		mpc_conf_config_elem_set(elem, etype, eptr);
 	}
 	else
 	{
@@ -1880,7 +1880,7 @@ mpc_conf_config_type_elem_t *mpc_conf_root_config_set_sep(char *name,
 			return NULL;
 		}
 
-		elem = mpc_conf_config_type_append(pcont, value_name, eptr, etype, "Dynamically inserted", NULL, 0);
+		elem = mpc_conf_config_entry_append(pcont, value_name, eptr, etype, "Dynamically inserted", NULL, 0);
 	}
 
 	free(where_to_set);
@@ -1891,7 +1891,7 @@ mpc_conf_config_type_elem_t *mpc_conf_root_config_set_sep(char *name,
 	return elem;
 }
 
-mpc_conf_config_type_elem_t *mpc_conf_root_config_set(char *name, mpc_conf_type_t etype, void *eptr, int allow_create)
+mpc_conf_config_elem_t *mpc_conf_root_config_set(char *name, mpc_conf_type_t etype, void *eptr, int allow_create)
 {
 	return mpc_conf_root_config_set_sep(name, ".", etype, eptr, allow_create);
 }
@@ -1912,7 +1912,7 @@ int mpc_conf_root_config_delete_sep(char *name, char *separator)
 	}
 
 	/* First check if container exists */
-	mpc_conf_config_type_elem_t *pcontelem = mpc_conf_root_config_get_sep(container, separator);
+	mpc_conf_config_elem_t *pcontelem = mpc_conf_root_config_get_sep(container, separator);
 
 	/* No such elem */
 	if (!pcontelem)
@@ -1928,9 +1928,9 @@ int mpc_conf_root_config_delete_sep(char *name, char *separator)
 		return -1;
 	}
 
-	mpc_conf_config_type_t *pcont = mpc_conf_config_type_elem_get_inner(pcontelem);
+	mpc_conf_config_entry_t *pcont = mpc_conf_config_elem_get_inner(pcontelem);
 
-	int ret = mpc_conf_config_type_delete(pcont, value_name);
+	int ret = mpc_conf_config_entry_delete(pcont, value_name);
 
 	free(where_to_set);
 
@@ -1964,8 +1964,8 @@ static int __mpc_conf_root_config_print_xml(FILE *fd)
 
 	for (i = 0; i < conf_count; i++)
 	{
-		mpc_conf_config_type_t *conf = mpc_conf_root_config_nth(i);
-		ret |= __mpc_conf_config_type_print_xml(conf, fd, indent);
+		mpc_conf_config_entry_t *conf = mpc_conf_root_config_nth(i);
+		ret |= __mpc_conf_config_entry_print_xml(conf, fd, indent);
 	}
 
 
@@ -1977,7 +1977,7 @@ static int __mpc_conf_root_config_print_xml(FILE *fd)
 	return ret;
 }
 
-static int __mpc_conf_root_config_print_gen(FILE *fd, mpc_conf_output_type_t output_type)
+static int __mpc_conf_root_config_print_gen(FILE *fd, mpc_conf_file_format_t output_type)
 {
 	int i;
 	int conf_count = mpc_conf_root_config_count();
@@ -1986,14 +1986,14 @@ static int __mpc_conf_root_config_print_gen(FILE *fd, mpc_conf_output_type_t out
 
 	for (i = 0; i < conf_count; i++)
 	{
-		mpc_conf_config_type_t *conf = mpc_conf_root_config_nth(i);
-		ret |= mpc_conf_config_type_print_fd(conf, fd, output_type);
+		mpc_conf_config_entry_t *conf = mpc_conf_root_config_nth(i);
+		ret |= mpc_conf_config_entry_print_fd(conf, fd, output_type);
 	}
 
 	return ret;
 }
 
-int mpc_conf_root_config_print_fd(FILE *fd, mpc_conf_output_type_t output_type)
+int mpc_conf_root_config_print_fd(FILE *fd, mpc_conf_file_format_t output_type)
 {
 	switch (output_type)
 	{
@@ -2013,14 +2013,14 @@ int mpc_conf_root_config_print_fd(FILE *fd, mpc_conf_output_type_t output_type)
 	}
 }
 
-static int ___mpc_conf_root_config_check_parenting(mpc_conf_config_type_elem_t *elem,
-                                                   mpc_conf_config_type_elem_t *parent)
+static int ___mpc_conf_root_config_check_parenting(mpc_conf_config_elem_t *elem,
+                                                   mpc_conf_config_elem_t *parent)
 {
 	int ret = 0;
 
 	if (elem->type == MPC_CONF_TYPE)
 	{
-		mpc_conf_config_type_t *type = mpc_conf_config_type_elem_get_inner(elem);
+		mpc_conf_config_entry_t *type = mpc_conf_config_elem_get_inner(elem);
 
 		unsigned int i;
 		for (i = 0; i < type->elem_count; i++)
@@ -2043,19 +2043,19 @@ static int __mpc_conf_root_config_check_parenting(void)
 
 	for (i = 0; i < conf_count; i++)
 	{
-		mpc_conf_config_type_elem_t *elem = __root_config.elems[i];
+		mpc_conf_config_elem_t *elem = __root_config.elems[i];
 		ret |= ___mpc_conf_root_config_check_parenting(elem, NULL);
 	}
 
 	return ret;
 }
 
-int mpc_conf_root_config_print(mpc_conf_output_type_t output_type)
+int mpc_conf_root_config_print(mpc_conf_file_format_t output_type)
 {
 	return mpc_conf_root_config_print_fd(stdout, output_type);
 }
 
-int mpc_conf_root_config_save(char *output_file, mpc_conf_output_type_t output_type)
+int mpc_conf_root_config_save(char *output_file, mpc_conf_file_format_t output_type)
 {
 	FILE *out = fopen(output_file, "w");
 
@@ -2074,21 +2074,21 @@ int mpc_conf_root_config_save(char *output_file, mpc_conf_output_type_t output_t
 
 int mpc_conf_root_config_set_lock(char *path, int is_locked)
 {
-	mpc_conf_config_type_elem_t *elem = mpc_conf_root_config_get(path);
+	mpc_conf_config_elem_t *elem = mpc_conf_root_config_get(path);
 
 	if (!elem)
 	{
 		return 1;
 	}
 
-	mpc_conf_config_type_elem_set_locked(elem, is_locked);
+	mpc_conf_config_elem_set_locked(elem, is_locked);
 
 	return 0;
 }
 
 int mpc_conf_root_config_search_path(char *conf_name, char *system, char *user, char *rights)
 {
-	mpc_conf_config_type_t *existing_conf = mpc_conf_config_loader_search_path(conf_name);
+	mpc_conf_config_entry_t *existing_conf = mpc_conf_config_loader_search_path(conf_name);
 
 	if (existing_conf)
 	{
@@ -2097,7 +2097,7 @@ int mpc_conf_root_config_search_path(char *conf_name, char *system, char *user, 
 	}
 
 
-	mpc_conf_config_type_elem_t *search_paths = mpc_conf_root_config_get("conf.paths");
+	mpc_conf_config_elem_t *search_paths = mpc_conf_root_config_get("conf.paths");
 
 	if (search_paths == NULL)
 	{
@@ -2105,7 +2105,7 @@ int mpc_conf_root_config_search_path(char *conf_name, char *system, char *user, 
 		return 1;
 	}
 
-	mpc_conf_config_type_t *search_paths_type = mpc_conf_config_type_elem_get_inner(search_paths);
+	mpc_conf_config_entry_t *search_paths_type = mpc_conf_config_elem_get_inner(search_paths);
 
 	if (!search_paths_type)
 	{
@@ -2113,7 +2113,7 @@ int mpc_conf_root_config_search_path(char *conf_name, char *system, char *user, 
 		return 1;
 	}
 
-	mpc_conf_config_type_t *new_conf = mpc_conf_config_loader_paths(conf_name,
+	mpc_conf_config_entry_t *new_conf = mpc_conf_config_loader_paths(conf_name,
 		system,
 		user,
 		rights);
@@ -2127,7 +2127,7 @@ int mpc_conf_root_config_search_path(char *conf_name, char *system, char *user, 
 	char doc[512];
 	snprintf(doc, 512, "Search paths for %s", conf_name);
 
-	mpc_conf_config_type_append(search_paths_type, conf_name, new_conf, MPC_CONF_TYPE, doc, NULL, 0);
+	mpc_conf_config_entry_append(search_paths_type, conf_name, new_conf, MPC_CONF_TYPE, doc, NULL, 0);
 
 
 

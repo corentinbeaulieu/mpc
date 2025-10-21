@@ -136,7 +136,7 @@ static inline void __init_thread_module_config(void)
 {
 	__thread_module_config_defaults();
 
-	mpc_conf_config_type_t *common = mpc_conf_config_type_init("common",
+	mpc_conf_config_entry_t *common = mpc_conf_config_entry_init("common",
 		PARAM("layout",       __thread_module_config.thread_layout,          MPC_CONF_STRING,
 			"Layout to be used (default, numa or numa_packed)"),
 		PARAM("timerenabled", &__thread_module_config.thread_timer_enabled,  MPC_CONF_BOOL,
@@ -145,12 +145,12 @@ static inline void __init_thread_module_config(void)
 			"Wakeup interval of the timer thread in milliseconds"),
 		NULL);
 
-	mpc_conf_config_type_t *kthread = mpc_conf_config_type_init("kthread",
+	mpc_conf_config_entry_t *kthread = mpc_conf_config_entry_init("kthread",
 		PARAM("stack", &__thread_module_config.kthread_stack_size, MPC_CONF_LONG_INT, "Stack size for kernel threads"),
 		NULL);
 
 
-	mpc_conf_config_type_t *ethread = mpc_conf_config_type_init("ethread",
+	mpc_conf_config_entry_t *ethread = mpc_conf_config_entry_init("ethread",
 		PARAM("spindelay", &__thread_module_config.ethread_spin_delay, MPC_CONF_LONG_INT,
 			"Number of direct attempts before locking"),
 		NULL);
@@ -158,7 +158,7 @@ static inline void __init_thread_module_config(void)
 
 	/* Aggegation for the thread config */
 
-	mpc_conf_config_type_t *thconf = mpc_conf_config_type_init("thread",
+	mpc_conf_config_entry_t *thconf = mpc_conf_config_entry_init("thread",
 		PARAM("common",  common,  MPC_CONF_TYPE, "Common knobs for thread module"),
 		PARAM("kthread", kthread, MPC_CONF_TYPE, "Parameters for regular 'kernel' threads"),
 		PARAM("ethread", ethread, MPC_CONF_TYPE, "Parameters for 'ethread' user level threads"),

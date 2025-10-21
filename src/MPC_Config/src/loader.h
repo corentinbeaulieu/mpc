@@ -15,12 +15,12 @@ typedef enum
 
 mpc_conf_config_loader_rights_t mpc_conf_config_loader_rights_parse(const char *str);
 
-mpc_conf_config_type_t * mpc_conf_config_loader_paths(char *conf_name,
-                                                      char *system_prefix,
-                                                      char *user_prefix,
-                                                      char *can_create);
+mpc_conf_config_entry_t * mpc_conf_config_loader_paths(char *conf_name,
+                                                       char *system_prefix,
+                                                       char *user_prefix,
+                                                       char *can_create);
 
-mpc_conf_config_type_t * mpc_conf_config_loader_search_path(char *conf_name);
+mpc_conf_config_entry_t * mpc_conf_config_loader_search_path(char *conf_name);
 
 int mpc_conf_config_load(char *conf_name);
 

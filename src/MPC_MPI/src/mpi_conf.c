@@ -49,11 +49,11 @@ static inline void __nbc_check(void)
 	}
 }
 
-mpc_conf_config_type_t *__init_nbc_config(void)
+mpc_conf_config_entry_t *__init_nbc_config(void)
 {
 	struct _mpc_mpi_config_nbc *nbc = &__mpc_mpi_config.nbc;
 
-	mpc_conf_config_type_t *egreq = mpc_conf_config_type_init("egreq",
+	mpc_conf_config_entry_t *egreq = mpc_conf_config_entry_init("egreq",
 		PARAM("barrier", &nbc->use_egreq_barrier, MPC_CONF_BOOL, "Enable EGREQ Barrier"),
 		PARAM("bcast",   &nbc->use_egreq_bcast,   MPC_CONF_BOOL, "Enable EGREQ Barrier"),
 		PARAM("scatter", &nbc->use_egreq_scatter, MPC_CONF_BOOL, "Enable EGREQ Barrier"),
@@ -61,7 +61,7 @@ mpc_conf_config_type_t *__init_nbc_config(void)
 		PARAM("reduce",  &nbc->use_egreq_reduce,  MPC_CONF_BOOL, "Enable EGREQ Barrier"),
 		NULL);
 
-	mpc_conf_config_type_t *progress = mpc_conf_config_type_init("progress",
+	mpc_conf_config_entry_t *progress = mpc_conf_config_entry_init("progress",
 		PARAM("progress", &nbc->progress_thread,          MPC_CONF_BOOL,
 			"Enable progress thread for NBC"),
 		PARAM("bindfunc", nbc->thread_bind_function_name, MPC_CONF_STRING,
@@ -70,7 +70,7 @@ mpc_conf_config_type_t *__init_nbc_config(void)
 			"Basic priority for progress threads"),
 		NULL);
 
-	mpc_conf_config_type_t *ret = mpc_conf_config_type_init("nbc",
+	mpc_conf_config_entry_t *ret = mpc_conf_config_entry_init("nbc",
 		PARAM("egreq",    egreq,    MPC_CONF_TYPE, "Extended Generic Request (EGREQ) based Collectives"),
 		PARAM("progress", progress, MPC_CONF_TYPE, "NBC Progress thread configuration"),
 		NULL);
@@ -137,9 +137,9 @@ static inline void __coll_param_defaults(void)
 
 /* Coll array */
 
-mpc_conf_config_type_t *_mpc_mpi_config_coll_array_conf(struct _mpc_mpi_config_coll_array *coll)
+mpc_conf_config_entry_t *_mpc_mpi_config_coll_array_conf(struct _mpc_mpi_config_coll_array *coll)
 {
-	mpc_conf_config_type_t *ret = mpc_conf_config_type_init("pointers",
+	mpc_conf_config_entry_t *ret = mpc_conf_config_entry_init("pointers",
 		PARAM("allgather",          coll->allgather_name,            MPC_CONF_STRING, "allgather function pointer"),
 		PARAM("allgatherv",         coll->allgatherv_name,           MPC_CONF_STRING, "allgatherv function pointer"),
 		PARAM("allreduce",          coll->allreduce_name,            MPC_CONF_STRING, "allreduce function pointer"),
@@ -166,9 +166,9 @@ mpc_conf_config_type_t *_mpc_mpi_config_coll_array_conf(struct _mpc_mpi_config_c
 
 /* Coll algorithm array */
 
-mpc_conf_config_type_t *_mpc_mpi_config_coll_algorithm_array_conf(struct _mpc_mpi_config_coll_algorithm_array *coll)
+mpc_conf_config_entry_t *_mpc_mpi_config_coll_algorithm_array_conf(struct _mpc_mpi_config_coll_algorithm_array *coll)
 {
-	mpc_conf_config_type_t *ret = mpc_conf_config_type_init("algorithmpointers",
+	mpc_conf_config_entry_t *ret = mpc_conf_config_entry_init("algorithmpointers",
 		PARAM("allgather",          coll->allgather_name,            MPC_CONF_STRING, "allgather function pointer"),
 		PARAM("allgatherv",         coll->allgatherv_name,           MPC_CONF_STRING, "allgatherv function pointer"),
 		PARAM("allreduce",          coll->allreduce_name,            MPC_CONF_STRING, "allreduce function pointer"),
@@ -195,9 +195,9 @@ mpc_conf_config_type_t *_mpc_mpi_config_coll_algorithm_array_conf(struct _mpc_mp
 
 /* Topological collective algorithms array */
 
-mpc_conf_config_type_t *_mpc_mpi_config_topo_array_conf(struct _mpc_mpi_config_topo_coll_opts *opts)
+mpc_conf_config_entry_t *_mpc_mpi_config_topo_array_conf(struct _mpc_mpi_config_topo_coll_opts *opts)
 {
-	mpc_conf_config_type_t *ret = mpc_conf_config_type_init("topo",
+	mpc_conf_config_entry_t *ret = mpc_conf_config_entry_init("topo",
 		PARAM("full",               &opts->full,                 MPC_CONF_STRING,
 			"Force enable/disable topological algorithms for all collective operations <on|off|true|false|auto>"),
 		PARAM("persistent",         &opts->persistent,           MPC_CONF_BOOL,
@@ -517,13 +517,13 @@ static inline void __coll_defaults(void)
 	__coll_compatibility_deepsea_defaults();
 }
 
-mpc_conf_config_type_t *__init_coll_config(void)
+mpc_conf_config_entry_t *__init_coll_config(void)
 {
 	/* Note the _mpc_mpi_config_coll_opts is split across
 	 * collective types for readability */
 	struct _mpc_mpi_config_coll_opts *opts = &__mpc_mpi_config.coll_opts;
 
-	mpc_conf_config_type_t *shm = mpc_conf_config_type_init(
+	mpc_conf_config_entry_t *shm = mpc_conf_config_entry_init(
 		"shm",
 		PARAM("reducepipelineblocks", &opts->reduce_pipelined_blocks, MPC_CONF_INT,
 			"Number of blocks for pipelined Reduce"),
@@ -537,17 +537,17 @@ mpc_conf_config_type_t *__init_coll_config(void)
 			MPC_CONF_TYPE, "Function pointers for shared memory collectives"),
 		NULL);
 
-	mpc_conf_config_type_t *shared_node = mpc_conf_config_type_init("sharednode",
+	mpc_conf_config_entry_t *shared_node = mpc_conf_config_entry_init("sharednode",
 		PARAM("pointers", _mpc_mpi_config_coll_array_conf(&__mpc_mpi_config.coll_intracomm_shared_node), MPC_CONF_TYPE,
 			"Function pointers for shared-node collectives"),
 		NULL);
 
-	mpc_conf_config_type_t *intercomm = mpc_conf_config_type_init("intercomm",
+	mpc_conf_config_entry_t *intercomm = mpc_conf_config_entry_init("intercomm",
 		PARAM("pointers", _mpc_mpi_config_coll_array_conf(&__mpc_mpi_config.coll_intercomm), MPC_CONF_TYPE,
 			"Function pointers for intercomm collectives"),
 		NULL);
 
-	mpc_conf_config_type_t *intracomm = mpc_conf_config_type_init("intracomm",
+	mpc_conf_config_entry_t *intracomm = mpc_conf_config_entry_init("intracomm",
 		PARAM("topo",             _mpc_mpi_config_topo_array_conf(&opts->topo), MPC_CONF_TYPE,
 			"Topological algorithm configuration"),
 		PARAM("nocommute",        &opts->force_nocommute,                       MPC_CONF_BOOL,
@@ -569,7 +569,7 @@ mpc_conf_config_type_t *__init_coll_config(void)
 			"Function pointers for intracomm collectives algorithms"),
 		NULL);
 
-	mpc_conf_config_type_t *ret = mpc_conf_config_type_init("coll",
+	mpc_conf_config_entry_t *ret = mpc_conf_config_entry_init("coll",
 		PARAM("shm",        shm,           MPC_CONF_TYPE,
 			"Shared-Memory (SHM) collectives configuration"),
 		PARAM("sharednode", shared_node,   MPC_CONF_TYPE,
@@ -585,18 +585,18 @@ mpc_conf_config_type_t *__init_coll_config(void)
 	return ret;
 }
 
-mpc_conf_config_type_t *__init_deepsea_coll_compatibility_config(void)
+mpc_conf_config_entry_t *__init_deepsea_coll_compatibility_config(void)
 {
 	struct _mpc_mpi_config_coll_opts *opts = &__mpc_mpi_config.coll_opts;
 
-	mpc_conf_config_type_t *hierarchical_coll = mpc_conf_config_type_init("hierarchy",
+	mpc_conf_config_entry_t *hierarchical_coll = mpc_conf_config_entry_init("hierarchy",
 		PARAM("full",
 			&opts->topo.full,
 			MPC_CONF_STRING,
 			"Use topological algorithms for all collective operations <on|off|auto> - Alias of mpcframework.mpi.coll.intracomm.topo.full"),
 		NULL);
 
-	mpc_conf_config_type_t *deepsea_coll_compat = mpc_conf_config_type_init("coll",
+	mpc_conf_config_entry_t *deepsea_coll_compat = mpc_conf_config_entry_init("coll",
 		PARAM("hierarchy",
 			hierarchical_coll,
 			MPC_CONF_TYPE,
@@ -627,7 +627,7 @@ void _mpc_mpi_config_init(void)
 {
 	__config_defaults();
 
-	mpc_conf_config_type_t *mpi = mpc_conf_config_type_init("mpi",
+	mpc_conf_config_entry_t *mpi = mpc_conf_config_entry_init("mpi",
 		PARAM("buffering", &__mpc_mpi_config.message_buffering, MPC_CONF_BOOL,
 			"Enable small messages buffering"),
 		PARAM("nbc",       __init_nbc_config(),                 MPC_CONF_TYPE,
@@ -639,7 +639,7 @@ void _mpc_mpi_config_init(void)
 	mpc_conf_root_config_append("mpcframework", mpi, "MPC MPI Configuration");
 
 	mpc_conf_root_config_init("deepsea");
-	mpc_conf_config_type_t *deepsea_coll_compat = __init_deepsea_coll_compatibility_config();
+	mpc_conf_config_entry_t *deepsea_coll_compat = __init_deepsea_coll_compatibility_config();
 	mpc_conf_root_config_append("deepsea",
 		deepsea_coll_compat,
 		"Cross-implementation collective-operation configuration");

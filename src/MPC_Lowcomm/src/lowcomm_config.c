@@ -20,12 +20,12 @@
  * HELPERS *
  ***********/
 
-mpc_conf_config_type_t *__get_type_by_name(char *prefix, char *name)
+mpc_conf_config_entry_t *__get_type_by_name(char *prefix, char *name)
 {
 	char path[512];
 
 	snprintf(path, 512, "%s.%s", prefix, name);
-	mpc_conf_config_type_elem_t *elem = mpc_conf_root_config_get(path);
+	mpc_conf_config_elem_t *elem = mpc_conf_root_config_get(path);
 
 	if (!elem)
 	{
@@ -33,7 +33,7 @@ mpc_conf_config_type_t *__get_type_by_name(char *prefix, char *name)
 		return NULL;
 	}
 
-	return mpc_conf_config_type_elem_get_inner(elem);
+	return mpc_conf_config_elem_get_inner(elem);
 }
 
 /*******************
@@ -76,11 +76,11 @@ static void __mpc_lowcomm_coll_conf_set_default(void)
 	__coll_conf.shm_reduce_pipelined_blocks = 16;
 }
 
-static mpc_conf_config_type_t *__mpc_lowcomm_coll_conf_init(void)
+static mpc_conf_config_entry_t *__mpc_lowcomm_coll_conf_init(void)
 {
 	__mpc_lowcomm_coll_conf_set_default();
 
-	mpc_conf_config_type_t *interleave = mpc_conf_config_type_init("interleave",
+	mpc_conf_config_entry_t *interleave = mpc_conf_config_entry_init("interleave",
 		PARAM(
 			"reduce",
 			&__coll_conf.shm_reduce_interleave,
@@ -91,7 +91,7 @@ static mpc_conf_config_type_t *__mpc_lowcomm_coll_conf_init(void)
 			MPC_CONF_INT,
 			"Number of overallping SHM bcast"), NULL);
 
-	mpc_conf_config_type_t *shm = mpc_conf_config_type_init("shm",
+	mpc_conf_config_entry_t *shm = mpc_conf_config_entry_init("shm",
 		PARAM("reducepipeline",
 			&__coll_conf.shm_reduce_pipelined_blocks,
 			MPC_CONF_INT,
@@ -99,10 +99,10 @@ static mpc_conf_config_type_t *__mpc_lowcomm_coll_conf_init(void)
 		PARAM("interleave", interleave, MPC_CONF_TYPE, "Interleave configuration"), NULL);
 
 
-	mpc_conf_config_type_t *barrier = mpc_conf_config_type_init("barrier",
+	mpc_conf_config_entry_t *barrier = mpc_conf_config_entry_init("barrier",
 		PARAM("arity", &__coll_conf.barrier_arity, MPC_CONF_INT, "Arity of the lowcomm barrier"), NULL);
 
-	mpc_conf_config_type_t *bcast = mpc_conf_config_type_init("bcast",
+	mpc_conf_config_entry_t *bcast = mpc_conf_config_entry_init("bcast",
 		PARAM("maxsize",
 			&__coll_conf.bcast_max_size,
 			MPC_CONF_LONG_INT,
@@ -114,7 +114,7 @@ static mpc_conf_config_type_t *__mpc_lowcomm_coll_conf_init(void)
 			"Maximum size for checking messages immediately for copy"),
 		NULL);
 
-	mpc_conf_config_type_t *allreduce = mpc_conf_config_type_init("allreduce",
+	mpc_conf_config_entry_t *allreduce = mpc_conf_config_entry_init("allreduce",
 		PARAM("maxsize",
 			&__coll_conf.allreduce_max_size,
 			MPC_CONF_LONG_INT,
@@ -130,7 +130,7 @@ static mpc_conf_config_type_t *__mpc_lowcomm_coll_conf_init(void)
 			"Maximum number of of slots for allreduce"),
 		NULL);
 
-	mpc_conf_config_type_t *coll = mpc_conf_config_type_init("coll",
+	mpc_conf_config_entry_t *coll = mpc_conf_config_entry_init("coll",
 		PARAM("algo",
 			__coll_conf.algorithm,
 			MPC_CONF_STRING,
@@ -230,8 +230,8 @@ static inline void __append_new_driver_to_unfolded(struct _mpc_lowcomm_config_st
 }
 
 #ifdef MPC_USE_OFI
-static inline mpc_conf_config_type_t *__init_driver_ofi(struct _mpc_lowcomm_config_struct_net_driver *driver,
-                                                        char *provider)
+static inline mpc_conf_config_entry_t *__init_driver_ofi(struct _mpc_lowcomm_config_struct_net_driver *driver,
+                                                         char *provider)
 {
 	driver->type = MPC_LOWCOMM_CONFIG_DRIVER_OFI;
 
@@ -251,7 +251,7 @@ static inline mpc_conf_config_type_t *__init_driver_ofi(struct _mpc_lowcomm_conf
 		driver->value.ofi.bcopy_size = 8192;
 	}
 
-	return mpc_conf_config_type_init("ofi",
+	return mpc_conf_config_entry_init("ofi",
 		PARAM("reqcachesize", &driver->value.ofi.request_cache_size,
 			MPC_CONF_INT, "Number of request to put in the OFI cache"),
 		PARAM("eagersize",    &driver->value.ofi.eager_size,
@@ -277,19 +277,19 @@ static inline mpc_conf_config_type_t *__init_driver_ofi(struct _mpc_lowcomm_conf
 
 #endif
 
-static inline mpc_conf_config_type_t *__init_driver_shm(struct _mpc_lowcomm_config_struct_net_driver *driver)
+static inline mpc_conf_config_entry_t *__init_driver_shm(struct _mpc_lowcomm_config_struct_net_driver *driver)
 {
 	driver->type = MPC_LOWCOMM_CONFIG_DRIVER_SHM;
 
 
-	mpc_conf_config_type_t *ret =
-		mpc_conf_config_type_init("shm",
+	mpc_conf_config_entry_t *ret =
+		mpc_conf_config_entry_init("shm",
 			NULL);
 
 	return ret;
 }
 
-static inline mpc_conf_config_type_t *__init_driver_tbsm(struct _mpc_lowcomm_config_struct_net_driver *driver)
+static inline mpc_conf_config_entry_t *__init_driver_tbsm(struct _mpc_lowcomm_config_struct_net_driver *driver)
 {
 	driver->type = MPC_LOWCOMM_CONFIG_DRIVER_TBSM;
 
@@ -308,8 +308,8 @@ static inline mpc_conf_config_type_t *__init_driver_tbsm(struct _mpc_lowcomm_con
 	 * Create the config object
 	 */
 
-	mpc_conf_config_type_t *ret =
-		mpc_conf_config_type_init("tbsm",
+	mpc_conf_config_entry_t *ret =
+		mpc_conf_config_entry_init("tbsm",
 			PARAM("maxiov",
 				&tbsm->max_iov,
 				MPC_CONF_LONG_INT,
@@ -331,7 +331,7 @@ static inline mpc_conf_config_type_t *__init_driver_tbsm(struct _mpc_lowcomm_con
 	return ret;
 }
 
-static inline mpc_conf_config_type_t *__init_driver_tcp(struct _mpc_lowcomm_config_struct_net_driver *driver)
+static inline mpc_conf_config_entry_t *__init_driver_tcp(struct _mpc_lowcomm_config_struct_net_driver *driver)
 {
 	driver->type = MPC_LOWCOMM_CONFIG_DRIVER_TCP;
 
@@ -347,7 +347,7 @@ static inline mpc_conf_config_type_t *__init_driver_tcp(struct _mpc_lowcomm_conf
 	 * Create the config object
 	 */
 
-	mpc_conf_config_type_t *ret = mpc_conf_config_type_init("tcp",
+	mpc_conf_config_entry_t *ret = mpc_conf_config_entry_init("tcp",
 		PARAM("maxmsgsize", &tcp->max_msg_size, MPC_CONF_INT, "Maximum message size (in B)"),
 		NULL);
 
@@ -357,7 +357,7 @@ static inline mpc_conf_config_type_t *__init_driver_tcp(struct _mpc_lowcomm_conf
 #ifdef MPC_USE_PORTALS
 
 
-static inline mpc_conf_config_type_t *__init_driver_portals(struct _mpc_lowcomm_config_struct_net_driver *driver)
+static inline mpc_conf_config_entry_t *__init_driver_portals(struct _mpc_lowcomm_config_struct_net_driver *driver)
 {
 	driver->type = MPC_LOWCOMM_CONFIG_DRIVER_PORTALS;
 
@@ -387,7 +387,7 @@ static inline mpc_conf_config_type_t *__init_driver_portals(struct _mpc_lowcomm_
 	 * Create the config object
 	 */
 
-	mpc_conf_config_type_t *offload = mpc_conf_config_type_init("offload",
+	mpc_conf_config_entry_t *offload = mpc_conf_config_entry_init("offload",
 		PARAM("collective",
 			&portals->offloading.collectives,
 			MPC_CONF_BOOL,
@@ -399,8 +399,8 @@ static inline mpc_conf_config_type_t *__init_driver_portals(struct _mpc_lowcomm_
 		NULL);
 
 
-	mpc_conf_config_type_t *ret =
-		mpc_conf_config_type_init("portals",
+	mpc_conf_config_entry_t *ret =
+		mpc_conf_config_entry_init("portals",
 			PARAM("eagerlimit",
 				&portals->eager_limit,
 				MPC_CONF_LONG_INT,
@@ -432,7 +432,7 @@ static inline mpc_conf_config_type_t *__init_driver_portals(struct _mpc_lowcomm_
 	return ret;
 }
 
-static inline mpc_conf_config_type_t *__init_driver_matching_portals(
+static inline mpc_conf_config_entry_t *__init_driver_matching_portals(
 	struct _mpc_lowcomm_config_struct_net_driver *driver)
 {
 	driver->type = MPC_LOWCOMM_CONFIG_DRIVER_PORTALS;
@@ -463,7 +463,7 @@ static inline mpc_conf_config_type_t *__init_driver_matching_portals(
 	 * Create the config object
 	 */
 
-	mpc_conf_config_type_t *offload = mpc_conf_config_type_init("offload",
+	mpc_conf_config_entry_t *offload = mpc_conf_config_entry_init("offload",
 		PARAM("collective",
 			&portals->offloading.collectives,
 			MPC_CONF_BOOL,
@@ -475,8 +475,8 @@ static inline mpc_conf_config_type_t *__init_driver_matching_portals(
 		NULL);
 
 
-	mpc_conf_config_type_t *ret =
-		mpc_conf_config_type_init("mportals",
+	mpc_conf_config_entry_t *ret =
+		mpc_conf_config_entry_init("mportals",
 			PARAM("eagerlimit",
 				&portals->eager_limit,
 				MPC_CONF_LONG_INT,
@@ -525,7 +525,7 @@ static inline void __mpc_lowcomm_driver_conf_unfold_values(struct _mpc_lowcomm_c
 	}
 }
 
-static inline mpc_conf_config_type_t *__mpc_lowcomm_driver_conf_default_driver(char *config_name, char *driver_type)
+static inline mpc_conf_config_entry_t *__mpc_lowcomm_driver_conf_default_driver(char *config_name, char *driver_type)
 {
 	struct _mpc_lowcomm_config_struct_net_driver_config *new_conf =
 		sctk_malloc(sizeof(struct _mpc_lowcomm_config_struct_net_driver_config));
@@ -536,7 +536,7 @@ static inline mpc_conf_config_type_t *__mpc_lowcomm_driver_conf_default_driver(c
 
 	snprintf(new_conf->name, MPC_CONF_STRING_SIZE, "%s", config_name);
 
-	mpc_conf_config_type_t *driver = NULL;
+	mpc_conf_config_entry_t *driver = NULL;
 
 	if (!strcmp(driver_type, "tbsm"))
 	{
@@ -586,7 +586,7 @@ static inline mpc_conf_config_type_t *__mpc_lowcomm_driver_conf_default_driver(c
 	}
 
 
-	mpc_conf_config_type_t *ret = mpc_conf_config_type_init(config_name,
+	mpc_conf_config_entry_t *ret = mpc_conf_config_entry_init(config_name,
 		PARAM(driver->name, driver, MPC_CONF_TYPE, "Driver configuration"),
 		NULL);
 
@@ -595,24 +595,24 @@ static inline mpc_conf_config_type_t *__mpc_lowcomm_driver_conf_default_driver(c
 	return ret;
 }
 
-static inline mpc_conf_config_type_t *___mpc_lowcomm_driver_all(void)
+static inline mpc_conf_config_entry_t *___mpc_lowcomm_driver_all(void)
 {
-	mpc_conf_config_type_elem_t *eall_configs = mpc_conf_root_config_get("mpcframework.lowcomm.networking.configs");
+	mpc_conf_config_elem_t *eall_configs = mpc_conf_root_config_get("mpcframework.lowcomm.networking.configs");
 
 	assume(eall_configs != NULL);
 	assume(eall_configs->type == MPC_CONF_TYPE);
 
-	return mpc_conf_config_type_elem_get_inner(eall_configs);
+	return mpc_conf_config_elem_get_inner(eall_configs);
 }
 
-static inline mpc_conf_config_type_t *___mpc_lowcomm_driver_instantiate_from_default(mpc_conf_config_type_t *config)
+static inline mpc_conf_config_entry_t *___mpc_lowcomm_driver_instantiate_from_default(mpc_conf_config_entry_t *config)
 {
-	if (mpc_conf_config_type_count(config) != 1)
+	if (mpc_conf_config_entry_count(config) != 1)
 	{
 		bad_parameter("Config %s should only contain a single driver configuration", config->name);
 	}
 
-	mpc_conf_config_type_elem_t *driver_dest = mpc_conf_config_type_nth(config, 0);
+	mpc_conf_config_elem_t *driver_dest = mpc_conf_config_entry_nth(config, 0);
 
 	/* Here we get the name of the inner driver */
 	if (driver_dest->type != MPC_CONF_TYPE)
@@ -623,30 +623,30 @@ static inline mpc_conf_config_type_t *___mpc_lowcomm_driver_instantiate_from_def
 			mpc_conf_type_name(driver_dest->type));
 	}
 
-	mpc_conf_config_type_t *default_config = __mpc_lowcomm_driver_conf_default_driver(config->name, driver_dest->name);
+	mpc_conf_config_entry_t *default_config = __mpc_lowcomm_driver_conf_default_driver(config->name, driver_dest->name);
 
-	return mpc_conf_config_type_elem_update(default_config, config, 16);
+	return mpc_conf_config_entry_update(default_config, config, 16);
 }
 
 void ___mpc_lowcomm_driver_conf_validate()
 {
 	unsigned int i;
 
-	mpc_conf_config_type_t *all_configs = ___mpc_lowcomm_driver_all();
+	mpc_conf_config_entry_t *all_configs = ___mpc_lowcomm_driver_all();
 
 	/* Here we merge new driver config with defaults from the driver */
-	for (i = 0; i < mpc_conf_config_type_count(all_configs); i++)
+	for (i = 0; i < mpc_conf_config_entry_count(all_configs); i++)
 	{
-		mpc_conf_config_type_elem_t *confige = mpc_conf_config_type_nth(all_configs, i);
-		mpc_conf_config_type_t *     config  = mpc_conf_config_type_elem_get_inner(confige);
+		mpc_conf_config_elem_t * confige = mpc_conf_config_entry_nth(all_configs, i);
+		mpc_conf_config_entry_t *config  = mpc_conf_config_elem_get_inner(confige);
 
 		struct _mpc_lowcomm_config_struct_net_driver_config *unfold =
 			_mpc_lowcomm_conf_driver_unfolded_get(config->name);
 
 		if (!unfold)
 		{
-			mpc_conf_config_type_t *new_config = ___mpc_lowcomm_driver_instantiate_from_default(config);
-			mpc_conf_config_type_release((mpc_conf_config_type_t **)&all_configs->elems[i]->addr);
+			mpc_conf_config_entry_t *new_config = ___mpc_lowcomm_driver_instantiate_from_default(config);
+			mpc_conf_config_entry_release((mpc_conf_config_entry_t **)&all_configs->elems[i]->addr);
 			all_configs->elems[i]->addr = new_config;
 			/* Reget new conf */
 			unfold = _mpc_lowcomm_conf_driver_unfolded_get(config->name);
@@ -662,27 +662,27 @@ void ___mpc_lowcomm_driver_conf_validate()
 	}
 }
 
-static inline mpc_conf_config_type_t *__mpc_lowcomm_driver_conf_init()
+static inline mpc_conf_config_entry_t *__mpc_lowcomm_driver_conf_init()
 {
 	__mpc_lowcomm_driver_conf_default();
 
-	mpc_conf_config_type_t *shm  = __mpc_lowcomm_driver_conf_default_driver("shmconfigmpi", "shm");
-	mpc_conf_config_type_t *tcp  = __mpc_lowcomm_driver_conf_default_driver("tcpconfigmpi", "tcp");
-	mpc_conf_config_type_t *tbsm = __mpc_lowcomm_driver_conf_default_driver("tbsmconfigmpi", "tbsm");
+	mpc_conf_config_entry_t *shm  = __mpc_lowcomm_driver_conf_default_driver("shmconfigmpi", "shm");
+	mpc_conf_config_entry_t *tcp  = __mpc_lowcomm_driver_conf_default_driver("tcpconfigmpi", "tcp");
+	mpc_conf_config_entry_t *tbsm = __mpc_lowcomm_driver_conf_default_driver("tbsmconfigmpi", "tbsm");
 
 #if defined (MPC_USE_OFI)
-		mpc_conf_config_type_t *tcp_ofi   = __mpc_lowcomm_driver_conf_default_driver("tcpofi", "tcpofi");
-		mpc_conf_config_type_t *verbs_ofi = __mpc_lowcomm_driver_conf_default_driver("verbsofi", "verbsofi");
-		mpc_conf_config_type_t *shm_ofi   = __mpc_lowcomm_driver_conf_default_driver("shmofi", "shmofi");
+		mpc_conf_config_entry_t *tcp_ofi   = __mpc_lowcomm_driver_conf_default_driver("tcpofi", "tcpofi");
+		mpc_conf_config_entry_t *verbs_ofi = __mpc_lowcomm_driver_conf_default_driver("verbsofi", "verbsofi");
+		mpc_conf_config_entry_t *shm_ofi   = __mpc_lowcomm_driver_conf_default_driver("shmofi", "shmofi");
 #endif
 
 #if defined(MPC_USE_PORTALS)
-		mpc_conf_config_type_t *portals  = __mpc_lowcomm_driver_conf_default_driver("portalsconfigmpi", "portals");
-		mpc_conf_config_type_t *mportals = __mpc_lowcomm_driver_conf_default_driver("mportalsconfigmpi", "mportals");
+		mpc_conf_config_entry_t *portals  = __mpc_lowcomm_driver_conf_default_driver("portalsconfigmpi", "portals");
+		mpc_conf_config_entry_t *mportals = __mpc_lowcomm_driver_conf_default_driver("mportalsconfigmpi", "mportals");
 #endif
 
 
-	mpc_conf_config_type_t *ret = mpc_conf_config_type_init("configs",
+	mpc_conf_config_entry_t *ret = mpc_conf_config_entry_init("configs",
 		    PARAM("shmconfigmpi",     shm,     MPC_CONF_TYPE, "Default configuration for the SHM driver"),
 
 		    PARAM("tcpconfigmpi",     tcp,     MPC_CONF_TYPE, "Default configuration for the TCP driver"),
@@ -734,7 +734,7 @@ struct _mpc_lowcomm_config_struct_net_rail *_mpc_lowcomm_conf_rail_unfolded_get(
 	return ret;
 }
 
-mpc_conf_config_type_t *_mpc_lowcomm_conf_conf_rail_get(char *name)
+mpc_conf_config_entry_t *_mpc_lowcomm_conf_conf_rail_get(char *name)
 {
 	return __get_type_by_name("mpcframework.lowcomm.networking.rails", name);
 }
@@ -765,7 +765,7 @@ static inline void __append_new_rail_to_unfolded(struct _mpc_lowcomm_config_stru
 	__net_config.rails_size++;
 }
 
-mpc_conf_config_type_t *__new_rail_conf_instance(
+mpc_conf_config_entry_t *__new_rail_conf_instance(
 	char *name,
 	int priority,
 	char *device,
@@ -801,7 +801,7 @@ mpc_conf_config_type_t *__new_rail_conf_instance(
 	snprintf(ret->config, MPC_CONF_STRING_SIZE, "%s", config);
 
 	/* This fills in a rail definition */
-	mpc_conf_config_type_t *rail = mpc_conf_config_type_init(name,
+	mpc_conf_config_entry_t *rail = mpc_conf_config_entry_init(name,
 		PARAM("priority", &ret->priority, MPC_CONF_INT, "How rails should be sorted (taken in decreasing order)"),
 		PARAM("device",
 			ret->device,
@@ -825,28 +825,28 @@ mpc_conf_config_type_t *__new_rail_conf_instance(
 	return rail;
 }
 
-static inline mpc_conf_config_type_t *__mpc_lowcomm_rail_conf_init()
+static inline mpc_conf_config_entry_t *__mpc_lowcomm_rail_conf_init()
 {
 	__mpc_lowcomm_rail_conf_default();
 
 	/* *INDENT-OFF* */
 	/* Here we instantiate default rails */
-	mpc_conf_config_type_t *shm_mpi  = __new_rail_conf_instance("shmmpi", 99, "any", 1, 0, 1, 1, 0, "shmconfigmpi");
-	mpc_conf_config_type_t *tcp_mpi  = __new_rail_conf_instance("tcpmpi", 1, "any", 1, 0, 1, 0, 0, "tcpconfigmpi");
-	mpc_conf_config_type_t *tbsm_mpi = __new_rail_conf_instance("tbsmmpi", 100, "any", 1, 1, 1, 1, 0, "tbsmconfigmpi");
+	mpc_conf_config_entry_t *shm_mpi  = __new_rail_conf_instance("shmmpi", 99, "any", 1, 0, 1, 1, 0, "shmconfigmpi");
+	mpc_conf_config_entry_t *tcp_mpi  = __new_rail_conf_instance("tcpmpi", 1, "any", 1, 0, 1, 0, 0, "tcpconfigmpi");
+	mpc_conf_config_entry_t *tbsm_mpi = __new_rail_conf_instance("tbsmmpi", 100, "any", 1, 1, 1, 1, 0, "tbsmconfigmpi");
 
 #ifdef MPC_USE_PORTALS
-		mpc_conf_config_type_t *portals_mpi = __new_rail_conf_instance("portalsmpi", 21, "any", 1, 0, 1, 0, 0, "portalsconfigmpi");
-		mpc_conf_config_type_t *mportals_mpi = __new_rail_conf_instance("mportalsmpi", 21, "any", 1, 0, 1, 0, 1, "mportalsconfigmpi");
+		mpc_conf_config_entry_t *portals_mpi = __new_rail_conf_instance("portalsmpi", 21, "any", 1, 0, 1, 0, 0, "portalsconfigmpi");
+		mpc_conf_config_entry_t *mportals_mpi = __new_rail_conf_instance("mportalsmpi", 21, "any", 1, 0, 1, 0, 1, "mportalsconfigmpi");
 #endif
 
 #ifdef MPC_USE_OFI
-		mpc_conf_config_type_t *shm_ofi   = __new_rail_conf_instance("shmofirail", 98, "any", 1, 0, 1, 1, 0, "shmofi");
-		mpc_conf_config_type_t *verbs_ofi = __new_rail_conf_instance("verbsofirail", 21, "any", 1, 0, 1, 0, 0, "verbsofi");
-		mpc_conf_config_type_t *tcp_ofi = __new_rail_conf_instance("tcpofirail", 20, "any", 1, 0, 1, 0, 0, "tcpofi");
+		mpc_conf_config_entry_t *shm_ofi   = __new_rail_conf_instance("shmofirail", 98, "any", 1, 0, 1, 1, 0, "shmofi");
+		mpc_conf_config_entry_t *verbs_ofi = __new_rail_conf_instance("verbsofirail", 21, "any", 1, 0, 1, 0, 0, "verbsofi");
+		mpc_conf_config_entry_t *tcp_ofi = __new_rail_conf_instance("tcpofirail", 20, "any", 1, 0, 1, 0, 0, "tcpofi");
 #endif
 
-	mpc_conf_config_type_t *rails = mpc_conf_config_type_init("rails",
+	mpc_conf_config_entry_t *rails = mpc_conf_config_entry_init("rails",
 		    PARAM("shmmpi",       shm_mpi,      MPC_CONF_TYPE, "A rail with SHM"),
 		    PARAM("tcpmpi",       tcp_mpi,      MPC_CONF_TYPE, "A rail with TCP"),
 		    PARAM("tbsmmpi",      tbsm_mpi,     MPC_CONF_TYPE, "A rail with Thread Based SHM"),
@@ -865,31 +865,31 @@ static inline mpc_conf_config_type_t *__mpc_lowcomm_rail_conf_init()
 	return rails;
 }
 
-mpc_conf_config_type_t *___new_default_rail(char *name)
+mpc_conf_config_entry_t *___new_default_rail(char *name)
 {
 	/* *INDENT-OFF* */
 	return __new_rail_conf_instance(name, 1,"any", 1, 0, 1, 0, 0, "tcpconfigmpi");
 	/* *INDENT-ON* */
 }
 
-static inline mpc_conf_config_type_t *___mpc_lowcomm_rail_all(void)
+static inline mpc_conf_config_entry_t *___mpc_lowcomm_rail_all(void)
 {
-	mpc_conf_config_type_elem_t *eall_rails = mpc_conf_root_config_get("mpcframework.lowcomm.networking.rails");
+	mpc_conf_config_elem_t *eall_rails = mpc_conf_root_config_get("mpcframework.lowcomm.networking.rails");
 
 	assume(eall_rails != NULL);
 	assume(eall_rails->type == MPC_CONF_TYPE);
 
-	return mpc_conf_config_type_elem_get_inner(eall_rails);
+	return mpc_conf_config_elem_get_inner(eall_rails);
 }
 
-static inline mpc_conf_config_type_t *___mpc_lowcomm_rail_instantiate_from_default(mpc_conf_config_type_elem_t *elem)
+static inline mpc_conf_config_entry_t *___mpc_lowcomm_rail_instantiate_from_default(mpc_conf_config_elem_t *elem)
 {
-	mpc_conf_config_type_t *default_rail = ___new_default_rail(elem->name);
+	mpc_conf_config_entry_t *default_rail = ___new_default_rail(elem->name);
 
 	/* Here we override with what was already present in the config */
-	mpc_conf_config_type_t *current_rail = mpc_conf_config_type_elem_get_inner(elem);
+	mpc_conf_config_entry_t *current_rail = mpc_conf_config_elem_get_inner(elem);
 
-	return mpc_conf_config_type_elem_update(default_rail, current_rail, 1);
+	return mpc_conf_config_entry_update(default_rail, current_rail, 1);
 }
 
 static inline void ___mpc_lowcomm_rail_conf_validate(void)
@@ -899,34 +899,34 @@ static inline void ___mpc_lowcomm_rail_conf_validate(void)
 	 * updating element by element if present in the configuration
 	 * this allows partial rail definition */
 
-	mpc_conf_config_type_t *all_rails = ___mpc_lowcomm_rail_all();
+	mpc_conf_config_entry_t *all_rails = ___mpc_lowcomm_rail_all();
 
 	unsigned int i;
 
-	for (i = 0; i < mpc_conf_config_type_count(all_rails); i++)
+	for (i = 0; i < mpc_conf_config_entry_count(all_rails); i++)
 	{
-		mpc_conf_config_type_elem_t *rail = mpc_conf_config_type_nth(all_rails, i);
+		mpc_conf_config_elem_t *rail = mpc_conf_config_entry_nth(all_rails, i);
 		if (!_mpc_lowcomm_conf_rail_unfolded_get(rail->name))
 		{
-			mpc_conf_config_type_t *new_rail = ___mpc_lowcomm_rail_instantiate_from_default(rail);
-			mpc_conf_config_type_release((mpc_conf_config_type_t **)&all_rails->elems[i]->addr);
+			mpc_conf_config_entry_t *new_rail = ___mpc_lowcomm_rail_instantiate_from_default(rail);
+			mpc_conf_config_entry_release((mpc_conf_config_entry_t **)&all_rails->elems[i]->addr);
 			all_rails->elems[i]->addr = new_rail;
 		}
 	}
 
 	/* Now check that rail configs are known */
-	for (i = 0; i < mpc_conf_config_type_count(all_rails); i++)
+	for (i = 0; i < mpc_conf_config_entry_count(all_rails); i++)
 	{
-		mpc_conf_config_type_elem_t *rail      = mpc_conf_config_type_nth(all_rails, i);
-		mpc_conf_config_type_t *     rail_type = mpc_conf_config_type_elem_get_inner(rail);
+		mpc_conf_config_elem_t * rail      = mpc_conf_config_entry_nth(all_rails, i);
+		mpc_conf_config_entry_t *rail_type = mpc_conf_config_elem_get_inner(rail);
 
-		mpc_conf_config_type_elem_t *config = mpc_conf_config_type_get(rail_type, "config");
+		mpc_conf_config_elem_t *config = mpc_conf_config_entry_get(rail_type, "config");
 		assume(config != NULL);
-		char *conf_val = mpc_conf_type_elem_get_as_string(config);
+		char *conf_val = mpc_conf_config_elem_get_as_string(config);
 
 		if (!_mpc_lowcomm_conf_driver_unfolded_get(conf_val))
 		{
-			mpc_conf_config_type_elem_print(rail, MPC_CONF_FORMAT_XML);
+			mpc_conf_config_elem_print(rail, MPC_CONF_FORMAT_XML);
 			bad_parameter("There is no driver configuration %s in mpcframework.lowcomm.networing.configs", conf_val);
 		}
 	}
@@ -950,7 +950,7 @@ int _mpc_lowcomm_conf_load_rail_from_cli(struct _mpc_lowcomm_config_struct_net_r
 	/* Here we retrieve the network configuration from the network list
 	 * according to its name */
 
-	mpc_conf_config_type_t *cli = _mpc_lowcomm_conf_cli_get(option_name);
+	mpc_conf_config_entry_t *cli = _mpc_lowcomm_conf_cli_get(option_name);
 	if (cli == NULL)
 	{
 		mpc_common_debug_error("CONF: CLI with name %s not found.",
@@ -958,7 +958,7 @@ int _mpc_lowcomm_conf_load_rail_from_cli(struct _mpc_lowcomm_config_struct_net_r
 		return MPC_LOWCOMM_ERROR;
 	}
 
-	num_configs      = mpc_conf_config_type_count(cli);
+	num_configs      = mpc_conf_config_entry_count(cli);
 	cli_rail_configs = sctk_malloc(num_configs * sizeof(struct _mpc_lowcomm_config_struct_net_rail));
 	if (cli_rail_configs == NULL)
 	{
@@ -969,14 +969,14 @@ int _mpc_lowcomm_conf_load_rail_from_cli(struct _mpc_lowcomm_config_struct_net_r
 	/* Check that all selected rails do exist */
 	for (k = 0; k < num_configs; ++k)
 	{
-		mpc_conf_config_type_elem_t *erail = mpc_conf_config_type_nth(cli, k);
+		mpc_conf_config_elem_t *erail = mpc_conf_config_entry_nth(cli, k);
 
 		/* Get the rail */
-		cli_rail_configs[k] = _mpc_lowcomm_conf_rail_unfolded_get(mpc_conf_type_elem_get_as_string(erail));
+		cli_rail_configs[k] = _mpc_lowcomm_conf_rail_unfolded_get(mpc_conf_config_elem_get_as_string(erail));
 		if (cli_rail_configs[k] == NULL)
 		{
 			mpc_common_debug_error("CONF: Could not find a rail "
-				                   "config named %s", mpc_conf_type_elem_get_as_string(erail));
+				                   "config named %s", mpc_conf_config_elem_get_as_string(erail));
 			return MPC_LOWCOMM_ERROR;
 		}
 	}
@@ -991,14 +991,14 @@ int _mpc_lowcomm_conf_load_rail_from_cli(struct _mpc_lowcomm_config_struct_net_r
  * CLI defines group of rails
  */
 
-mpc_conf_config_type_t *_mpc_lowcomm_conf_cli_get(char *name)
+mpc_conf_config_entry_t *_mpc_lowcomm_conf_cli_get(char *name)
 {
 	return __get_type_by_name("mpcframework.lowcomm.networking.cli.options", name);
 }
 
-static mpc_conf_config_type_t *___mpc_lowcomm_cli_conf_option_init(char *name, ...)
+static mpc_conf_config_entry_t *___mpc_lowcomm_cli_conf_option_init(char *name, ...)
 {
-	mpc_conf_config_type_t *rails = mpc_conf_config_type_init(name, NULL);
+	mpc_conf_config_entry_t *rails = mpc_conf_config_entry_init(name, NULL);
 	va_list ap;
 
 	va_start(ap, name);
@@ -1024,13 +1024,13 @@ static mpc_conf_config_type_t *___mpc_lowcomm_cli_conf_option_init(char *name, .
 		snprintf((char *)&param_config, MPC_CONF_STRING_SIZE, "%d rail to pick", rail_nb);
 
 		// create config element
-		mpc_conf_config_type_elem_t *elem =
-			mpc_conf_config_type_elem_init((char *)&param_name, rail_name_dup, MPC_CONF_STRING,
+		mpc_conf_config_elem_t *elem =
+			mpc_conf_config_elem_init((char *)&param_name, rail_name_dup, MPC_CONF_STRING,
 				(char *)&param_config, NULL, 0);
 		assert(elem != NULL);
 
 		// insert element
-		int ret = mpc_config_type_append_elem(rails, elem);
+		int ret = mpc_conf_config_entry_append_elem(rails, elem);
 		assert(ret == 0);
 
 		rail_nb++;
@@ -1038,19 +1038,19 @@ static mpc_conf_config_type_t *___mpc_lowcomm_cli_conf_option_init(char *name, .
 	va_end(ap);
 
 	/* All were allocated */
-	for (unsigned int i = 0; i < mpc_conf_config_type_count(rails); i++)
+	for (unsigned int i = 0; i < mpc_conf_config_entry_count(rails); i++)
 	{
-		mpc_conf_config_type_elem_set_to_free(mpc_conf_config_type_nth(rails, i), 1);
+		mpc_conf_config_elem_set_to_free(mpc_conf_config_entry_nth(rails, i), 1);
 	}
 
 
 	return rails;
 }
 
-static mpc_conf_config_type_t *__mpc_lowcomm_cli_conf_init(void)
+static mpc_conf_config_entry_t *__mpc_lowcomm_cli_conf_init(void)
 {
 	/* *INDENT-OFF* */
-	mpc_conf_config_type_t *cliopt = mpc_conf_config_type_init("options",
+	mpc_conf_config_entry_t *cliopt = mpc_conf_config_entry_init("options",
 		PARAM("shm",         ___mpc_lowcomm_cli_conf_option_init("shm",         "tbsmmpi",     "shmmpi",       NULL),                                 MPC_CONF_TYPE, "Combination of TBSM and SHM"),
 #if MPC_USE_OFI && MPC_USE_PORTALS
 		PARAM("ptlverbsshm", ___mpc_lowcomm_cli_conf_option_init("ptlverbsshm", "tbsmmpi",     "shmmpi",       "portalsmpi",   "verbsofirail", NULL), MPC_CONF_TYPE, "Default: Combination of Portals, Open Fabric Interface with Verbs and SHM"),
@@ -1071,7 +1071,7 @@ static mpc_conf_config_type_t *__mpc_lowcomm_cli_conf_init(void)
 #endif
 	NULL);
 
-	mpc_conf_config_type_t *cli = mpc_conf_config_type_init("cli",
+	mpc_conf_config_entry_t *cli = mpc_conf_config_entry_init("cli",
 		PARAM("default", __net_config.cli_default_network, MPC_CONF_STRING, "Default Network CLI option to choose"),
 		PARAM("options", cliopt,                           MPC_CONF_TYPE,   "CLI alternaltives for network configurations"),
 		NULL);
@@ -1093,17 +1093,17 @@ static inline void _mpc_lowcomm_net_config_default(void)
 #endif
 }
 
-static mpc_conf_config_type_t *__mpc_lowcomm_network_conf_init(void)
+static mpc_conf_config_entry_t *__mpc_lowcomm_network_conf_init(void)
 {
 	_mpc_lowcomm_net_config_default();
 
-	mpc_conf_config_type_t *cli = __mpc_lowcomm_cli_conf_init();
+	mpc_conf_config_entry_t *cli = __mpc_lowcomm_cli_conf_init();
 
-	mpc_conf_config_type_t *rails = __mpc_lowcomm_rail_conf_init();
+	mpc_conf_config_entry_t *rails = __mpc_lowcomm_rail_conf_init();
 
-	mpc_conf_config_type_t *configs = __mpc_lowcomm_driver_conf_init();
+	mpc_conf_config_entry_t *configs = __mpc_lowcomm_driver_conf_init();
 
-	mpc_conf_config_type_t *network = mpc_conf_config_type_init("networking",
+	mpc_conf_config_entry_t *network = mpc_conf_config_entry_init("networking",
 		PARAM("configs", configs, MPC_CONF_TYPE, "Driver configurations for Networks"),
 		PARAM("rails",   rails,   MPC_CONF_TYPE, "Rail definitions for Networks"),
 		PARAM("cli",     cli,     MPC_CONF_TYPE, "Name definitions for networks"),
@@ -1114,7 +1114,7 @@ static mpc_conf_config_type_t *__mpc_lowcomm_network_conf_init(void)
 
 /* This is the CLI unfolding and validation */
 
-static inline void ___mpc_lowcomm_cli_option_validate(mpc_conf_config_type_elem_t *opt)
+static inline void ___mpc_lowcomm_cli_option_validate(mpc_conf_config_elem_t *opt)
 {
 	if (opt->type != MPC_CONF_TYPE)
 	{
@@ -1124,17 +1124,17 @@ static inline void ___mpc_lowcomm_cli_option_validate(mpc_conf_config_type_elem_
 	}
 
 
-	mpc_conf_config_type_t *toptions = mpc_conf_config_type_elem_get_inner(opt);
+	mpc_conf_config_entry_t *toptions = mpc_conf_config_elem_get_inner(opt);
 
 	unsigned int i;
 
-	for (i = 0; i < mpc_conf_config_type_count(toptions); i++)
+	for (i = 0; i < mpc_conf_config_entry_count(toptions); i++)
 	{
-		mpc_conf_config_type_elem_t *elem = mpc_conf_config_type_nth(toptions, i);
+		mpc_conf_config_elem_t *elem = mpc_conf_config_entry_nth(toptions, i);
 
 		if (elem->type != MPC_CONF_STRING)
 		{
-			mpc_conf_config_type_elem_print(opt, MPC_CONF_FORMAT_XML);
+			mpc_conf_config_elem_print(opt, MPC_CONF_FORMAT_XML);
 			bad_parameter(
 				"mpcframework.lowcomm.networking.cli.options.%s.%s erroneous should be MPC_CONF_STRING not %s",
 				opt->name,
@@ -1142,12 +1142,12 @@ static inline void ___mpc_lowcomm_cli_option_validate(mpc_conf_config_type_elem_
 				mpc_conf_type_name(elem->type));
 		}
 
-		char *rail_name = mpc_conf_type_elem_get_as_string(elem);
+		char *rail_name = mpc_conf_config_elem_get_as_string(elem);
 
 		/* Now check that the rail does exist */
 		if (!_mpc_lowcomm_conf_conf_rail_get(rail_name))
 		{
-			mpc_conf_config_type_elem_print(opt, MPC_CONF_FORMAT_XML);
+			mpc_conf_config_elem_print(opt, MPC_CONF_FORMAT_XML);
 			bad_parameter("There is no such rail named '%s'", rail_name);
 		}
 	}
@@ -1156,39 +1156,39 @@ static inline void ___mpc_lowcomm_cli_option_validate(mpc_conf_config_type_elem_
 static inline void ___mpc_lowcomm_cli_conf_validate(void)
 {
 	/* Make sure that the default is actually a CLI option */
-	mpc_conf_config_type_elem_t *def = mpc_conf_root_config_get("mpcframework.lowcomm.networking.cli.default");
+	mpc_conf_config_elem_t *def = mpc_conf_root_config_get("mpcframework.lowcomm.networking.cli.default");
 
 	assume(def != NULL);
 
 	char path_to_default[128];
 
 	snprintf(path_to_default, 128, "mpcframework.lowcomm.networking.cli.options.%s",
-		mpc_conf_type_elem_get_as_string(def));
+		mpc_conf_config_elem_get_as_string(def));
 
-	mpc_conf_config_type_elem_t *default_cli = mpc_conf_root_config_get(path_to_default);
-	mpc_conf_config_type_elem_t *options     = mpc_conf_root_config_get("mpcframework.lowcomm.networking.cli.options");
+	mpc_conf_config_elem_t *default_cli = mpc_conf_root_config_get(path_to_default);
+	mpc_conf_config_elem_t *options     = mpc_conf_root_config_get("mpcframework.lowcomm.networking.cli.options");
 
 	if (!default_cli)
 	{
 		if (options)
 		{
-			mpc_conf_config_type_elem_print(options, MPC_CONF_FORMAT_XML);
+			mpc_conf_config_elem_print(options, MPC_CONF_FORMAT_XML);
 		}
 
 
 		bad_parameter(
 			"Could not locate mpcframework.lowcomm.networking.cli.default='%s' in mpcframework.lowcomm.networking.cli.options",
-			mpc_conf_type_elem_get_as_string(def));
+			mpc_conf_config_elem_get_as_string(def));
 	}
 
 
 	/* Now check all cli option for compliance */
-	mpc_conf_config_type_t *toptions = mpc_conf_config_type_elem_get_inner(options);
-	unsigned int            i;
+	mpc_conf_config_entry_t *toptions = mpc_conf_config_elem_get_inner(options);
+	unsigned int             i;
 
-	for (i = 0; i < mpc_conf_config_type_count(toptions); i++)
+	for (i = 0; i < mpc_conf_config_entry_count(toptions); i++)
 	{
-		___mpc_lowcomm_cli_option_validate(mpc_conf_config_type_nth(toptions, i));
+		___mpc_lowcomm_cli_option_validate(mpc_conf_config_entry_nth(toptions, i));
 	}
 }
 
@@ -1224,7 +1224,7 @@ struct _mpc_lowcomm_config_struct_protocol *_mpc_lowcomm_config_proto_get(void)
 	return &__protocol_conf;
 }
 
-static inline mpc_conf_config_type_t *__mpc_lowcomm_protocol_conf_init(void)
+static inline mpc_conf_config_entry_t *__mpc_lowcomm_protocol_conf_init(void)
 {
 	struct _mpc_lowcomm_config_struct_protocol *proto = __mpc_lowcomm_proto_conf_init();
 
@@ -1234,7 +1234,7 @@ static inline mpc_conf_config_type_t *__mpc_lowcomm_protocol_conf_init(void)
 	proto->max_mmu_entries   = 1024;
 	proto->mmu_max_size      = 4294967296ull;
 
-	mpc_conf_config_type_t *ret = mpc_conf_config_type_init("protocol",
+	mpc_conf_config_entry_t *ret = mpc_conf_config_entry_init("protocol",
 		PARAM("verbosity", &mpc_common_get_flags()->verbosity, MPC_CONF_INT, "Debug level message (1-3)"),
 		PARAM("rndvmode",
 			&proto->rndv_mode,
@@ -1258,7 +1258,7 @@ static inline mpc_conf_config_type_t *__mpc_lowcomm_protocol_conf_init(void)
 	return ret;
 }
 
-static inline mpc_conf_config_type_t *__init_workshare_conf(void)
+static inline mpc_conf_config_entry_t *__init_workshare_conf(void)
 {
 	struct _mpc_lowcomm_workshare_config *ws = &__lowcomm_conf.workshare;
 
@@ -1469,7 +1469,7 @@ static inline mpc_conf_config_type_t *__init_workshare_conf(void)
 		}
 	}
 
-	mpc_conf_config_type_t *ret = mpc_conf_config_type_init("workshare",
+	mpc_conf_config_entry_t *ret = mpc_conf_config_entry_init("workshare",
 		PARAM("enablestealing", &ws->enable_stealing,  MPC_CONF_INT, "Defines if workshare stealing is enabled."),
 		PARAM("stealmode",      &ws->steal_mode,       MPC_CONF_INT, "Workshare stealing mode"),
 		PARAM("stealfromend",   &ws->steal_from_end,   MPC_CONF_INT, "Stealing from end or not"),
@@ -1494,13 +1494,13 @@ void _mpc_lowcomm_config_register(void)
 {
 	__lowcomm_conf_default();
 
-	mpc_conf_config_type_t *coll      = __mpc_lowcomm_coll_conf_init();
-	mpc_conf_config_type_t *networks  = __mpc_lowcomm_network_conf_init();
-	mpc_conf_config_type_t *protocol  = __mpc_lowcomm_protocol_conf_init();
-	mpc_conf_config_type_t *workshare = __init_workshare_conf();
+	mpc_conf_config_entry_t *coll      = __mpc_lowcomm_coll_conf_init();
+	mpc_conf_config_entry_t *networks  = __mpc_lowcomm_network_conf_init();
+	mpc_conf_config_entry_t *protocol  = __mpc_lowcomm_protocol_conf_init();
+	mpc_conf_config_entry_t *workshare = __init_workshare_conf();
 
 
-	mpc_conf_config_type_t *lowcomm = mpc_conf_config_type_init("lowcomm",
+	mpc_conf_config_entry_t *lowcomm = mpc_conf_config_entry_init("lowcomm",
 #ifdef SCTK_USE_CHECKSUM
 			PARAM("checksum",   &__lowcomm_conf.checksum, MPC_CONF_BOOL, "Enable buffer checksum for P2P messages"),
 #endif

@@ -338,13 +338,13 @@ int _mpc_lowcomm_conf_load_rail_from_cli(struct _mpc_lowcomm_config_struct_net_r
  * @param  name Name of the requested configuration
  * @return      The configuration or NULL
  */
-mpc_conf_config_type_t *_mpc_lowcomm_conf_cli_get(char *name);
+mpc_conf_config_entry_t *_mpc_lowcomm_conf_cli_get(char *name);
 
 /** @brief Get a pointer to a given RAIL configuration
  * @param  name Name of the requested configuration
  * @return      The configuration or NULL
  */
-mpc_conf_config_type_t *_mpc_lowcomm_conf_conf_rail_get(char *name);
+mpc_conf_config_entry_t *_mpc_lowcomm_conf_conf_rail_get(char *name);
 
 /** @brief Get a pointer to a given rail
  * @param  name Name of the requested rail

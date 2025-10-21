@@ -70,9 +70,9 @@ typedef enum
 
 typedef struct _mpc_mpi_mpit_var_s
 {
-	int                          id;
-	_mpc_mpi_mpit_var_type_t     type;
-	mpc_conf_config_type_elem_t *elem_node;
+	int                      id;
+	_mpc_mpi_mpit_var_type_t type;
+	mpc_conf_config_elem_t * elem_node;
 }_mpc_mpi_mpit_var_t;
 
 typedef struct _mpc_mpi_mpit_event_source_s
@@ -138,8 +138,8 @@ typedef struct _mpc_mpi_mpit_category_s
 	char                              name[MPIT_CAT_NAME_LEN];
 
 	/* Note the elem and the conf type are bound */
-	mpc_conf_config_type_elem_t *     elem;
-	mpc_conf_config_type_t *          conf_node;
+	mpc_conf_config_elem_t *          elem;
+	mpc_conf_config_entry_t *         conf_node;
 
 	int                               children_count;
 	struct _mpc_mpi_mpit_category_s **children;
@@ -194,7 +194,7 @@ void _mpi_t_state_init(void);
 void _mpi_t_state_release(void);
 void _mpit_state_add_var(_mpc_mpi_mpit_var_t *var);
 void _mpit_state_add_cat(_mpc_mpi_mpit_cat_t *cat);
-_mpc_mpi_mpit_cat_t * _mpit_state_get_cat_by_conf_type(mpc_conf_config_type_t *conf_node);
+_mpc_mpi_mpit_cat_t * _mpit_state_get_cat_by_conf_type(mpc_conf_config_entry_t *conf_node);
 void mpc_mpi_mpit_alloc_data(void **data,
                              MPI_Datatype **array_of_datatypes,
                              MPI_Aint **array_of_displacements,

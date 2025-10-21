@@ -34,10 +34,10 @@ mpc_conf_config_loader_rights_t mpc_conf_config_loader_rights_parse(const char *
 	return MPC_CONF_MOD_ERROR;
 }
 
-mpc_conf_config_type_t *mpc_conf_config_loader_paths(char *conf_name,
-                                                     char *system_prefix,
-                                                     char *user_prefix,
-                                                     char *can_create)
+mpc_conf_config_entry_t *mpc_conf_config_loader_paths(char *conf_name,
+                                                      char *system_prefix,
+                                                      char *user_prefix,
+                                                      char *can_create)
 {
 	if (!_utils_is_file_or_dir(system_prefix))
 	{
@@ -81,7 +81,7 @@ mpc_conf_config_type_t *mpc_conf_config_loader_paths(char *conf_name,
 	amanual_prefix[0] = '\0';
 
 
-	mpc_conf_config_type_t *type = mpc_conf_config_type_init(conf_name, PARAM("cancreate",
+	mpc_conf_config_entry_t *type = mpc_conf_config_entry_init(conf_name, PARAM("cancreate",
 		acan_create,
 		MPC_CONF_STRING,
 		"Which config is allowed to create elements (between system and user/manual)"),
@@ -103,26 +103,26 @@ mpc_conf_config_type_t *mpc_conf_config_loader_paths(char *conf_name,
 
 	for (i = 0 ; i < type->elem_count; i++)
 	{
-		mpc_conf_config_type_elem_set_to_free(type->elems[i], 1);
+		mpc_conf_config_elem_set_to_free(type->elems[i], 1);
 	}
 
 
-	mpc_conf_config_type_elem_t *can_create_elem = mpc_conf_config_type_get(type, "cancreate");
-	mpc_conf_config_type_elem_set_locked(can_create_elem, 1);
+	mpc_conf_config_elem_t *can_create_elem = mpc_conf_config_entry_get(type, "cancreate");
+	mpc_conf_config_elem_set_locked(can_create_elem, 1);
 
-	mpc_conf_config_type_elem_t *system_elem = mpc_conf_config_type_get(type, "system");
-	mpc_conf_config_type_elem_set_locked(system_elem,     1);
+	mpc_conf_config_elem_t *system_elem = mpc_conf_config_entry_get(type, "system");
+	mpc_conf_config_elem_set_locked(system_elem,     1);
 
 	return type;
 }
 
-mpc_conf_config_type_t *mpc_conf_config_loader_search_path(char *conf_name)
+mpc_conf_config_entry_t *mpc_conf_config_loader_search_path(char *conf_name)
 {
 	char config_search_path[512];
 
 	snprintf(config_search_path, 512, "conf.paths.%s", conf_name);
 
-	mpc_conf_config_type_elem_t *conf = mpc_conf_root_config_get(config_search_path);
+	mpc_conf_config_elem_t *conf = mpc_conf_root_config_get(config_search_path);
 
 	if (!conf)
 	{
@@ -130,7 +130,7 @@ mpc_conf_config_type_t *mpc_conf_config_loader_search_path(char *conf_name)
 		return NULL;
 	}
 
-	return mpc_conf_config_type_elem_get_inner(conf);
+	return mpc_conf_config_elem_get_inner(conf);
 }
 
 #define MAX_KEY_LENGTH 512
@@ -154,7 +154,7 @@ int mpc_conf_config_loader_push(char *conf_name, char *key, char *value, char *s
 
 
 	/* Try to get the elem */
-	mpc_conf_config_type_elem_t *elem = mpc_conf_root_config_get_sep(expanded_key, sep);
+	mpc_conf_config_elem_t *elem = mpc_conf_root_config_get_sep(expanded_key, sep);
 
 	mpc_conf_type_t type_to_set = MPC_CONF_TYPE_NONE;
 
@@ -213,12 +213,12 @@ int mpc_conf_config_loader_push(char *conf_name, char *key, char *value, char *s
 			return 1;
 		}
 
-		mpc_conf_config_type_elem_set_to_free(elem, 1);
+		mpc_conf_config_elem_set_to_free(elem, 1);
 	}
 
 	_utils_verbose_output(1, "PARSING %s = %s as %s\n", expanded_key, value, mpc_conf_type_name(type_to_set));
 
-	return mpc_conf_config_type_elem_set_from_string(elem, type_to_set, value);
+	return mpc_conf_config_elem_set_from_string(elem, type_to_set, value);
 }
 
 static inline int ___mpc_conf_config_load_eq_list(char *conf_name,
@@ -492,7 +492,7 @@ static inline int ___mpc_conf_config_load_file_ini(char *conf_name, char *path, 
 
 static inline int __mpc_conf_config_load_file(char *conf_name, char *path, int can_create)
 {
-	mpc_conf_output_type_t type = mpc_conf_output_type_infer_from_file(path);
+	mpc_conf_file_format_t type = mpc_conf_file_format_infer(path);
 
 	_utils_verbose_output(1, "loading %s for %s\n", path, conf_name);
 
@@ -577,7 +577,7 @@ static inline int __mpc_conf_config_load_prefix(char *conf_name, char *path, int
 
 int mpc_conf_config_load(char *conf_name)
 {
-	mpc_conf_config_type_t *paths = mpc_conf_config_loader_search_path(conf_name);
+	mpc_conf_config_entry_t *paths = mpc_conf_config_loader_search_path(conf_name);
 
 	if (!paths)
 	{
@@ -585,10 +585,10 @@ int mpc_conf_config_load(char *conf_name)
 		return 1;
 	}
 
-	mpc_conf_config_type_elem_t *erights = mpc_conf_config_type_get(paths, "cancreate");
-	mpc_conf_config_type_elem_t *esystem = mpc_conf_config_type_get(paths, "system");
-	mpc_conf_config_type_elem_t *euser   = mpc_conf_config_type_get(paths, "user");
-	mpc_conf_config_type_elem_t *emanual = mpc_conf_config_type_get(paths, "manual");
+	mpc_conf_config_elem_t *erights = mpc_conf_config_entry_get(paths, "cancreate");
+	mpc_conf_config_elem_t *esystem = mpc_conf_config_entry_get(paths, "system");
+	mpc_conf_config_elem_t *euser   = mpc_conf_config_entry_get(paths, "user");
+	mpc_conf_config_elem_t *emanual = mpc_conf_config_entry_get(paths, "manual");
 
 
 	if (!erights || !esystem || !euser)
@@ -597,11 +597,11 @@ int mpc_conf_config_load(char *conf_name)
 		return 1;
 	}
 
-	const char *srights = mpc_conf_type_elem_get_as_string(erights);
+	const char *srights = mpc_conf_config_elem_get_as_string(erights);
 	mpc_conf_config_loader_rights_t rights = mpc_conf_config_loader_rights_parse(srights);
 
-	char *system = mpc_conf_type_elem_get_as_string(esystem);
-	char *user   = mpc_conf_type_elem_get_as_string(euser);
+	char *system = mpc_conf_config_elem_get_as_string(esystem);
+	char *user   = mpc_conf_config_elem_get_as_string(euser);
 
 	if (rights == MPC_CONF_MOD_ERROR)
 	{
@@ -650,7 +650,7 @@ int mpc_conf_config_load(char *conf_name)
 		/* We do a set as MPC_USER_CONFIG would not override automagically */
 		char mconf[MPC_CONF_STRING_SIZE];
 		snprintf(mconf, MPC_CONF_STRING_SIZE, "%s", manual_conf);
-		mpc_conf_config_type_elem_set(emanual, MPC_CONF_STRING, mconf);
+		mpc_conf_config_elem_set(emanual, MPC_CONF_STRING, mconf);
 
 		/* Now try to load the manual config / prefix */
 

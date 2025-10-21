@@ -152,8 +152,8 @@ int mpc_conf_type_print_value(mpc_conf_type_t type,
 
 	case MPC_CONF_TYPE:
 	{
-		/* This is a placeholder this should be walked with mpc_conf_config_type_elem_printXX */
-		mpc_conf_config_type_t *type = (mpc_conf_config_type_t *)ptr;
+		/* This is a placeholder this should be walked with mpc_conf_config_elem_printXX */
+		mpc_conf_config_entry_t *type = (mpc_conf_config_entry_t *)ptr;
 		if (add_color)
 		{
 			return snprintf(buf, len, BOLD(RED("<%s/>")), type->name);
@@ -213,7 +213,7 @@ int mpc_conf_type_set_value(mpc_conf_type_t type, void **dest, void *from)
 		break;
 
 	case MPC_CONF_TYPE:
-		mpc_conf_config_type_release((mpc_conf_config_type_t **)dest);
+		mpc_conf_config_entry_release((mpc_conf_config_entry_t **)dest);
 		*dest = from;
 		break;
 

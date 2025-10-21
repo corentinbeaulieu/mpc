@@ -143,11 +143,11 @@ static inline void __set_thread_engine(void)
 
 
 	/* Once the thread engine is set its config must be locked as it cannot change */
-	mpc_conf_config_type_elem_t *thconf = mpc_conf_root_config_get("mpcframework.launch.default.thread");
+	mpc_conf_config_elem_t *thconf = mpc_conf_root_config_get("mpcframework.launch.default.thread");
 
 	if (thconf)
 	{
-		mpc_conf_config_type_elem_set_locked(thconf, 1);
+		mpc_conf_config_elem_set_locked(thconf, 1);
 	}
 }
 
@@ -578,7 +578,7 @@ static inline void __register_config(void)
 #endif
 
 	/* Register debug config */
-	mpc_conf_config_type_t *debug = mpc_conf_config_type_init("debug",
+	mpc_conf_config_entry_t *debug = mpc_conf_config_entry_init("debug",
 		    PARAM("backtrace", &__launch_config.bt_sig_enabled, MPC_CONF_BOOL, "Produce backtraces on error"),
 		    PARAM("verbosity",
 			&mpc_common_get_flags()->verbosity,
@@ -592,7 +592,7 @@ static inline void __register_config(void)
 		NULL);
 
 	/* Register Launch Config */
-	mpc_conf_config_type_t *mpcrun = mpc_conf_config_type_init("mpcrun",
+	mpc_conf_config_entry_t *mpcrun = mpc_conf_config_entry_init("mpcrun",
 		    PARAM("plugin",
 			__launch_config.mpcrun_launcher,
 			MPC_CONF_STRING,
@@ -633,7 +633,7 @@ static inline void __register_config(void)
 #endif
 		NULL);
 
-	mpc_conf_config_type_t *mc = mpc_conf_config_type_init("launch",
+	mpc_conf_config_entry_t *mc = mpc_conf_config_entry_init("launch",
 		PARAM("banner", &__launch_config.banner_enabled, MPC_CONF_BOOL, "Should MPC's banner be displayed"),
 		PARAM("autokill",
 			&__launch_config.autokill_timer,

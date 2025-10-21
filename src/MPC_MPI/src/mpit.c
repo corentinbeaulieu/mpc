@@ -391,7 +391,7 @@ void mpc_mpi_mpit_trigger_event(int event_index)
  * VARIABLES STORAGE *
  *********************/
 
-_mpc_mpi_mpit_var_t * _mpc_mpi_mpit_var_init(_mpc_mpi_mpit_var_type_t type, mpc_conf_config_type_elem_t *node)
+_mpc_mpi_mpit_var_t * _mpc_mpi_mpit_var_init(_mpc_mpi_mpit_var_type_t type, mpc_conf_config_elem_t *node)
 {
 	_mpc_mpi_mpit_var_t *ret = sctk_malloc(sizeof(_mpc_mpi_mpit_var_t));
 
@@ -408,7 +408,7 @@ _mpc_mpi_mpit_var_t * _mpc_mpi_mpit_var_init(_mpc_mpi_mpit_var_type_t type, mpc_
  * CATEGORIES HANDLING *
  ***********************/
 
-static inline _mpc_mpi_mpit_cat_t * _mpc_mpi_mpit_cat_init(mpc_conf_config_type_elem_t *node,
+static inline _mpc_mpi_mpit_cat_t * _mpc_mpi_mpit_cat_init(mpc_conf_config_elem_t *node,
                                                            _mpc_mpi_mpit_var_type_t type)
 {
 	_mpc_mpi_mpit_cat_t *ret = sctk_malloc(sizeof(_mpc_mpi_mpit_cat_t));
@@ -419,7 +419,7 @@ static inline _mpc_mpi_mpit_cat_t * _mpc_mpi_mpit_cat_init(mpc_conf_config_type_
 
 
 	ret->elem = node;
-	mpc_conf_config_type_t *conf_type = mpc_conf_config_type_elem_get_inner(node);
+	mpc_conf_config_entry_t *conf_type = mpc_conf_config_elem_get_inner(node);
 	ret->conf_node = conf_type;
 
 	ret->children_count = 0;
@@ -429,12 +429,12 @@ static inline _mpc_mpi_mpit_cat_t * _mpc_mpi_mpit_cat_init(mpc_conf_config_type_
 	ret->var_count = 0;
 	ret->vars      = NULL;
 
-	mpc_conf_config_type_elem_get_path_to(node, ret->name, MPIT_CAT_NAME_LEN, ".");
+	mpc_conf_config_elem_get_path_to(node, ret->name, MPIT_CAT_NAME_LEN, ".");
 
 	return ret;
 }
 
-static inline _mpc_mpi_mpit_cat_t * __cat_recursive_scan_conf(mpc_conf_config_type_elem_t *elem,
+static inline _mpc_mpi_mpit_cat_t * __cat_recursive_scan_conf(mpc_conf_config_elem_t *elem,
                                                               _mpc_mpi_mpit_var_type_t type)
 {
 	if (!elem)
@@ -442,10 +442,10 @@ static inline _mpc_mpi_mpit_cat_t * __cat_recursive_scan_conf(mpc_conf_config_ty
 		return NULL;
 	}
 
-	mpc_conf_config_type_t *conf_type = mpc_conf_config_type_elem_get_inner(elem);
+	mpc_conf_config_entry_t *conf_type = mpc_conf_config_elem_get_inner(elem);
 
 	unsigned int i   = 0;
-	unsigned int len = mpc_conf_config_type_count(conf_type);
+	unsigned int len = mpc_conf_config_entry_count(conf_type);
 
 	/* Count each element */
 	int num_var = 0;
@@ -453,7 +453,7 @@ static inline _mpc_mpi_mpit_cat_t * __cat_recursive_scan_conf(mpc_conf_config_ty
 
 	for (i = 0 ; i < len; i++)
 	{
-		mpc_conf_config_type_elem_t *elem = mpc_conf_config_type_nth(conf_type, i);
+		mpc_conf_config_elem_t *elem = mpc_conf_config_entry_nth(conf_type, i);
 
 		if (elem->type == MPC_CONF_TYPE)
 		{
@@ -482,7 +482,7 @@ static inline _mpc_mpi_mpit_cat_t * __cat_recursive_scan_conf(mpc_conf_config_ty
 
 	for (i = 0 ; i < len; i++)
 	{
-		mpc_conf_config_type_elem_t *elem = mpc_conf_config_type_nth(conf_type, i);
+		mpc_conf_config_elem_t *elem = mpc_conf_config_entry_nth(conf_type, i);
 
 		if (elem->type == MPC_CONF_TYPE)
 		{
@@ -629,21 +629,21 @@ void _mpi_t_state_init(void)
 
 
 	/* Now register each main component of the config */
-	mpc_conf_config_type_elem_t *conf_conf = mpc_conf_root_elem("conf");
+	mpc_conf_config_elem_t *conf_conf = mpc_conf_root_elem("conf");
 
 	if (conf_conf)
 	{
 		__cat_recursive_scan_conf(conf_conf, MPC_MPI_T_CVAR);
 	}
 
-	mpc_conf_config_type_elem_t *mpc_conf = mpc_conf_root_elem("mpcframework");
+	mpc_conf_config_elem_t *mpc_conf = mpc_conf_root_elem("mpcframework");
 
 	if (mpc_conf)
 	{
 		__cat_recursive_scan_conf(mpc_conf, MPC_MPI_T_CVAR);
 	}
 
-	mpc_conf_config_type_elem_t *prof_conf = mpc_conf_root_elem("profiling");
+	mpc_conf_config_elem_t *prof_conf = mpc_conf_root_elem("profiling");
 
 	if (prof_conf)
 	{
@@ -715,14 +715,14 @@ int PMPI_T_finalize()
 
 int PMPI_T_enum_get_info(MPI_T_enum enumtype, int *num, char *name, int *name_len)
 {
-	mpc_conf_config_type_t *etype = (mpc_conf_config_type_t *)enumtype;
+	mpc_conf_config_entry_t *etype = (mpc_conf_config_entry_t *)enumtype;
 
 	if (!etype || !num || !name || !name_len)
 	{
 		MPI_ERROR_REPORT(MPI_COMM_SELF, MPI_T_ERR_INVALID, "One of the arguments was NULL");
 	}
 
-	*num = mpc_conf_config_type_count(etype);
+	*num = mpc_conf_config_entry_count(etype);
 	(void)snprintf(name, *name_len, "%s", etype->name);
 	*name_len = (int)strlen(name);
 
@@ -733,21 +733,21 @@ int PMPI_T_enum_get_info(MPI_T_enum enumtype, int *num, char *name, int *name_le
 
 int PMPI_T_enum_get_item(MPI_T_enum enumtype, int index, int *value, char *name, int *name_len)
 {
-	mpc_conf_config_type_t *etype = (mpc_conf_config_type_t *)enumtype;
+	mpc_conf_config_entry_t *etype = (mpc_conf_config_entry_t *)enumtype;
 
 	if (!etype || !name || !name_len)
 	{
 		MPI_ERROR_REPORT(MPI_COMM_SELF, MPI_T_ERR_INVALID, "One of the arguments was NULL");
 	}
 
-	int len = mpc_conf_config_type_count(etype);
+	int len = mpc_conf_config_entry_count(etype);
 
 	if (len <= index)
 	{
 		MPI_ERROR_REPORT(MPI_COMM_SELF, MPI_T_ERR_INVALID_ITEM, "MPI_T_Enum index out of range");
 	}
 
-	mpc_conf_config_type_elem_t *elem = mpc_conf_config_type_nth(etype, index);
+	mpc_conf_config_elem_t *elem = mpc_conf_config_entry_nth(etype, index);
 
 	if (elem)
 	{
@@ -759,7 +759,7 @@ int PMPI_T_enum_get_item(MPI_T_enum enumtype, int index, int *value, char *name,
 				"MPI_T_Enum failed to retrieve item (bad internal type)");
 		}
 
-		*value = mpc_conf_type_elem_get_as_int(elem);
+		*value = mpc_conf_config_elem_get_as_int(elem);
 		(void)snprintf(name, *name_len, "%s", elem->name);
 		*name_len = (int)strlen(name);
 	}
@@ -1141,7 +1141,7 @@ int PMPI_T_cvar_write(MPI_T_cvar_handle handle, const void *buf)
 
 	_mpc_mpi_mpit_var_t *var = __mpit.cvars[handle];
 
-	int rc = mpc_conf_config_type_elem_set(var->elem_node, var->elem_node->type, (void *)buf);
+	int rc = mpc_conf_config_elem_set(var->elem_node, var->elem_node->type, (void *)buf);
 
 	if (rc != 0)
 	{
@@ -1414,7 +1414,7 @@ int PMPI_T_pvar_write(MPI_T_pvar_session session, MPI_T_pvar_handle handle, cons
 
 	_mpc_mpi_mpit_var_t *var = __mpit.pvars[handle];
 
-	int rc = mpc_conf_config_type_elem_set(var->elem_node, var->elem_node->type, (void *)buf);
+	int rc = mpc_conf_config_elem_set(var->elem_node, var->elem_node->type, (void *)buf);
 
 	if (rc != 0)
 	{

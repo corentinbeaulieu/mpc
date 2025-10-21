@@ -866,10 +866,10 @@ void mpc_omp_slave_mvp_node(mpc_omp_mvp_t *mvp)
 		while (mvp->enable)
 		{
 #ifdef MPC_ENABLE_WORKSHARE
-				if (mpc_conf_type_elem_get_as_int(mpc_conf_root_config_get(
+				if (mpc_conf_config_elem_get_as_int(mpc_conf_root_config_get(
 				"mpcframework.lowcomm.workshare.enablestealing")))
 				{
-					if (mpc_conf_type_elem_get_as_int(mpc_conf_root_config_get(
+					if (mpc_conf_config_elem_get_as_int(mpc_conf_root_config_get(
 						"mpcframework.lowcomm.workshare.enablestealing")))
 					{
 						mpc_thread_wait_for_value_and_poll(spin_status,
@@ -908,7 +908,7 @@ void mpc_omp_slave_mvp_node(mpc_omp_mvp_t *mvp)
 		while (mvp->enable)
 		{
 #ifdef MPC_ENABLE_WORKSHARE
-				if (mpc_conf_type_elem_get_as_int(mpc_conf_root_config_get(
+				if (mpc_conf_config_elem_get_as_int(mpc_conf_root_config_get(
 				"mpcframework.lowcomm.workshare.enablestealing")))
 				{
 					mpc_thread_wait_for_value_and_poll(spin_status,
