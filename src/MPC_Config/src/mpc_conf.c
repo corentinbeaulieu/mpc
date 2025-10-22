@@ -1491,6 +1491,10 @@ int __root_conf_alter_from_env(mpc_conf_env_manager_t *envm, mpc_conf_env_key_t 
 			return 0;
 		}
 	}
+	if (conf_name[i + 1] != '_')
+	{
+		return 0;
+	}
 
 	/* Make sure the value was not already processed */
 	if (mpc_conf_env_key_get(envm->processed_keys, key->name))
