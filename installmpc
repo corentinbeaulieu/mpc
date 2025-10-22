@@ -1202,6 +1202,8 @@ You may track issued commands using the "-v" flag.
   --{enable,disable}-mpc-ft               : Activate/Deactivate checkpoint/restart support
   --{enable,disable}-color                : Disable colors in display
   --enable-debug                          : Enable maximum debug (symbols, messages)
+  --debug                                 : Same as above
+  --relwithdebinfo                        : Assert, debug message and symbols, but with optimisation, and no debug for subpackages (gcc, libfabric, ...).
   --enable-topology-simulation            : Enable fake network topology simulation
 
 # Disable sub packages
@@ -1300,19 +1302,27 @@ add_process_mode_flag_to_mpc()
 	MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --enable-process-mode"
 }
 
-enable_debug()
+enable_src_fixes()
 {
-	MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --enable-debug-messages --enable-debug"
-	MPC_COMP_ADD_BUILD_PARAMETERS="${MPC_COMP_ADD_BUILD_PARAMETERS} --opts=--enable-debug"
-	OFI_BUILD_PARAMETERS="${OFI_BUILD_PARAMETERS} --enable-debug"
-	#
-	# Setup a real debug mod
-	#
-	# tell the install script to remove always inline in sub projects
-	export DEBUG="yes"
 	# fix prefix map path that does not link to real sources
 	export CFLAGS="$CFALGS -ffile-prefix-map=${PROJECT_BUILD_DIR}=${SCRIPTPATH}"
 	export CXXFLAGS="$CXXFLAGS -ffile-prefix-map=${PROJECT_BUILD_DIR}=${SCRIPTPATH}"
+}
+
+enable_real_with_debug()
+{
+	MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --enable-debug-messages --enable-debug"
+	enable_src_fixes
+}
+
+enable_debug()
+{
+	MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --enable-debug-messages --enable-debug --enable-debug-optim"
+	MPC_COMP_ADD_BUILD_PARAMETERS="${MPC_COMP_ADD_BUILD_PARAMETERS} --opts=--enable-debug"
+	OFI_BUILD_PARAMETERS="${OFI_BUILD_PARAMETERS} --enable-debug"
+	# tell the install script to remove always inline in libfabric sub projects
+	export DEBUG="yes"
+	enable_src_fixes
 }
 
 #
@@ -1490,6 +1500,12 @@ do
 			;;
 		--enable-debug)
 			enable_debug
+			;;
+		--debug)
+			enable_debug
+			;;
+		--relwithdebinfo)
+			enable_real_with_debug
 			;;
 		--enable-topology-simulation)
 			MPCFRAMEWORK_BUILD_PARAMETERS="${MPCFRAMEWORK_BUILD_PARAMETERS} --enable-topology-simulation"

@@ -23,7 +23,7 @@ variables:
   GL_PIPELINE_PATH: $CI_BUILDS_DIR/GL_$CI_PIPELINE_ID
   GL_BUILD_DIR: $GL_PIPELINE_PATH/build
   GL_INSTALL_DIR: $GL_PIPELINE_PATH/install
-  GL_INSTALL_COMMON_OPTS: --enable-debug --with-pmix -j32
+  GL_INSTALL_COMMON_OPTS: --relwithdebinfo --with-pmix -j32
   GIT_DEPTH: 1 # No need to clone the whole history
   #GIT_CLONE_PATH: $GL_PIPELINE_PATH/$CI_RUNNER_ID/$CI_CONCURRENT_ID
   PCVS_RUN: pcvs -v run --override --profile-path ${GL_PIPELINE_PATH}/mpc_ci/utils/profile/mpc.yml
@@ -489,7 +489,7 @@ Configurations:
       - CONFIGURATION_NAME: DisableThreads
         GL_INSTALL_OPTS: ${GL_INSTALL_COMMON_OPTS} --disable-mpc-autopriv --mpc-option="--disable-threads"
       - CONFIGURATION_NAME: DisablePMIx
-        GL_INSTALL_OPTS: --disable-mpc-autopriv --enable-debug -j32
+        GL_INSTALL_OPTS: --disable-mpc-autopriv --relwithdebinfo -j32
       - CONFIGURATION_NAME: DisableMPCAlloc
         GL_INSTALL_OPTS: ${GL_INSTALL_COMMON_OPTS} --disable-mpcalloc
   variables:
