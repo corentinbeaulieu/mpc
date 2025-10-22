@@ -1188,9 +1188,7 @@ kmp_int32 __kmpc_reduce_nowait(__UNUSED__ ident_t *loc, kmp_int32 global_tid, km
 	}
 	else
 	{
-		mpc_common_debug_error("__kmpc_reduce_nowait: Unexpected reduction method %d",
-			packed_reduction_method);
-		mpc_common_debug_abort();
+		mpc_common_debug_fatal("__kmpc_reduce_nowait: Unexpected reduction method %d", packed_reduction_method);
 	}
 
 	return retval;
@@ -1227,9 +1225,7 @@ void __kmpc_end_reduce_nowait(__UNUSED__ ident_t *loc, __UNUSED__ kmp_int32 glob
 	}
 	else
 	{
-		mpc_common_debug_error("__kmpc_end_reduce_nowait: Unexpected reduction method %d",
-			packed_reduction_method);
-		mpc_common_debug_abort();
+		mpc_common_debug_fatal("__kmpc_end_reduce_nowait: Unexpected reduction method %d", packed_reduction_method);
 	}
 
 	t->reduction_method = reduction_method_not_defined;
@@ -1303,16 +1299,13 @@ kmp_int32 __kmpc_reduce(__UNUSED__ ident_t *loc, kmp_int32 global_tid, kmp_int32
 	}
 	else
 	{
-		mpc_common_debug_error("__kmpc_reduce_nowait: Unexpected reduction method %d",
-			packed_reduction_method);
-		mpc_common_debug_abort();
+		mpc_common_debug_fatal("__kmpc_reduce_nowait: Unexpected reduction method %d", packed_reduction_method);
 	}
 
 	return retval;
 }
 
-void __kmpc_end_reduce(__UNUSED__ ident_t *loc, __UNUSED__ kmp_int32 global_tid,
-                       __UNUSED__ kmp_critical_name *lck)
+void __kmpc_end_reduce(__UNUSED__ ident_t *loc, __UNUSED__ kmp_int32 global_tid, __UNUSED__ kmp_critical_name *lck)
 {
 #if OMPT_SUPPORT && MPCOMPT_HAS_FRAME_SUPPORT
 		_mpc_omp_ompt_frame_get_wrapper_infos(MPC_OMP_INTEL);
@@ -3568,9 +3561,7 @@ void *__kmpc_threadprivate(__UNUSED__ ident_t *loc, kmp_int32 global_tid, void *
 	{
 		if (( size_t )size > tn->cmn_size)
 		{
-			mpc_common_debug_error(
-				"TPCommonBlockInconsist: -> Wong size threadprivate variable found");
-			mpc_common_debug_abort();
+			mpc_common_debug_fatal("TPCommonBlockInconsist: -> Wong size threadprivate variable found");
 		}
 	}
 

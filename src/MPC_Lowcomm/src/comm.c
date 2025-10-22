@@ -3476,8 +3476,7 @@ void *mpc_lowcomm_request_alloc()
 	task = lcp_context_task_get(lcp_ctx_loc, tid);
 	if (task == NULL)
 	{
-		mpc_common_debug_fatal("COMM: Could not find task with tid %d.",
-			tid);
+		mpc_common_debug_fatal("COMM: Could not find task with tid %d.", tid);
 	}
 
 	request = (mpc_lowcomm_request_t *)lcp_request_alloc(task);
@@ -3667,8 +3666,7 @@ static int _mpc_lowcomm_request_send_complete(int status, void *request, size_t 
 	assert(req->completion_flag != MPC_LOWCOMM_MESSAGE_DONE);
 	if (status != MPC_LOWCOMM_SUCCESS)
 	{
-		mpc_common_debug_fatal("COMM: request failed with status=%d.",
-			status);
+		mpc_common_debug_fatal("COMM: request failed with status=%d.", status);
 	}
 
 	// FIXME: MPI standard does not require the size, tag and src fields to
@@ -3723,8 +3721,7 @@ int _mpc_lowcomm_isend(int dest, const void *data, size_t size, int tag,
 	task = lcp_context_task_get(lcp_ctx_loc, mpc_common_get_task_rank());
 	if (task == NULL)
 	{
-		mpc_common_debug_fatal("LCP: Could not find task with tid %d.",
-			tag_info.src);
+		mpc_common_debug_fatal("LCP: Could not find task with tid %d.", tag_info.src);
 	}
 
 	/* Fill up request parameters. */
@@ -3823,8 +3820,7 @@ int mpc_lowcomm_irecv(int src, void *data, size_t size, int tag,
 	task = lcp_context_task_get(lcp_ctx_loc, tag_info.dest);
 	if (task == NULL)
 	{
-		mpc_common_debug_fatal("LCP: Could not find task with tid %d.",
-			tag_info.src);
+		mpc_common_debug_fatal("LCP: Could not find task with tid %d.", tag_info.src);
 	}
 
 	/* Fill up request parameters. */
@@ -4016,8 +4012,7 @@ int mpc_lowcomm_iprobe_src_dest(const int world_source, const int world_destinat
 	task = lcp_context_task_get(lcp_ctx_loc, world_destination);
 	if (task == NULL)
 	{
-		mpc_common_debug_fatal("LCP: Could not find task with tid %d.",
-			world_destination);
+		mpc_common_debug_fatal("LCP: Could not find task with tid %d.", world_destination);
 	}
 
 	rc = lcp_tag_probe_nb(lcp_mngr_loc, task, world_source, tag,
@@ -4388,15 +4383,13 @@ static void __lowcomm_init_per_task()
 		int        rc = lcp_task_create(lcp_ctx_loc, task_rank, &task);
 		if (rc != MPC_LOWCOMM_SUCCESS)
 		{
-			mpc_common_debug_fatal("LCP: could not create task "
-				                   "tid=%d", task_rank);
+			mpc_common_debug_fatal("LCP: could not create task tid=%d", task_rank);
 		}
 
 		rc = lcp_task_associate(task, lcp_mngr_loc);
 		if (rc != MPC_LOWCOMM_SUCCESS)
 		{
-			mpc_common_debug_fatal("LCP: could not associate "
-				                   "task. tid=%d.", task_rank);
+			mpc_common_debug_fatal("LCP: could not associate task. tid=%d.", task_rank);
 		}
 
 		_mpc_lowcomm_communicator_init_task(task_rank);
@@ -4422,8 +4415,7 @@ static void __lowcomm_release_per_task()
 		lcp_task_h task = lcp_context_task_get(lcp_ctx_loc, task_rank);
 		if (task == NULL)
 		{
-			mpc_common_debug_fatal("LCP: Could not find task with tid %d.",
-				task_rank);
+			mpc_common_debug_fatal("LCP: Could not find task with tid %d.", task_rank);
 		}
 		lcp_task_dissociate(task, lcp_mngr_loc);
 

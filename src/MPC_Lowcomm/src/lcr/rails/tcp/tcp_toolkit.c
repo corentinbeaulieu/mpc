@@ -140,8 +140,7 @@ static int __connect_to(char *name_init)
 			}
 			else
 			{
-				perror("connect");
-				mpc_common_debug_abort();
+				mpc_common_debug_fatal("connect: %s", strerror(errno));
 			}
 
 			close(clientsock_fd);
@@ -156,8 +155,7 @@ static int __connect_to(char *name_init)
 	/* Did we fail ? */
 	if (connected == 0)
 	{
-		mpc_common_debug_error("Failed to connect to %s:%s\n", name, portno);
-		mpc_common_debug_abort();
+		mpc_common_debug_fatal("Failed to connect to %s:%s\n", name, portno);
 	}
 
 	/* First step is to write our UID */
@@ -194,8 +192,7 @@ static void __create_listening_socket(sctk_rail_info_t *rail)
 
 	if (ret != 0)
 	{
-		printf("Failed to create a bindable socket : %s\n", gai_strerror(ret));
-		mpc_common_debug_abort();
+		mpc_common_debug_fatal("Failed to create a bindable socket : %s\n", gai_strerror(ret));
 	}
 
 	struct addrinfo *current = results;
@@ -236,8 +233,7 @@ static void __create_listening_socket(sctk_rail_info_t *rail)
 
 					if (getsockname(rail->network.tcp.sockfd, ( struct sockaddr * )&socket_infos, &infolen) == -1)
 					{
-						perror("getsockname");
-						mpc_common_debug_abort();
+						mpc_common_debug_fatal("getsockname: %s", strerror(errno));
 					}
 					else
 					{
@@ -247,9 +243,8 @@ static void __create_listening_socket(sctk_rail_info_t *rail)
 						}
 						else
 						{
-							mpc_common_debug_error("Could not retrieve port number\n");
 							close(rail->network.tcp.sockfd);
-							mpc_common_debug_abort();
+							mpc_common_debug_fatal("Could not retrieve port number");
 						}
 					}
 
@@ -276,8 +271,7 @@ static void __create_listening_socket(sctk_rail_info_t *rail)
 	/* Did we fail ? */
 	if (rail->network.tcp.sockfd < 0)
 	{
-		mpc_common_debug_error("Failed to set a listening socket\n");
-		mpc_common_debug_abort();
+		mpc_common_debug_fatal("Failed to set a listening socket");
 	}
 }
 

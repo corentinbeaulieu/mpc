@@ -2113,10 +2113,10 @@ int _mpc_cl_type_get_primitive_type_info(mpc_lowcomm_datatype_t dt,
 
 int _mpc_cl_abort(__UNUSED__ mpc_lowcomm_communicator_t comm, int errorcode)
 {
-	mpc_common_debug_error("MPC_Abort with error %d", errorcode);
+	mpc_common_debug_error("MPI_Abort with error %d", errorcode);
 	(void)fflush(stderr);
 	(void)fflush(stdout);
-	mpc_common_debug_abort();
+	mpc_common_debug_abort(errorcode);
 	MPC_ERROR_SUCCESS();
 }
 
@@ -3278,7 +3278,7 @@ void _mpc_cl_abort_error(mpc_lowcomm_communicator_t *comm, const int *error, cha
 	mpc_common_debug_error("This occurred in %s at %s:%d", function, file, line);
 	mpc_common_debug_error("MPC Encountered an Error will now abort");
 	mpc_common_debug_error("===================================================");
-	mpc_common_debug_abort();
+	mpc_common_debug_abort(*error);
 }
 
 int _mpc_cl_error_init()

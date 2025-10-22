@@ -1095,7 +1095,7 @@ static inline int __tree_node_init(mpc_omp_meta_tree_node_t *root,
 		break;
 
 	default:
-		mpc_common_debug_abort();
+		mpc_common_debug_fatal("Unknown child type");
 	}
 
 	if (!(me->fathers_array))

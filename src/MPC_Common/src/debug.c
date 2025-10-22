@@ -177,10 +177,10 @@ static inline char *__debug_print_info(char *buffer)
 /**********************************************************************/
 void mpc_launch_pmi_abort(const int);
 
-__attribute__((__noreturn__)) void mpc_common_debug_abort(void)
+__attribute__((__noreturn__)) void mpc_common_debug_abort(const int errorcode)
 {
 	mpc_common_debug_error("######## Program will now abort ########");
-	mpc_launch_pmi_abort(6);
+	mpc_launch_pmi_abort(errorcode);
 	// We shouldn't arrive here but if it the case, PMI(x) resssources should be
 	// released
 	abort();
@@ -260,7 +260,7 @@ void mpc_common_debug_assert_print(FILE *stream, int line, const char *file,
 	va_start(ap, fmt);
 	mpc_common_io_noalloc_vfprintf(stream, buff, ap);
 	va_end(ap);
-	mpc_common_debug_abort();
+	mpc_common_debug_abort(MPC_COMMON_ABORT_ERROR_CODE);
 }
 
 void mpc_common_debug_file(FILE *file, const char *fmt, ...)
@@ -311,33 +311,27 @@ void mpc_common_debug_abort_log(FILE *stream, int line,
 	mpc_common_io_noalloc_vfprintf(stream, buff, ap);
 	va_end(ap);
 
-	mpc_common_debug_abort();
+	mpc_common_debug_abort(MPC_COMMON_ABORT_ERROR_CODE);
 }
 
 /**********************************************************************/
 /*Sizes                                                               */
 /**********************************************************************/
-void mpc_common_debug_check_large_enough(size_t a, size_t b, char *ca, char *cb, char *file,
-                                         int line)
+void mpc_common_debug_check_large_enough(size_t a, size_t b, char *ca, char *cb, char *file, int line)
 {
 	if (!(a <= b))
 	{
-		mpc_common_io_noalloc_fprintf(stderr,
-			"Internal error !(%s <= %s) at line %d in %s\n",
-			ca, cb, line, file);
-		mpc_common_debug_abort();
+		mpc_common_io_noalloc_fprintf(stderr, "Internal error !(%s <= %s) at line %d in %s\n", ca, cb, line, file);
+		mpc_common_debug_abort(MPC_COMMON_ABORT_ERROR_CODE);
 	}
 }
 
-void mpc_common_debug_check_size_equal(size_t a, size_t b, char *ca, char *cb, char *file,
-                                       int line)
+void mpc_common_debug_check_size_equal(size_t a, size_t b, char *ca, char *cb, char *file, int line)
 {
 	if (a != b)
 	{
-		mpc_common_io_noalloc_fprintf(stderr,
-			"Internal error %s != %s at line %d in %s\n",
-			ca, cb, line, file);
-		mpc_common_debug_abort();
+		mpc_common_io_noalloc_fprintf(stderr, "Internal error %s != %s at line %d in %s\n", ca, cb, line, file);
+		mpc_common_debug_abort(MPC_COMMON_ABORT_ERROR_CODE);
 	}
 }
 

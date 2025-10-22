@@ -611,8 +611,7 @@ _mpc_lowcomm_endpoint_t *sctk_rail_get_any_route_to_process_or_on_demand(sctk_ra
 			return sctk_rail_get_any_route_to_process(rail, dest);
 		}
 
-		mpc_common_debug_error("No route to %ld", dest);
-		mpc_common_debug_abort();
+		mpc_common_debug_fatal("No route to %ld", dest);
 	}
 
 	return tmp;

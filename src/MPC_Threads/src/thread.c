@@ -288,7 +288,7 @@ int mpc_thread_get_task_placement_and_count_default(int i, int *nbVp)
 
 	mpc_common_nodebug("mpc_thread_get_task_placement: (After loop) Put task %d on VP %d", i, proc);
 	fflush(stdout);
-	mpc_common_debug_abort();
+	mpc_common_debug_abort(MPC_COMMON_ABORT_ERROR_CODE);
 	return proc;
 }
 
@@ -357,7 +357,7 @@ int mpc_thread_get_task_placement_and_count_numa_packed(int i, int *nbVp)
 	}
 
 	// mpc_common_debug("mpc_thread_get_task_placement: (After loop) Put task %d on VP %d", i, proc);
-	mpc_common_debug_abort();
+	mpc_common_debug_abort(MPC_COMMON_ABORT_ERROR_CODE);
 	return proc;
 }
 

@@ -5741,8 +5741,7 @@ sctk_op_t *sctk_convert_to_mpc_op(MPI_Op op)
 #define COMPAT_DATA_TYPE_END                             \
 		else                                             \
 		{                                                \
-			mpc_common_debug_error("No such operation"); \
-			mpc_common_debug_abort();                    \
+			mpc_common_debug_fatal("No such operation"); \
 		}
 
 static inline void type_unsupported()
