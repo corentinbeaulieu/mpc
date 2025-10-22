@@ -134,9 +134,9 @@ err:
 
 	static void _lcr_ptl_tk_update_rx_chunk(lcr_ptl_tk_module_t *tk,
 	                                        lcr_ptl_tk_rsc_t *rsc,
-	                                        uint32_t num_pendings)
+	                                        uint32_t num_pending)
 	{
-		if (num_pendings > 0 && rsc->tk_chunk < tk->config.max_chunk)
+		if (num_pending > 0 && rsc->tk_chunk < tk->config.max_chunk)
 		{
 			rsc->tk_chunk++;
 		}
@@ -148,7 +148,7 @@ err:
 
 	int lcr_ptl_tk_release_rsc_token(lcr_ptl_tk_module_t *tk,
 	                                 ptl_process_t remote,
-	                                 int32_t num_pendings)
+	                                 int32_t num_pending)
 	{
 		int               rc   = MPC_LOWCOMM_SUCCESS;
 		uint64_t          uuid = 0;
@@ -168,7 +168,7 @@ err:
 
 		/* Recompute RX chunk of tokens to be granted based on the remote TX
 		 * queue contention. */
-		_lcr_ptl_tk_update_rx_chunk(tk, rsc, num_pendings);
+		_lcr_ptl_tk_update_rx_chunk(tk, rsc, num_pending);
 
 
 		/* Put the token back to the pool. */

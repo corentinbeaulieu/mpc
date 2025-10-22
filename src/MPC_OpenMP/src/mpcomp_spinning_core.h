@@ -125,7 +125,7 @@ static inline mpc_omp_node_t * _mpc_omp_spinning_get_thread_root_node(mpc_omp_th
 	return thread->root;
 }
 
-static inline int _mpc_omp_spining_get_instance_top_level(mpc_omp_instance_t *instance)
+static inline int _mpc_omp_spinning_get_instance_top_level(mpc_omp_instance_t *instance)
 {
 	mpc_omp_node_t *root = instance->root;
 
