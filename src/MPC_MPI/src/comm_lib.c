@@ -1611,28 +1611,30 @@ int _mpc_cl_type_debug(mpc_lowcomm_datatype_t datatype)
 
 int _mpc_cl_type_commit(mpc_lowcomm_datatype_t *datatype_p)
 {
+	if (datatype_p == NULL)
+	{
+		MPC_ERROR_REPORT(MPC_COMM_WORLD, MPC_ERR_ARG, "NULL pointer to datatype passed");
+	}
 	/* Dereference for convenience */
 	mpc_lowcomm_datatype_t datatype = *datatype_p;
 
 	int ierr = MPC_LOWCOMM_SUCCESS;
 
 	/* Error cases */
-	if (datatype == MPC_DATATYPE_NULL || datatype == MPC_LB || datatype == MPC_UB)
+	if (datatype == NULL || datatype == MPC_DATATYPE_NULL || datatype == MPC_LB || datatype == MPC_UB)
 	{
-		MPC_ERROR_REPORT(MPC_COMM_WORLD, MPC_ERR_TYPE,
-			"You are trying to commit a NULL data-type");
+		MPC_ERROR_REPORT(MPC_COMM_WORLD, MPC_ERR_TYPE, "You are trying to commit a NULL data-type");
 	}
 	if (!mpc_dt_is_valid(datatype))
 	{
-		MPC_ERROR_REPORT(MPC_COMM_WORLD, MPC_ERR_TYPE,
-			"You are trying to commit a non created datatype");
+		MPC_ERROR_REPORT(MPC_COMM_WORLD, MPC_ERR_TYPE, "You are trying to commit a non created datatype");
 	}
 
 	/* OPTIMIZE */
 	ierr = _mpc_dt_general_optimize(*datatype_p);
 
 	/* Commit the datatype */
-	(*datatype_p)->is_committed = true;
+	datatype->is_committed = true;
 
 	return ierr;
 }
