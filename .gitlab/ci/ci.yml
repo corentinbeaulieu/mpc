@@ -1,0 +1,274 @@
+# This file is the entry point of the testing pipeline
+# It prepares the environment then launch the build and run child pipelines
+# It also handles side tasks such as linting and doc compilation
+---
+############################################
+############ Pipeline defaults #############
+############################################
+
+# Common variables and scripts
+include:
+  local: '/.gitlab/ci/global.yml'
+
+# Explicit stage definition
+stages:
+ - Build & Run
+ - Extra Steps
+
+# Default variables. Those with description are intended to be modified manually
+variables:
+  # No need to clone the whole history
+  GIT_DEPTH: 1
+  # Root path
+  GL_PIPELINE_PATH: '$CI_BUILDS_DIR/GL_$CI_PIPELINE_ID'
+  # mpc-ci path
+  GL_MPC_CI_PATH: '$GL_PIPELINE_PATH/mpc-ci'
+  # pcvs-benchmarks path
+  GL_PCVS_BENCHMARKS_PATH: '$GL_PIPELINE_PATH/pcvs-benchmarks'
+  # Build directory path
+  GL_BUILD_DIR: '$GL_PIPELINE_PATH/build'
+  # Install directory path
+  GL_INSTALL_DIR: '$GL_PIPELINE_PATH/install'
+  # Installation option used by all configuration
+  GL_INSTALL_COMMON_OPTS: --relwithdebinfo --with-pmix -j32
+  # Default pipeline name for the workflow
+  GL_PIPELINE_NAME: 'Regular pipeline'
+  # Enable the extended CI testings
+  EXTENDED:
+    value: 'false'
+    description: 'Activate the extended tests using PCVS-Benchmarks'
+    options: ['true', 'false']
+  # Enable testing of the --disable-mpcalloc configuration
+  EXTRA_CONFIGURATION_TEST_DISABLE_MPCALLOC:
+    value: 'false'
+    description: 'Activate the tests of the configuration without MPCAlloc'
+    options: ['true', 'false']
+  # mpc-ci branch
+  CI_BRANCH:
+    value: 'devel'
+    description: 'Branch of mpc_ci to use for testing'
+  # PCVS-Benchmarks branch
+  BENCHMARKS_BRANCH:
+    value: 'devel'
+    description: 'Branch of pcvs-benchmarks to use for testing in extended mode'
+
+
+# Pipeline launching rules
+workflow:
+  name: '$GL_PIPELINE_NAME'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      variables:
+        EXTENDED: 'true'
+        GL_PIPELINE_NAME: 'Scheduled pipeline'
+    - if: '$CI_MERGE_REQUEST_LABELS =~ "/CI::Extended"'
+      variables:
+        EXTENDED: 'true'
+        GL_PIPELINE_NAME: 'Extended pipeline'
+
+
+############################################
+################## Setup ###################
+############################################
+
+Env Sanitize:
+  stage: '.pre'
+  needs: []
+  script:
+    - test -d $GL_PIPELINE_PATH && rm -rf $GL_PIPELINE_PATH
+    - mkdir -p $GL_PIPELINE_PATH
+    - ln -snf "$(ccc_home -u mpc)"/mpc_deps "${HOME}"/.mpcdep
+
+Retrieve Tests:
+  stage: '.pre'
+  needs: ['Env Sanitize']
+  script:
+    - echo "Using CI branch ${CI_BRANCH}"
+    - |
+      if [ ! -d ${GL_MPC_CI_PATH} ]; then
+        git clone  --depth 1 -b "${CI_BRANCH}" "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.ccc.ocre.cea.fr/cea-mpc-team/mpc-ci.git" ${GL_MPC_CI_PATH}
+      fi
+
+Retrieve Benchmarks:
+  stage: '.pre'
+  needs: ['Env Sanitize']
+  script:
+    - echo "${BENCHMARKS_BRANCH}"
+    - |
+      if [ ! -d ${GL_PCVS_BENCHMARKS_PATH} ]; then
+        git clone --branch "${BENCHMARKS_BRANCH}" --depth 1 "https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.ccc.ocre.cea.fr/cea-mpc-team/pcvs-benchmarks.git" "${GL_PCVS_BENCHMARKS_PATH}"
+      fi
+  rules:
+    - if: '$EXTENDED == "true"'
+
+
+
+############################################
+####### Build & Test configurations ########
+############################################
+
+Process Mode:
+  stage: 'Build & Run'
+  needs: ['Retrieve Tests', 'Retrieve Benchmarks']
+  variables:
+    GL_LOCAL_BUILD_DIR: '${GL_BUILD_DIR}_process_mode'
+    GL_LOCAL_INSTALL_DIR: '${GL_INSTALL_DIR}_process_mode'
+    GL_INSTALL_OPTS: '${GL_INSTALL_COMMON_OPTS} --process-mode --disable-spack'
+    DO_REGULAR_TESTING: true
+    HAS_PRIVATIZATION: false
+    HAS_MPI: true
+  trigger:
+    strategy: 'depend'
+    include: '/.gitlab/ci/build_and_run'
+    forward:
+      pipeline_variables: true
+
+Privatization:
+  stage: 'Build & Run'
+  needs: ['Retrieve Tests', 'Retrieve Benchmarks']
+  variables:
+    GL_LOCAL_BUILD_DIR: '${GL_BUILD_DIR}_privatization'
+    GL_LOCAL_INSTALL_DIR: '${GL_INSTALL_DIR}_privatization'
+    GL_INSTALL_OPTS: '${GL_INSTALL_COMMON_OPTS} --disable-spack'
+    DO_REGULAR_TESTING: true
+    HAS_PRIVATIZATION: true
+    HAS_MPI: true
+  trigger:
+    strategy: 'depend'
+    include: '/.gitlab/ci/build_and_run'
+    forward:
+      pipeline_variables: true
+
+No Lowcomm:
+  stage: 'Build & Run'
+  needs: ['Retrieve Tests', 'Retrieve Benchmarks']
+  variables:
+    GL_LOCAL_BUILD_DIR: '${GL_BUILD_DIR}_no_Lowcomm'
+    GL_LOCAL_INSTALL_DIR: '${GL_INSTALL_DIR}_no_Lowcomm'
+    GL_INSTALL_OPTS: '${GL_INSTALL_COMMON_OPTS} --process-mode --mpc-option="--disable-lowcomm"'
+    DO_REGULAR_TESTING: false
+    HAS_PRIVATIZATION: false
+    HAS_MPI: false
+  trigger:
+    strategy: 'depend'
+    include: '/.gitlab/ci/build_and_run'
+    forward:
+      pipeline_variables: true
+
+No MPI:
+  stage: 'Build & Run'
+  needs: ['Retrieve Tests', 'Retrieve Benchmarks']
+  variables:
+    GL_LOCAL_BUILD_DIR: '${GL_BUILD_DIR}_no_MPI'
+    GL_LOCAL_INSTALL_DIR: '${GL_INSTALL_DIR}_no_MPI'
+    GL_INSTALL_OPTS: '${GL_INSTALL_COMMON_OPTS} --process-mode --mpc-option="--disable-mpi"'
+    DO_REGULAR_TESTING: false
+    HAS_PRIVATIZATION: false
+    HAS_MPI: false
+  trigger:
+    strategy: 'depend'
+    include: '/.gitlab/ci/build_and_run'
+    forward:
+      pipeline_variables: true
+
+No Threads:
+  stage: 'Build & Run'
+  needs: ['Retrieve Tests', 'Retrieve Benchmarks']
+  variables:
+    GL_LOCAL_BUILD_DIR: '${GL_BUILD_DIR}_no_threads'
+    GL_LOCAL_INSTALL_DIR: '${GL_INSTALL_DIR}_no_threads'
+    GL_INSTALL_OPTS: '${GL_INSTALL_COMMON_OPTS} --process-mode --mpc-option="--disable-threads"'
+    DO_REGULAR_TESTING: false
+    HAS_PRIVATIZATION: false
+    HAS_MPI: true
+  trigger:
+    strategy: 'depend'
+    include: '/.gitlab/ci/build_and_run'
+    forward:
+      pipeline_variables: true
+
+No PMIx:
+  stage: 'Build & Run'
+  needs: ['Retrieve Tests', 'Retrieve Benchmarks']
+  variables:
+    GL_LOCAL_BUILD_DIR: '${GL_BUILD_DIR}_no_PMIx'
+    GL_LOCAL_INSTALL_DIR: '${GL_INSTALL_DIR}_no_PMIx'
+    GL_INSTALL_OPTS: '--process-mode --relwithdebinfo -j32'
+    DO_REGULAR_TESTING: false
+    HAS_PRIVATIZATION: false
+    HAS_MPI: true
+  trigger:
+    strategy: 'depend'
+    include: '/.gitlab/ci/build_and_run'
+    forward:
+      pipeline_variables: true
+
+No MPCAlloc:
+  stage: 'Build & Run'
+  needs: ['Retrieve Tests', 'Retrieve Benchmarks']
+  variables:
+    GL_LOCAL_BUILD_DIR: '${GL_BUILD_DIR}_no_mpcalloc'
+    GL_LOCAL_INSTALL_DIR: '${GL_INSTALL_DIR}_no_mpcalloc'
+    GL_INSTALL_OPTS: '${GL_INSTALL_COMMON_OPTS} --disable-mpcalloc'
+    DO_REGULAR_TESTING: ${EXTRA_CONFIGURATION_TEST_DISABLE_MPCALLOC}
+    HAS_PRIVATIZATION: true
+    HAS_MPI: true
+  trigger:
+    strategy: 'depend'
+    include: '/.gitlab/ci/build_and_run'
+    forward:
+      pipeline_variables: true
+
+# FIXME: We have to update Workshare for this test to pass
+# Workshare:
+#   stage: 'Build & Run'
+#   needs: ['Retrieve Tests', 'Retrieve Benchmarks']
+#   variables:
+#     GL_LOCAL_BUILD_DIR: ${GL_BUILD_DIR}_workshare
+#     GL_LOCAL_INSTALL_DIR: ${GL_INSTALL_DIR}_workshare
+#     GL_INSTALL_OPTS: --enable-workshare --relwithdebinfo -j32
+#   DO_REGULAR_TESTING: false
+#   HAS_PRIVATIZATION: true
+#   trigger:
+#     strategy: depend
+#     include: '/.gitlab/ci/build_and_run'
+#     forward:
+#       pipeline_variables: true
+#   allow_failure: true
+
+
+############################################
+####### Pre-commit and documentation #######
+############################################
+
+Check Precommit Rules:
+  stage: 'Extra Steps'
+  needs: ['Env Sanitize']
+  before_script:
+    - !reference [.load_pcvs, before_script]
+    - export PATH=$PATH:"$(ccc_home -u mpc)/mpc_pre_commit/bin"
+  script:
+    - cd ${CI_PROJECT_DIR}
+    - intify_pre_commit.sh .pre-commit-config.yaml
+    - git add .pre-commit-config.yaml
+    - spack load py-ruamel-yaml
+    - git config --global --add safe.directory "$(ccc_home -u mpc)/mpc_pre_commit/pre_commit_hooks/pre-commit-hooks/.git"
+    - git config --global --add safe.directory "$(ccc_home -u mpc)/mpc_pre_commit/pre_commit_hooks/pocc/.git"
+    - pre-commit install --install-hooks
+    # FIXME: Do not run the clang-tidy hook as it needs a compile_commands.json
+    - pre-commit run --all-files --hook-stage manual
+
+
+############################################
+############### Finalization ###############
+############################################
+
+Resource Relinquishing:
+  stage: '.post'
+  when: 'always'
+  script: ['echo "Suppressing ${GL_PIPELINE_PATH} data"']
+  after_script:
+    - rm -rf ${GL_INSTALL_DIR} ${GL_BUILD_DIR}
+    - rm -rf ${GL_PIPELINE_PATH}/*
