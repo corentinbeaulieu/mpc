@@ -1,11 +1,12 @@
 # This file is meant to provide a failing test when the CI is disabled
 # The idea is too prevent one from merging a none tested request
 ---
-stages: ['CI DISABLED']
+stages:
+  - CI DISABLED
 
 # Run only on merge request
 workflow:
-  name: 'CI Disabled'
+  name: 'CI Disabled: preventing merge of $CI_MERGE_REQUEST_TITLE'
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 

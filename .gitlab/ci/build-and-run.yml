@@ -1,0 +1,416 @@
+# This file is the description of the installation and tests pipeline
+# It is meant to be configuration agnostic
+---
+############################################
+############ Pipeline defaults #############
+############################################
+
+# Common variables and scripts
+include:
+  local: '/.gitlab/ci/global.yml'
+
+# Explicit stage definition
+stages:
+  - Installation
+  - Sanity Check
+  - Modules
+  - Applications
+  - Benchmarks
+  - Extended Network Testing
+  - Extended Threads Testing
+  - Additional Testing
+
+# Default variables
+variables:
+  # Pipeline unique directory
+  GL_PIPELINE_PATH: '$CI_BUILDS_DIR/GL_$CI_PIPELINE_IID'
+  # Build directory path
+  GL_BUILD_DIR: '$GL_PIPELINE_PATH/build'
+  # Install directory path
+  GL_INSTALL_DIR: '$GL_PIPELINE_PATH/install'
+  # MPC CI top level path
+  GL_MPC_CI_ROOT_PATH: '$CI_BUILDS_DIR/mpc-ci'
+  # PCVS Benchmarks top level path
+  GL_PCVS_BENCHMARKS_ROOT_PATH: '$CI_BUILDS_DIR/pcvs-benchmarks'
+  # PCVS Basic run command
+  PCVS_RUN: pcvs -v run --override --profile-path ${GL_MPC_CI_ROOT_PATH}/utils/profile/mpc.yml
+  # PCVS Common command used
+  PCVS_COMMAND: ${PCVS_RUN} --print errors -S
+  # PCVS Command used to print benchmarks results
+  PCVS_COMMAND_BENCH: ${PCVS_RUN} --print all -S
+  # MPC CI job specific path
+  CI_PCVS_DIR: '$GL_PIPELINE_PATH/step_$CI_JOB_NAME_SLUG'
+
+workflow:
+  name: ${CHILD_PIPELINE_NAME}
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "parent_pipeline"'
+
+############################################
+############## Installation ################
+############################################
+
+.configuration_commands:
+  before_script:
+    - echo "${GL_BUILD_DIR}"
+    - echo "${GL_INSTALL_DIR}"
+    - rm -rf ${GL_BUILD_DIR} ${GL_INSTALL_DIR}
+    - mkdir -p ${GL_BUILD_DIR} && cd ${GL_BUILD_DIR}
+    - module load pmix gnu/13.3.0
+  script:
+    - ${CI_PROJECT_DIR}/installmpc -vv --prefix=${GL_INSTALL_DIR} ${GL_INSTALL_OPTS}
+
+Installation:
+  stage: 'Installation'
+  needs: []
+  extends: ['.configuration_commands']
+
+
+############################################
+############## Simple testing ##############
+############################################
+
+.load_mpc: &load_mpc
+    - module load pmix gnu/13.3.0
+    - source ${GL_INSTALL_DIR}/mpcvars.sh
+    - echo "MPC loaded from ${GL_INSTALL_DIR}/mpcvars.sh"
+
+.load_run_deps: &load_run_deps
+    - !reference ['.load_pcvs', before_script]
+    - *load_mpc
+
+.prepare_mpc_ci:
+  before_script:
+    - *load_run_deps
+    - test -d "${CI_PCVS_DIR}" || mkdir -p "${CI_PCVS_DIR}"
+    - cd "${CI_PCVS_DIR}"
+    - echo "Step run from ${CI_PCVS_DIR}"
+
+.regular_testing_rules:
+  rules:
+    - if: '$DO_REGULAR_TESTING == "true"'
+
+Simple Run:
+  stage: 'Sanity Check'
+  needs:
+    - job: 'Installation'
+    - pipeline: $PARENT_PIPELINE_ID
+      job: 'Retrieve Tests'
+  extends: ['.prepare_mpc_ci', '.regular_testing_rules']
+  script:
+    - mpc_cc --help && mpcrun --help
+    - ${PCVS_COMMAND} "${GL_MPC_CI_ROOT_PATH}/trivial"
+
+# Lightweight sanity check for configurations without MPI or OpenMP
+Hello World:
+  stage: 'Sanity Check'
+  needs:
+    - job: 'Installation'
+    - pipeline: $PARENT_PIPELINE_ID
+      job: 'Retrieve Tests'
+  extends: ['.prepare_mpc_ci']
+  script:
+    - cp -r "${GL_MPC_CI_ROOT_PATH}/trivial" .
+    - rm trivial/main.cpp trivial/test01.c
+    - mpc_cc --help && mpcrun --help
+    - ${PCVS_COMMAND} "trivial"
+  rules:
+    - if: '$DO_REGULAR_TESTING == "false"'
+
+
+############################################
+############ Additional testing ############
+############################################
+
+Privatization:
+  stage: 'Additional Testing'
+  needs:
+    - job: 'Installation'
+    - pipeline: $PARENT_PIPELINE_ID
+      job: 'Retrieve Tests'
+  extends: ['.prepare_mpc_ci']
+  variables:
+    REPRODUCERS_PATH: '${GL_MPC_CI_ROOT_PATH}/reproducers'
+  script:
+    - ${PCVS_COMMAND} "${GL_MPC_CI_ROOT_PATH}/privatization/" "REPRODUCERS:${REPRODUCERS_PATH}/privatization"
+  rules:
+    - if: '$HAS_PRIVATIZATION == "true" && $DO_REGULAR_TESTING == "true"'
+
+Reproducers:
+  stage: 'Additional Testing'
+  needs:
+    - job: 'Installation'
+    - pipeline: $PARENT_PIPELINE_ID
+      job: 'Retrieve Tests'
+  extends: ['.prepare_mpc_ci', '.regular_testing_rules']
+  variables:
+    REPRODUCERS_PATH: '${GL_MPC_CI_ROOT_PATH}/reproducers'
+  script:
+    - ${PCVS_COMMAND} "${REPRODUCERS_PATH}/basics" "${REPRODUCERS_PATH}/lowcomm" "${REPRODUCERS_PATH}/MPI"
+
+
+############################################
+############# Regular testing ##############
+############################################
+
+Lowcomm:
+  stage: 'Modules'
+  needs: ['Simple Run']
+  extends: ['.prepare_mpc_ci', '.regular_testing_rules']
+  script:
+    - ${PCVS_COMMAND} "${GL_MPC_CI_ROOT_PATH}/lowcomm/"
+
+MPI:
+  stage: 'Modules'
+  needs: ['Simple Run']
+  extends: ['.prepare_mpc_ci', '.regular_testing_rules']
+  script:
+    - ${PCVS_COMMAND} "${GL_MPC_CI_ROOT_PATH}/MPI/simple/c" "${GL_MPC_CI_ROOT_PATH}/MPI/simple/fortran"
+
+OpenMP:
+  stage: 'Modules'
+  needs: ['Simple Run']
+  extends: ['.prepare_mpc_ci', '.regular_testing_rules']
+  script:
+    - module load lapack/mkl
+    - ${PCVS_COMMAND} "${GL_MPC_CI_ROOT_PATH}/OpenMP/task/examples" "${GL_MPC_CI_ROOT_PATH}/OpenMP/task/cholesky"
+
+.MPI_deps:
+  needs: ['Lowcomm', 'MPI']
+
+.OMP_deps:
+  needs: ['OpenMP']
+
+.all_deps:
+  needs: ['Lowcomm', 'MPI', 'OpenMP']
+
+
+############################################
+############## Applications ################
+############################################
+
+MPI NAS-MZ:
+  stage: 'Applications'
+  extends: ['.prepare_mpc_ci', '.regular_testing_rules', '.MPI_deps']
+  script:
+    - ${PCVS_COMMAND} "${GL_MPC_CI_ROOT_PATH}/hybrid/NAS/MZ-MPI"
+
+Lulesh:
+  stage: 'Applications'
+  extends: ['.prepare_mpc_ci', '.regular_testing_rules', '.all_deps']
+  script:
+    - ${PCVS_COMMAND} "${GL_MPC_CI_ROOT_PATH}/corals/lulesh-2.0.3"
+
+MiniFE:
+  stage: 'Applications'
+  extends: ['.prepare_mpc_ci', '.regular_testing_rules', '.all_deps']
+  script:
+    - ${PCVS_COMMAND} "${GL_MPC_CI_ROOT_PATH}/corals/miniFe"
+
+OpenMP NAS-MZ:
+  stage: 'Applications'
+  extends: ['.prepare_mpc_ci', '.regular_testing_rules', '.OMP_deps']
+  script:
+    - ${PCVS_COMMAND} "${GL_MPC_CI_ROOT_PATH}/hybrid/NAS/MZ-OMP"
+
+
+############################################
+################ Benchmarks ################
+############################################
+
+MPI IMB-MPI 2017:
+  stage: 'Benchmarks'
+  extends: ['.prepare_mpc_ci', '.regular_testing_rules', '.MPI_deps']
+  script:
+    - ${PCVS_COMMAND} "${GL_MPC_CI_ROOT_PATH}/MPI/IMB_2017/check-mpi/"
+
+MPI IMB-NBC 2017:
+  stage: 'Benchmarks'
+  extends: ['.prepare_mpc_ci', '.regular_testing_rules', '.MPI_deps']
+  script:
+    - ${PCVS_COMMAND} "${GL_MPC_CI_ROOT_PATH}/MPI/IMB_2017/check-nbc/"
+
+MPI NBC:
+  stage: 'Benchmarks'
+  extends: ['.prepare_mpc_ci', '.regular_testing_rules', '.MPI_deps']
+  script:
+    - ${PCVS_COMMAND} "${GL_MPC_CI_ROOT_PATH}/MPI/NBC"
+
+
+############################################
+############## Extended Tests ##############
+############################################
+
+.extended_testing_rules:
+  rules:
+    - if: '$DO_REGULAR_TESTING == "true" && $EXTENDED == "true"'
+
+.extended_MPI_deps:
+  needs:
+    - job: 'Lowcomm'
+    - job: 'MPI'
+    - pipeline: $PARENT_PIPELINE_ID
+      job: 'Retrieve Benchmarks'
+
+.extended_OMP_deps:
+  needs:
+    - job: 'OpenMP'
+    - pipeline: $PARENT_PIPELINE_ID
+      job: 'Retrieve Benchmarks'
+
+.extended_all_deps:
+  needs:
+    - job: 'Lowcomm'
+    - job: 'MPI'
+    - job: 'OpenMP'
+    - pipeline: $PARENT_PIPELINE_ID
+      job: 'Retrieve Benchmarks'
+
+# Testing
+## MPI
+Intel ANL:
+  stage: 'Extended Network Testing'
+  extends: ['.prepare_mpc_ci', '.extended_testing_rules', '.extended_MPI_deps']
+  script:
+    - ${PCVS_COMMAND} "${GL_PCVS_BENCHMARKS_ROOT_PATH}/MPI/Intel_ANL"
+
+MPI IO:
+  stage: 'Extended Network Testing'
+  extends: ['.prepare_mpc_ci', '.extended_testing_rules', '.extended_MPI_deps']
+  script:
+    - ${PCVS_COMMAND} "${GL_PCVS_BENCHMARKS_ROOT_PATH}/MPI/MPI-IO"
+
+MPI NAS:
+  stage: 'Extended Network Testing'
+  extends: ['.prepare_mpc_ci', '.extended_testing_rules', '.extended_MPI_deps']
+  script:
+    - ${PCVS_COMMAND} "${GL_PCVS_BENCHMARKS_ROOT_PATH}/MPI/NAS"
+
+MPICH:
+  stage: 'Extended Network Testing'
+  extends: ['.prepare_mpc_ci', '.extended_testing_rules', '.extended_MPI_deps']
+  script:
+    - ${PCVS_COMMAND} "${GL_PCVS_BENCHMARKS_ROOT_PATH}/MPI/mpich-3.4.2"
+
+PARCO:
+  stage: 'Extended Network Testing'
+  extends: ['.prepare_mpc_ci', '.extended_testing_rules', '.extended_MPI_deps']
+  script:
+    - ${PCVS_COMMAND} "${GL_PCVS_BENCHMARKS_ROOT_PATH}/MPI/Threading"
+
+
+## OpenMP
+OpenMP BOTS:
+  stage: 'Extended Threads Testing'
+  extends: ['.prepare_mpc_ci', '.extended_testing_rules', '.extended_OMP_deps']
+  script:
+    - ${PCVS_COMMAND} "${GL_PCVS_BENCHMARKS_ROOT_PATH}/OpenMP/BOTS"
+
+CLOMP:
+  stage: 'Extended Threads Testing'
+  extends: ['.prepare_mpc_ci', '.extended_testing_rules', '.extended_OMP_deps']
+  script:
+    - ${PCVS_COMMAND} "${GL_PCVS_BENCHMARKS_ROOT_PATH}/OpenMP/CLOMP"
+
+EPCC:
+  stage: 'Extended Threads Testing'
+  extends: ['.prepare_mpc_ci', '.extended_testing_rules', '.extended_OMP_deps']
+  script:
+    - ${PCVS_COMMAND} "${GL_PCVS_BENCHMARKS_ROOT_PATH}/OpenMP/EPCC"
+
+GOMP:
+  stage: 'Extended Threads Testing'
+  extends: ['.prepare_mpc_ci', '.extended_testing_rules', '.extended_OMP_deps']
+  script:
+    - ${PCVS_COMMAND} "${GL_PCVS_BENCHMARKS_ROOT_PATH}/OpenMP/GOMP"
+
+OpenMP NAS:
+  stage: 'Extended Threads Testing'
+  extends: ['.prepare_mpc_ci', '.extended_testing_rules', '.extended_OMP_deps']
+  script:
+    - ${PCVS_COMMAND} "${GL_PCVS_BENCHMARKS_ROOT_PATH}/OpenMP/NAS"
+
+OpenUH:
+  stage: 'Extended Threads Testing'
+  extends: ['.prepare_mpc_ci', '.extended_testing_rules', '.extended_OMP_deps']
+  script:
+    - ${PCVS_COMMAND} "${GL_PCVS_BENCHMARKS_ROOT_PATH}/OpenMP/OpenUH"
+
+OpenMP simple:
+  stage: 'Extended Threads Testing'
+  extends: ['.prepare_mpc_ci', '.extended_testing_rules', '.extended_OMP_deps']
+  script:
+    - ${PCVS_COMMAND} "${GL_PCVS_BENCHMARKS_ROOT_PATH}/OpenMP/simple"
+
+
+## Threads
+Threads:
+  stage: 'Extended Threads Testing'
+  needs:
+    - job: 'Simple Run'
+    - pipeline: $PARENT_PIPELINE_ID
+      job: 'Retrieve Benchmarks'
+  extends: ['.prepare_mpc_ci', '.extended_testing_rules']
+  script:
+    - ${PCVS_COMMAND} "${GL_PCVS_BENCHMARKS_ROOT_PATH}/Threads"
+
+Thread Based:
+  stage: 'Additional Testing'
+  needs:
+    - job: 'Simple Run'
+    - pipeline: $PARENT_PIPELINE_ID
+      job: 'Retrieve Benchmarks'
+  extends: ['.prepare_mpc_ci']
+  script: ['${PCVS_COMMAND} "${GL_PCVS_BENCHMARKS_ROOT_PATH}/MPI/Thread_based"']
+  rules:
+    - if: '$HAS_PRIVATIZATION == "true" && $DO_REGULAR_TESTING == "true" && $EXTENDED == "true"'
+
+
+# Benchmarks
+RMA MT:
+  stage: 'Benchmarks'
+  extends: ['.prepare_mpc_ci', '.extended_testing_rules', '.extended_MPI_deps']
+  script:
+    - ${PCVS_COMMAND_BENCH} "${GL_PCVS_BENCHMARKS_ROOT_PATH}/MPI/rma-mt"
+
+MPI OSU:
+  stage: 'Benchmarks'
+  extends: ['.prepare_mpc_ci', '.extended_testing_rules', '.extended_MPI_deps']
+  script:
+    - ${PCVS_COMMAND_BENCH} "${GL_PCVS_BENCHMARKS_ROOT_PATH}/performance/OSU" --run-filter MPI
+
+
+# Applications
+Corals:
+  stage: 'Applications'
+  extends: ['.prepare_mpc_ci', '.extended_testing_rules', '.extended_all_deps']
+  script:
+    - |
+      ${PCVS_COMMAND} "${GL_PCVS_BENCHMARKS_ROOT_PATH}/applications/Corals/AMG2013"\
+                      "${GL_PCVS_BENCHMARKS_ROOT_PATH}/applications/Corals/UMT2013"\
+                      "${GL_PCVS_BENCHMARKS_ROOT_PATH}/applications/Corals/graph500-2.1.4"\
+                      "${GL_PCVS_BENCHMARKS_ROOT_PATH}/applications/Corals/mcb-20130723"\
+                      "${GL_PCVS_BENCHMARKS_ROOT_PATH}/applications/Corals/nekbone-2.3.4"
+
+Mantevo:
+  stage: 'Applications'
+  extends: ['.prepare_mpc_ci', '.extended_testing_rules', '.extended_all_deps']
+  script:
+    - |
+      ${PCVS_COMMAND} "${GL_PCVS_BENCHMARKS_ROOT_PATH}/applications/Mantevo/CloverLeaf-master"\
+                      "${GL_PCVS_BENCHMARKS_ROOT_PATH}/applications/Mantevo/HPCCG-master"\
+                      "${GL_PCVS_BENCHMARKS_ROOT_PATH}/applications/Mantevo/miniAMR-master"\
+                      "${GL_PCVS_BENCHMARKS_ROOT_PATH}/applications/Mantevo/miniGhost-1.0.1"
+
+
+############################################
+############## Finalization ################
+############################################
+
+Resources Relinquishing:
+  stage: '.post'
+  when: 'always'
+  script:
+    - echo "Suppressing ${GL_PIPELINE_PATH} data"
+  after_script:
+    - rm -rf ${GL_PIPELINE_PATH}
