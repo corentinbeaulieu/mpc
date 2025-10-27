@@ -457,12 +457,19 @@ static int _lcp_context_devices_load_and_filter(lcp_context_h ctx)
 			continue;
 		}
 
+		if (mpc_common_get_flags()->node_number == 1)
+		{
+			// Skipping the Network devices if only intranode is requested
+			mpc_common_debug("Skipping registration for component %s as only one node was requested",
+				ctx->components[i]->name);
+			continue;
+		}
+
 		if (strcmp(ctx->components[i]->rail_config->device, "any") == 0)
 		{
 			for (int j = 0; j < ctx->components[i]->rail_config->max_ifaces; j++)
 			{
-				mpc_common_debug("Registering device %s for component %s,"
-					             " 'any' devices requested",
+				mpc_common_debug("Registering device %s for component %s, 'any' devices requested",
 					ctx->components[i]->devices[j].name,
 					ctx->components[i]->name);
 				MPC_BITMAP_SET(dev_map, i);
@@ -477,8 +484,7 @@ static int _lcp_context_devices_load_and_filter(lcp_context_h ctx)
 			if (strstr(ctx->components[i]->rail_config->device,
 				ctx->components[i]->devices[j].name))
 			{
-				mpc_common_debug("Registering device %s for component %s,"
-					             " matching config request (%s)",
+				mpc_common_debug("Registering device %s for component %s, matching config request (%s)",
 					ctx->components[i]->devices[j].name,
 					ctx->components[i]->name,
 					ctx->components[i]->rail_config->device);
@@ -487,8 +493,8 @@ static int _lcp_context_devices_load_and_filter(lcp_context_h ctx)
 			}
 			else
 			{
-				mpc_common_debug("Not registering device %s for component %s,"
-					             " as device name dos not match config (%s)",
+				mpc_common_debug(
+					"Not registering device %s for component %s, as device name does not match config (%s)",
 					ctx->components[i]->devices[j].name,
 					ctx->components[i]->name,
 					ctx->components[i]->rail_config->device);
