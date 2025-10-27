@@ -141,14 +141,14 @@ struct lcp_request
 				struct
 				{
 					uint64_t        remote_addr;     /**< Remote address. */
-					lcp_chnl_idx_t  cc;              /**< Atomic channel to use */
-					lcp_atomic_op_t op;              /**< Atomic operation. */
 					lcp_mem_h       rkey;            /**< Remote memory key. */
-					void *          reply_buffer;    /**< Reply address, for fetch or cas. */
-					int             reply_size;      /**< Data reply size. */
 					uint64_t        value;           /**< Atomic value. */
 					uint64_t        compare;         /**< Compare value. */
 					lcp_atomic_dt_t atomic_datatype; /**< Datatype of the operands */
+					lcp_atomic_op_t op;              /**< Atomic operation. */
+					void *          reply_buffer;    /**< Reply address, for fetch or cas. */
+					int             reply_size;      /**< Data reply size. */
+					lcp_chnl_idx_t  cc;              /**< Atomic channel to use */
 				} ato;                               /**< Atomic information. */
 
 				struct
