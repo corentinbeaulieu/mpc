@@ -29,14 +29,18 @@ please send a email to the maintainers of the project (section above).
 |             Name                |                 Email Address                 |
 |:-------------------------------:|:---------------------------------------------:|
 | ADAM Julien                     | <adamj@paratools.com>                         |
+| BEAULIEU Corentin               | <corentin.beaulieu@cea.fr>                    |
 | BESNARD Jean-Baptiste           | <jbbesnard@paratools.com>                     |
 | BISPO VIEIRA Ricardo            | <ricardo.bispo-viera@exascale-computing.eu>   |
 | BOUHROUR Stephane               | <stephane.bouhrour@exascale-computing.eu>     |
+| CANAT Paul                      | <pcanat@paratools.com>                        |
 | CAPRA Antoine                   | <capra@paratools.com>                         |
 | CARRIBAULT Patrick              | <patrick.carribault@cea.fr>                   |
 | CLET-ORTEGA Jerome              | <jerome.clet-ortega@cea.fr>                   |
+| DEHENNE Rémi                    | <remi.dehenne@cea.fr>                         |
 | DIDELOT Sylvain                 | <sylvain.didelot@exascale-computing.eu>       |
 | DIONISI Thomas                  | <thomas.dionisi@exascale-computing.eu>        |
+| DUPRAT Julien                   | <julien.duprat@atos.net>                      |
 | GALLET Camille                  | <camille.gallet@cea.fr>                       |
 | GONCALVES Thomas                | <thomas.goncalves@cea.fr>                     |
 | JAEGER Julien                   | <julien.jaeger@cea.fr>                        |
@@ -44,8 +48,14 @@ please send a email to the maintainers of the project (section above).
 | LE DU Maxime                    | <mledu@paratools.fr>                          |
 | LESNICKI Piotr                  | <piotr.lesnicki@atos.net>                     |
 | MAHEO Aurele                    | <aurele.maheo@exascale-computing.eu>          |
+| MARIE Nicolas                   | <nicolas.marie@uvsq.fr>                       |
+| MARTIN Mathis                   | <mathis.martin@cea.fr>                        |
+| MOREAU Gilles                   | <gilles.moreau@cea.fr>                        |
+| PEPIN Thibaut                   | <thibaut.pepin@cea.fr>                        |
 | PERACHE Marc                    | <marc.perache@cea.fr>                         |
+| PEREIRA Romain                  | <romain.pereira@cea.fr>                       |
 | PULVERAIL Sebastien             | <sebastien.pulverail@sogeti.com>              |
+| REYNIER Florian                 | <florian.reynier@cea.fr>                      |
 | ROUSSEL Adrien                  | <adrien.roussel@cea.fr>                       |
 | SHENDE Sameer                   | <sameer@paratools.com>                        |
 | SERRAZ Augustin                 | <augustin.serraz@exascale-computing.eu>       |
