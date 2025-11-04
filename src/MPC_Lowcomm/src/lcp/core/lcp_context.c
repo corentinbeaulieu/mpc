@@ -346,12 +346,14 @@ err_free:
 
 static int _lcp_context_devices_load_and_filter(lcp_context_h ctx)
 {
-	int             rc;
-	int             total_num_devices = 0, num_offload_devices = 0;
-	bmap_t          dev_map = MPC_BITMAP_INIT; // device map.
-	unsigned int    non_composable_actif     = 0;
-	unsigned int    non_composable_total     = 0;
-	lcr_component_h non_composable_component = NULL;
+	int                rc;
+	int                total_num_devices = 0, num_offload_devices = 0;
+	bmap_t             dev_map = MPC_BITMAP_INIT; // device map.
+	unsigned int       non_composable_actif     = 0;
+	unsigned int       non_composable_total     = 0;
+	lcr_component_h    non_composable_component = NULL;
+	const unsigned int node_number    = mpc_common_get_node_count();
+	const unsigned int process_number = mpc_common_get_process_count();
 
 	/* Load all available devices. */
 	for (unsigned int i = 0; i < ctx->num_cmpts; i++)
@@ -399,10 +401,10 @@ static int _lcp_context_devices_load_and_filter(lcp_context_h ctx)
 		total_num_devices += ctx->components[i]->num_devices;
 	}
 
-	if (non_composable_total > 0 && non_composable_actif == 0 && mpc_common_get_flags()->node_number > 1)
+	if (non_composable_total > 0 && non_composable_actif == 0 && node_number > 1)
 	{
 		mpc_common_debug_warning("No devices found for inter nodes communications but %d nodes requested:",
-			mpc_common_get_flags()->node_number);
+			node_number);
 		for (unsigned int i = 0; i < ctx->num_cmpts; i++)
 		{
 			if (!ctx->components[i]->rail_config->composable)
@@ -449,15 +451,22 @@ static int _lcp_context_devices_load_and_filter(lcp_context_h ctx)
 
 		if (ctx->components[i]->rail_config->composable)
 		{
-			/* There can be only one iface for composable rail such
-			 * as tbsm or shm. */
+			// Skip shm if no need for it
+			if ((strncmp("shm", ctx->components[i]->name, 3) == 0)
+			    && (node_number == process_number))
+			{
+				mpc_common_debug("Skipping registration for %s as only one process per node was requested",
+					ctx->components[i]->name);
+				continue;
+			}
 			mpc_common_debug("Registering %s as composable component", ctx->components[i]->name);
+			/* There can be only one iface for composable rail such as tbsm or shm. */
 			MPC_BITMAP_SET(dev_map, i);
 			nb_dev++;
 			continue;
 		}
 
-		if (mpc_common_get_flags()->node_number == 1)
+		if (node_number == 1)
 		{
 			// Skipping the Network devices if only intranode is requested
 			mpc_common_debug("Skipping registration for component %s as only one node was requested",
