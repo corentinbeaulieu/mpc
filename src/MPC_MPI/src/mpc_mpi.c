@@ -11501,7 +11501,7 @@ int PMPI_Type_dup(MPI_Datatype oldtype, MPI_Datatype *newtype)
 	return _mpc_cl_type_dup(oldtype, newtype);
 }
 
-int PMPI_Type_get_elements_x(MPI_Status *status, MPI_Datatype datatype, MPI_Count *count)
+int PMPI_Type_get_elements_x(const MPI_Status *status, MPI_Datatype datatype, MPI_Count *count)
 {
 	MPI_Comm comm = MPI_COMM_WORLD;
 
@@ -11593,7 +11593,7 @@ int PMPI_Type_get_elements_x(MPI_Status *status, MPI_Datatype datatype, MPI_Coun
 	MPI_HANDLE_RETURN_VAL(res, comm);
 }
 
-int PMPI_Get_elements_x(MPI_Status *status, MPI_Datatype datatype, MPI_Count *elements)
+int PMPI_Get_elements_x(const MPI_Status *status, MPI_Datatype datatype, MPI_Count *elements)
 {
 	return PMPI_Type_get_elements_x(status, datatype, elements);
 }
