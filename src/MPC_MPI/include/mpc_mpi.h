@@ -680,14 +680,15 @@ typedef enum
 	MPI_T_CB_REQUIRE_ASYNC_SIGNAL_SAFE
 }MPI_T_cb_safety;
 
-typedef void MPI_T_event_cb_function(MPI_T_event_instance event_instance, MPI_T_event_registration event_registration,
-                                     MPI_T_cb_safety cb_safety, void *user_data);
+typedef void (*MPI_T_event_cb_function)(MPI_T_event_instance event_instance,
+                                        MPI_T_event_registration event_registration,
+                                        MPI_T_cb_safety cb_safety, void *user_data);
 
-typedef void MPI_T_event_free_cb_function(MPI_T_event_registration event_registration, MPI_T_cb_safety cb_safety,
-                                          void *user_data);
+typedef void (*MPI_T_event_free_cb_function)(MPI_T_event_registration event_registration, MPI_T_cb_safety cb_safety,
+                                             void *user_data);
 
-typedef void MPI_T_event_dropped_cb_function(MPI_Count count, MPI_T_event_registration event_registration,
-                                             int source_index, MPI_T_cb_safety cb_safety, void *user_data);
+typedef void (*MPI_T_event_dropped_cb_function)(MPI_Count count, MPI_T_event_registration event_registration,
+                                                int source_index, MPI_T_cb_safety cb_safety, void *user_data);
 
 /*****************/
 /*MPI_COMM_DUP_FN*/
