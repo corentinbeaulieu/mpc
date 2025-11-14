@@ -29,7 +29,7 @@ LABEL \
 	maintainer.docker = "Hugo Taboada <hugo.taboada@cea.fr>"
 
 FROM env AS inst
-ARG mpc_version=3.3.1
+ARG mpc_version=4.3.0
 
 ADD --chown=mpcuser:mpcuser https://github.com/cea-hpc/mpc/archive/refs/tags/MPC_${mpc_version}.tar.gz /build/
 RUN cd /build \

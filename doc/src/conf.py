@@ -9,7 +9,7 @@
 project = 'MPC'
 copyright = '2025, CEA'
 author = 'CEA'
-release = '4.2'
+release = '4.3'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

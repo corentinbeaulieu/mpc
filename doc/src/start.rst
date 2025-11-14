@@ -12,8 +12,8 @@ Download, install and source the latest version:
 
 .. code-block:: console
 
-   $ INSTALL_PREFIX=$PWD/INSTALL curl -k https://github.com/cea-hpc/mpc/archive/refs/tags/MPC_4.2.0.tar.gz
-   $ tar xf MPC_4.2.0 && cd mpc
+   $ INSTALL_PREFIX=$PWD/INSTALL curl -k https://github.com/cea-hpc/mpc/archive/refs/tags/MPC_4.3.0.tar.gz
+   $ tar xf MPC_4.3.0 && cd mpc
    $ mkdir BUILD && cd BUILD
    $ ../installmpc --prefix=${INSTALL_PREFIX} source ${INSTALL_PREFIX}/mpcvars.sh
 
@@ -51,9 +51,9 @@ Two ways to retrieve MPC sources:
 .. code-block:: sh
 
    # Get the last tarball
-   curl -k https://github.com/cea-hpc/mpc/archive/refs/tags/MPC_4.2.0.tar.gz
+   curl -k https://github.com/cea-hpc/mpc/archive/refs/tags/MPC_4.3.0.tar.gz
    # Extract the tarball
-   tar xf MPC_4.2.0.tar.gz
+   tar xf MPC_4.3.0.tar.gz
 
    # Or use git
    git clone https://github.com/cea-hpc/mpc.git
