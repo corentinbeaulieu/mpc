@@ -1,0 +1,14 @@
+# This file provides helpers needed by multiple pipelines
+---
+variables:
+  # No need to clone the whole history
+  GIT_DEPTH: 1
+  # MORE COLUMNS in the log (default is 80)
+  COLUMNS: 150
+
+.load_pcvs:
+  before_script:
+    - source "$(ccc_home -u mpc)"/gitlab-runner/spack_organizer_inti/setup.sh
+    - spack env activate mpc-runner-deps
+    # Sanity check
+    - pcvs --version

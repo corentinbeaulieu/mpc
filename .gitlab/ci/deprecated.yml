@@ -1,0 +1,44 @@
+# This file contains jobs that are either broken or obsolete
+# TODO: Discuss the utility of those
+---
+###################################
+####### MANUALLY TRIGGERED ########
+###################################
+#This section gathers jobs not scheduled to be part of the standard pipeline.
+#They could be run manually or periodically.
+
+#When triggered through a variable, MPC is built in containers with fixed software stack (base compiler, libc, etc...)
+# to ensure MPC to compile in a large variety of environments
+
+Debian Stretch:
+  stage: Additional Testing
+  script: "docker run --rm -it paratoolsfrance/mpc-env:debian-stretch $HOME/docker/run_installmpc.sh"
+  tags:
+    - "docker"
+  only:
+    variables:
+      - $MPC_CI_MODE == "multibuild"
+
+Centos 7:
+  stage: Additional Testing
+  script: "docker run --rm -it paratoolsfrance/mpc-env:centos-7 $HOME/docker/run_installmpc.sh"
+  tags:
+    - "docker"
+  only:
+    variables:
+      - $MPC_CI_MODE == "multibuild"
+
+# FIXME:
+# 1.Needs docker
+# 2. The scripts are broken
+#
+# release:
+#   stage: Release
+#   rules:
+#     - if: $CI_COMMIT_TAG && $CI_COMMIT_BRANCH == "master"
+#   script: utils/release_all.sh $(ccc_home -u mpc_nr)/releases/$CI_COMMIT_TAG
+#   release:
+#     tag_name: '$CI_COMMIT_TAG'
+#     description: '$CI_COMMIT_TAG_MESSAGE'
+#   artifacts:
+#     paths: [$(ccc_home -u mpc_nr)/releases/$CI_COMMIT_TAG]

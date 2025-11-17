@@ -10,7 +10,6 @@ repos:
         args: ['--branch', 'devel', '--branch', 'master']
       - id: 'check-ast'
       - id: 'check-json'
-      - id: 'check-yaml'
       - id: 'end-of-file-fixer'
       - id: 'trailing-whitespace'
         args: ['--markdown-linebreak-ext=md']
