@@ -148,7 +148,7 @@ void _mpc_topology_map_and_restrict_by_cpuset(hwloc_topology_t target_topology,
 				" requested: %d in the list, %d requested",
 				sum,
 				mpc_common_get_flags()->processor_number);
-			mpc_common_debug_abort();
+			mpc_common_debug_abort(MPC_COMMON_ABORT_ERROR_CODE);
 		}
 
 		hwloc_bitmap_copy(cpuset, pinning_constraints);

@@ -68,15 +68,20 @@ void mpc_common_debug_finalize();
  * ABORT *
  *********/
 
-void mpc_common_debug_abort(void) __attribute__((__noreturn__));
+static const int MPC_COMMON_ABORT_ERROR_CODE = 6; /** Default errorcode returned on abortion */
 
-/** Print an error message and exit. It use the print formatting convention.
- * **/
+/** @brief Aborts the program using PMI to terminate all processes
+ *
+ * @param[in] errorcode Error code to return at main exit
+ */
+void mpc_common_debug_abort(const int errorcode) __attribute__((__noreturn__));
+
+/** Print an error message and exit. It use the print formatting convention. **/
 #define mpc_common_debug_fatal(...)                                             \
 		{                                                                       \
 			mpc_common_debug_error("Fatal error at %s:%d", __FILE__, __LINE__); \
 			mpc_common_debug_error(__VA_ARGS__);                                \
-			mpc_common_debug_abort();                                           \
+			mpc_common_debug_abort(MPC_COMMON_ABORT_ERROR_CODE);                \
 		}
 
 void mpc_common_debug_abort_log(FILE *stream, int line,
@@ -295,7 +300,7 @@ void mpc_common_debug_file(FILE *file, const char *fmt, ...);
 		{                                                                         \
 			mpc_common_debug_error("Error at %s!%d\n%s", __FILE__, __LINE__, #x); \
 			mpc_common_debug_error(__VA_ARGS__);                                  \
-			mpc_common_debug_abort();                                             \
+			mpc_common_debug_abort(MPC_COMMON_ABORT_ERROR_CODE);                  \
 		}
 
 
@@ -349,7 +354,7 @@ __attribute__((__noreturn__)) void mpc_common_debug_assert_print(FILE *stream, i
 			if (mpc_common_debug_only_once_initialized == 1)                                                  \
 			{                                                                                                 \
 				(void)fprintf(stderr, "Multiple initialisation on line %d in file %s\n", __LINE__, __FILE__); \
-				mpc_common_debug_abort();                                                                     \
+				mpc_common_debug_abort(MPC_COMMON_ABORT_ERROR_CODE);                                          \
 			}                                                                                                 \
 			mpc_common_debug_only_once_initialized++;                                                         \
 		} while (0)

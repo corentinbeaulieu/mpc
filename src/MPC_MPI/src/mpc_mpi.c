@@ -5741,8 +5741,7 @@ sctk_op_t *sctk_convert_to_mpc_op(MPI_Op op)
 #define COMPAT_DATA_TYPE_END                             \
 		else                                             \
 		{                                                \
-			mpc_common_debug_error("No such operation"); \
-			mpc_common_debug_abort();                    \
+			mpc_common_debug_fatal("No such operation"); \
 		}
 
 static inline void type_unsupported()
@@ -9574,21 +9573,25 @@ int PMPI_Send_init(const void *buf, int count, MPI_Datatype datatype, int dest,
 		mpc_common_nodebug("tag %d", tag);
 		mpi_check_tag_send(tag, comm);
 
+		if (request == NULL)
+		{
+			MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+		}
+
 		if (count != 0)
 		{
 			mpi_check_buf(buf, comm);
 		}
 	}
 
-	MPI_internal_request_t *req;
-	mpc_lowcomm_request_t * mpc_req;
+	MPI_internal_request_t *req     = *request = mpc_mpi_alloc_request();
+	mpc_lowcomm_request_t * mpc_req = _mpc_cl_get_lowcomm_request(req);
 
-	req     = *request;
-	mpc_req = _mpc_cl_get_lowcomm_request(req);
 	if (dest == MPC_PROC_NULL)
 	{
 		req->freeable         = 0;
 		req->is_active        = 0;
+		req->is_persistent    = 1;
 		mpc_req->request_type = REQUEST_NULL;
 
 		req->persistent.buf         = (void *)buf;
@@ -9603,6 +9606,7 @@ int PMPI_Send_init(const void *buf, int count, MPI_Datatype datatype, int dest,
 	{
 		req->freeable         = 0;
 		req->is_active        = 0;
+		req->is_persistent    = 1;
 		mpc_req->request_type = REQUEST_SEND;
 
 		req->persistent.buf         = (void *)buf;
@@ -9630,13 +9634,18 @@ int PMPI_Bsend_init(const void *buf, int count, MPI_Datatype datatype,
 		mpc_common_nodebug("tag %d", tag);
 		mpi_check_tag_send(tag, comm);
 
+		if (request == NULL)
+		{
+			MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+		}
+
 		if (count != 0)
 		{
 			mpi_check_buf(buf, comm);
 		}
 	}
 
-	MPI_internal_request_t *req     = *request;
+	MPI_internal_request_t *req     = *request = mpc_mpi_alloc_request();
 	mpc_lowcomm_request_t * mpc_req = _mpc_cl_get_lowcomm_request(req);
 
 	mpc_common_nodebug("new request %d", *request);
@@ -9644,6 +9653,7 @@ int PMPI_Bsend_init(const void *buf, int count, MPI_Datatype datatype,
 	{
 		req->freeable         = 0;
 		req->is_active        = 0;
+		req->is_persistent    = 1;
 		mpc_req->request_type = REQUEST_NULL;
 
 		req->persistent.buf         = (void *)buf;
@@ -9658,6 +9668,7 @@ int PMPI_Bsend_init(const void *buf, int count, MPI_Datatype datatype,
 	{
 		req->freeable         = 0;
 		req->is_active        = 0;
+		req->is_persistent    = 1;
 		mpc_req->request_type = REQUEST_SEND;
 
 		req->persistent.buf         = (void *)buf;
@@ -9685,19 +9696,25 @@ int PMPI_Ssend_init(const void *buf, int count, MPI_Datatype datatype, int dest,
 		mpc_common_nodebug("tag %d", tag);
 		mpi_check_tag_send(tag, comm);
 
+		if (request == NULL)
+		{
+			MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+		}
+
 		if (count != 0)
 		{
 			mpi_check_buf(buf, comm);
 		}
 	}
 
-	MPI_internal_request_t *req     = *request;
+	MPI_internal_request_t *req     = *request = mpc_mpi_alloc_request();
 	mpc_lowcomm_request_t * mpc_req = _mpc_cl_get_lowcomm_request(req);
 
 	if (dest == MPC_PROC_NULL)
 	{
 		req->freeable         = 0;
 		req->is_active        = 0;
+		req->is_persistent    = 1;
 		mpc_req->request_type = REQUEST_NULL;
 
 		req->persistent.buf         = (void *)buf;
@@ -9712,6 +9729,7 @@ int PMPI_Ssend_init(const void *buf, int count, MPI_Datatype datatype, int dest,
 	{
 		req->freeable         = 0;
 		req->is_active        = 0;
+		req->is_persistent    = 1;
 		mpc_req->request_type = REQUEST_SEND;
 
 		req->persistent.buf         = (void *)buf;
@@ -9739,19 +9757,25 @@ int PMPI_Rsend_init(const void *buf, int count, MPI_Datatype datatype, int dest,
 		mpc_common_nodebug("tag %d", tag);
 		mpi_check_tag_send(tag, comm);
 
+		if (request == NULL)
+		{
+			MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+		}
+
 		if (count != 0)
 		{
 			mpi_check_buf(buf, comm);
 		}
 	}
 
-	MPI_internal_request_t *req     = *request;
+	MPI_internal_request_t *req     = *request = mpc_mpi_alloc_request();
 	mpc_lowcomm_request_t * mpc_req = _mpc_cl_get_lowcomm_request(req);
 
 	if (dest == MPC_PROC_NULL)
 	{
 		req->freeable         = 0;
 		req->is_active        = 0;
+		req->is_persistent    = 1;
 		mpc_req->request_type = REQUEST_NULL;
 
 		req->persistent.buf         = (void *)buf;
@@ -9766,6 +9790,7 @@ int PMPI_Rsend_init(const void *buf, int count, MPI_Datatype datatype, int dest,
 	{
 		req->freeable         = 0;
 		req->is_active        = 0;
+		req->is_persistent    = 1;
 		mpc_req->request_type = REQUEST_SEND;
 
 		req->persistent.buf         = (void *)buf;
@@ -9783,10 +9808,7 @@ int PMPI_Psend_init(const void *buf, int partitions, int count,
                     MPI_Datatype datatype, int dest, int tag,
                     MPI_Comm comm, MPI_Info info, MPI_Request *request)
 {
-	MPI_internal_request_t *req;
-
 	UNUSED(info);
-	UNUSED(req);
 	UNUSED(buf);
 	UNUSED(partitions);
 	UNUSED(count);
@@ -9795,11 +9817,16 @@ int PMPI_Psend_init(const void *buf, int partitions, int count,
 	UNUSED(tag);
 	UNUSED(comm);
 
-	req = *request = mpc_lowcomm_request_alloc();
+	if (request == NULL)
+	{
+		MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+	}
+
+	__UNUSED__ MPI_internal_request_t *req = *request = mpc_mpi_alloc_request();
+
 	not_implemented();
 
-	// return mpi_psend_init(buf, partitions, count, datatype, dest, tag,
-	//                      comm, req);
+	// return mpi_psend_init(buf, partitions, count, datatype, dest, tag, comm, req);
 
 	return 0;
 }
@@ -9818,20 +9845,23 @@ int PMPI_Recv_init(void *buf, int count, MPI_Datatype datatype, int source,
 		_mpc_cl_comm_size(comm, &size);
 		mpi_check_rank(source, size, comm);
 
+		if (request == NULL)
+		{
+			MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+		}
+
 		if (count != 0)
 		{
 			mpi_check_buf(buf, comm);
 		}
 	}
 
-	MPI_internal_request_t *req;
-	mpc_lowcomm_request_t * mpc_req;
+	MPI_internal_request_t *req     = *request = mpc_mpi_alloc_request();
+	mpc_lowcomm_request_t * mpc_req = _mpc_cl_get_lowcomm_request(req);;
 
-	// req                   = __sctk_new_mpc_request_internal(request, __sctk_internal_get_MPC_requests() );
-	req                   = *request = mpc_lowcomm_request_alloc();
-	mpc_req               = _mpc_cl_get_lowcomm_request(req);
 	req->freeable         = 0;
 	req->is_active        = 0;
+	req->is_persistent    = 1;
 	mpc_req->request_type = REQUEST_RECV;
 
 	req->persistent.buf         = buf;
@@ -9865,11 +9895,9 @@ int PMPI_Precv_init(void *buf, int partitions, int count,
 	UNUSED(comm);
 
 	// req = *request = mpc_lowcomm_request_alloc();
-	// req = __sctk_new_mpc_request_internal(request,
-	//                                      __sctk_internal_get_MPC_requests() );
+	// req = __sctk_new_mpc_request_internal(request, __sctk_internal_get_MPC_requests() );
 	not_implemented();
-	// mpi_precv_init(buf, partitions, count, datatype, source,
-	//                      tag, comm, req);
+	// mpi_precv_init(buf, partitions, count, datatype, source, tag, comm, req);
 	return 0;
 }
 
@@ -11473,7 +11501,7 @@ int PMPI_Type_dup(MPI_Datatype oldtype, MPI_Datatype *newtype)
 	return _mpc_cl_type_dup(oldtype, newtype);
 }
 
-int PMPI_Type_get_elements_x(MPI_Status *status, MPI_Datatype datatype, MPI_Count *count)
+int PMPI_Type_get_elements_x(const MPI_Status *status, MPI_Datatype datatype, MPI_Count *count)
 {
 	MPI_Comm comm = MPI_COMM_WORLD;
 
@@ -11565,7 +11593,7 @@ int PMPI_Type_get_elements_x(MPI_Status *status, MPI_Datatype datatype, MPI_Coun
 	MPI_HANDLE_RETURN_VAL(res, comm);
 }
 
-int PMPI_Get_elements_x(MPI_Status *status, MPI_Datatype datatype, MPI_Count *elements)
+int PMPI_Get_elements_x(const MPI_Status *status, MPI_Datatype datatype, MPI_Count *elements)
 {
 	return PMPI_Type_get_elements_x(status, datatype, elements);
 }

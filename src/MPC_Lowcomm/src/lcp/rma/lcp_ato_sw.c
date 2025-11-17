@@ -49,7 +49,7 @@
 /** @brief Structured data to describe the reply to a fetch-like atomic operation */
 typedef struct lcp_atomic_reply
 {
-	uint64_t dest_uid; /**< UID of the iniator */
+	uint64_t dest_uid; /**< UID of the initiator */
 	uint64_t msg_id;   /**< ID of the operation */
 	uint64_t result;   /**< Fetched data */
 } lcp_atomic_reply_t;
@@ -175,7 +175,7 @@ int lcp_atomic_sw(lcp_request_t *req)
  * @brief Generic function to send the reply of a completed fetch-like atomic operation
  *
  * @param[in] mngr      Manager used for the communication
- * @param[in] task      Task identifier of the iniator, destination of communication
+ * @param[in] task      Task identifier of the initiator, destination of communication
  * @param[in] ato_reply Packed header containing the data to communicate
  *
  * @retval MPC_LOWCOMM_SUCCESS upon success
@@ -752,7 +752,7 @@ err:
 /**
  * @brief Handles the response of fetch-like atomic operations
  *
- * This function replies with the data to the remote iniator.
+ * This function replies with the data to the remote initiator.
  *
  * @param[in] arg    Manager used for the communication (UNUSED)
  * @param[in] data   Header of the communication containing the necessary information

@@ -695,7 +695,7 @@ static void __check_cli_params(void)
 	if (!mpc_common_get_flags()->task_number)
 	{
 		fprintf(stderr, "No task number specified!\n");
-		mpc_common_debug_abort();
+		mpc_common_debug_abort(MPC_COMMON_ABORT_ERROR_CODE);
 	}
 
 	if (mpc_common_get_flags()->process_number && mpc_common_get_flags()->task_number)

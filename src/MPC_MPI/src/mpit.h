@@ -93,7 +93,7 @@ typedef struct _mpc_mpi_mpit_event_source_s
 typedef struct _mpc_mpi_mpit_callback_s
 {
 	int                      id;
-	MPI_T_event_cb_function *cb;
+	MPI_T_event_cb_function  cb;
 	MPI_T_event_instance     event_instance;
 	MPI_T_event_registration event_registration;
 	MPI_T_cb_safety          cb_safety;
@@ -103,9 +103,9 @@ typedef struct _mpc_mpi_mpit_callback_s
 
 typedef struct _mpc_mpi_mpit_dropped_callback_s
 {
-	MPI_T_event_dropped_cb_function *dropped_cb;
-	MPI_T_event_registration         event_registration;
-	MPI_Count                        timestamp;
+	MPI_T_event_dropped_cb_function dropped_cb;
+	MPI_T_event_registration        event_registration;
+	MPI_Count                       timestamp;
 }_mpc_mpi_mpit_dropped_callback_t;
 
 typedef struct _mpc_mpi_mpit_instance_s

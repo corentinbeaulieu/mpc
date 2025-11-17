@@ -521,18 +521,14 @@ int _mpc_ofi_send_am_zcopy(_mpc_lowcomm_endpoint_t *ep,
 }
 
 int _mpc_ofi_pin(struct sctk_rail_info_s *rail, struct sctk_rail_pin_ctx_list *list,
-                 const void *addr, size_t size,
-                 unsigned flags)
+                 const void *addr, size_t size, unsigned flags)
 {
 	UNUSED(flags);
 	if (_mpc_ofi_domain_memory_register(rail->network.ofi.ctx.domain,
-		(void *)addr,
-		size,
-		FI_REMOTE_READ | FI_REMOTE_WRITE,
-		&list->pin.ofipin.ofi))
+		(void *)addr, size,
+		FI_REMOTE_READ | FI_REMOTE_WRITE, &list->pin.ofipin.ofi))
 	{
-		mpc_common_errorpoint("Failed to register memory for RDMA");
-		mpc_common_debug_abort();
+		mpc_common_debug_fatal("Failed to register memory for RDMA");
 	}
 
 	/* And get the key */
@@ -547,8 +543,7 @@ int _mpc_ofi_unpin(struct sctk_rail_info_s *rail, struct sctk_rail_pin_ctx_list 
 {
 	if (_mpc_ofi_domain_memory_unregister(rail->network.ofi.ctx.domain, list->pin.ofipin.ofi))
 	{
-		mpc_common_errorpoint("Failed to register memory for RDMA");
-		mpc_common_debug_abort();
+		mpc_common_debug_fatal("Failed to register memory for RDMA");
 	}
 
 	return 0;
@@ -767,6 +762,9 @@ int _mpc_ofi_get_attr(sctk_rail_info_t *rail,
 
 	attr->iface.cap.rndv.max_put_zcopy = INT_MAX;
 	attr->iface.cap.rndv.max_get_zcopy = INT_MAX;
+
+	attr->iface.cap.rma.max_put_zcopy = rail->runtime_config_driver_config->driver.value.ofi.eager_size;
+	attr->iface.cap.rma.max_get_zcopy = rail->runtime_config_driver_config->driver.value.ofi.eager_size;
 
 	attr->mem.size_packed_mkey = sizeof(struct _mpc_ofi_shared_pinning_context);
 

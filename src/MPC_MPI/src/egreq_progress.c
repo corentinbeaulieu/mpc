@@ -333,8 +333,7 @@ struct _mpc_egreq_progress_list *_mpc_egreq_progress_pool_join(struct _mpc_egreq
 
 	if (p->booked == p->size)
 	{
-		fprintf(stderr, "Error no free pool\n");
-		mpc_common_debug_abort();
+		mpc_common_debug_fatal("Error no free pool");
 	}
 
 	ret     = &p->lists[p->booked];

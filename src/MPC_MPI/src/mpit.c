@@ -892,31 +892,40 @@ int PMPI_T_category_get_info(int cat_index,
 
 	_mpc_mpi_mpit_cat_t *cat = __mpit.categories[cat_index];
 
-	(void)snprintf(name, *name_len, "%s", cat->name);
-	*name_len = (int)strlen(cat->name);
+	if (name != NULL && name_len != NULL)
+	{
+		(void)snprintf(name, *name_len, "%s", cat->name);
+		*name_len = (int)strlen(cat->name);
+	}
 
-	assume(cat->elem != NULL);
-	(void)snprintf(desc, *desc_len, "%s", cat->elem->doc);
-	*desc_len = (int)strlen(cat->elem->doc);
+	if (desc != NULL && desc_len != NULL)
+	{
+		assume(cat->elem != NULL);
+		(void)snprintf(desc, *desc_len, "%s", cat->elem->doc);
+		*desc_len = (int)strlen(cat->elem->doc);
+	}
 
 	/* Now fill counters */
-	*num_categories = cat->children_count;
-
-	*num_pvars = 0;
-	*num_cvars = 0;
-
-	switch (cat->type)
+	if (num_categories != NULL)
 	{
-	case MPC_MPI_T_PVAR:
-		*num_pvars = cat->var_count;
-		break;
+		*num_categories = cat->children_count;
+	}
 
-	case MPC_MPI_T_CVAR:
-		*num_cvars = cat->var_count;
-		break;
-
-	default:
-		not_reachable();
+	if (num_pvars != NULL)
+	{
+		*num_pvars = 0;
+		if (cat->type == MPC_MPI_T_PVAR)
+		{
+			*num_pvars = cat->var_count;
+		}
+	}
+	if (num_cvars != NULL)
+	{
+		*num_cvars = 0;
+		if (cat->type == MPC_MPI_T_CVAR)
+		{
+			*num_cvars = cat->var_count;
+		}
 	}
 
 	return MPI_SUCCESS;
@@ -1019,37 +1028,50 @@ int PMPI_T_cvar_get_info(int cvar_index,
 
 	_mpc_mpi_mpit_var_t *var = __mpit.cvars[cvar_index];
 
-	(void)snprintf(name, *name_len, "%s", var->elem_node->name);
-	*name_len = (int)strlen(var->elem_node->name);
+	if (name != NULL && name_len != NULL)
+	{
+		(void)snprintf(name, *name_len, "%s", var->elem_node->name);
+		*name_len = (int)strlen(var->elem_node->name);
+	}
 
 	/* Not supported yet */
-	*verbosity = MPI_T_VERBOSITY_USER_ALL;
+	if (verbosity != NULL)
+	{
+		*verbosity = MPI_T_VERBOSITY_USER_ALL;
+	}
 
-	*datatype = __conf_type_to_mpi(var->elem_node->type);
+	if (datatype != NULL)
+	{
+		*datatype = __conf_type_to_mpi(var->elem_node->type);
+	}
 
 	/* Not supported yet (needs choices inside the config) */
 	enumtype = NULL;
 
 
-	(void)snprintf(desc, *desc_len, "%s", var->elem_node->doc);
-	*desc_len = (int)strlen(var->elem_node->doc);
-	if (desc != NULL)
+	if (desc != NULL && desc_len != NULL)
 	{
 		snprintf(desc, *desc_len, "%s", var->elem_node->doc);
 		*desc_len = strlen(var->elem_node->doc);
 	}
 
 	/* Not supported */
-	*bind = MPI_T_BIND_NO_OBJECT;
-
-	if (var->elem_node->is_locked)
+	if (bind != NULL)
 	{
-		*scope = MPI_T_SCOPE_CONSTANT;
+		*bind = MPI_T_BIND_NO_OBJECT;
 	}
-	else
+
+	if (scope != NULL)
 	{
-		/* Not support yet therefore we are conservative */
-		*scope = MPI_T_SCOPE_ALL;
+		if (var->elem_node->is_locked)
+		{
+			*scope = MPI_T_SCOPE_CONSTANT;
+		}
+		else
+		{
+			/* Not support yet therefore we are conservative */
+			*scope = MPI_T_SCOPE_ALL;
+		}
 	}
 
 	return MPI_SUCCESS;

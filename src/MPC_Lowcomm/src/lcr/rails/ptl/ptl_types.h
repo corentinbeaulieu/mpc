@@ -117,7 +117,7 @@ typedef struct lcr_ptl_mem
 	ptl_handle_ct_t       cth;                /* Counter handle.                        */
 	ptl_handle_md_t       mdh;                /* Memory Descriptor handle.              */
 	ptl_handle_me_t       meh;
-	mpc_queue_head_t      pendings;
+	mpc_queue_head_t      pending;
 	size_t                size;               /* Size of the memory.                    */
 	atomic_uint_least64_t op_count;           /* Sequence number of the last pushed op. */
 	ptl_size_t            op_done;

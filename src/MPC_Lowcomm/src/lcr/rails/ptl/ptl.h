@@ -1228,7 +1228,7 @@ err:
 
 		int lcr_ptl_tk_release_rsc_token(lcr_ptl_tk_module_t *tk,
 		                                 ptl_process_t remote,
-		                                 int32_t num_pendings);
+		                                 int32_t num_pending);
 
 		int lcr_ptl_iface_progress_tk(lcr_ptl_rail_info_t *srail);
 

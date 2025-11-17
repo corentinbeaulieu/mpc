@@ -1074,11 +1074,8 @@ int _mpc_shm_storage_init(struct _mpc_shm_storage *storage)
 		rr_counter         = (rr_counter + 1) % (int)SHM_FREELIST_PER_PROC;
 	}
 
- #if 0
-		/* This leads to deadlocks in the monitor */
-		mpc_launch_pmi_barrier();
-		mpc_shm_has_cma_support(storage);
-#endif
+	mpc_launch_pmi_barrier();
+	mpc_shm_has_cma_support(storage);
 
 	return 0;
 }

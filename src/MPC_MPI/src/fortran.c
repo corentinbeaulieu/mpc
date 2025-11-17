@@ -408,6 +408,21 @@ void mpc_fortran_op_delete(__UNUSED__ MPI_Fint op)
 #endif
 }
 
+/***********
+ * MESSAGE *
+ ***********/
+MPI_Message PMPI_Message_f2c(MPI_Fint message)
+{
+	// Already an integer
+	return (MPI_Message)message;
+}
+
+MPI_Fint PMPI_Message_c2f(MPI_Message message)
+{
+	// Already an integer
+	return (MPI_Fint)message;
+}
+
 /********
  * INFO *
  ********/
@@ -552,6 +567,8 @@ MPI_Comm mpc_f08_null()
 #pragma weak MPI_Win_c2f = PMPI_Win_c2f
 #pragma weak MPI_Op_f2c = PMPI_Op_f2c
 #pragma weak MPI_Op_c2f = PMPI_Op_c2f
+#pragma weak MPI_Message_f2c = PMPI_Message_f2c
+#pragma weak MPI_Message_c2f = PMPI_Message_c2f
 #pragma weak MPI_Info_f2c = PMPI_Info_f2c
 #pragma weak MPI_Info_c2f = PMPI_Info_c2f
 #pragma weak MPI_Errhandler_f2c = PMPI_Errhandler_f2c

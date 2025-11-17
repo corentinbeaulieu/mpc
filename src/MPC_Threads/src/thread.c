@@ -156,7 +156,7 @@ static inline void __init_thread_module_config(void)
 		NULL);
 
 
-	/* Aggegation for the thread config */
+	/* Aggregation for the thread config */
 
 	mpc_conf_config_entry_t *thconf = mpc_conf_config_entry_init("thread",
 		PARAM("common",  common,  MPC_CONF_TYPE, "Common knobs for thread module"),
@@ -288,7 +288,7 @@ int mpc_thread_get_task_placement_and_count_default(int i, int *nbVp)
 
 	mpc_common_nodebug("mpc_thread_get_task_placement: (After loop) Put task %d on VP %d", i, proc);
 	fflush(stdout);
-	mpc_common_debug_abort();
+	mpc_common_debug_abort(MPC_COMMON_ABORT_ERROR_CODE);
 	return proc;
 }
 
@@ -357,7 +357,7 @@ int mpc_thread_get_task_placement_and_count_numa_packed(int i, int *nbVp)
 	}
 
 	// mpc_common_debug("mpc_thread_get_task_placement: (After loop) Put task %d on VP %d", i, proc);
-	mpc_common_debug_abort();
+	mpc_common_debug_abort(MPC_COMMON_ABORT_ERROR_CODE);
 	return proc;
 }
 
@@ -1380,7 +1380,7 @@ int mpc_thread_core_thread_create(mpc_thread_t *restrict __threadp,
 				min_index = mpc_omp_tree_array_compute_thread_min_rank(tree_shape, max_depth, rank, core_depth);
 				/* get os ind */
 				int master = mpc_topology_render_get_current_binding();
-				// need the logical pu of the master from the total compute node topo computin with the os index to use
+				// need the logical pu of the master from the total compute node topo computing with the os index to use
 				// for origin */
 				int master_logical = mpc_topology_render_get_logical_from_os_id(master);
 				/* in the global compute node topology the processus is*/
@@ -2037,7 +2037,7 @@ int mpc_thread_core_barrier_wait(mpc_thread_barrier_t *__barrier)
 }
 
 /****************************
- * CONDITIONNALS ATTRIBUTES *
+ * CONDITIONALS ATTRIBUTES *
  ****************************/
 
 int mpc_thread_condattr_destroy(mpc_thread_condattr_t *__attr)

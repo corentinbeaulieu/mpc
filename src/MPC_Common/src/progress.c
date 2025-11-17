@@ -66,8 +66,7 @@ int mpc_common_progress_register(progress_callback_func_t func)
 
 	if (num_callbacks >= COMMON_PROGRESS_CALLBACK_MAX)
 	{
-		mpc_common_debug_fatal("COMMON PROGRESS: reach progress "
-			                   "callback limit.");
+		mpc_common_debug_fatal("COMMON PROGRESS: reach progress callback limit.");
 		goto unlock;
 	}
 

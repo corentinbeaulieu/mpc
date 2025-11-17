@@ -2652,6 +2652,10 @@ int PMPI_Ibcast(void *buffer, int count, MPI_Datatype datatype, int root, MPI_Co
 		return MPI_Ixbcast(buffer, count, datatype, root, comm, request);
 	}
 
+	if (request == NULL)
+	{
+		MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+	}
 
 	int res = MPI_ERR_INTERN;
 	mpc_common_nodebug("Entering IBCAST %d with count %d", comm, count);
@@ -2770,19 +2774,21 @@ int PMPI_Bcast_init(void *buffer,
 		mpi_check_root(root, size, comm);
 		mpi_check_type(datatype, comm);
 		mpi_check_count(count, comm);
+
+		if (request == NULL)
+		{
+			MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Requested passed");
+		}
+
 		if (count != 0)
 		{
 			mpi_check_buf(buffer, comm);
 		}
 	}
 
-	MPI_internal_request_t *req     = NULL;
-	mpc_lowcomm_request_t * mpc_req = NULL;
+	MPI_internal_request_t *req     = *request = mpc_lowcomm_request_alloc();
+	mpc_lowcomm_request_t * mpc_req = _mpc_cl_get_lowcomm_request(req);;
 
-	SCTK__MPI_INIT_REQUEST(request);
-	// req = __sctk_new_mpc_request_internal (request,__sctk_internal_get_MPC_requests());
-	req                   = *request = mpc_lowcomm_request_alloc();
-	mpc_req               = _mpc_cl_get_lowcomm_request(req);
 	req->freeable         = 0;
 	req->is_active        = 0;
 	req->is_nbc           = 1;
@@ -3370,6 +3376,11 @@ int PMPI_Ireduce(const void *sendbuf,
 		return MPI_Ixreduce(sendbuf, recvbuf, count, datatype, op, root, comm, request);
 	}
 
+	if (request == NULL)
+	{
+		MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+	}
+
 	int res = MPI_ERR_INTERN;
 	mpc_common_nodebug("Entering IREDUCE %d", comm);
 	SCTK__MPI_INIT_REQUEST(request);
@@ -3383,8 +3394,7 @@ int PMPI_Ireduce(const void *sendbuf,
 	}
 	if (csize == 1)
 	{
-		res = PMPI_Reduce(sendbuf, recvbuf, count, datatype, op, root,
-			comm);
+		res = PMPI_Reduce(sendbuf, recvbuf, count, datatype, op, root, comm);
 		MPI_internal_request_t *tmp     = *request = mpc_lowcomm_request_alloc();
 		mpc_lowcomm_request_t * mpc_req = _mpc_cl_get_lowcomm_request(tmp);
 		// tmp = __sctk_new_mpc_request_internal(request, __sctk_internal_get_MPC_requests());
@@ -3495,7 +3505,7 @@ int PMPI_Reduce_init(const void *sendbuf,
                      MPI_Op op,
                      int root,
                      MPI_Comm comm,
-                     __UNUSED__ MPI_Info info,
+                     MPI_Info info,
                      MPI_Request *request)
 {
 	{
@@ -3505,19 +3515,22 @@ int PMPI_Reduce_init(const void *sendbuf,
 		mpi_check_root(root, size, comm);
 		mpi_check_type(datatype, comm);
 		mpi_check_count(count, comm);
+
+		if (request == NULL)
+		{
+			MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+		}
+
 		if (count != 0)
 		{
 			mpi_check_buf(recvbuf, comm);
 			mpi_check_buf(sendbuf, comm);
 		}
 	}
-	MPI_internal_request_t *req;
-	mpc_lowcomm_request_t * mpc_req;
 
-	SCTK__MPI_INIT_REQUEST(request);
-	// req = __sctk_new_mpc_request_internal (request,__sctk_internal_get_MPC_requests());
-	req                   = mpc_lowcomm_request_alloc();
-	mpc_req               = _mpc_cl_get_lowcomm_request(req);
+	MPI_internal_request_t *req     = *request = mpc_lowcomm_request_alloc();
+	mpc_lowcomm_request_t * mpc_req = _mpc_cl_get_lowcomm_request(req);;
+
 	req->freeable         = 0;
 	req->is_active        = 0;
 	req->is_nbc           = 1;
@@ -4470,6 +4483,11 @@ int PMPI_Iallreduce(const void *sendbuf,
                     MPI_Comm comm,
                     MPI_Request *request)
 {
+	if (request == NULL)
+	{
+		MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+	}
+
 	int res = MPI_ERR_INTERN;
 
 	mpc_common_nodebug("Entering IALLREDUCE %d", comm);
@@ -4595,19 +4613,21 @@ int PMPI_Allreduce_init(const void *sendbuf,
 		mpi_check_type(datatype, comm);
 		mpi_check_count(count, comm);
 
+		if (request == NULL)
+		{
+			MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+		}
+
 		if (count != 0)
 		{
 			mpi_check_buf(sendbuf, comm);
 			mpi_check_buf(recvbuf, comm);
 		}
 	}
-	MPI_internal_request_t *req;
-	mpc_lowcomm_request_t * mpc_req;
 
-	SCTK__MPI_INIT_REQUEST(request);
-	// req = __sctk_new_mpc_request_internal (request,__sctk_internal_get_MPC_requests());
-	req                   = *request = mpc_lowcomm_request_alloc();
-	mpc_req               = _mpc_cl_get_lowcomm_request(req);
+	MPI_internal_request_t *req     = *request = mpc_lowcomm_request_alloc();
+	mpc_lowcomm_request_t * mpc_req = _mpc_cl_get_lowcomm_request(req);;
+
 	req->freeable         = 0;
 	req->is_active        = 0;
 	req->is_nbc           = 1;
@@ -6080,6 +6100,11 @@ int PMPI_Iscatter(const void *sendbuf,
 		return MPI_Ixscatter(sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, root, comm, request);
 	}
 
+	if (request == NULL)
+	{
+		MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+	}
+
 	int res = MPI_ERR_INTERN;
 	mpc_common_nodebug("Entering ISCATTER %d", comm);
 	SCTK__MPI_INIT_REQUEST(request);
@@ -6222,19 +6247,23 @@ int PMPI_Scatter_init(const void *sendbuf,
 		_mpc_cl_comm_size(comm, &size);
 		mpi_check_root(root, size, comm);
 		mpi_check_type(recvtype, comm);
-		mpi_check_count(sendcount,
-			comm);
+		mpi_check_count(sendcount, comm);
+
+		if (request == NULL)
+		{
+			MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+		}
+
 		if (sendcount != 0)
 		{
 			mpi_check_buf(sendbuf, comm);
 			mpi_check_buf(recvbuf, comm);
 		}
 	}
+
 	MPI_internal_request_t *req     = *request = mpc_lowcomm_request_alloc();
 	mpc_lowcomm_request_t * mpc_req = _mpc_cl_get_lowcomm_request(req);
 
-	SCTK__MPI_INIT_REQUEST(request);
-	// req = __sctk_new_mpc_request_internal (request,__sctk_internal_get_MPC_requests());
 	req->freeable         = 0;
 	req->is_active        = 0;
 	req->is_nbc           = 1;
@@ -7114,6 +7143,11 @@ int PMPI_Iscatterv(const void *sendbuf,
                    MPI_Comm comm,
                    MPI_Request *request)
 {
+	if (request == NULL)
+	{
+		MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+	}
+
 	int res = MPI_ERR_INTERN;
 
 	mpc_common_nodebug("Entering ISCATTERV %d", comm);
@@ -7274,9 +7308,14 @@ int PMPI_Scatterv_init(const void *sendbuf,
 		mpi_check_root(root, size, comm);
 		mpi_check_type(sendtype, comm);
 		mpi_check_type(recvtype, comm);
-		mpi_check_count(recvcount,
-			comm);
+		mpi_check_count(recvcount, comm);
 		int i;
+
+		if (request == NULL)
+		{
+			MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+		}
+
 		for (i = 0; i < size; i++)
 		{
 			mpi_check_count(sendcounts[i], comm);
@@ -7290,11 +7329,10 @@ int PMPI_Scatterv_init(const void *sendbuf,
 			mpi_check_buf(sendbuf, comm);
 		}
 	}
+
 	MPI_internal_request_t *req     = *request = mpc_lowcomm_request_alloc();
 	mpc_lowcomm_request_t * mpc_req = _mpc_cl_get_lowcomm_request(req);
 
-	// SCTK__MPI_INIT_REQUEST (request);
-	// req = __sctk_new_mpc_request_internal (request,__sctk_internal_get_MPC_requests());
 	req->freeable         = 0;
 	req->is_active        = 0;
 	req->is_nbc           = 1;
@@ -7716,6 +7754,11 @@ int PMPI_Igather(const void *sendbuf,
 		return MPI_Ixgather(sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, root, comm, request);
 	}
 
+	if (request == NULL)
+	{
+		MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+	}
+
 	int res = MPI_ERR_INTERN;
 	mpc_common_nodebug("Entering IGATHER %d", comm);
 	SCTK__MPI_INIT_REQUEST(request);
@@ -7858,6 +7901,12 @@ int PMPI_Gather_init(const void *sendbuf,
 		mpi_check_type(recvtype, comm);
 		mpi_check_count(sendcount, comm);
 		mpi_check_count(recvcount, comm);
+
+		if (request == NULL)
+		{
+			MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+		}
+
 		if (recvcount != 0)
 		{
 			mpi_check_buf(recvbuf, comm);
@@ -7870,8 +7919,6 @@ int PMPI_Gather_init(const void *sendbuf,
 	MPI_internal_request_t *req     = *request = mpc_lowcomm_request_alloc();
 	mpc_lowcomm_request_t * mpc_req = _mpc_cl_get_lowcomm_request(req);
 
-	// SCTK__MPI_INIT_REQUEST (request);
-	// req = __sctk_new_mpc_request_internal (request,__sctk_internal_get_MPC_requests());
 	req->freeable         = 0;
 	req->is_active        = 0;
 	req->is_nbc           = 1;
@@ -8817,6 +8864,11 @@ int PMPI_Igatherv(const void *sendbuf,
                   MPI_Comm comm,
                   MPI_Request *request)
 {
+	if (request == NULL)
+	{
+		MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+	}
+
 	int res = MPI_ERR_INTERN;
 
 	mpc_common_nodebug("Entering IGATHERV %d", comm);
@@ -8975,8 +9027,13 @@ int PMPI_Gatherv_init(const void *sendbuf,
 		mpi_check_root(root, size, comm);
 		mpi_check_type(sendtype, comm);
 		mpi_check_type(recvtype, comm);
-		mpi_check_count(sendcount,
-			comm);
+		mpi_check_count(sendcount, comm);
+
+		if (request == NULL)
+		{
+			MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+		}
+
 		int i;
 		for (i = 0; i < size; i++)
 		{
@@ -8993,8 +9050,6 @@ int PMPI_Gatherv_init(const void *sendbuf,
 	MPI_internal_request_t *req     = *request = mpc_lowcomm_request_alloc();
 	mpc_lowcomm_request_t * mpc_req = _mpc_cl_get_lowcomm_request(req);
 
-	// SCTK__MPI_INIT_REQUEST (request);
-	// req = __sctk_new_mpc_request_internal (request,__sctk_internal_get_MPC_requests());
 	req->freeable         = 0;
 	req->is_active        = 0;
 	req->is_nbc           = 1;
@@ -9423,6 +9478,11 @@ int PMPI_Ireduce_scatter_block(const void *sendbuf,
                                MPI_Comm comm,
                                MPI_Request *request)
 {
+	if (request == NULL)
+	{
+		MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+	}
+
 	int res = MPI_ERR_INTERN;
 
 	mpc_common_nodebug("Entering IREDUCE_SCATTER_BLOCK %d", comm);
@@ -9550,17 +9610,21 @@ int PMPI_Reduce_scatter_block_init(const void *sendbuf,
 		mpi_check_type(datatype, comm);
 		mpi_check_count(count, comm);
 
+		if (request == NULL)
+		{
+			MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+		}
+
 		if (count != 0)
 		{
 			mpi_check_buf(recvbuf, comm);
 			mpi_check_buf(sendbuf, comm);
 		}
 	}
+
 	MPI_internal_request_t *req     = *request = mpc_lowcomm_request_alloc();
 	mpc_lowcomm_request_t * mpc_req = _mpc_cl_get_lowcomm_request(req);
 
-	// SCTK__MPI_INIT_REQUEST (request);
-	// req = __sctk_new_mpc_request_internal (request,__sctk_internal_get_MPC_requests());
 	req->freeable         = 0;
 	req->is_active        = 0;
 	req->is_nbc           = 1;
@@ -10171,6 +10235,11 @@ int PMPI_Ireduce_scatter(const void *sendbuf,
                          MPI_Comm comm,
                          MPI_Request *request)
 {
+	if (request == NULL)
+	{
+		MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+	}
+
 	int res = MPI_ERR_INTERN;
 
 	mpc_common_nodebug("Entering IREDUCE_SCATTER %d", comm);
@@ -10291,7 +10360,7 @@ int PMPI_Reduce_scatter_init(const void *sendbuf,
                              MPI_Datatype datatype,
                              MPI_Op op,
                              MPI_Comm comm,
-                             __UNUSED__ MPI_Info info,
+                             MPI_Info info,
                              MPI_Request *request)
 {
 	{
@@ -10299,6 +10368,12 @@ int PMPI_Reduce_scatter_init(const void *sendbuf,
 		mpi_check_comm(comm);
 		_mpc_cl_comm_size(comm, &size);
 		mpi_check_type(datatype, comm);
+
+		if (request == NULL)
+		{
+			MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+		}
+
 		int i;
 		for (i = 0; i < size; i++)
 		{
@@ -10312,11 +10387,10 @@ int PMPI_Reduce_scatter_init(const void *sendbuf,
 		}
 		mpi_check_type(datatype, comm);
 	}
+
 	MPI_internal_request_t *req     = *request = mpc_lowcomm_request_alloc();
 	mpc_lowcomm_request_t * mpc_req = _mpc_cl_get_lowcomm_request(req);
 
-	// SCTK__MPI_INIT_REQUEST (request);
-	// req = __sctk_new_mpc_request_internal (request,__sctk_internal_get_MPC_requests());
 	req->freeable         = 0;
 	req->is_active        = 0;
 	req->is_nbc           = 1;
@@ -10766,6 +10840,11 @@ int PMPI_Iallgather(const void *sendbuf,
                     MPI_Comm comm,
                     MPI_Request *request)
 {
+	if (request == NULL)
+	{
+		MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+	}
+
 	int res = MPI_ERR_INTERN;
 
 	mpc_common_nodebug("Entering IALLGATHER %d", comm);
@@ -10903,6 +10982,11 @@ int PMPI_Allgather_init(const void *sendbuf,
 		mpi_check_count(sendcount, comm);
 		mpi_check_count(recvcount, comm);
 
+		if (request == NULL)
+		{
+			MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+		}
+
 		if (sendcount != 0)
 		{
 			mpi_check_buf(sendbuf, comm);
@@ -10912,11 +10996,10 @@ int PMPI_Allgather_init(const void *sendbuf,
 			mpi_check_buf(recvbuf, comm);
 		}
 	}
+
 	MPI_internal_request_t *req     = *request = mpc_lowcomm_request_alloc();
 	mpc_lowcomm_request_t * mpc_req = _mpc_cl_get_lowcomm_request(req);
 
-	// SCTK__MPI_INIT_REQUEST (request);
-	// req = __sctk_new_mpc_request_internal (request,__sctk_internal_get_MPC_requests());
 	req->freeable         = 0;
 	req->is_active        = 0;
 	req->is_nbc           = 1;
@@ -12123,6 +12206,11 @@ int PMPI_Iallgatherv(const void *sendbuf,
                      MPI_Comm comm,
                      MPI_Request *request)
 {
+	if (request == NULL)
+	{
+		MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+	}
+
 	int res = MPI_ERR_INTERN;
 	mpc_common_nodebug("Entering IALLGATHERV %d", comm);
 	SCTK__MPI_INIT_REQUEST(request);
@@ -12268,6 +12356,12 @@ int PMPI_Allgatherv_init(const void *sendbuf,
 		_mpc_cl_comm_rank(comm, &rank);
 		mpi_check_type(sendtype, comm);
 		mpi_check_type(recvtype, comm);
+
+		if (request == NULL)
+		{
+			MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+		}
+
 		int i;
 		for (i = 0; i < size; i++)
 		{
@@ -12289,8 +12383,6 @@ int PMPI_Allgatherv_init(const void *sendbuf,
 
 	MPI_internal_request_t *req     = *request = mpc_lowcomm_request_alloc();
 	mpc_lowcomm_request_t * mpc_req = _mpc_cl_get_lowcomm_request(req);
-	// SCTK__MPI_INIT_REQUEST (request);
-	// req = __sctk_new_mpc_request_internal (request,__sctk_internal_get_MPC_requests());
 	req->freeable         = 0;
 	req->is_active        = 0;
 	req->is_nbc           = 1;
@@ -12739,6 +12831,11 @@ int PMPI_Ialltoall(const void *sendbuf,
                    MPI_Comm comm,
                    MPI_Request *request)
 {
+	if (request == NULL)
+	{
+		MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+	}
+
 	int res = MPI_ERR_INTERN;
 	mpc_common_nodebug("Entering IALLTOALL %d", comm);
 	SCTK__MPI_INIT_REQUEST(request);
@@ -12860,6 +12957,11 @@ int PMPI_Alltoall_init(const void *sendbuf,
 		mpi_check_type(sendtype, comm);
 		mpi_check_count(sendcount, comm);
 
+		if (request == NULL)
+		{
+			MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+		}
+
 		if (sendcount != 0)
 		{
 			mpi_check_buf(sendbuf, comm);
@@ -12871,8 +12973,6 @@ int PMPI_Alltoall_init(const void *sendbuf,
 	}
 	MPI_internal_request_t *req     = *request = mpc_lowcomm_request_alloc();
 	mpc_lowcomm_request_t * mpc_req = _mpc_cl_get_lowcomm_request(req);
-	// SCTK__MPI_INIT_REQUEST (request);
-	// req = __sctk_new_mpc_request_internal (request,__sctk_internal_get_MPC_requests());
 	req->freeable         = 0;
 	req->is_active        = 0;
 	req->is_nbc           = 1;
@@ -14953,6 +15053,11 @@ int PMPI_Ialltoallv(const void *sendbuf,
                     MPI_Comm comm,
                     MPI_Request *request)
 {
+	if (request == NULL)
+	{
+		MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+	}
+
 	int res = MPI_ERR_INTERN;
 	mpc_common_nodebug("Entering IALLTOALLV %d", comm);
 	SCTK__MPI_INIT_REQUEST(request);
@@ -15103,6 +15208,12 @@ int PMPI_Alltoallv_init(const void *sendbuf,
 		_mpc_cl_comm_rank(comm, &rank);
 		mpi_check_type(sendtype, comm);
 		mpi_check_type(recvtype, comm);
+
+		if (request == NULL)
+		{
+			MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+		}
+
 		int i = 0;
 		for (i = 0; i < size; i++)
 		{
@@ -15120,8 +15231,6 @@ int PMPI_Alltoallv_init(const void *sendbuf,
 	}
 	MPI_internal_request_t *req     = *request = mpc_lowcomm_request_alloc();
 	mpc_lowcomm_request_t * mpc_req = _mpc_cl_get_lowcomm_request(req);
-	// SCTK__MPI_INIT_REQUEST (request);
-	// req = __sctk_new_mpc_request_internal (request,__sctk_internal_get_MPC_requests());
 	req->freeable         = 0;
 	req->is_active        = 0;
 	req->is_nbc           = 1;
@@ -15868,6 +15977,11 @@ int PMPI_Ialltoallw(const void *sendbuf,
                     MPI_Comm comm,
                     MPI_Request *request)
 {
+	if (request == NULL)
+	{
+		MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+	}
+
 	int res = MPI_ERR_INTERN;
 	mpc_common_nodebug("Entering IALLTOALLW %d", comm);
 	SCTK__MPI_INIT_REQUEST(request);
@@ -16020,6 +16134,12 @@ int PMPI_Alltoallw_init(const void *sendbuf,
 		mpi_check_comm(comm);
 		_mpc_cl_comm_size(comm, &size);
 		_mpc_cl_comm_rank(comm, &rank);
+
+		if (request == NULL)
+		{
+			MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+		}
+
 		int i;
 		for (i = 0; i < size; i++)
 		{
@@ -16040,8 +16160,6 @@ int PMPI_Alltoallw_init(const void *sendbuf,
 
 	MPI_internal_request_t *req     = *request = mpc_lowcomm_request_alloc();
 	mpc_lowcomm_request_t * mpc_req = _mpc_cl_get_lowcomm_request(req);
-	// SCTK__MPI_INIT_REQUEST (request);
-	// req = __sctk_new_mpc_request_internal (request,__sctk_internal_get_MPC_requests());
 	req->freeable         = 0;
 	req->is_active        = 0;
 	req->is_nbc           = 1;
@@ -16758,6 +16876,11 @@ int PMPI_Iscan(const void *sendbuf,
                MPI_Comm comm,
                MPI_Request *request)
 {
+	if (request == NULL)
+	{
+		MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+	}
+
 	int res = MPI_ERR_INTERN;
 	mpc_common_nodebug("Entering ISCAN %d", comm);
 	SCTK__MPI_INIT_REQUEST(request);
@@ -16775,13 +16898,11 @@ int PMPI_Iscan(const void *sendbuf,
 		res = PMPI_Scan(sendbuf, recvbuf, count, datatype, op, comm);
 		MPI_internal_request_t *tmp     = *request = mpc_lowcomm_request_alloc();
 		mpc_lowcomm_request_t * mpc_req = _mpc_cl_get_lowcomm_request(tmp);
-		// tmp = __sctk_new_mpc_request_internal(request, __sctk_internal_get_MPC_requests());
 		mpc_req->completion_flag = MPC_LOWCOMM_MESSAGE_DONE;
 	}
 	else
 	{
 		MPI_internal_request_t *tmp = *request = mpc_lowcomm_request_alloc();
-		// tmp = __sctk_new_mpc_request_internal(request, __sctk_internal_get_MPC_requests());
 		tmp->is_nbc = 1;
 		tmp->nbc_handle.is_persistent = 0;
 
@@ -16886,6 +17007,12 @@ int PMPI_Scan_init(const void *sendbuf,
 		mpi_check_type(datatype, comm);
 		mpi_check_count(count, comm);
 
+		if (request == NULL)
+		{
+			MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+		}
+
+
 		if (count != 0)
 		{
 			mpi_check_buf(recvbuf, comm);
@@ -16895,8 +17022,6 @@ int PMPI_Scan_init(const void *sendbuf,
 
 	MPI_internal_request_t *req     = *request = mpc_lowcomm_request_alloc();
 	mpc_lowcomm_request_t * mpc_req = _mpc_cl_get_lowcomm_request(req);
-	// SCTK__MPI_INIT_REQUEST (request);
-	// req = __sctk_new_mpc_request_internal (request,__sctk_internal_get_MPC_requests());
 	req->freeable         = 0;
 	req->is_active        = 0;
 	req->is_nbc           = 1;
@@ -17292,6 +17417,11 @@ int PMPI_Iexscan(const void *sendbuf,
                  MPI_Comm comm,
                  MPI_Request *request)
 {
+	if (request == NULL)
+	{
+		MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+	}
+
 	int res = MPI_ERR_INTERN;
 	mpc_common_nodebug("Entering IEXSCAN %d", comm);
 	SCTK__MPI_INIT_REQUEST(request);
@@ -17427,10 +17557,13 @@ int PMPI_Exscan_init(const void *sendbuf,
 		}
 	}
 
+	if (request == NULL)
+	{
+		MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+	}
+
 	MPI_internal_request_t *req     = *request = mpc_lowcomm_request_alloc();
 	mpc_lowcomm_request_t * mpc_req = _mpc_cl_get_lowcomm_request(req);
-	// SCTK__MPI_INIT_REQUEST (request);
-	// req = __sctk_new_mpc_request_internal (request,__sctk_internal_get_MPC_requests());
 	req->freeable         = 0;
 	req->is_active        = 0;
 	req->is_nbc           = 1;
@@ -17841,6 +17974,11 @@ int PMPI_Ibarrier(MPI_Comm comm, MPI_Request *request)
 		return MPI_Ixbarrier(comm, request);
 	}
 
+	if (request == NULL)
+	{
+		MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+	}
+
 	mpc_common_nodebug("Entering IBARRIER %d", comm);
 	int res = MPI_ERR_INTERN;
 	SCTK__MPI_INIT_REQUEST(request);
@@ -17921,12 +18059,15 @@ int PMPI_Barrier_init(MPI_Comm comm, MPI_Info info, MPI_Request *request)
 {
 	{
 		mpi_check_comm(comm);
+
+		if (request == NULL)
+		{
+			MPI_ERROR_REPORT(comm, MPI_ERR_ARG, "NULL pointer to MPI_Request passed");
+		}
 	}
 
 	MPI_internal_request_t *req     = *request = mpc_lowcomm_request_alloc();
 	mpc_lowcomm_request_t * mpc_req = _mpc_cl_get_lowcomm_request(req);
-	// SCTK__MPI_INIT_REQUEST (request);
-	// req = __sctk_new_mpc_request_internal (request,__sctk_internal_get_MPC_requests());
 	req->freeable         = 0;
 	req->is_active        = 0;
 	req->is_nbc           = 1;

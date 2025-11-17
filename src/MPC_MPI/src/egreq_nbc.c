@@ -245,7 +245,7 @@ static inline int nbc_op_trigger(struct nbc_op *op)
 
 	default:
 		LOG(stderr, "BAD OP TYPE\n");
-		mpc_common_debug_abort();
+		mpc_common_debug_abort(MPC_COMMON_ABORT_ERROR_CODE);
 	}
 
 	op->trig = 1;
