@@ -2,6 +2,70 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog].
 
+## [4.3.0] - 2025-11-18
+
+### Added
+
+- **Accelerators**
+  - Support CUDA
+  - Support HIP
+- **Build**
+  - Add release with debug information optimization option (`--relwithdebinfo`)
+- **Low Comm** / RED-SEA Project
+  - Refactoring LCP module to better support suit protocols evolutions
+  - Support for implementing protocols on top of rails (active message)
+  - Support for multirail and fragmentation
+  - Extension of rail API to support stream-like data transfers (tcp and ptl only)
+  - Component-based transport with static loading
+- **MPI**
+  - Support Gather Allgather Bcast topological collectives
+  - Support for MPI Tools interface
+
+### Changed
+
+- **Compilers**
+  - Activate privatization only if the underlying compiler is capable
+- **OMP**
+  - Enhancing support of OpenMP task and interactions with MPI
+- **MPCRUN**
+  - Change default count for resource request
+
+### Removed
+
+- **Low Comm**
+  - Remove deprecated Portals compatibility layer
+- **Threads**
+  - Remove NG scheduler used for research purposes
+
+### Deprecated
+
+- **Threads**
+  - Workshare support (needs GCC 7.3 to work)
+
+### Fixed
+
+- **Build**
+  - Add support for GCC 13, 14, 15 and C23
+  - Fix --enable-debug-mem by correctly depending on libasan
+- **Compilers**
+  - Fix compilers wrong error code propagation
+  - Fix wrong linking option with fortran in process mode
+- **Launch**
+  - Fix PMIx inter-node intra-node initialization
+  - Add missing calls to PMIx_Finalize
+  - Fix wrong termination with PMIx on abortion
+- **Low Comm**
+  - Fix PTL RMA completion system
+  - Fix PTL RMA Flush operations
+  - Fix LCP atomics
+- **MPI**
+  - Fix Exscan algorithm selection
+  - Fix Pack and Unpack capabilities
+  - Fix MPI_Self path
+  - Accept NULL as bypass for MPI_T query functions
+  - Fix persistent communications request initialization
+- Plenty of small bug fixes in all parts of MPC
+
 ## [4.2.0] - 2023-06-13
 
 ### Added
@@ -48,24 +112,43 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [4.1.0] - 2021-08-03
 
-- Active Message engine based on libffi
-- `PRRTE` implement support for the PMIx standard runtime.
-- Add libfabric support (OFI)
-- Add new configuration system inside MPC (only at runtime)
-- Autopriv dependency has been renamed to mpc-compiler-additions
-- Add OMP 5.0 memory management support (includes HWLOC 2+ support)
-- Move to HWLOC 2+
-- MPIT rewrite mirroring the new configuration system
-- Full communicator / Group system rewrite
-- MPI 4.0 Split topology support
-- Collective factorization and rewrite
-- Bugfix on persistent collectives
-- Expose MPC's modularity in PKGCONFIG / CMAKE
-- Improved DNS resolution for TCP
-- Topological collectives support
-- Move to mpc-compiler-additions 0.7.0 with GCC 10.2.0
-- Workshare support
-- OMPT improvements
+### Added
+
+- **Config**
+  - Add new configuration system inside MPC (only at runtime)
+- **Low Comm**
+  - Add libfabric support (OFI)
+  - Active Message engine based on libffi
+- **MPCRUN**
+  - `PRRTE` implement support for the PMIx standard runtime.
+- **MPI**
+  - MPI 4.0 Split topology support
+  - Topological collectives support
+- **OMP**
+  - Add OMP 5.0 memory management support (includes HWLOC 2+ support)
+- **Threads**
+  - Workshare support
+
+### Changed
+
+- **Build**
+  - Autopriv dependency has been renamed to mpc-compiler-additions
+  - Move to HWLOC 2+
+  - Move to mpc-compiler-additions 0.7.0 with GCC 10.2.0
+  - Expose MPC's modularity in PKGCONFIG / CMAKE
+- **Low Comm**
+  - Improved DNS resolution for TCP
+- **MPI**
+  - MPIT rewrite mirroring the new configuration system
+  - Full communicator / Group system rewrite
+  - Collective factorization and rewrite
+- **OMP**
+  - OMPT improvements
+
+### Fixed
+
+- **MPI**
+  - Bugfix on persistent collectives
 - General bugfixes and documentation
 
 ## [4.0.0] - 2020-12-16
@@ -146,8 +229,6 @@ Note that some components are dependent and cannot be installed if the dependenc
 - **MPI**: Bug fix on virtual topologies (MPI_Cart...)
 - **OMP**: Bug fix on tasks with dependencies
 - **MISC**: Many other small optimizations and bug fixes
-
-## Changes in **MPC 3.3.1**
 
 ## [3.3.1] - 2019-06-03
 
@@ -280,12 +361,6 @@ Note that some components are dependent and cannot be installed if the dependenc
 - **MPI**: MPI_Info support
 - **OMP**: Add support for Intel(r) OpenMP ABI (run OpenMP applications compiled with ICC)
 
-### Changed
-
-### Deprecated
-
-### Removed
-
 ### Fixed
 
 - **MPI**: Several fixes to the Fortran interface
@@ -323,8 +398,6 @@ Note that some components are dependent and cannot be installed if the dependenc
 
 - Many bug fixes
 
-## Changes in **MPC.2.4.1**
-
 ## [2.4.1] - 2012-12-21
 
 ### Added
@@ -359,8 +432,6 @@ Note that some components are dependent and cannot be installed if the dependenc
 ### Fixed
 
 - **PRIV**: Bug fixes in HLS support
-
-## Changes in **MPC 2.3.0**
 
 ## [2.3.0] - 2011-11-23
 
@@ -438,4 +509,6 @@ Note that some components are dependent and cannot be installed if the dependenc
 [3.4.0]: https://github.com/cea-hpc/mpc/releases/tag/MPC_3.4.0
 [4.0.0]: https://github.com/cea-hpc/mpc/releases/tag/MPC_4.0.0
 [4.1.0]: https://github.com/cea-hpc/mpc/releases/tag/MPC_4.1.0
+[4.2.0]: https://github.com/cea-hpc/mpc/releases/tag/MPC_4.2.0
+[4.3.0]: https://github.com/cea-hpc/mpc/releases/tag/MPC_4.3.0
 [keep a changelog]: https://keepachangelog.com/

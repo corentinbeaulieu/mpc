@@ -4,7 +4,7 @@
 
 **Multi-Processor Computing** (**MPC**) is a unified framework for High Performance Computing providing
 the most commonly used tools to implement scientific computing software.
-It includes a **MPI 3.2** compliant implementation (with latter extensions),
+It includes a **MPI 3.1** compliant implementation (with latter extensions),
 *user-level threading* engines supporting **PThread** specification and an **OpenMP 3** runtime (with parts of 4.0 and 5.0) relying on them.
 **MPC** aims to be as modular as possible to allow users to use portions of its feature independently.
 
@@ -339,8 +339,12 @@ $ mpcrun --help
 
 ## Documentation
 
-> [!ERROR] Generate GitHub pages and deploy them
-> Then, we should in priority lead users to the deployed documentation
+<!-- > [!ERROR] Generate GitHub pages and deploy them -->
+
+<!-- > Then, we should in priority lead users to the deployed documentation -->
+
+> [!WARNING] The documentation is not deployed for now
+> It will be in a near future release
 
 The documentation is composed of three main parts
 
@@ -369,12 +373,12 @@ To build the documentation, simply run the provided script
 $ ./gen_doc
 ```
 
-The documentation is generated in HTML format under `<MPC_ROOT>/doc/build/sphinx/html`.
+The documentation is generated in HTML format under `<MPC_ROOT>/doc/build/(sphinx|doxygen)/html`.
 The main entry in the documentation is the `index.html` file
 
 ```sh
 # Use any browser of your liking
-$ firefox build/sphinx/html/index.html
+$ firefox build/(sphinx|doxygen)/html/index.html
 ```
 
 ## Affiliated Projects

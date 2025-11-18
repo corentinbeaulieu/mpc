@@ -57,14 +57,14 @@ EOF
 build_pkgbuild()
 {
 cat << EOF > release/archbuild/PKGBUILD
-# Maintainer: Paratools SAS
+# Maintainer: CEA
 pkgname=mpcframework
 pkgver=$VERSION
 pkgrel=1
 epoch=1
 pkgdesc="mpi runtime for exascale"
 arch=("x86_64")
-url="https://gitlab.paratools.com/cea/mpc"
+url="https://github.com/cea-hpc/mpc"
 license=('GPL')
 groups=(mpcframework)
 depends=("python3" "cmake" "make" "gcc" "gcc-fortran" "wget" "hwloc")
@@ -157,7 +157,7 @@ build_control()
 cat << EOF > release/control
 Package: mpcframework
 Version: $VERSION
-Maintainer: CEA/Paratools
+Maintainer: CEA
 Architecture: all
 Description: MPI runtime for exascale
 Depends: cmake, make, gcc, $CXX, $CFORTRAN, wget, hwloc, libhwloc-dev
@@ -214,7 +214,7 @@ Release:        1%{?dist}
 Summary:        mpi runtime for exascale
 
 License:        GPL
-URL:		    https://gitlab.paratools.com/cea/mpc
+URL:		       https://github.com/cea-hpc/mpc
 Source0:        %{name}.tar.gz
 
 Requires:	cmake, make, gcc, $CXX, $CFORTRAN, wget, hwloc, $HWLOC_DEVEL

@@ -12,8 +12,8 @@ Download, install and source the latest version:
 
 .. code-block:: console
 
-   $ INSTALL_PREFIX=$PWD/INSTALL curl -k https://france.paratools.com/mpc/releases/mpcframework-4.2.0.tar.gz
-   $ tar xf mpcframework-4.2.0.tar.gz && cd mpcframework-4.0.0
+   $ INSTALL_PREFIX=$PWD/INSTALL curl -k https://github.com/cea-hpc/mpc/archive/refs/tags/MPC_4.3.0.tar.gz
+   $ tar xf MPC_4.3.0 && cd mpc
    $ mkdir BUILD && cd BUILD
    $ ../installmpc --prefix=${INSTALL_PREFIX} source ${INSTALL_PREFIX}/mpcvars.sh
 
@@ -44,17 +44,20 @@ Get MPC Source code
 -------------------
 
 Two ways to retrieve MPC sources:
-- From a release (`release page <https://mpc.hpcframework.com/download>`_)
+.. FIXME: change the website - From a release (`release page <https://mpc.hpcframework.com/download>`_)
+- From a release (`release page <https://github.com/cea-hpc/mpc/releases/releases>`_)
 - From the Git repository on `Github <https://github.com/cea-hpc/mpc>`_
 
 .. code-block:: sh
 
-   # Get the last tarball curl -k
-   https://france.paratools.com/mpc/releases/mpcframework-4.2.0.tar.gz
+   # Get the last tarball
+   curl -k https://github.com/cea-hpc/mpc/archive/refs/tags/MPC_4.3.0.tar.gz
+   # Extract the tarball
+   tar xf MPC_4.3.0.tar.gz
+
+   # Or use git
    git clone https://github.com/cea-hpc/mpc.git
 
-   # Extract the tarball
-   tar xf mpcframework-4.2.0.tar.gz
 
 ------------
 Building MPC
