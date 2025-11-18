@@ -87,11 +87,6 @@ Once these prerequisites accomplished, you may open an MR. To do so: `Merge-Requ
 
 **Side note:** As an alternative to creating an MR, when pushing commits to a branch (named `feature` for instance), a message in `git push` offers you a one-click link to create the merge-request from this branch to the default one :
 
-.. code-block:: sh
-
-	remote: To create a merge request for a feature, visit:
-	remote:   https://gitlab.paratools.com/cea/mpcmerge_requests/new?merge_request%5Bsource_branch%5D=feature
-
 
 Contribute to an existing merge-request
 ---------------------------------------

@@ -26,12 +26,12 @@ LABEL \
 	license= "CeCILL-C (LGPL-compatible)" \
 	builddate = "20191020" \
 	maintainer.project = "Marc Perache <marc.perache@cea.fr>" \
-	maintainer.docker = "Julien Adam <adamj@paratools.com>"
+	maintainer.docker = "Hugo Taboada <hugo.taboada@cea.fr"
 
 FROM env AS inst
 ARG mpc_version=3.3.1
 
-ADD --chown=mpcuser:mpcuser https://france.paratools.com/mpc/releases/MPC_${mpc_version}.tar.gz /build/
+ADD --chown=mpcuser:mpcuser https://github.com/cea-hpc/mpc/archive/refs/tags/MPC_${mpc_version}.tar.gz /build/
 RUN cd /build \
 	&& tar -xf MPC_${mpc_version}.tar.gz \
 	&& /build/MPC_${mpc_version}/installmpc --prefix=/install/ --disable-color -j2 \

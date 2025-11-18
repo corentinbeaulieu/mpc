@@ -43,7 +43,7 @@ Not further restriction, but a lot of recommended setup, listed below, to ease y
 	# The only proof commits are from you... Anybody can take your identify otherwise !
 	git config --global user.signingkey "First chars of your public GPG key"
 
-There is plenty of nice features, we only list a few of them. If interested, feel free to contact <adamj@paratools.com> directly for more of his tips  & tricks around Git (like binary diff, compact git-status, tig-like without ncurses, tuned git-grep commands, powerful ways to dig into MPC history to identify when a function has been added/deleted...)
+There is plenty of nice features, we only list a few of them. If interested, feel free to contact <corentin.beaulieu@cea.fr> directly for more of his tips  & tricks around Git (like binary diff, compact git-status, tig-like without ncurses, tuned git-grep commands, powerful ways to dig into MPC history to identify when a function has been added/deleted...)
 
 Gitlab
 ------
