@@ -1,25 +1,39 @@
-Notes:
-======
+# Notes:
+
 In this file are listed people who contribute to make change in
 MPC framework and its associated components.
 
-Maintainers:
-============
-|             Name                |                 Email Address                 |
+# Current Maintainers and developers
+
+For any questions, bug report or contribution please contact the current MPC Team
+
+| Name | Email Address |
 |:-------------------------------:|:---------------------------------------------:|
+| TABOADA Hugo                    | <hugo.taboada@cea.fr>                         |
+| REYNIER Florian                 | <florian.reynier@cea.fr>                      |
+| BEAULIEU Corentin               | <corentin.beaulieu@cea.fr>                    |
+| MARIE Nicolas                   | <nicolas.marie@uvsq.fr>                       |
+| PEYSIEUX Anis                   | <anis.peysieux@cea.fr>                        |
+
+
+# Maintainers:
+
+All the maintainers of MPC (sorted by chronological order)
+
+| Name | Email Address |
+|:-------------------------------:|:---------------------------------------------:|
+| PERACHE Marc                    |   <marc.perache@cea.fr>                       |
 | CARRIBAULT Patrick              |   <patrick.carribault@cea.fr>                 |
 | JAEGER Julien                   |   <julien.jaeger@cea.fr>                      |
-| PERACHE Marc                    |   <marc.perache@cea.fr>                       |
 | ROUSSEL Adrien                  |   <adrien.roussel@cea.fr>                     |
 | TABOADA Hugo                    |   <hugo.taboada@cea.fr>                       |
 
-Contributors:
-=============
+# Contributors:
 
 Please, do not contact people in this section directly to report
 problems in MPC. For general information about MPC, please visit:
 
-  http://mpc.hpcframework.com
+https://github.com/cea-hpc/mpc
 
 To report a bug or a problem with MPC and its components,
 please send a email to the maintainers of the project (section above).
@@ -54,6 +68,7 @@ please send a email to the maintainers of the project (section above).
 | PEPIN Thibaut                   | <thibaut.pepin@cea.fr>                        |
 | PERACHE Marc                    | <marc.perache@cea.fr>                         |
 | PEREIRA Romain                  | <romain.pereira@cea.fr>                       |
+| PEYSIEUX Anis                   | <anis.peysieux@cea.fr>                        |
 | PULVERAIL Sebastien             | <sebastien.pulverail@sogeti.com>              |
 | REYNIER Florian                 | <florian.reynier@cea.fr>                      |
 | ROUSSEL Adrien                  | <adrien.roussel@cea.fr>                       |
