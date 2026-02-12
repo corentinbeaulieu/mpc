@@ -6,29 +6,28 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'MPC'
-copyright = '2025, CEA'
-author = 'CEA'
-release = '4.3'
+project = "MPC"
+copyright = "2025, CEA"
+author = "CEA"
+release = "4.3"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ['sphinx_rtd_theme']
+extensions = ["sphinx_rtd_theme", "myst_parser", "breathe"]
 
-templates_path = ['_templates']
+templates_path = ["_templates"]
 exclude_patterns = []
-
 
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = 'sphinx_rtd_theme'
+html_theme = "sphinx_rtd_theme"
 html_logo = "_static/mpc_logo.png"
-html_static_path = ['_static']
+html_static_path = ["_static"]
 
 html_theme_options = {
-    'logo_only': True,
-    'display_version': False,
+    "logo_only": True,
+    "display_version": False,
 }
